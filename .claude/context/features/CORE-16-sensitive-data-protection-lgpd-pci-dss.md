@@ -30,12 +30,14 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `backend/orbit-monitor/src/main/java/io/orbit/monitor/privacy/PayloadRedactor.java`
 - `backend/orbit-probe/src/main/java/io/orbit/probe/CheckRunner.java`
 - `frontend/src/shared/privacy/redact.ts`
+- `frontend/src/shared/privacy/SafeValue/SafeValue.tsx`
 
 ## Tests
 - `backend/orbit-common/src/test/java/io/orbit/common/privacy/SensitiveDataRedactorTest.java`
 - `backend/orbit-monitor/src/test/java/io/orbit/monitor/privacy/PayloadRedactorTest.java`
 - `backend/orbit-probe/src/test/java/io/orbit/probe/CheckRunnerTest.java`
 - `frontend/src/shared/privacy/redact.test.ts`
+- `frontend/src/shared/privacy/SafeValue/SafeValue.test.tsx`
 - `frontend/src/app/console/ConsoleApp.privacy.pending.test.tsx`
 - `frontend/src/domains/monitor/components/DataDisplayStep/DataDisplayStep.privacy.pending.test.tsx`
 - `frontend/src/domains/monitor/components/PreviewTable/PreviewTable.privacy.pending.test.tsx`
@@ -47,7 +49,6 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `frontend/src/domains/wall/components/Timeline/Timeline.privacy.pending.test.tsx`
 - `frontend/src/domains/wall/components/WallScreen/WallScreen.privacy.pending.test.tsx`
 - `frontend/src/domains/workspace/GroupList/GroupList.privacy.pending.test.tsx`
-- `frontend/src/shared/privacy/SafeValue/SafeValue.pending.test.tsx`
 - `frontend/src/shared/ui/SecretInput/SecretInput.pending.test.tsx`
 
 ## Decisions and notes
@@ -57,6 +58,7 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - Backend: Next: Jackson serialization guard and Logback masking converter.
 - Frontend: `detectSensitive` / `redact` mirror the backend redactor: Luhn PAN 13-19 digits (spaces/hyphens, numbers, inside free text and JSON) → `•••• •••• •••• 1234`; CVV/CVC/track/PIN by field name → `[REDACTED]`; CPF/CNPJ with valid check digits → `•••.•••.•••-12` / `••.•••.•••/••••-81`; e-mail → `j•••@d•••.com`; JWT, Bearer and secret field names → `••••`.
 - Frontend: Classification by field name or by value; non-sensitive values keep their type; redaction is idempotent.
+- Frontend: `<SafeValue>` / `useSafeValue` render the masked text with `data-masked`/`data-class` and an i18n description ("Card data is always masked (PCI DSS)"); copying copies the masked text only; there is no unmask control.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -64,3 +66,4 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - 2026-10-18 — backend: probe-boundary redaction (PayloadRedactor + CheckRunner).
 - 2026-10-18 — frontend: pending test suite written.
 - 2026-10-18 — frontend: Luhn-based PAN redaction and detectors in `src/shared/privacy`.
+- 2026-10-18 — frontend: `<SafeValue>` and `useSafeValue`.
