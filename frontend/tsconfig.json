@@ -20,5 +20,6 @@
     "types": ["vitest/globals", "@testing-library/jest-dom", "node"],
     "paths": { "@/*": ["./src/*"] }
   },
-  "include": ["src", "vite.config.ts"]
+  "include": ["src", "vite.config.ts", "testFiles.ts"],
+  "exclude": ["src/**/*.pending.test.ts", "src/**/*.pending.test.tsx"]
 }

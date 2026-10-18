@@ -23,7 +23,8 @@ Wall parameters: `?lang=pt-BR` (language), `?scenario=ok` (demo without incident
 ## Test
 
 ```bash
-npm test            # vitest run
+npm test             # vitest run (excludes *.pending.test.ts(x))
+npm run test:pending # only the pending suites of features not built yet
 npm run typecheck   # tsc --noEmit
 npm run build       # typecheck + build of both entrypoints
 ```

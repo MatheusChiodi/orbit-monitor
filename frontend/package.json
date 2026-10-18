@@ -8,7 +8,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:pending": "vitest run --mode pending"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.4",
