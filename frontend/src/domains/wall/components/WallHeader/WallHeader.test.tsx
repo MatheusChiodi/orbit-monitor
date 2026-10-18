@@ -57,3 +57,11 @@ describe('WallHeader', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Tudo operacional');
   });
 });
+
+describe('WallHeader contadores zerados', () => {
+  it('contador zerado fica apagado (cor só com significado)', () => {
+    render(<WallHeader environment="P" counts={{ down: 0, warn: 2, ok: 5, total: 7 }} now={now} updatedAt={null} connection="open" />);
+    expect(screen.getByText('0 fora').className).toContain('text-dim');
+    expect(screen.getByText('2 atenção').className).toContain('text-warn-text');
+  });
+});

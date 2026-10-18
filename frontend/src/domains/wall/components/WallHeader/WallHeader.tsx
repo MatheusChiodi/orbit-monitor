@@ -55,9 +55,9 @@ export function WallHeader({ environment, counts, now, updatedAt, connection, on
       </div>
 
       <ul className="m-0 flex list-none gap-[0.9rem] p-0 font-mono text-[0.85rem]" aria-label="Contagem por estado">
-        <li className="text-down-text">{`${counts.down} fora`}</li>
-        <li className="text-warn-text">{`${counts.warn} atenção`}</li>
-        <li className="text-ok-text">{`${counts.ok} ok`}</li>
+        <li className={counts.down ? 'text-down-text' : 'text-dim'}>{`${counts.down} fora`}</li>
+        <li className={counts.warn ? 'text-warn-text' : 'text-dim'}>{`${counts.warn} atenção`}</li>
+        <li className={counts.ok ? 'text-ok-text' : 'text-dim'}>{`${counts.ok} ok`}</li>
       </ul>
 
       <div className="ml-auto flex items-center gap-[0.9rem]">

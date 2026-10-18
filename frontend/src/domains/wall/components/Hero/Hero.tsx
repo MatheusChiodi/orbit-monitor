@@ -65,7 +65,7 @@ export function Hero({ selection, now, onAcknowledge }: HeroProps) {
             ))}
           </div>
         )}
-        <div className="ml-auto flex w-full items-center gap-[0.8rem] sm:w-auto">
+        <div className="ml-auto flex w-full flex-col items-stretch gap-[0.5rem] sm:w-auto sm:flex-row sm:items-center sm:gap-[0.8rem]">
           {escalatesIn !== null && escalatesIn > 0 && (
             <span className="font-mono text-[0.85rem] text-warn-text">{`escalona em ${formatDuration(escalatesIn)}`}</span>
           )}
