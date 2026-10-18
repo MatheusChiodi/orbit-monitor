@@ -32,7 +32,7 @@ public record OrbitProperties(
         workers = workers <= 0 ? 4 : workers;
         environment = environment == null ? "Local" : environment;
         access = access == null ? new Access(AccessMode.LOOPBACK, List.of(), true) : access;
-        http = http == null ? new Http(List.of()) : http;
+        http = http == null ? new Http(List.of(), false) : http;
         wall = wall == null ? new Wall(List.of("http://localhost:[*]", "http://127.0.0.1:[*]")) : wall;
     }
 
@@ -44,8 +44,11 @@ public record OrbitProperties(
         }
     }
 
-    /** SSRF allowlist: host names or CIDR ranges the HTTP probe may reach although internal. */
-    public record Http(List<String> allowlist) {
+    /**
+     * HTTP probe target policy: private ranges are reachable unless {@code blockPrivate}; the allowlist
+     * (host names or CIDR ranges) reopens them. Cloud metadata is always blocked.
+     */
+    public record Http(List<String> allowlist, boolean blockPrivate) {
         public Http {
             allowlist = allowlist == null ? List.of() : List.copyOf(allowlist);
         }

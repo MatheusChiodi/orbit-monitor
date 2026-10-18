@@ -69,7 +69,8 @@ public class DomainBeans {
 
     @Bean
     HttpProbe httpProbe(OrbitProperties properties) {
-        return new HttpProbe(new SsrfGuard(HostResolver.system(), new HashSet<>(properties.http().allowlist())));
+        return new HttpProbe(new SsrfGuard(HostResolver.system(), new HashSet<>(properties.http().allowlist()),
+                properties.http().blockPrivate()));
     }
 
     @Bean

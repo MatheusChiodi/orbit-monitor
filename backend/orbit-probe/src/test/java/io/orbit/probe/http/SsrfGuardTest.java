@@ -17,10 +17,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class SsrfGuardTest {
 
-    /** Resolves fake names to fixed IPs, without real DNS. */
+    /** Resolves fake names to fixed IPs (IP literals as themselves), without real DNS. */
     private static HostResolver fakeDns(Map<String, String> table) {
         return host -> {
             String ip = table.get(host);
+            if (ip == null && (host.contains(":") || host.matches("[0-9.]+"))) {
+                ip = host;
+            }
             if (ip == null) {
                 throw new UnknownHostException(host);
             }
@@ -56,9 +59,37 @@ class SsrfGuardTest {
             "http://internal.corp/",
             "http://rebind.attacker/"
     })
-    void blocksPrivateLoopbackAndMetadataRanges(String url) {
-        var guard = new SsrfGuard(dns, Set.of());
+    void blockPrivateModeBlocksPrivateLoopbackAndMetadataRanges(String url) {
+        var guard = new SsrfGuard(dns, Set.of(), true);
         assertThatThrownBy(() -> guard.check(URI.create(url))).isInstanceOf(SsrfBlockedException.class);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "http://127.0.0.1/",
+            "http://localhost:8080/actuator/health",
+            "http://10.1.2.3/",
+            "http://192.168.0.10/",
+            "http://internal.corp/",
+            "http://[fd00::1]/"
+    })
+    void privateRangesAreAllowedByDefault(String url) {
+        var guard = new SsrfGuard(dns, Set.of());
+        assertThatCode(() -> guard.check(URI.create(url))).doesNotThrowAnyException();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "http://169.254.169.254/latest/meta-data/",
+            "http://rebind.attacker/",
+            "http://100.100.100.200/latest/meta-data/",
+            "http://[fd00:ec2::254]/"
+    })
+    void cloudMetadataIsAlwaysBlockedEvenWhenAllowlisted(String url) {
+        var guard = new SsrfGuard(dns, Set.of("169.254.0.0/16", "rebind.attacker", "100.100.100.200/32"));
+        assertThatThrownBy(() -> guard.check(URI.create(url)))
+                .isInstanceOf(SsrfBlockedException.class)
+                .hasMessageContaining("metadata");
     }
 
     @Test
@@ -77,14 +108,14 @@ class SsrfGuardTest {
 
     @Test
     void hostAllowlistOpensPrivateAddress() {
-        var guard = new SsrfGuard(dns, Set.of("internal.corp", "localhost"));
+        var guard = new SsrfGuard(dns, Set.of("internal.corp", "localhost"), true);
         assertThatCode(() -> guard.check(URI.create("http://internal.corp/status"))).doesNotThrowAnyException();
         assertThatCode(() -> guard.check(URI.create("http://LOCALHOST:8080/actuator/health"))).doesNotThrowAnyException();
     }
 
     @Test
     void cidrAllowlistOpensRange() {
-        var guard = new SsrfGuard(dns, Set.of("10.0.0.0/24"));
+        var guard = new SsrfGuard(dns, Set.of("10.0.0.0/24"), true);
         assertThatCode(() -> guard.check(URI.create("http://internal.corp/"))).doesNotThrowAnyException();
         assertThatThrownBy(() -> guard.check(URI.create("http://10.1.0.1/"))).isInstanceOf(SsrfBlockedException.class);
     }

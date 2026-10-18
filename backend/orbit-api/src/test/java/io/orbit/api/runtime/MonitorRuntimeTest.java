@@ -125,8 +125,8 @@ class MonitorRuntimeTest {
     }
 
     @Test
-    void blockedHttpTargetIsDown() {
-        definitions.saveRequest(new HttpMonitorDef("req_local", "Local", null, "GET", "http://127.0.0.1:9/health",
+    void metadataTargetIsDown() {
+        definitions.saveRequest(new HttpMonitorDef("req_local", "Local", null, "GET", "http://169.254.169.254/latest/meta-data/",
                 Map.of(), Map.of(), null, 30, 1_000, true, 1, 0.1, false, List.of(), List.of(), false, null, null), "Ana");
 
         CheckResult result = runtime.runCheck("req_local").orElseThrow();

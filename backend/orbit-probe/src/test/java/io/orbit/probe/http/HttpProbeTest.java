@@ -113,8 +113,8 @@ class HttpProbeTest {
     }
 
     @Test
-    void localhostIsBlockedWithoutAllowlist() {
-        var probe = new HttpProbe(new SsrfGuard(HostResolver.system(), Set.of()));
+    void localhostIsBlockedInBlockPrivateModeWithoutAllowlist() {
+        var probe = new HttpProbe(new SsrfGuard(HostResolver.system(), Set.of(), true));
         assertThatThrownBy(() -> probe.execute(get(base + "/health"))).isInstanceOf(SsrfBlockedException.class);
     }
 

@@ -31,6 +31,8 @@ orbit:
     mode: LOOPBACK
     lan-acknowledge: true
   http:
+    # Private ranges are allowed by default (Orbit watches internal systems); metadata is always blocked.
+    block-private: false
     allowlist: []
   wall:
     allowed-origins:

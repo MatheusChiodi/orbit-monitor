@@ -11,28 +11,38 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * SSRF protection for the HttpProbe: resolves DNS and blocks loopback, private ranges, link-local
- * (including cloud metadata 169.254.169.254), CGNAT and IPv6 ULA unless the workspace allowlists them.
- * The allowlist accepts host names ({@code internal.corp}) and CIDR ranges ({@code 10.0.0.0/24}).
+ * SSRF protection for the HttpProbe. Orbit runs on the operator's machine and usually watches
+ * internal systems, so private ranges and loopback are allowed by default; cloud metadata endpoints
+ * (link-local 169.254.0.0/16, Alibaba 100.100.100.200, AWS IPv6 fd00:ec2::254 and known metadata
+ * host names) are always blocked, even when allowlisted. With {@code blockPrivate} on
+ * ({@code orbit.http.block-private=true}) loopback, RFC 1918, CGNAT and IPv6 ULA are blocked too,
+ * unless the allowlist (host names or CIDR ranges) opens them. Multicast and reserved ranges are
+ * never reachable.
  */
 public class SsrfGuard {
 
-    private static final List<Cidr> BLOCKED = List.of(
+    private static final List<Cidr> METADATA = List.of(
+            Cidr.parse("169.254.0.0/16"),
+            Cidr.parse("100.100.100.200/32"),
+            Cidr.parse("fd00:ec2::254/128"),
+            Cidr.parse("fe80::/10"));
+
+    private static final List<Cidr> PRIVATE = List.of(
             Cidr.parse("0.0.0.0/8"),
             Cidr.parse("10.0.0.0/8"),
             Cidr.parse("100.64.0.0/10"),
             Cidr.parse("127.0.0.0/8"),
-            Cidr.parse("169.254.0.0/16"),
             Cidr.parse("172.16.0.0/12"),
             Cidr.parse("192.0.0.0/24"),
             Cidr.parse("192.168.0.0/16"),
             Cidr.parse("198.18.0.0/15"),
-            Cidr.parse("224.0.0.0/4"),
-            Cidr.parse("240.0.0.0/4"),
             Cidr.parse("::/128"),
             Cidr.parse("::1/128"),
-            Cidr.parse("fc00::/7"),
-            Cidr.parse("fe80::/10"),
+            Cidr.parse("fc00::/7"));
+
+    private static final List<Cidr> NEVER = List.of(
+            Cidr.parse("224.0.0.0/4"),
+            Cidr.parse("240.0.0.0/4"),
             Cidr.parse("ff00::/8"));
 
     private static final Set<String> METADATA_HOSTS = Set.of(
@@ -41,14 +51,21 @@ public class SsrfGuard {
     private final HostResolver resolver;
     private final Set<String> allowedHosts;
     private final List<Cidr> allowedRanges;
+    private final boolean blockPrivate;
 
-    public SsrfGuard(HostResolver resolver, Set<String> allowlist) {
+    public SsrfGuard(HostResolver resolver, Set<String> allowlist, boolean blockPrivate) {
         this.resolver = resolver;
         this.allowedHosts = allowlist.stream()
                 .filter(e -> !Cidr.looksLikeCidr(e))
                 .map(e -> e.toLowerCase(Locale.ROOT))
                 .collect(Collectors.toUnmodifiableSet());
         this.allowedRanges = allowlist.stream().filter(Cidr::looksLikeCidr).map(Cidr::parse).toList();
+        this.blockPrivate = blockPrivate;
+    }
+
+    /** Default policy: private ranges allowed, metadata blocked. */
+    public SsrfGuard(HostResolver resolver, Set<String> allowlist) {
+        this(resolver, allowlist, false);
     }
 
     public void check(URI uri) {
@@ -57,19 +74,21 @@ public class SsrfGuard {
             throw new SsrfBlockedException("Only http/https is allowed: " + uri);
         }
         String host = hostOf(uri);
-        if (allowedHosts.contains(host)) {
-            return;
-        }
         if (METADATA_HOSTS.contains(host)) {
             throw new SsrfBlockedException("Cloud metadata target blocked: " + host);
         }
+        boolean hostAllowed = allowedHosts.contains(host);
         for (InetAddress address : resolve(host)) {
-            if (allowedRanges.stream().anyMatch(r -> r.contains(address))) {
-                continue;
+            if (METADATA.stream().anyMatch(r -> r.contains(address))) {
+                throw new SsrfBlockedException("Cloud metadata target blocked: " + address.getHostAddress());
             }
-            if (isBlocked(address)) {
+            if (NEVER.stream().anyMatch(r -> r.contains(address)) || address.isMulticastAddress()) {
+                throw new SsrfBlockedException("Reserved address blocked: " + address.getHostAddress());
+            }
+            boolean allowed = hostAllowed || allowedRanges.stream().anyMatch(r -> r.contains(address));
+            if (blockPrivate && !allowed && isPrivate(address)) {
                 throw new SsrfBlockedException("Internal address blocked (" + address.getHostAddress()
-                        + "). Add it to the workspace allowlist to monitor it.");
+                        + "). Add it to the allowlist to monitor it.");
             }
         }
     }
@@ -95,12 +114,10 @@ public class SsrfGuard {
         }
     }
 
-    private static boolean isBlocked(InetAddress address) {
+    private static boolean isPrivate(InetAddress address) {
         return address.isAnyLocalAddress()
                 || address.isLoopbackAddress()
-                || address.isLinkLocalAddress()
                 || address.isSiteLocalAddress()
-                || address.isMulticastAddress()
-                || BLOCKED.stream().anyMatch(r -> r.contains(address));
+                || PRIVATE.stream().anyMatch(r -> r.contains(address));
     }
 }

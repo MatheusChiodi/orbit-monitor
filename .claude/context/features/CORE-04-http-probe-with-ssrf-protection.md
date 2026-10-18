@@ -33,11 +33,13 @@ Resolves DNS and blocks private ranges and cloud metadata unless allowlisted per
 - `backend/orbit-probe/src/test/java/io/orbit/probe/http/HttpProbeTest.java`
 
 ## Decisions and notes
-- Blocks loopback, RFC 1918, link-local (cloud metadata), CGNAT, multicast, IPv6 ULA/link-local and known metadata host names; allowlist accepts host names and CIDR ranges.
+- Default policy (local-first): loopback and private ranges are reachable; cloud metadata is always blocked, even when allowlisted (link-local 169.254.0.0/16 and fe80::/10, Alibaba 100.100.100.200, AWS fd00:ec2::254, metadata host names); multicast/reserved never.
+- `orbit.http.block-private=true` also blocks loopback, RFC 1918, CGNAT and IPv6 ULA unless `orbit.http.allowlist` (host names or CIDR) reopens them.
 - Redirects are followed manually (max 5) so every hop is re-checked.
 - Known gap: DNS is resolved again by the HTTP client (rebinding window); pinning the resolved address is a follow-up.
-- Pending: allowlist read from `orbit.settings.json` and redaction at the probe boundary (CORE-16).
+- Redaction at the probe boundary is done by `CheckRunner` (CORE-16).
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — HttpProbe and SsrfGuard implemented; settings wiring and redaction pending.
+- 2026-10-18 — private ranges allowed by default, metadata always blocked, block-private switch.
