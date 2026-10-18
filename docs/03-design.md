@@ -107,6 +107,52 @@ Column ratio 1.5 : 1. The left side is **action** (what to do now and what comes
 
 No springs, no displacement larger than 8 px. Everything off under `prefers-reduced-motion`.
 
+### 4.1 Component motion system
+
+**Every component animates its lifecycle**: entering, leaving, changing status, changing value and reordering. Motion must feel fluid and calm, and always tell the viewer *what changed*.
+
+**Tokens** (`src/shared/motion/tokens.ts`, consumed by every component; no ad-hoc durations):
+
+| Token | Value | Use |
+|---|---|---|
+| `duration.instant` | 120 ms | Hover, press, focus ring |
+| `duration.fast` | 200 ms | Enter/exit of small elements (badges, chips, toasts) |
+| `duration.base` | 280 ms | Panels, cards, list items, dialogs |
+| `duration.slow` | 400 ms | Status color changes, layout shifts |
+| `duration.hero` | 350 ms | Hero swap |
+| `ease.out` | `cubic-bezier(.2, .8, .2, 1)` | Entering, status changes |
+| `ease.in` | `cubic-bezier(.4, 0, 1, 1)` | Leaving |
+| `ease.inOut` | `cubic-bezier(.4, 0, .2, 1)` | Layout and reorder |
+| `distance.sm` / `distance.md` | 4 px / 8 px | Max translate |
+| `stagger` | 30 ms (max 8 items, then no stagger) | Lists and grids |
+
+**Patterns** (`src/shared/motion/presets.ts`):
+
+| Moment | Animation |
+|---|---|
+| **Enter** | opacity 0 → 1, `y` 4–8 px → 0, scale .98 → 1, `ease.out`; lists stagger |
+| **Exit** | opacity 1 → 0, scale 1 → .98, `ease.in`, ~70% of the enter duration; always through `AnimatePresence` so nothing pops out |
+| **Status change** (OK ↔ WARN ↔ DOWN) | background, border and text colors cross-fade in `duration.slow`; the status pill morphs its label with a short cross-fade; the status dot does one soft pulse; DOWN without owner keeps the 1.4 s blink |
+| **Value change** | number swaps in place (tabular, no counting); a 600 ms tint flash in the direction color (up/down) behind the value; sparklines append the new point with a 200 ms draw |
+| **Threshold crossed** | threshold line and violated area fade in; the value turns to the status color in `duration.slow` |
+| **Reorder** (exceptions first, drag and drop) | `layout` animation with `ease.inOut`; problem cells rise to the top smoothly |
+| **Expand / collapse** | height + opacity, `duration.base` |
+| **Dialogs, drawers, toasts** | fade + 8 px slide from their edge; backdrop fades |
+| **Loading** | skeleton with a slow shimmer (1.6 s), replaced by content with a cross-fade |
+| **Hover / press / focus** | 120 ms background/border change; press scales to .98; focus ring fades in |
+| **Drag** | lifted item scales to 1.02 with a stronger border; drop target highlights; drop settles in `duration.base` |
+
+**Animation level** ([FE-06](05-extended-features.md)) scales every preset:
+
+| Level | Behavior |
+|---|---|
+| `off` | No motion; instant state changes (also forced by `prefers-reduced-motion`) |
+| `minimal` | Opacity and color only; no translate, scale, stagger or pulses |
+| `standard` | Everything above (default) |
+| `expressive` | Durations ×1.25, stagger 45 ms, value flash and status pulse slightly stronger; still no springs and no translate above 8 px |
+
+**Rules:** animate only `opacity`, `transform` and colors (no layout-thrashing properties except Motion `layout`); never block interaction during an animation; never animate numbers by counting; no infinite animation except the documented state signals (owner-less DOWN blink, "All systems operational" ring).
+
 ## 5. Editing console
 
 Same tokens, higher density (`font-size` 14–15 px), dark theme by default with a light theme available. Patterns:

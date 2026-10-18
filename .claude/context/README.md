@@ -110,6 +110,7 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [FE-48](features/FE-48-desktop-notifications.md) | Desktop notifications | frontend | planned |
 | [FE-49](features/FE-49-mobile-on-call-view.md) | Mobile on-call view | frontend | planned |
 | [FE-50](features/FE-50-device-preferences.md) | Device preferences | frontend | planned |
+| [FE-51](features/FE-51-component-motion-system.md) | Component motion system | frontend | planned |
 
 ### Backend
 
