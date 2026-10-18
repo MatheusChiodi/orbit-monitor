@@ -1,84 +1,112 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createSessionStore } from '@/domains/security/session';
-import { ConsoleApp, type ConsoleAppProps } from './ConsoleApp';
+import { createOperatorStore } from '@/domains/security/operator';
+import { renderWithLocale } from '@/test/renderWithLocale';
+import { ConsoleApp } from './ConsoleApp';
+import type { ConsoleApi } from './consoleSource';
 
-function offlineApi(): ConsoleAppProps['api'] {
+function offlineApi(): ConsoleApi {
   return {
-    login: vi.fn().mockRejectedValue(new Error('Servidor indisponível')),
-    listGroups: vi.fn().mockRejectedValue(new Error('x')),
-    listMonitors: vi.fn().mockRejectedValue(new Error('x')),
-    listConnections: vi.fn().mockRejectedValue(new Error('x')),
+    getAccess: vi.fn().mockRejectedValue(new Error('offline')),
+    listGroups: vi.fn().mockRejectedValue(new Error('offline')),
+    listMonitors: vi.fn().mockRejectedValue(new Error('offline')),
+    listConnections: vi.fn().mockRejectedValue(new Error('offline')),
     previewMonitor: vi.fn(),
     createMonitor: vi.fn(),
   };
 }
 
+function onlineApi(mode: 'edit' | 'view-only'): ConsoleApi {
+  return {
+    ...offlineApi(),
+    getAccess: vi.fn().mockResolvedValue({ mode, client: mode === 'edit' ? 'loopback' : 'lan' }),
+    listGroups: vi.fn().mockResolvedValue([{ id: 'g', name: 'Portal' }]),
+    listMonitors: vi.fn().mockResolvedValue([
+      { id: 'm', name: 'Web portal', groupId: 'g', type: 'HTTP', status: 'OK', value: 120, unit: 'ms', since: new Date().toISOString() },
+    ]),
+    listConnections: vi.fn().mockResolvedValue([]),
+  };
+}
+
+function namedStore(name = 'M. Chiodi') {
+  const store = createOperatorStore();
+  store.getState().setName(name);
+  return store;
+}
+
 beforeEach(() => {
-  sessionStorage.clear();
+  localStorage.clear();
 });
 
-describe('ConsoleApp', () => {
-  it('sem sessão mostra o login', () => {
-    render(<ConsoleApp api={offlineApi()} sessionStore={createSessionStore()} />);
-    expect(screen.getByRole('heading', { name: 'Entrar no Orbit' })).toBeInTheDocument();
+describe('ConsoleApp (no login)', () => {
+  it('asks once for the operator name, then opens the monitor list', async () => {
+    render(<ConsoleApp api={offlineApi()} operatorStore={createOperatorStore()} />);
+    expect(screen.queryByLabelText(/password/i)).toBeNull();
+    await userEvent.type(screen.getByLabelText('Operator name'), 'M. Chiodi');
+    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(await screen.findByText('Reconciliation queue')).toBeInTheDocument();
+    expect(screen.getByText('M. Chiodi')).toBeInTheDocument();
   });
 
-  it('login com sucesso abre a lista de monitores', async () => {
-    const api = {
-      ...offlineApi(),
-      login: vi.fn().mockResolvedValue({ token: 't', user: { id: 'u', name: 'Ana', role: 'editor' } }),
-      listGroups: vi.fn().mockResolvedValue([{ id: 'g', name: 'Portal' }]),
-      listMonitors: vi.fn().mockResolvedValue([
-        { id: 'm', name: 'Portal web', groupId: 'g', type: 'HTTP', status: 'OK', value: 120, unit: 'ms', since: new Date().toISOString() },
-      ]),
-      listConnections: vi.fn().mockResolvedValue([]),
-    };
-    render(<ConsoleApp api={api} sessionStore={createSessionStore()} />);
-    await userEvent.type(screen.getByLabelText('Usuário'), 'ana');
-    await userEvent.type(screen.getByLabelText('Senha'), 'x');
-    await userEvent.click(screen.getByRole('button', { name: 'Entrar' }));
-    expect(await screen.findByText('Portal web')).toBeInTheDocument();
-    expect(screen.getByText('Ana')).toBeInTheDocument();
+  it('a saved operator name skips the prompt', async () => {
+    render(<ConsoleApp api={onlineApi('edit')} operatorStore={namedStore()} />);
+    expect(await screen.findByText('Web portal')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Operator name')).toBeNull();
   });
 
-  it('modo demonstração: lista, novo monitor com preview e volta salvo', async () => {
-    render(<ConsoleApp api={offlineApi()} sessionStore={createSessionStore()} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Entrar em modo demonstração' }));
-    expect(await screen.findByText('Fila de conciliação')).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Novo monitor' }));
-    await userEvent.type(screen.getByLabelText('Nome'), 'Lotes atrasados');
-    await userEvent.selectOptions(screen.getByLabelText('Grupo'), 'core');
-    await userEvent.selectOptions(screen.getByLabelText('Conexão'), 'ora-core');
-    fireEvent.change(screen.getByRole('textbox', { name: 'Consulta SQL' }), { target: { value: 'SELECT COUNT(*) FROM LOTE' } });
-    await userEvent.click(screen.getByRole('button', { name: 'Executar preview' }));
-    expect(await screen.findByRole('table', { name: 'Resultado do preview' })).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Salvar monitor' }));
-    expect(await screen.findByRole('status')).toHaveTextContent('Monitor "Lotes atrasados" salvo');
-    expect(await screen.findByText('Lotes atrasados')).toBeInTheDocument();
+  it('edit mode (loopback) shows edit actions', async () => {
+    render(<ConsoleApp api={onlineApi('edit')} operatorStore={namedStore()} />);
+    expect(await screen.findByRole('button', { name: 'New monitor' })).toBeInTheDocument();
+    expect(screen.queryByText(/View-only/)).toBeNull();
   });
 
-  it('sair volta ao login', async () => {
-    const store = createSessionStore();
-    store.getState().signIn({ token: 'demo', user: { id: 'demo', name: 'Demonstração', role: 'admin' } });
-    render(<ConsoleApp api={offlineApi()} sessionStore={store} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Sair' }));
-    expect(screen.getByRole('heading', { name: 'Entrar no Orbit' })).toBeInTheDocument();
+  it('view-only mode hides edit actions and explains why; acknowledging stays on the wall', async () => {
+    render(<ConsoleApp api={onlineApi('view-only')} operatorStore={namedStore()} />);
+    expect(await screen.findByText('Web portal')).toBeInTheDocument();
+    expect(screen.getByText('View-only: edits are allowed only on the machine running Orbit')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'New monitor' })).toBeNull();
   });
 
-  it('viewer não vê Novo monitor', async () => {
-    const store = createSessionStore();
-    store.getState().signIn({ token: 'demo', user: { id: 'v', name: 'Vera', role: 'viewer' } });
-    render(<ConsoleApp api={offlineApi()} sessionStore={store} />);
-    expect(await screen.findByText('Fila de conciliação')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Novo monitor' })).toBeNull();
+  it('without a backend falls back to demo data, creates a monitor with preview and returns saved', async () => {
+    render(<ConsoleApp api={offlineApi()} operatorStore={namedStore()} />);
+    expect(await screen.findByText('Reconciliation queue')).toBeInTheDocument();
+    expect(screen.getByText('demo data')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'New monitor' }));
+    await userEvent.type(screen.getByLabelText('Name'), 'Late batches');
+    await userEvent.selectOptions(screen.getByLabelText('Group'), 'core');
+    await userEvent.selectOptions(await screen.findByLabelText('Connection'), 'ora-core');
+    fireEvent.change(screen.getByRole('textbox', { name: 'SQL query' }), { target: { value: 'SELECT COUNT(*) FROM BATCH' } });
+    await userEvent.click(screen.getByRole('button', { name: 'Run preview' }));
+    expect(await screen.findByRole('table', { name: 'Preview result' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Save monitor' }));
+    expect(await screen.findByText('Monitor "Late batches" saved')).toBeInTheDocument();
+    expect(await screen.findByText('Late batches')).toBeInTheDocument();
   });
 
-  it('link para a parede', () => {
-    const store = createSessionStore();
-    store.getState().signIn({ token: 'demo', user: { id: 'demo', name: 'D', role: 'admin' } });
-    render(<ConsoleApp api={offlineApi()} sessionStore={store} />);
-    expect(screen.getByRole('link', { name: 'Abrir parede' })).toHaveAttribute('href', '/wall.html');
+  it('the operator can change the name', async () => {
+    const store = namedStore('Ana');
+    render(<ConsoleApp api={onlineApi('edit')} operatorStore={store} />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Change name' }));
+    const input = screen.getByLabelText('Operator name');
+    expect(input).toHaveValue('Ana');
+    await userEvent.clear(input);
+    await userEvent.type(input, 'R. Lima');
+    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(store.getState().name).toBe('R. Lima');
+    expect(await screen.findByText('R. Lima')).toBeInTheDocument();
+  });
+
+  it('has a language selector and a link to the wall', async () => {
+    render(<ConsoleApp api={onlineApi('edit')} operatorStore={namedStore()} />);
+    expect(await screen.findByRole('combobox', { name: 'Language' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Open wall' })).toHaveAttribute('href', '/wall.html');
+  });
+
+  it('renders in pt-BR', async () => {
+    renderWithLocale(<ConsoleApp api={onlineApi('view-only')} operatorStore={namedStore()} />, 'pt-BR');
+    expect(await screen.findByRole('heading', { name: 'Monitores' })).toBeInTheDocument();
+    expect(screen.getByText('Somente leitura: edições só na máquina onde o Orbit roda')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Abrir parede' })).toBeInTheDocument();
   });
 });

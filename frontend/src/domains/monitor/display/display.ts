@@ -1,18 +1,10 @@
 import type { FieldDisplay, PreviewColumn, PreviewResult } from '@/shared/api/types';
+import { DEFAULT_LOCALE, messages, type Locale } from '@/shared/i18n/i18n';
 
-/** Modos de leitura do resultado (02-funcionalidades.md, seção 2.2). */
+/** How the result is read (docs/02-features.md, section 2.2); labels live under `readMode.*`. */
 export type ReadMode = 'single' | 'indicators' | 'ranking' | 'series' | 'table' | 'rowcount';
 
-export const READ_MODE_LABEL: Record<ReadMode, string> = {
-  single: 'Valor único',
-  indicators: 'Cartão de indicadores',
-  ranking: 'Ranking / barras',
-  series: 'Série temporal',
-  table: 'Tabela',
-  rowcount: 'Contagem de linhas',
-};
-
-/** QTD_PENDENTES → "Qtd pendentes"; $.fila.tamanho → "Tamanho". */
+/** PENDING_QTY → "Pending qty"; $.queue.size → "Size". */
 export function humanizeLabel(field: string): string {
   const last = field.startsWith('$') ? (field.split('.').at(-1) ?? field) : field;
   const words = last.replace(/[\[\]*]/g, '').replace(/[_\-]+/g, ' ').trim().toLowerCase();
@@ -32,8 +24,9 @@ export function suggestReadMode(preview: PreviewResult): ReadMode {
   return 'table';
 }
 
+/** Column names that hold percentages (English and Portuguese abbreviations). */
 function isPercentColumn(name: string): boolean {
-  return /(^|_)(PCT|PERC|TAXA)(_|$)/i.test(name);
+  return /(^|_)(PCT|PERC|PERCENT|RATE|TAXA)(_|$)/i.test(name);
 }
 
 function numberField(column: PreviewColumn, preview: PreviewResult): FieldDisplay {
@@ -66,13 +59,17 @@ function systemField(field: string, label: string, format: FieldDisplay['format'
   return { field, selected: false, label, format, storeAsSeries: false, display: 'hidden' };
 }
 
-/** Passo 1 de "Dados e exibição": lista de campos com rótulo, formato e exibição sugeridos. */
-export function suggestFields(preview: PreviewResult, kind: 'SQL' | 'HTTP'): FieldDisplay[] {
+/**
+ * Step 1 of "Data & display": fields with suggested label, format and display.
+ * System field labels are written in the operator's language because they are saved as labels.
+ */
+export function suggestFields(preview: PreviewResult, kind: 'SQL' | 'HTTP', locale: Locale = DEFAULT_LOCALE): FieldDisplay[] {
+  const labels = messages(locale).fields.system;
   const fields = preview.columns.map((column) => columnField(column, preview));
   if (kind === 'SQL') {
-    fields.push(systemField('[ROWS]', 'Linhas', 'integer'), systemField('[EXEC_TIME]', 'Tempo de execução', 'duration'));
+    fields.push(systemField('[ROWS]', labels.rows, 'integer'), systemField('[EXEC_TIME]', labels.execTime, 'duration'));
   } else {
-    fields.push(systemField('[STATUS]', 'Status HTTP', 'integer'), systemField('[RESPONSE_TIME]', 'Tempo de resposta', 'duration'));
+    fields.push(systemField('[STATUS]', labels.status, 'integer'), systemField('[RESPONSE_TIME]', labels.responseTime, 'duration'));
   }
   return fields;
 }

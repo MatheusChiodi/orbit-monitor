@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { buildDefinition, buildTarget, initialFormState, parseHeaders, previewContext, validateForm } from './form';
 
 describe('parseHeaders', () => {
-  it('uma linha por header "Nome: valor"', () => {
+  it('one header per line, "Name: value"', () => {
     expect(parseHeaders('Accept: application/json\nX-Trace:  abc \n\n')).toEqual({ Accept: 'application/json', 'X-Trace': 'abc' });
   });
-  it('ignora linhas sem dois-pontos', () => {
-    expect(parseHeaders('lixo')).toEqual({});
+  it('ignores lines without a colon', () => {
+    expect(parseHeaders('garbage')).toEqual({});
   });
 });
 
@@ -15,64 +15,64 @@ describe('buildTarget', () => {
     const state = { ...initialFormState(), type: 'SQL' as const, connectionId: 'c1', sql: 'SELECT 1' };
     expect(buildTarget(state)).toEqual({ type: 'SQL', connectionId: 'c1', sql: 'SELECT 1' });
   });
-  it('HTTP com headers e sem body no GET', () => {
+  it('HTTP with headers and no body on GET', () => {
     const state = { ...initialFormState(), type: 'HTTP' as const, url: 'https://x/health', headersText: 'A: 1', body: '{}' };
     expect(buildTarget(state)).toEqual({ type: 'HTTP', method: 'GET', url: 'https://x/health', headers: { A: '1' } });
   });
-  it('HTTP POST leva body', () => {
+  it('HTTP POST carries the body', () => {
     const state = { ...initialFormState(), type: 'HTTP' as const, method: 'POST' as const, url: 'https://x', body: '{"a":1}' };
     expect(buildTarget(state)).toMatchObject({ method: 'POST', body: '{"a":1}' });
   });
 });
 
 describe('validateForm', () => {
-  it('lista o que falta', () => {
+  it('lists what is missing', () => {
     expect(validateForm({ ...initialFormState(), type: 'SQL' })).toEqual([
-      'Informe o nome',
-      'Escolha o grupo',
-      'Escolha a conexão',
-      'Cole um SELECT',
+      { key: 'form.errors.nameRequired' },
+      { key: 'form.errors.groupRequired' },
+      { key: 'form.errors.connectionRequired' },
+      { key: 'sql.errors.empty' },
     ]);
   });
-  it('URL precisa ser http(s)', () => {
+  it('URL must be http(s)', () => {
     const errors = validateForm({ ...initialFormState(), type: 'HTTP', name: 'a', groupId: 'g', url: 'ftp://x' });
-    expect(errors).toEqual(['URL deve começar com http:// ou https://']);
+    expect(errors).toEqual([{ key: 'form.errors.urlInvalid' }]);
   });
-  it('intervalo entre 15 s e 24 h', () => {
+  it('interval between 15 s and 24 h', () => {
     const base = { ...initialFormState(), type: 'HTTP' as const, name: 'a', groupId: 'g', url: 'https://x' };
-    expect(validateForm({ ...base, intervalSeconds: 5 })).toEqual(['Intervalo entre 15 s e 24 h']);
+    expect(validateForm({ ...base, intervalSeconds: 5 })).toEqual([{ key: 'form.errors.intervalRange' }]);
     expect(validateForm({ ...base, intervalSeconds: 60 })).toEqual([]);
   });
-  it('SELECT inválido usa a mensagem do modo seguro', () => {
+  it('an invalid SELECT uses the safe-mode message', () => {
     const errors = validateForm({ ...initialFormState(), type: 'SQL', name: 'a', groupId: 'g', connectionId: 'c', sql: 'DROP TABLE x' });
-    expect(errors).toEqual(['Somente SELECT ou WITH']);
+    expect(errors).toEqual([{ key: 'sql.errors.notSelect' }]);
   });
 });
 
 describe('buildDefinition', () => {
-  it('junta configuração, condições e campos', () => {
+  it('combines configuration, conditions and fields', () => {
     const state = {
       ...initialFormState(),
       type: 'SQL' as const,
-      name: 'Fila',
-      groupId: 'pag',
+      name: 'Queue',
+      groupId: 'pay',
       connectionId: 'c1',
       sql: 'SELECT 1',
-      conditions: [{ field: 'QTD', operator: '<' as const, value: '200', level: 'DOWN' as const }],
+      conditions: [{ field: 'QTY', operator: '<' as const, value: '200', level: 'DOWN' as const }],
     };
     const def = buildDefinition(state);
-    expect(def).toMatchObject({ name: 'Fila', groupId: 'pag', type: 'SQL', sql: 'SELECT 1', intervalSeconds: 60, retries: 2 });
+    expect(def).toMatchObject({ name: 'Queue', groupId: 'pay', type: 'SQL', sql: 'SELECT 1', intervalSeconds: 60, retries: 2 });
     expect(def.conditions).toHaveLength(1);
   });
 });
 
 describe('previewContext', () => {
-  it('usa a primeira linha, a contagem e o tempo', () => {
+  it('uses the first row, the row count and the elapsed time', () => {
     const now = new Date();
     const ctx = previewContext({ columns: [], rows: [{ A: 1 }, { A: 2 }], elapsedMs: 30, status: 200 }, now);
     expect(ctx).toEqual({ row: { A: 1 }, rowCount: 2, elapsedMs: 30, status: 200, now });
   });
-  it('sem linhas usa linha vazia', () => {
+  it('no rows means an empty row', () => {
     expect(previewContext({ columns: [], rows: [], elapsedMs: 1 }, new Date()).row).toEqual({});
   });
 });

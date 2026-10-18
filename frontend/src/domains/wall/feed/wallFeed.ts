@@ -1,12 +1,13 @@
 import type { Incident, WallSnapshot } from '@/shared/api/types';
 import type { ConnectWallOptions, WallConnection } from '@/shared/api/wallSocket';
+import type { Locale } from '@/shared/i18n/i18n';
 import type { WallStore } from '../store';
 
 export interface WallFeedOptions {
   loadSnapshot: () => Promise<WallSnapshot>;
   connect: (options: ConnectWallOptions) => WallConnection;
   url: string;
-  /** Snapshot de demonstração usado quando o backend não responde. */
+  /** Demo snapshot used when the backend does not answer. */
   mock?: () => WallSnapshot;
 }
 
@@ -14,7 +15,7 @@ export interface WallFeed {
   stop(): void;
 }
 
-/** Carrega o snapshot inicial e passa a ouvir `/ws/wall`; sem backend, usa dados de demonstração. */
+/** Loads the initial snapshot and starts listening to `/ws/wall`; without a backend, uses demo data. */
 export async function startWallFeed(store: WallStore, options: WallFeedOptions): Promise<WallFeed> {
   const { receive, setConnection } = store.getState();
   try {
@@ -32,22 +33,23 @@ export async function startWallFeed(store: WallStore, options: WallFeedOptions):
   return { stop: () => connection.close() };
 }
 
-/** Reconhece um incidente; em demonstração ou falha da API, marca localmente para não travar a parede. */
+/** Acknowledges an incident; in demo mode or when the API fails, marks it locally so the wall never gets stuck. */
 export async function acknowledge(
   store: WallStore,
   incidentId: string,
   by: string,
   send: (incidentId: string, by: string) => Promise<Incident>,
+  locale?: Locale,
 ): Promise<void> {
   const state = store.getState();
   if (state.connection === 'mock') {
-    state.acknowledgeLocal(incidentId, by);
+    state.acknowledgeLocal(incidentId, by, new Date(), locale);
     return;
   }
   try {
     const incident = await send(incidentId, by);
     store.getState().receive({ type: 'incident', payload: incident });
   } catch {
-    store.getState().acknowledgeLocal(incidentId, by);
+    store.getState().acknowledgeLocal(incidentId, by, new Date(), locale);
   }
 }

@@ -1,7 +1,7 @@
 import type { Rule } from '@/shared/api/types';
-import { formatDecimal, formatInteger } from '@/shared/format';
-
-const numberFormat = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 });
+import { formatDecimal, formatInteger, formatNumber } from '@/shared/format';
+import { DEFAULT_LOCALE, messages, type Locale } from '@/shared/i18n/i18n';
+import { msg, type Message } from '@/shared/i18n/message';
 
 export function passesRule(value: number, rule: Rule): boolean {
   switch (rule.operator) {
@@ -20,32 +20,33 @@ export function passesRule(value: number, rule: Rule): boolean {
   }
 }
 
-/** `QTD < 200` */
-export function ruleText(rule: Rule): string {
-  return `${rule.field} ${rule.operator} ${numberFormat.format(rule.limit)}`;
+/** `QTY < 200` */
+export function ruleText(rule: Rule, locale: Locale = DEFAULT_LOCALE): string {
+  return `${rule.field} ${rule.operator} ${formatNumber(rule.limit, locale)}`;
 }
 
-/** Desvio relativo ao limite: (valor - limite) / limite. Null quando o limite é zero. */
+/** Deviation relative to the limit: (value - limit) / limit. Null when the limit is zero. */
 export function deviationRatio(value: number, rule: Rule): number | null {
   if (rule.limit === 0) return null;
   return (value - rule.limit) / Math.abs(rule.limit);
 }
 
-/** Texto do desvio quando a regra falha: "+75% do limite". Null quando a regra passa. */
-export function deviationLabel(value: number, rule: Rule): string | null {
+/** Deviation shown when the rule fails ("+75% over limit"). Null when the rule passes. */
+export function deviationLabel(value: number, rule: Rule, locale: Locale = DEFAULT_LOCALE): Message | null {
   if (passesRule(value, rule)) return null;
   const ratio = deviationRatio(value, rule);
   if (ratio === null) {
     const diff = value - rule.limit;
-    return diff >= 0 ? `+${formatInteger(diff)} acima do limite` : `${formatInteger(diff)} abaixo do limite`;
+    const text = formatInteger(Math.abs(diff), locale);
+    return diff >= 0 ? msg('rule.above', { diff: text }) : msg('rule.below', { diff: text });
   }
-  const pct = Math.round(ratio * 100);
-  return `${pct > 0 ? '+' : ''}${pct}% do limite`;
+  const pct = Math.abs(Math.round(ratio * 100));
+  return ratio >= 0 ? msg('rule.over', { pct }) : msg('rule.under', { pct });
 }
 
 /**
- * Folga até a regra, em fração do limite (0.2 = 20% de folga). Negativa quando violada.
- * Null em regras de igualdade ou com limite zero, onde folga não faz sentido.
+ * Headroom to the rule as a fraction of the limit (0.2 = 20% headroom). Negative when violated.
+ * Null for equality rules or a zero limit, where headroom makes no sense.
  */
 export function headroom(value: number, rule: Rule): number | null {
   if (rule.limit === 0) return null;
@@ -63,10 +64,10 @@ export function headroom(value: number, rule: Rule): number | null {
   }
 }
 
-/** Leitura atual de um monitor: "349 QTD", "1,8%", "sem resposta". */
-export function formatReading(value: number | null, unit?: string): string {
-  if (value === null) return 'sem resposta';
-  const text = Number.isInteger(value) ? formatInteger(value) : formatDecimal(value, 1);
+/** Current reading of a monitor: "349 QTY", "1.8%", "no response". */
+export function formatReading(value: number | null, unit?: string, locale: Locale = DEFAULT_LOCALE): string {
+  if (value === null) return messages(locale).reading.noResponse;
+  const text = Number.isInteger(value) ? formatInteger(value, locale) : formatDecimal(value, 1, locale);
   if (!unit) return text;
   return unit === '%' ? `${text}%` : `${text} ${unit}`;
 }

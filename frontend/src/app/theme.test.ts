@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 const css = readFileSync(resolve(__dirname, 'theme.css'), 'utf8');
 
-describe('tema (tokens de 03-design.md)', () => {
+describe('theme (tokens from docs/03-design.md)', () => {
   it.each([
     ['--bg', '#07090d'],
     ['--s1', '#0d1117'],
@@ -17,23 +17,23 @@ describe('tema (tokens de 03-design.md)', () => {
     ['--warn', '#f5a524'],
     ['--down', '#ff3b4f'],
     ['--info', '#3b9eff'],
-  ])('define %s = %s', (token, value) => {
+  ])('defines %s = %s', (token, value) => {
     expect(css).toMatch(new RegExp(`${token}:\\s*${value}`, 'i'));
   });
 
-  it('usa base fluida no html', () => {
+  it('uses a fluid base on html', () => {
     expect(css).toContain('clamp(12px, .7vw + .45vh, 36px)');
   });
 
-  it('desliga animações com prefers-reduced-motion', () => {
+  it('turns animations off with prefers-reduced-motion', () => {
     expect(css).toContain('prefers-reduced-motion: reduce');
   });
 
-  it('usa números tabulares nas fontes mono', () => {
+  it('uses tabular numbers in mono fonts', () => {
     expect(css).toContain('tabular-nums');
   });
 
-  it('expõe as cores ao Tailwind via @theme', () => {
+  it('exposes the colors to Tailwind via @theme', () => {
     expect(css).toMatch(/@theme[\s\S]*--color-down:\s*var\(--down\)/);
   });
 });

@@ -1,7 +1,8 @@
+import { useTranslation } from 'react-i18next';
 import { formatReading } from '@/domains/monitor/rules';
-import { statusLabel } from '@/domains/monitor/status';
 import type { Group, MonitorView } from '@/shared/api/types';
 import { formatElapsed } from '@/shared/format';
+import { currentLocale } from '@/shared/i18n/i18n';
 import { Panel, StatusDot, TEXT_CLASS } from '@/shared/ui';
 
 export interface AlsoActiveProps {
@@ -10,26 +11,28 @@ export interface AlsoActiveProps {
   now: Date;
 }
 
-/** Lista curta dos demais problemas, abaixo do herói. */
+/** Short list of the other problems, below the hero. */
 export function AlsoActive({ monitors, groups, now }: AlsoActiveProps) {
+  const { t, i18n } = useTranslation();
+  const locale = currentLocale(i18n);
   const groupName = new Map(groups.map((g) => [g.id, g.name]));
   return (
-    <Panel title="Também ativos">
+    <Panel title={t('wall.alsoActive.title')}>
       {monitors.length === 0 ? (
-        <p className="m-0 text-[0.85rem] text-muted">Nenhum outro problema ativo</p>
+        <p className="m-0 text-[0.85rem] text-muted">{t('wall.alsoActive.empty')}</p>
       ) : (
         <ul className="m-0 flex list-none flex-col gap-[0.45rem] p-0">
           {monitors.slice(0, 5).map((m) => (
             <li key={m.id} className="flex items-center gap-[0.55rem] rounded-[0.45rem] bg-s2 px-[0.6rem] py-[0.45rem]">
               <StatusDot status={m.status} />
-              <span className={`text-[0.68rem] font-semibold ${TEXT_CLASS[m.status]}`}>{statusLabel(m.status)}</span>
+              <span className={`text-[0.68rem] font-semibold ${TEXT_CLASS[m.status]}`}>{t(`status.label.${m.status}`)}</span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[0.88rem] font-semibold">{m.name}</span>
                 <span className="block truncate text-[0.72rem] text-muted">{groupName.get(m.groupId)}</span>
               </span>
               <span className="text-right">
-                <span className="block font-mono text-[0.85rem]">{formatReading(m.value, m.unit)}</span>
-                <span className="block font-mono text-[0.68rem] text-dim">{formatElapsed(m.since, now)}</span>
+                <span className="block font-mono text-[0.85rem]">{formatReading(m.value, m.unit, locale)}</span>
+                <span className="block font-mono text-[0.68rem] text-dim">{formatElapsed(m.since, now, locale)}</span>
               </span>
             </li>
           ))}

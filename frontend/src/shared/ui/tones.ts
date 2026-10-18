@@ -2,7 +2,7 @@ import type { Status } from '@/shared/api/types';
 
 export type Tone = Status | 'INFO' | 'neutral';
 
-/** Classes estáticas por tom (o Tailwind precisa das strings completas). */
+/** Static classes per tone (Tailwind needs the full strings). */
 export const DOT_CLASS: Record<Tone, string> = {
   OK: 'bg-ok',
   WARN: 'bg-warn',
@@ -27,7 +27,7 @@ export const SOFT_CLASS: Record<Tone, string> = {
   neutral: 'bg-s3 border-line-2',
 };
 
-/** Fundo de estado em gradiente vertical (forte em cima, some embaixo). */
+/** State background as a vertical gradient (strong on top, fading at the bottom). */
 export const GRADIENT_CLASS: Record<Tone, string> = {
   OK: 'bg-gradient-to-b from-ok/12 to-transparent',
   WARN: 'bg-gradient-to-b from-warn/14 to-transparent',
@@ -36,4 +36,3 @@ export const GRADIENT_CLASS: Record<Tone, string> = {
   neutral: '',
 };
 
-export const STATUS_LABEL: Record<Status, string> = { DOWN: 'FORA', WARN: 'ATENÇÃO', OK: 'OK' };

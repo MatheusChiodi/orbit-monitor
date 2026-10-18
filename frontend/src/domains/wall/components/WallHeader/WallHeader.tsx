@@ -1,8 +1,11 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { globalPhrase, statusFromCounts, tabTitle, type StatusCounts } from '@/domains/monitor/status';
-import type { WallConnectionState } from '../../store';
 import { formatClock, formatRelative } from '@/shared/format';
+import { currentLocale } from '@/shared/i18n/i18n';
+import { translate } from '@/shared/i18n/message';
 import { Button, StatusPill } from '@/shared/ui';
+import type { WallConnectionState } from '../../store';
 
 export interface WallHeaderProps {
   environment: string;
@@ -13,13 +16,13 @@ export interface WallHeaderProps {
   onFullscreen?: () => void;
 }
 
-const CONNECTION_NOTE: Partial<Record<WallConnectionState, string>> = {
-  mock: 'dados de demonstração',
-  closed: 'reconectando',
-  connecting: 'conectando',
-};
+const CONNECTION_NOTE = {
+  mock: 'wall.connection.mock',
+  closed: 'wall.connection.closed',
+  connecting: 'wall.connection.connecting',
+} as const;
 
-/** Marca provisória: anel em gradiente azul→verde com núcleo escuro (03-design.md, seção 8). */
+/** Provisional mark: blue→green gradient ring with a dark core (docs/03-design.md, section 8). */
 function BrandMark() {
   return (
     <span
@@ -33,43 +36,47 @@ function BrandMark() {
 }
 
 export function WallHeader({ environment, counts, now, updatedAt, connection, onFullscreen }: WallHeaderProps) {
+  const { t, i18n } = useTranslation();
+  const locale = currentLocale(i18n);
   const title = tabTitle(counts);
   useEffect(() => {
     document.title = title;
   }, [title]);
 
-  const note = CONNECTION_NOTE[connection];
+  const note = connection === 'open' ? null : t(CONNECTION_NOTE[connection]);
 
   return (
     <header className="flex min-h-[3.2rem] flex-wrap items-center gap-x-[1.2rem] gap-y-[0.4rem] border-b border-line px-[1rem] py-[0.4rem]">
       <div className="flex items-center gap-[0.55rem]">
         <BrandMark />
-        <span className="font-display text-[1.1rem] font-bold tracking-tight">Orbit</span>
+        <span className="font-display text-[1.1rem] font-bold tracking-tight">{t('app.name')}</span>
         <span className="rounded-[0.4rem] border border-line-2 px-[0.45rem] py-[0.05rem] text-[0.78rem] text-muted">
           {environment}
         </span>
       </div>
 
       <div role="status" aria-live="polite">
-        <StatusPill status={statusFromCounts(counts)}>{globalPhrase(counts)}</StatusPill>
+        <StatusPill status={statusFromCounts(counts)}>{translate(t, globalPhrase(counts))}</StatusPill>
       </div>
 
-      <ul className="m-0 flex list-none gap-[0.9rem] p-0 font-mono text-[0.85rem]" aria-label="Contagem por estado">
-        <li className={counts.down ? 'text-down-text' : 'text-dim'}>{`${counts.down} fora`}</li>
-        <li className={counts.warn ? 'text-warn-text' : 'text-dim'}>{`${counts.warn} atenção`}</li>
-        <li className={counts.ok ? 'text-ok-text' : 'text-dim'}>{`${counts.ok} ok`}</li>
+      <ul className="m-0 flex list-none gap-[0.9rem] p-0 font-mono text-[0.85rem]" aria-label={t('status.counts')}>
+        <li className={counts.down ? 'text-down-text' : 'text-dim'}>{t('status.counter.down', { count: counts.down })}</li>
+        <li className={counts.warn ? 'text-warn-text' : 'text-dim'}>{t('status.counter.warn', { count: counts.warn })}</li>
+        <li className={counts.ok ? 'text-ok-text' : 'text-dim'}>{t('status.counter.ok', { count: counts.ok })}</li>
       </ul>
 
       <div className="ml-auto flex items-center gap-[0.9rem]">
         {note && <span className="text-[0.78rem] text-warn-text">{note}</span>}
         {updatedAt && (
-          <span className="text-[0.78rem] text-muted">{`atualizado ${formatRelative(updatedAt, now)}`}</span>
+          <span className="text-[0.78rem] text-muted">
+            {t('wall.updated', { when: formatRelative(updatedAt, now, locale) })}
+          </span>
         )}
         <time dateTime={now.toISOString()} className="font-mono text-[1.15rem] font-medium">
           {formatClock(now)}
         </time>
         {onFullscreen && (
-          <Button variant="ghost" onClick={onFullscreen} aria-label="Tela cheia">
+          <Button variant="ghost" onClick={onFullscreen} aria-label={t('wall.fullscreen')}>
             ⛶
           </Button>
         )}

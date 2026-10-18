@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { MotionConfig, type Transition, type Variants } from 'motion/react';
 
-/** Nada com mola, nada com deslocamento maior que 8 px (03-design.md, seção 4). */
+/** No springs, no displacement larger than 8 px (docs/03-design.md, section 4). */
 export const MAX_OFFSET_PX = 8;
 export const EASE_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -21,7 +21,7 @@ export const listItemVariants = {
 
 export const layoutTransition: Transition = { duration: 0.35, ease: EASE_OUT };
 
-/** Respeita prefers-reduced-motion em todas as animações do Motion. */
+/** Honors prefers-reduced-motion in every Motion animation. */
 export function MotionProvider({ children }: { children: ReactNode }) {
   return <MotionConfig reducedMotion="user">{children}</MotionConfig>;
 }

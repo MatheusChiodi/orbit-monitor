@@ -1,78 +1,96 @@
 import { useMemo, useState } from 'react';
 import { QueryClient, QueryClientProvider, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useStore } from 'zustand';
 import { MonitorForm } from '@/domains/monitor/components/MonitorForm';
-import { LoginForm } from '@/domains/security/LoginForm';
-import { canEditMonitors, type SessionStore } from '@/domains/security/session';
+import { canEdit } from '@/domains/security/access';
+import type { OperatorStore } from '@/domains/security/operator';
+import { OperatorPrompt } from '@/domains/security/OperatorPrompt';
+import { ViewOnlyBanner } from '@/domains/security/ViewOnlyBanner';
 import { GroupList } from '@/domains/workspace/GroupList';
-import type { ApiClient } from '@/shared/api/client';
-import type { MonitorDefinition, Session } from '@/shared/api/types';
+import type { AccessInfo, MonitorDefinition } from '@/shared/api/types';
+import { LanguageSelector } from '@/shared/i18n/LanguageSelector';
 import { Button } from '@/shared/ui';
-import { DEMO_TOKEN, createConsoleSource, demoSession, type ConsoleApi } from './consoleSource';
+import { createConsoleSource, type ConsoleApi } from './consoleSource';
 
 export interface ConsoleAppProps {
-  api: ConsoleApi & Pick<ApiClient, 'login'>;
-  sessionStore: SessionStore;
+  api: ConsoleApi;
+  operatorStore: OperatorStore;
   queryClient?: QueryClient;
 }
 
-function Workspace({ api, session, onSignOut }: { api: ConsoleApi; session: Session; onSignOut: () => void }) {
-  const demo = session.token === DEMO_TOKEN;
+/** Probe data stays in memory only: no persisted query cache, short garbage collection. */
+function createQueryClient(): QueryClient {
+  return new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 60_000 } } });
+}
+
+interface WorkspaceProps {
+  api: ConsoleApi;
+  access: AccessInfo;
+  demo: boolean;
+  operator: string;
+  onChangeName: () => void;
+}
+
+function Workspace({ api, access, demo, operator, onChangeName }: WorkspaceProps) {
+  const { t } = useTranslation();
   const source = useMemo(() => createConsoleSource(api, demo), [api, demo]);
   const queryClient = useQueryClient();
   const [view, setView] = useState<'list' | 'new'>('list');
   const [notice, setNotice] = useState<string | null>(null);
+  const editable = canEdit(access.mode);
 
   const groups = useQuery({ queryKey: ['groups', demo], queryFn: source.listGroups });
   const monitors = useQuery({ queryKey: ['monitors', demo], queryFn: source.listMonitors });
-  const connections = useQuery({ queryKey: ['connections', demo], queryFn: source.listConnections, enabled: view === 'new' });
+  const connections = useQuery({
+    queryKey: ['connections', demo],
+    queryFn: source.listConnections,
+    enabled: view === 'new' && editable,
+  });
 
   const create = useMutation({
     mutationFn: source.createMonitor,
     onSuccess: async (_, definition: MonitorDefinition) => {
       await queryClient.invalidateQueries({ queryKey: ['monitors', demo] });
-      setNotice(`Monitor "${definition.name}" salvo`);
+      setNotice(t('console.monitors.saved', { name: definition.name }));
       setView('list');
     },
   });
 
-  const canEdit = canEditMonitors(session.user.role);
-  const loadError = groups.isError || monitors.isError;
-
   return (
     <div className="min-h-screen">
       <header className="flex flex-wrap items-center gap-[1rem] border-b border-line px-[1.4rem] py-[0.7rem]">
-        <span className="font-display text-[1.25rem] font-bold tracking-tight">Orbit</span>
-        <span className="text-[0.85rem] text-muted">Console</span>
-        {demo && <span className="text-[0.8rem] text-warn-text">dados de demonstração</span>}
-        <nav className="ml-auto flex items-center gap-[0.8rem] text-[0.9rem]">
+        <span className="font-display text-[1.25rem] font-bold tracking-tight">{t('app.name')}</span>
+        <span className="text-[0.85rem] text-muted">{t('app.console')}</span>
+        {demo && <span className="text-[0.8rem] text-warn-text">{t('app.demoData')}</span>}
+        <nav className="ml-auto flex flex-wrap items-center gap-[0.8rem] text-[0.9rem]">
+          <LanguageSelector />
           <a href="/wall.html" className="text-info hover:underline">
-            Abrir parede
+            {t('console.openWall')}
           </a>
-          <span className="text-muted">{session.user.name}</span>
-          <Button variant="ghost" onClick={onSignOut}>
-            Sair
+          <span className="text-muted">{operator}</span>
+          <Button variant="ghost" onClick={onChangeName}>
+            {t('operator.change')}
           </Button>
         </nav>
       </header>
 
       <main className="mx-auto flex max-w-[80rem] flex-col gap-[1rem] p-[1.4rem]">
+        <ViewOnlyBanner mode={access.mode} />
         {notice && (
-          <p role="status" className="m-0 rounded-[0.45rem] border border-ok/50 bg-ok/12 px-[0.8rem] py-[0.5rem] text-ok-text">
-            {notice}
-          </p>
+          <p className="m-0 rounded-[0.45rem] border border-ok/50 bg-ok/12 px-[0.8rem] py-[0.5rem] text-ok-text">{notice}</p>
         )}
-        {view === 'list' ? (
+        {view === 'list' || !editable ? (
           <>
-            <h1 className="m-0 font-display text-[1.6rem] font-bold tracking-tight">Monitores</h1>
-            {loadError && <p className="m-0 text-down-text">Não foi possível carregar os monitores.</p>}
+            <h1 className="m-0 font-display text-[1.6rem] font-bold tracking-tight">{t('console.monitors.title')}</h1>
+            {(groups.isError || monitors.isError) && <p className="m-0 text-down-text">{t('console.monitors.loadError')}</p>}
             {groups.isPending || monitors.isPending ? (
-              <p className="m-0 text-muted">Carregando…</p>
+              <p className="m-0 text-muted">{t('app.loading')}</p>
             ) : (
               <GroupList
                 groups={groups.data ?? []}
                 monitors={monitors.data ?? []}
-                canEdit={canEdit}
+                canEdit={editable}
                 onNewMonitor={() => {
                   setNotice(null);
                   setView('new');
@@ -82,7 +100,7 @@ function Workspace({ api, session, onSignOut }: { api: ConsoleApi; session: Sess
           </>
         ) : (
           <>
-            <h1 className="m-0 font-display text-[1.6rem] font-bold tracking-tight">Novo monitor</h1>
+            <h1 className="m-0 font-display text-[1.6rem] font-bold tracking-tight">{t('console.monitors.newTitle')}</h1>
             <MonitorForm
               groups={groups.data ?? []}
               connections={connections.data ?? []}
@@ -99,30 +117,47 @@ function Workspace({ api, session, onSignOut }: { api: ConsoleApi; session: Sess
   );
 }
 
-/** Console de edição: login, lista de grupos/monitores e formulário de monitor. */
-export function ConsoleApp({ api, sessionStore, queryClient }: ConsoleAppProps) {
-  const [client] = useState(() => queryClient ?? new QueryClient({ defaultOptions: { queries: { retry: false } } }));
-  const session = useStore(sessionStore, (s) => s.session);
-  const { signIn, signOut } = sessionStore.getState();
+function Shell({ api, operatorStore }: Omit<ConsoleAppProps, 'queryClient'>) {
+  const { t } = useTranslation();
+  const operator = useStore(operatorStore, (s) => s.name);
+  const setName = useStore(operatorStore, (s) => s.setName);
+  const [renaming, setRenaming] = useState(false);
+  const access = useQuery({ queryKey: ['access'], queryFn: api.getAccess, enabled: Boolean(operator) });
 
-  if (!session) {
+  if (!operator || renaming) {
     return (
       <main className="flex min-h-screen items-center justify-center p-[1.4rem]">
-        <LoginForm onSubmit={async (credentials) => signIn(await api.login(credentials))} onDemo={() => signIn(demoSession())} />
+        <OperatorPrompt
+          initialName={operator ?? ''}
+          onSubmit={(name) => {
+            setName(name);
+            setRenaming(false);
+          }}
+        />
       </main>
     );
   }
 
+  if (access.isPending) return <p className="p-[1.4rem] text-muted">{t('app.loading')}</p>;
+
+  const demo = access.isError;
+  return (
+    <Workspace
+      api={api}
+      demo={demo}
+      access={access.data ?? { mode: 'edit', client: 'loopback' }}
+      operator={operator}
+      onChangeName={() => setRenaming(true)}
+    />
+  );
+}
+
+/** Console: no login; the operator declares a name once and the API decides edit vs. view-only. */
+export function ConsoleApp({ api, operatorStore, queryClient }: ConsoleAppProps) {
+  const [client] = useState(() => queryClient ?? createQueryClient());
   return (
     <QueryClientProvider client={client}>
-      <Workspace
-        api={api}
-        session={session}
-        onSignOut={() => {
-          client.clear();
-          signOut();
-        }}
-      />
+      <Shell api={api} operatorStore={operatorStore} />
     </QueryClientProvider>
   );
 }

@@ -1,4 +1,7 @@
 import { useId, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
+import { currentLocale } from '@/shared/i18n/i18n';
+import { translate } from '@/shared/i18n/message';
 import type { Connection, Group, MonitorDefinition, PreviewRequest, PreviewResult } from '@/shared/api/types';
 import { Button, INPUT_CLASS, SELECT_CLASS } from '@/shared/ui';
 import { suggestFields } from '../../display';
@@ -39,8 +42,10 @@ function ErrorList({ errors }: { errors: readonly string[] }) {
   );
 }
 
-/** Formulário de monitor: configuração à esquerda, preview ao vivo à direita. */
+/** Monitor form: configuration on the left, live preview on the right. */
 export function MonitorForm({ groups, connections, onPreview, onSave, onCancel }: MonitorFormProps) {
+  const { t, i18n } = useTranslation();
+  const locale = currentLocale(i18n);
   const [state, setState] = useState<MonitorFormState>(initialFormState);
   const [preview, setPreview] = useState<PreviewResult | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
@@ -64,24 +69,24 @@ export function MonitorForm({ groups, connections, onPreview, onSave, onCancel }
     try {
       const result = await onPreview(buildTarget(state));
       setPreview(result);
-      patch({ fields: suggestFields(result, state.type) });
+      patch({ fields: suggestFields(result, state.type, locale) });
     } catch (e) {
       setPreview(null);
-      setPreviewError(e instanceof Error ? e.message : 'Falha ao executar o preview');
+      setPreviewError(e instanceof Error ? e.message : t('form.previewFailed'));
     } finally {
       setRunning(false);
     }
   }
 
   async function save() {
-    const errors = validateForm(state);
+    const errors = validateForm(state).map((m) => translate(t, m));
     setSaveErrors(errors);
     if (errors.length > 0) return;
     setSaving(true);
     try {
       await onSave(buildDefinition(state));
     } catch (e) {
-      setSaveErrors([e instanceof Error ? e.message : 'Falha ao salvar']);
+      setSaveErrors([e instanceof Error ? e.message : t('form.saveFailed')]);
     } finally {
       setSaving(false);
     }
@@ -90,8 +95,8 @@ export function MonitorForm({ groups, connections, onPreview, onSave, onCancel }
   return (
     <div className="flex flex-col gap-[1rem]">
       <div className="grid grid-cols-1 gap-[1rem] lg:grid-cols-2">
-        <Section title="Configuração">
-          <div role="radiogroup" aria-label="Tipo" className="flex gap-[0.4rem]">
+        <Section title={t('form.configuration')}>
+          <div role="radiogroup" aria-label={t('form.type')} className="flex gap-[0.4rem]">
             {(['SQL', 'HTTP'] as const).map((type) => (
               <label
                 key={type}
@@ -103,13 +108,13 @@ export function MonitorForm({ groups, connections, onPreview, onSave, onCancel }
             ))}
           </div>
           <div className="grid grid-cols-1 gap-[0.6rem] sm:grid-cols-2">
-            <FormField label="Nome">
+            <FormField label={t('form.name')}>
               {(id) => <input id={id} className={INPUT_CLASS} value={state.name} onChange={(e) => patch({ name: e.target.value })} />}
             </FormField>
-            <FormField label="Grupo">
+            <FormField label={t('form.group')}>
               {(id) => (
                 <select id={id} className={SELECT_CLASS} value={state.groupId} onChange={(e) => patch({ groupId: e.target.value })}>
-                  <option value="">Escolha…</option>
+                  <option value="">{t('form.choose')}</option>
                   {groups.map((g) => (
                     <option key={g.id} value={g.id}>
                       {g.name}
@@ -118,7 +123,7 @@ export function MonitorForm({ groups, connections, onPreview, onSave, onCancel }
                 </select>
               )}
             </FormField>
-            <FormField label="Intervalo (s)">
+            <FormField label={t('form.interval')}>
               {(id) => (
                 <input
                   id={id}
@@ -131,7 +136,7 @@ export function MonitorForm({ groups, connections, onPreview, onSave, onCancel }
                 />
               )}
             </FormField>
-            <FormField label="Tentativas antes de marcar fora">
+            <FormField label={t('form.retries')}>
               {(id) => (
                 <input
                   id={id}
@@ -148,33 +153,33 @@ export function MonitorForm({ groups, connections, onPreview, onSave, onCancel }
           <TargetFields state={state} connections={connections} onChange={patch} />
           <div>
             <Button variant="primary" onClick={runPreview} disabled={running || targetErrors.length > 0}>
-              Executar preview
+              {t('form.runPreview')}
             </Button>
           </div>
         </Section>
 
-        <Section title="Preview">
+        <Section title={t('form.preview')}>
           {previewError && (
             <p role="alert" className="m-0 font-mono text-[0.85rem] text-down-text">
               {previewError}
             </p>
           )}
-          {running && <p className="m-0 text-muted">Executando…</p>}
+          {running && <p className="m-0 text-muted">{t('form.running')}</p>}
           {preview ? (
             <PreviewTable preview={preview} />
           ) : (
-            !previewError && !running && <p className="m-0 text-[0.85rem] text-muted">Execute o preview para ver o resultado e escolher os dados.</p>
+            !previewError && !running && <p className="m-0 text-[0.85rem] text-muted">{t('form.previewEmpty')}</p>
           )}
         </Section>
       </div>
 
       {preview && (
-        <Section title="Dados e exibição">
+        <Section title={t('form.dataDisplay')}>
           <DataDisplayStep fields={state.fields} onChange={(fields) => patch({ fields })} />
         </Section>
       )}
 
-      <Section title="Condições">
+      <Section title={t('form.conditions')}>
         <ConditionEditor
           conditions={state.conditions}
           fields={fieldNames}
@@ -186,10 +191,10 @@ export function MonitorForm({ groups, connections, onPreview, onSave, onCancel }
       <ErrorList errors={saveErrors} />
       <div className="flex justify-end gap-[0.6rem]">
         <Button variant="ghost" onClick={onCancel}>
-          Cancelar
+          {t('form.cancel')}
         </Button>
         <Button variant="primary" onClick={save} disabled={saving}>
-          Salvar monitor
+          {t('form.save')}
         </Button>
       </div>
     </div>

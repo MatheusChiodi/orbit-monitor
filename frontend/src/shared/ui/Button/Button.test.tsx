@@ -4,24 +4,24 @@ import { describe, expect, it, vi } from 'vitest';
 import { Button } from './Button';
 
 describe('Button', () => {
-  it('renderiza o texto e dispara onClick', async () => {
+  it('renders the text and fires onClick', async () => {
     const onClick = vi.fn();
-    render(<Button onClick={onClick}>Reconhecer</Button>);
-    await userEvent.click(screen.getByRole('button', { name: 'Reconhecer' }));
+    render(<Button onClick={onClick}>Acknowledge</Button>);
+    await userEvent.click(screen.getByRole('button', { name: 'Acknowledge' }));
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
-  it('é type="button" por padrão', () => {
+  it('is type="button" by default', () => {
     render(<Button>Ok</Button>);
     expect(screen.getByRole('button')).toHaveAttribute('type', 'button');
   });
 
-  it('aplica a variante como data-variant', () => {
-    render(<Button variant="danger">Fora</Button>);
+  it('applies the variant as data-variant', () => {
+    render(<Button variant="danger">Down</Button>);
     expect(screen.getByRole('button')).toHaveAttribute('data-variant', 'danger');
   });
 
-  it('desabilitado não dispara clique', async () => {
+  it('a disabled button does not fire clicks', async () => {
     const onClick = vi.fn();
     render(
       <Button disabled onClick={onClick}>
@@ -32,7 +32,7 @@ describe('Button', () => {
     expect(onClick).not.toHaveBeenCalled();
   });
 
-  it('largura total quando block', () => {
+  it('full width when block', () => {
     render(<Button block>Y</Button>);
     expect(screen.getByRole('button').className).toContain('w-full');
   });

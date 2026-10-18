@@ -5,11 +5,11 @@ import { DOT_CLASS } from '../tones';
 export interface PanelProps {
   title?: string;
   actions?: ReactNode;
-  /** Estado que pinta a barra lateral de 0.35 rem (usada no herói). */
+  /** State that paints the 0.35 rem side bar (used by the hero). */
   tone?: Status;
-  /** Pisca a barra lateral (incidente sem responsável). */
+  /** Blinks the side bar (incident without an owner). */
   pulse?: boolean;
-  /** Anuncia mudanças a leitores de tela. */
+  /** Announces changes to screen readers. */
   live?: boolean;
   className?: string;
   children: ReactNode;

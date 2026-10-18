@@ -1,6 +1,7 @@
 import type { Condition, PreviewRow } from '@/shared/api/types';
+import { msg, type Message } from '@/shared/i18n/message';
 
-/** Dados do preview contra os quais a condição é testada ("essa condição falharia agora"). */
+/** Preview data the condition is tested against ("this condition would fail now"). */
 export interface EvaluationContext {
   row: PreviewRow;
   rowCount: number;
@@ -16,7 +17,7 @@ const TIME_FIELDS = new Set(['[EXEC_TIME]', '[RESPONSE_TIME]']);
 
 const UNIT_MS: Record<string, number> = { ms: 1, s: 1000, min: 60_000, h: 3_600_000, d: 86_400_000 };
 
-/** "10min" → 600000; aceita ms, s, min, h, d. */
+/** "10min" → 600000; accepts ms, s, min, h, d. */
 export function parseDurationText(text: string): number | null {
   const match = /^\s*(\d+(?:[.,]\d+)?)\s*(ms|s|min|h|d)\s*$/i.exec(text);
   if (!match) return null;
@@ -70,7 +71,7 @@ function verdict(ok: boolean): EvaluationResult {
   return ok ? 'pass' : 'fail';
 }
 
-/** Avalia uma condição de saúde: `pass` = saudável, `fail` = dispara o nível da condição. */
+/** Evaluates a health condition: `pass` = healthy, `fail` = triggers the condition level. */
 export function evaluateCondition(condition: Condition, ctx: EvaluationContext): EvaluationResult {
   const actual = resolveField(condition.field, ctx);
   if (actual === undefined || actual === null) return 'invalid';
@@ -114,18 +115,18 @@ export function evaluateCondition(condition: Condition, ctx: EvaluationContext):
   }
 }
 
-/** Validação instantânea da linha do editor; devolve a mensagem de erro ou null. */
-export function validateCondition(condition: Condition, fields: readonly string[]): string | null {
-  if (!fields.includes(condition.field)) return 'Campo não existe no resultado';
-  if (condition.value.trim() === '') return 'Informe um valor';
-  if (condition.operator === 'between' && !splitRange(condition.value)) return 'Use "mín..máx"';
+/** Instant validation of an editor row; returns the error message or null. */
+export function validateCondition(condition: Condition, fields: readonly string[]): Message | null {
+  if (!fields.includes(condition.field)) return msg('conditions.errors.unknownField');
+  if (condition.value.trim() === '') return msg('conditions.errors.valueRequired');
+  if (condition.operator === 'between' && !splitRange(condition.value)) return msg('conditions.errors.range');
   if (condition.operator === 'older_than' && parseDurationText(condition.value) === null) {
-    return 'Use uma duração: 10min, 2h, 30s';
+    return msg('conditions.errors.duration');
   }
   return null;
 }
 
-/** Texto no estilo Gatus: `[COL].QTD < 200`, `[ROWS] == 0`. */
+/** Gatus-style text: `[COL].QTY < 200`, `[ROWS] == 0`. */
 export function conditionText(condition: Condition): string {
   const field = condition.field.startsWith('[') ? condition.field : `[COL].${condition.field}`;
   const operator = condition.operator === 'older_than' ? 'older than' : condition.operator;

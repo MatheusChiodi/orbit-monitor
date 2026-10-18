@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react';
+import { useTranslation } from 'react-i18next';
 import { countByStatus, nearLimit } from '@/domains/monitor/status';
 import type { WallSnapshot } from '@/shared/api/types';
 import { heroTransition, heroVariants } from '@/shared/motion';
@@ -22,14 +23,15 @@ export interface WallScreenProps {
 }
 
 /**
- * Parede 16:9: esquerda é ação (herói, também ativos, perto do limite), direita é contexto
- * (matriz e linha do tempo). Em telas estreitas vira uma coluna nessa mesma ordem.
+ * 16:9 wall: the left side is action (hero, also active, near threshold), the right side is context
+ * (matrix and timeline). On narrow screens it becomes one column in that same order.
  */
 export function WallScreen({ snapshot, now, connection, freshEventIds, onAcknowledge, onFullscreen }: WallScreenProps) {
+  const { t } = useTranslation();
   if (!snapshot) {
     return (
       <main className="flex min-h-screen items-center justify-center text-muted" aria-busy="true">
-        Carregando a parede…
+        {t('wall.loading')}
       </main>
     );
   }

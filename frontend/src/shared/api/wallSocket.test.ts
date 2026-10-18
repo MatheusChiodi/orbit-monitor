@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { connectWall, parseWallMessage, wallSocketUrl, type SocketLike } from './wallSocket';
+import { connectWall, parseWallMessage, wallLayoutSlug, wallSocketUrl, type SocketLike } from './wallSocket';
 
 class FakeSocket implements SocketLike {
   static instances: FakeSocket[] = [];
@@ -29,11 +29,11 @@ afterEach(() => {
 });
 
 describe('parseWallMessage', () => {
-  it('aceita mensagens conhecidas', () => {
+  it('accepts known messages', () => {
     const msg = parseWallMessage(JSON.stringify({ type: 'event', payload: { id: 'e1' } }));
     expect(msg?.type).toBe('event');
   });
-  it('rejeita JSON inválido ou tipo desconhecido', () => {
+  it('rejects invalid JSON or unknown types', () => {
     expect(parseWallMessage('{x')).toBeNull();
     expect(parseWallMessage(JSON.stringify({ type: 'hack', payload: {} }))).toBeNull();
     expect(parseWallMessage(JSON.stringify({ type: 'event' }))).toBeNull();
@@ -42,14 +42,25 @@ describe('parseWallMessage', () => {
 });
 
 describe('wallSocketUrl', () => {
-  it('troca http por ws e https por wss', () => {
+  it('maps http to ws and https to wss', () => {
     expect(wallSocketUrl({ protocol: 'http:', host: 'localhost:5173' })).toBe('ws://localhost:5173/ws/wall');
-    expect(wallSocketUrl({ protocol: 'https:', host: 'orbit' }, 'tk')).toBe('wss://orbit/ws/wall?token=tk');
+    expect(wallSocketUrl({ protocol: 'https:', host: 'orbit' }, 'noc')).toBe('wss://orbit/ws/wall?layout=noc');
+  });
+});
+
+describe('wallLayoutSlug', () => {
+  it('reads the layout from /wall/<slug> (no token)', () => {
+    expect(wallLayoutSlug('/wall/noc')).toBe('noc');
+    expect(wallLayoutSlug('/wall/Payments-Team/')).toBe('payments-team');
+  });
+  it('wall.html and anything else fall back to the default layout', () => {
+    expect(wallLayoutSlug('/wall.html')).toBe('noc');
+    expect(wallLayoutSlug('/wall/../etc')).toBe('noc');
   });
 });
 
 describe('connectWall', () => {
-  it('entrega mensagens válidas e informa o estado da conexão', () => {
+  it('delivers valid messages and reports the connection state', () => {
     const onMessage = vi.fn();
     const onStatus = vi.fn();
     connectWall({ url: 'ws://x/ws/wall', onMessage, onStatus, createSocket: (u) => new FakeSocket(u) });
@@ -58,11 +69,11 @@ describe('connectWall', () => {
     socket?.onopen?.();
     expect(onStatus).toHaveBeenLastCalledWith('open');
     socket?.onmessage?.({ data: JSON.stringify({ type: 'monitor', payload: { id: 'm1' } }) });
-    socket?.onmessage?.({ data: 'lixo' });
+    socket?.onmessage?.({ data: 'garbage' });
     expect(onMessage).toHaveBeenCalledTimes(1);
   });
 
-  it('reconecta com espera crescente após queda', () => {
+  it('reconnects with growing backoff after a drop', () => {
     connectWall({ url: 'ws://x', onMessage: vi.fn(), createSocket: (u) => new FakeSocket(u), reconnectMs: 1000 });
     FakeSocket.instances[0]?.onclose?.();
     vi.advanceTimersByTime(999);
@@ -76,7 +87,7 @@ describe('connectWall', () => {
     expect(FakeSocket.instances).toHaveLength(3);
   });
 
-  it('close() encerra e não reconecta', () => {
+  it('close() stops and does not reconnect', () => {
     const onStatus = vi.fn();
     const conn = connectWall({ url: 'ws://x', onMessage: vi.fn(), onStatus, createSocket: (u) => new FakeSocket(u) });
     conn.close();

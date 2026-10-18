@@ -1,8 +1,8 @@
 import type { FieldFormat } from '@/shared/format';
 
 /**
- * Contrato de dados entre o front e a API do Orbit (REST `/api`, WebSocket `/ws/wall`).
- * Datas trafegam como ISO-8601.
+ * Data contract between the frontend and the Orbit API (REST `/api`, WebSocket `/ws/wall`).
+ * Dates travel as ISO-8601.
  */
 
 export type Status = 'OK' | 'WARN' | 'DOWN';
@@ -11,7 +11,7 @@ export type MonitorType = 'HTTP' | 'SQL' | 'PING' | 'PUSH';
 
 export type ComparisonOperator = '<' | '<=' | '>' | '>=' | '==' | '!=';
 
-/** Regra principal de um monitor, mostrada na parede (`regra QTD < 200`). */
+/** Main rule of a monitor, shown on the wall (`rule QTY < 200`). */
 export interface Rule {
   field: string;
   operator: ComparisonOperator;
@@ -30,13 +30,13 @@ export interface MonitorView {
   groupId: string;
   type: MonitorType;
   status: Status;
-  /** Valor atual do campo principal (null = sem resposta). */
+  /** Current value of the main field (null = no response). */
   value: number | null;
   unit?: string;
   rule?: Rule;
-  /** Desde quando está no estado atual. */
+  /** Since when it has been in the current state. */
   since: string;
-  /** Últimos 60 pontos (1/min); null = sem resposta. */
+  /** Last 60 points (1/min); null = no response. */
   series?: (number | null)[];
 }
 
@@ -68,7 +68,7 @@ export interface WallSnapshot {
   monitors: MonitorView[];
   incidents: Incident[];
   timeline: TimelineEvent[];
-  /** Disponibilidade 24 h em pontos percentuais (99.97). */
+  /** 24 h availability in percentage points (99.97). */
   uptime24h: number;
   lastRecoveryAt: string | null;
 }
@@ -81,22 +81,15 @@ export type WallMessage =
 
 // ---------- Console ----------
 
-export type Role = 'viewer' | 'operator' | 'editor' | 'admin';
+/**
+ * Orbit has no login. The network decides: mutations are accepted only from loopback by default,
+ * other clients are view-only (they may still acknowledge incidents).
+ */
+export type AccessMode = 'edit' | 'view-only';
 
-export interface User {
-  id: string;
-  name: string;
-  role: Role;
-}
-
-export interface LoginRequest {
-  username: string;
-  password: string;
-}
-
-export interface Session {
-  token: string;
-  user: User;
+export interface AccessInfo {
+  mode: AccessMode;
+  client: 'loopback' | 'lan' | 'unknown';
 }
 
 export type ColumnType = 'number' | 'text' | 'date' | 'boolean';
@@ -112,7 +105,7 @@ export interface PreviewResult {
   columns: PreviewColumn[];
   rows: PreviewRow[];
   elapsedMs: number;
-  /** Status HTTP, quando o monitor é HTTP. */
+  /** HTTP status, when the monitor is HTTP. */
   status?: number;
 }
 

@@ -1,5 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
+import { renderWithLocale } from '@/test/renderWithLocale';
 import { mockSnapshot } from '../../mock';
 import { groupRows } from '../../selectors';
 import { MonitorMatrix } from './MonitorMatrix';
@@ -7,32 +8,38 @@ import { MonitorMatrix } from './MonitorMatrix';
 const now = new Date(2026, 9, 18, 17, 10, 0);
 
 describe('MonitorMatrix', () => {
-  it('linhas por grupo com resumo e células com problema primeiro', () => {
+  it('rows per group with a summary and problem cells first', () => {
     const snap = mockSnapshot('incident', now);
-    render(<MonitorMatrix rows={groupRows(snap)} unownedMonitorIds={new Set(['conciliacao'])} />);
-    const region = screen.getByRole('region', { name: 'Todos os monitores' });
+    render(<MonitorMatrix rows={groupRows(snap)} unownedMonitorIds={new Set(['reconciliation'])} />);
+    const region = screen.getByRole('region', { name: 'All monitors' });
     const groups = within(region).getAllByRole('group');
-    expect(groups[0]).toHaveAccessibleName('Pagamentos');
-    expect(within(groups[0]!).getByText('2/4 ok · FORA')).toBeInTheDocument();
+    expect(groups[0]).toHaveAccessibleName('Payments');
+    expect(within(groups[0]!).getByText('2/4 ok · DOWN')).toBeInTheDocument();
     const cells = within(groups[0]!).getAllByRole('listitem');
-    expect(cells[0]).toHaveTextContent('Fila de conciliação');
-    expect(cells[0]).toHaveTextContent('349 QTD');
+    expect(cells[0]).toHaveTextContent('Reconciliation queue');
+    expect(cells[0]).toHaveTextContent('349 QTY');
     expect(cells[0]).toHaveAttribute('data-status', 'DOWN');
   });
 
-  it('célula vermelha sem responsável pisca; reconhecida não', () => {
+  it('renders in pt-BR', () => {
+    renderWithLocale(<MonitorMatrix rows={groupRows(mockSnapshot('incident', now))} unownedMonitorIds={new Set()} />, 'pt-BR');
+    const region = screen.getByRole('region', { name: 'Todos os monitores' });
+    expect(within(region).getByText('2/4 ok · FORA')).toBeInTheDocument();
+    expect(within(region).getByText('1.840 QTY')).toBeInTheDocument();
+  });
+
+  it('an unowned red cell blinks; an acknowledged one does not', () => {
     const snap = mockSnapshot('incident', now);
     const { container, rerender } = render(
-      <MonitorMatrix rows={groupRows(snap)} unownedMonitorIds={new Set(['conciliacao'])} />,
+      <MonitorMatrix rows={groupRows(snap)} unownedMonitorIds={new Set(['reconciliation'])} />,
     );
     expect(container.querySelectorAll('[data-status="DOWN"].anim-blink')).toHaveLength(1);
     rerender(<MonitorMatrix rows={groupRows(snap)} unownedMonitorIds={new Set()} />);
     expect(container.querySelectorAll('.anim-blink')).toHaveLength(0);
   });
 
-  it('estado da célula também em texto (acessível)', () => {
-    const snap = mockSnapshot('incident', now);
-    render(<MonitorMatrix rows={groupRows(snap)} unownedMonitorIds={new Set()} />);
-    expect(screen.getAllByRole('img', { name: 'FORA' })).toHaveLength(1);
+  it('cell state is also text (accessible)', () => {
+    render(<MonitorMatrix rows={groupRows(mockSnapshot('incident', now))} unownedMonitorIds={new Set()} />);
+    expect(screen.getAllByRole('img', { name: 'DOWN' })).toHaveLength(1);
   });
 });

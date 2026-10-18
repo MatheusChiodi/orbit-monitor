@@ -23,38 +23,38 @@ function renderWall(scenario: 'incident' | 'ok', onAcknowledge = vi.fn()) {
 }
 
 describe('WallScreen', () => {
-  it('com incidente: herói do pior problema e todos os blocos', () => {
+  it('with an incident: hero of the worst problem and every block', () => {
     renderWall('incident');
-    expect(screen.getByRole('heading', { name: 'Fila de conciliação' })).toBeInTheDocument();
-    for (const name of ['Situação', 'Também ativos', 'Perto do limite', 'Todos os monitores', 'Linha do tempo']) {
+    expect(screen.getByRole('heading', { name: 'Reconciliation queue' })).toBeInTheDocument();
+    for (const name of ['Situation', 'Also active', 'Near threshold', 'All monitors', 'Timeline']) {
       expect(screen.getByRole('region', { name })).toBeInTheDocument();
     }
-    expect(screen.getByRole('status')).toHaveTextContent('1 monitor fora');
+    expect(screen.getByRole('status')).toHaveTextContent('1 monitor down');
   });
 
-  it('tudo ok: herói calmo', () => {
+  it('all ok: calm hero', () => {
     renderWall('ok');
-    expect(screen.getByRole('heading', { name: 'Tudo operacional' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Reconhecer' })).toBeNull();
+    expect(screen.getByRole('heading', { name: 'All systems operational' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Acknowledge' })).toBeNull();
   });
 
-  it('Reconhecer repassa o id do incidente', async () => {
+  it('Acknowledge passes the incident id', async () => {
     const onAcknowledge = vi.fn();
     renderWall('incident', onAcknowledge);
-    await userEvent.click(screen.getByRole('button', { name: 'Reconhecer' }));
-    expect(onAcknowledge).toHaveBeenCalledWith('inc-conciliacao');
+    await userEvent.click(screen.getByRole('button', { name: 'Acknowledge' }));
+    expect(onAcknowledge).toHaveBeenCalledWith('inc-reconciliation');
   });
 
-  it('ordem dos blocos no DOM segue a ordem do celular', () => {
+  it('DOM block order follows the phone order', () => {
     renderWall('incident');
     const names = screen.getAllByRole('region').map((r) => r.getAttribute('aria-labelledby') && r.querySelector('h2')?.textContent);
-    expect(names).toEqual(['Situação', 'Também ativos', 'Perto do limite', 'Todos os monitores', 'Linha do tempo']);
+    expect(names).toEqual(['Situation', 'Also active', 'Near threshold', 'All monitors', 'Timeline']);
   });
 
-  it('sem snapshot mostra carregando', () => {
+  it('shows loading without a snapshot', () => {
     render(
       <WallScreen snapshot={null} now={now} connection="connecting" freshEventIds={new Set()} onAcknowledge={vi.fn()} />,
     );
-    expect(screen.getByText('Carregando a parede…')).toBeInTheDocument();
+    expect(screen.getByText('Loading the wall…')).toBeInTheDocument();
   });
 });

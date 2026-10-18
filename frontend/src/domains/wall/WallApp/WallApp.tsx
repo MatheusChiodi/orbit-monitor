@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useStore } from 'zustand';
+import { useLocale } from '@/shared/i18n/useLocale';
 import type { ApiClient } from '@/shared/api/client';
 import type { WallSnapshot } from '@/shared/api/types';
 import { connectWall, wallSocketUrl, type ConnectWallOptions, type WallConnection } from '@/shared/api/wallSocket';
@@ -14,14 +15,14 @@ export interface WallAppProps {
   connect?: (options: ConnectWallOptions) => WallConnection;
   operator: string;
   mock?: () => WallSnapshot;
-  /** Token de parede (somente leitura), repassado ao WebSocket. */
-  token?: string;
+  /** Wall layout slug (`/wall/noc`), sent to the WebSocket. */
+  layout?: string;
 }
 
-/** Nome mostrado em "X reconheceu às HH:MM": `?operador=` na URL ou o último usado. */
+/** Name shown in "X acknowledged at HH:MM": `?operator=` in the URL or the last one used. */
 export function operatorName(search: string, saved: string | null): string {
-  const fromUrl = new URLSearchParams(search).get('operador');
-  return fromUrl?.trim() || saved?.trim() || 'Operador';
+  const fromUrl = new URLSearchParams(search).get('operator');
+  return fromUrl?.trim() || saved?.trim() || 'Operator';
 }
 
 function requestFullscreen(): void {
@@ -29,12 +30,13 @@ function requestFullscreen(): void {
   else void document.documentElement.requestFullscreen?.();
 }
 
-export function WallApp({ api, connect = connectWall, operator, mock, token }: WallAppProps) {
+export function WallApp({ api, connect = connectWall, operator, mock, layout }: WallAppProps) {
   const [store] = useState(() => createWallStore());
   const snapshot = useStore(store, (s) => s.snapshot);
   const connection = useStore(store, (s) => s.connection);
   const freshEventIds = useStore(store, (s) => s.freshEventIds);
   const now = useNow(1000);
+  const locale = useLocale();
 
   useEffect(() => {
     let stopped = false;
@@ -42,7 +44,7 @@ export function WallApp({ api, connect = connectWall, operator, mock, token }: W
     void startWallFeed(store, {
       loadSnapshot: api.getWallSnapshot,
       connect,
-      url: wallSocketUrl(window.location, token),
+      url: wallSocketUrl(window.location, layout),
       mock,
     }).then((feed) => {
       if (stopped) feed.stop();
@@ -52,11 +54,11 @@ export function WallApp({ api, connect = connectWall, operator, mock, token }: W
       stopped = true;
       stop?.();
     };
-  }, [store, api, connect, mock, token]);
+  }, [store, api, connect, mock, layout]);
 
   const onAcknowledge = useCallback(
-    (incidentId: string) => void acknowledge(store, incidentId, operator, api.acknowledgeIncident),
-    [store, operator, api],
+    (incidentId: string) => void acknowledge(store, incidentId, operator, api.acknowledgeIncident, locale),
+    [store, operator, api, locale],
   );
 
   return (

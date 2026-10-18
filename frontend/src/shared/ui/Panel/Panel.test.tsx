@@ -3,28 +3,28 @@ import { describe, expect, it } from 'vitest';
 import { Panel } from './Panel';
 
 describe('Panel', () => {
-  it('é uma região rotulada pelo título', () => {
-    render(<Panel title="Perto do limite">conteúdo</Panel>);
-    expect(screen.getByRole('region', { name: 'Perto do limite' })).toHaveTextContent('conteúdo');
+  it('is a region labelled by its title', () => {
+    render(<Panel title="Near threshold">content</Panel>);
+    expect(screen.getByRole('region', { name: 'Near threshold' })).toHaveTextContent('content');
   });
 
-  it('mostra ações à direita do título', () => {
+  it('shows actions next to the title', () => {
     render(
-      <Panel title="Linha do tempo" actions={<span>ao vivo</span>}>
+      <Panel title="Timeline" actions={<span>live</span>}>
         x
       </Panel>,
     );
-    expect(screen.getByText('ao vivo')).toBeInTheDocument();
+    expect(screen.getByText('live')).toBeInTheDocument();
   });
 
-  it('sem título continua renderizando os filhos', () => {
-    render(<Panel>só corpo</Panel>);
-    expect(screen.getByText('só corpo')).toBeInTheDocument();
+  it('renders children without a title', () => {
+    render(<Panel>body only</Panel>);
+    expect(screen.getByText('body only')).toBeInTheDocument();
   });
 
-  it('marca o tom de estado para a barra lateral', () => {
+  it('marks the state tone for the side bar', () => {
     render(
-      <Panel title="Situação" tone="DOWN">
+      <Panel title="Situation" tone="DOWN">
         x
       </Panel>,
     );
@@ -33,9 +33,9 @@ describe('Panel', () => {
 });
 
 describe('Panel pulse', () => {
-  it('pisca a barra lateral quando pulse', () => {
+  it('blinks the side bar when pulse is set', () => {
     const { container } = render(
-      <Panel title="Situação" tone="DOWN" pulse>
+      <Panel title="Situation" tone="DOWN" pulse>
         x
       </Panel>,
     );

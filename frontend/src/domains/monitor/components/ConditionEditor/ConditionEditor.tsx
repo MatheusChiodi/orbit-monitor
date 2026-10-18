@@ -1,53 +1,50 @@
+import { useTranslation } from 'react-i18next';
 import type { Condition, ConditionOperator, Severity } from '@/shared/api/types';
+import { translate } from '@/shared/i18n/message';
 import { Button, INPUT_CLASS, SELECT_CLASS } from '@/shared/ui';
 import { evaluateCondition, validateCondition, type EvaluationContext } from '../../conditions';
 
 export interface ConditionEditorProps {
   conditions: readonly Condition[];
-  /** Campos disponíveis no resultado do preview. */
+  /** Fields available in the preview result. */
   fields: readonly string[];
-  /** Resultado atual para a validação ao vivo; null antes do preview. */
+  /** Current result for live validation; null before the preview. */
   context: EvaluationContext | null;
   onChange: (conditions: Condition[]) => void;
 }
 
-const OPERATORS: { value: ConditionOperator; label: string }[] = [
-  { value: '<', label: '<' },
-  { value: '<=', label: '<=' },
-  { value: '>', label: '>' },
-  { value: '>=', label: '>=' },
-  { value: '==', label: '==' },
-  { value: '!=', label: '!=' },
-  { value: 'between', label: 'between' },
-  { value: 'in', label: 'in' },
-  { value: 'older_than', label: 'mais recente que' },
-];
+const SYMBOL_OPERATORS: ConditionOperator[] = ['<', '<=', '>', '>=', '==', '!=', 'between', 'in'];
+const LEVELS: Severity[] = ['WARN', 'DOWN'];
 
-const LEVELS: { value: Severity; label: string }[] = [
-  { value: 'WARN', label: 'Atenção' },
-  { value: 'DOWN', label: 'Fora' },
-];
-
-const LEVEL_TEXT: Record<Severity, string> = { WARN: 'ATENÇÃO', DOWN: 'FORA' };
-
-function LiveResult({ condition, fields, context }: { condition: Condition; fields: readonly string[]; context: EvaluationContext | null }) {
+function LiveResult({
+  condition,
+  fields,
+  context,
+}: {
+  condition: Condition;
+  fields: readonly string[];
+  context: EvaluationContext | null;
+}) {
+  const { t } = useTranslation();
   const error = validateCondition(condition, fields);
-  if (error) return <span className="text-down-text">{error}</span>;
+  if (error) return <span className="text-down-text">{translate(t, error)}</span>;
   if (!context) return null;
   const result = evaluateCondition(condition, context);
-  if (result === 'invalid') return <span className="text-muted">Não dá para avaliar com o resultado atual</span>;
+  if (result === 'invalid') return <span className="text-muted">{t('conditions.cannotEvaluate')}</span>;
   if (result === 'fail') {
     return (
       <span className={condition.level === 'DOWN' ? 'text-down-text' : 'text-warn-text'}>
-        {`Essa condição falharia agora (${LEVEL_TEXT[condition.level]})`}
+        {t('conditions.wouldFail', { level: t(`status.label.${condition.level}`) })}
       </span>
     );
   }
-  return <span className="text-ok-text">Passa com o resultado atual</span>;
+  return <span className="text-ok-text">{t('conditions.passes')}</span>;
 }
 
-/** Condições em linhas `campo · operador · valor · nível`, validadas contra o preview. */
+/** Conditions as `field · operator · value · level` rows, validated against the preview. */
 export function ConditionEditor({ conditions, fields, context, onChange }: ConditionEditorProps) {
+  const { t } = useTranslation();
+
   function update(index: number, patch: Partial<Condition>) {
     onChange(conditions.map((c, i) => (i === index ? { ...c, ...patch } : c)));
   }
@@ -62,12 +59,12 @@ export function ConditionEditor({ conditions, fields, context, onChange }: Condi
         <div
           key={index}
           role="group"
-          aria-label={`Condição ${index + 1}`}
+          aria-label={t('conditions.group', { n: index + 1 })}
           className="flex flex-col gap-[0.3rem] rounded-[0.45rem] border border-line bg-s1 p-[0.6rem]"
         >
           <div className="grid grid-cols-[1.4fr_1fr_1fr_1fr_auto] items-center gap-[0.4rem]">
             <select
-              aria-label="Campo"
+              aria-label={t('conditions.field')}
               className={`${SELECT_CLASS} font-mono`}
               value={condition.field}
               onChange={(e) => update(index, { field: e.target.value })}
@@ -80,39 +77,40 @@ export function ConditionEditor({ conditions, fields, context, onChange }: Condi
               ))}
             </select>
             <select
-              aria-label="Operador"
+              aria-label={t('conditions.operator')}
               className={`${SELECT_CLASS} font-mono`}
               value={condition.operator}
               onChange={(e) => update(index, { operator: e.target.value as ConditionOperator })}
             >
-              {OPERATORS.map((op) => (
-                <option key={op.value} value={op.value}>
-                  {op.label}
+              {SYMBOL_OPERATORS.map((op) => (
+                <option key={op} value={op}>
+                  {op}
                 </option>
               ))}
+              <option value="older_than">{t('conditions.newerThan')}</option>
             </select>
             <input
-              aria-label="Valor"
+              aria-label={t('conditions.value')}
               className={`${INPUT_CLASS} font-mono`}
               value={condition.value}
               placeholder={condition.operator === 'between' ? '10..50' : condition.operator === 'older_than' ? '10min' : '200'}
               onChange={(e) => update(index, { value: e.target.value })}
             />
             <select
-              aria-label="Nível"
+              aria-label={t('conditions.level')}
               className={SELECT_CLASS}
               value={condition.level}
               onChange={(e) => update(index, { level: e.target.value as Severity })}
             >
               {LEVELS.map((level) => (
-                <option key={level.value} value={level.value}>
-                  {level.label}
+                <option key={level} value={level}>
+                  {t(`conditions.levels.${level}`)}
                 </option>
               ))}
             </select>
             <Button
               variant="ghost"
-              aria-label={`Remover condição ${index + 1}`}
+              aria-label={t('conditions.remove', { n: index + 1 })}
               onClick={() => onChange(conditions.filter((_, i) => i !== index))}
             >
               ✕
@@ -125,7 +123,7 @@ export function ConditionEditor({ conditions, fields, context, onChange }: Condi
       ))}
       <div>
         <Button variant="neutral" onClick={add} disabled={fields.length === 0}>
-          Adicionar condição
+          {t('conditions.add')}
         </Button>
       </div>
     </div>

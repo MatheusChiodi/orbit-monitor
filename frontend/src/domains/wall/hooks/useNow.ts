@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-/** Relógio que reemite a hora atual a cada `intervalMs`. */
+/** Clock that re-emits the current time every `intervalMs`. */
 export function useNow(intervalMs = 1000): Date {
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {

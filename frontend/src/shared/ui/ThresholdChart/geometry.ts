@@ -25,7 +25,8 @@ export interface ChartGap {
 
 export interface ChartTick {
   x: number;
-  label: string;
+  /** Minutes relative to now (-60 … 0); the component turns 0 into "now". */
+  minutes: number;
 }
 
 export interface ThresholdGeometry {
@@ -56,9 +57,9 @@ function violates(value: number, { limit, operator }: ChartLimit): boolean {
   }
 }
 
-const TICK_LABELS = ['-60min', '-45min', '-30min', '-15min', 'agora'];
+const TICK_MINUTES = [-60, -45, -30, -15, 0];
 
-/** Geometria pura do gráfico de limite (60 min), separada do desenho em canvas. */
+/** Pure geometry of the 60-min threshold chart, separate from the canvas drawing. */
 export function thresholdGeometry(
   series: readonly (number | null)[],
   limit: ChartLimit | null,
@@ -96,7 +97,7 @@ export function thresholdGeometry(
   let current: ChartPoint | null = null;
   for (let i = points.length - 1; i >= 0 && !current; i -= 1) current = points[i] ?? null;
 
-  const ticks = TICK_LABELS.map((label, i) => ({ label, x: padding.left + (innerW * i) / (TICK_LABELS.length - 1) }));
+  const ticks = TICK_MINUTES.map((minutes, i) => ({ minutes, x: padding.left + (innerW * i) / (TICK_MINUTES.length - 1) }));
 
   return { points, gaps, limitY: limit ? yOf(limit.limit) : null, min, max, current, ticks, step };
 }

@@ -1,4 +1,5 @@
 import { useId, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Connection, HttpMethod } from '@/shared/api/types';
 import { INPUT_CLASS, SELECT_CLASS } from '@/shared/ui';
 import type { MonitorFormState } from '../../form';
@@ -24,12 +25,13 @@ export interface TargetFieldsProps {
   onChange: (patch: Partial<MonitorFormState>) => void;
 }
 
-/** Campos do alvo: conexão + SELECT, ou método + URL + headers + body. */
+/** Target fields: connection + SELECT, or method + URL + headers + body. */
 export function TargetFields({ state, connections, onChange }: TargetFieldsProps) {
+  const { t } = useTranslation();
   if (state.type === 'SQL') {
     return (
       <>
-        <FormField label="Conexão">
+        <FormField label={t('form.connection')}>
           {(id) => (
             <select
               id={id}
@@ -37,7 +39,7 @@ export function TargetFields({ state, connections, onChange }: TargetFieldsProps
               value={state.connectionId}
               onChange={(e) => onChange({ connectionId: e.target.value })}
             >
-              <option value="">Escolha…</option>
+              <option value="">{t('form.choose')}</option>
               {connections.map((c) => (
                 <option key={c.id} value={c.id}>
                   {`${c.name} · ${c.kind}`}
@@ -55,7 +57,7 @@ export function TargetFields({ state, connections, onChange }: TargetFieldsProps
   return (
     <>
       <div className="grid grid-cols-[7rem_1fr] gap-[0.6rem]">
-        <FormField label="Método">
+        <FormField label={t('form.method')}>
           {(id) => (
             <select
               id={id}
@@ -71,19 +73,19 @@ export function TargetFields({ state, connections, onChange }: TargetFieldsProps
             </select>
           )}
         </FormField>
-        <FormField label="URL">
+        <FormField label={t('form.url')}>
           {(id) => (
             <input
               id={id}
               className={`${INPUT_CLASS} font-mono`}
-              placeholder="https://portal.exemplo/health"
+              placeholder="https://portal.example/health"
               value={state.url}
               onChange={(e) => onChange({ url: e.target.value })}
             />
           )}
         </FormField>
       </div>
-      <FormField label="Headers (um por linha, Nome: valor)">
+      <FormField label={t('form.headers')}>
         {(id) => (
           <textarea
             id={id}
@@ -95,7 +97,7 @@ export function TargetFields({ state, connections, onChange }: TargetFieldsProps
         )}
       </FormField>
       {hasBody && (
-        <FormField label="Body">
+        <FormField label={t('form.body')}>
           {(id) => (
             <textarea
               id={id}
@@ -106,7 +108,7 @@ export function TargetFields({ state, connections, onChange }: TargetFieldsProps
           )}
         </FormField>
       )}
-      <p className="m-0 text-[0.75rem] text-dim">Segredos (tokens, senhas) vão para o cofre e voltam como •••• (cofre).</p>
+      <p className="m-0 text-[0.75rem] text-dim">{t('form.secretsNote')}</p>
     </>
   );
 }

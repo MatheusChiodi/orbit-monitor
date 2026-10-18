@@ -1,43 +1,52 @@
 import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
+import { renderWithLocale } from '@/test/renderWithLocale';
 import { PreviewTable } from './PreviewTable';
 
 const preview = {
   columns: [
-    { name: 'ADQUIRENTE', type: 'text' as const },
-    { name: 'QTD_ERRO', type: 'number' as const },
+    { name: 'ACQUIRER', type: 'text' as const },
+    { name: 'ERROR_QTY', type: 'number' as const },
   ],
   rows: [
-    { ADQUIRENTE: 'Cielo', QTD_ERRO: 12 },
-    { ADQUIRENTE: 'Rede', QTD_ERRO: null },
+    { ACQUIRER: 'Cielo', ERROR_QTY: 12 },
+    { ACQUIRER: 'Rede', ERROR_QTY: null },
   ],
   elapsedMs: 182,
 };
 
 describe('PreviewTable', () => {
-  it('cabeçalho com tipos detectados e resumo da execução', () => {
+  it('header with detected types and the execution summary', () => {
     render(<PreviewTable preview={preview} />);
-    const table = screen.getByRole('table', { name: 'Resultado do preview' });
+    const table = screen.getByRole('table', { name: 'Preview result' });
     const headers = within(table).getAllByRole('columnheader');
-    expect(headers[0]).toHaveTextContent('ADQUIRENTE');
-    expect(headers[0]).toHaveTextContent('texto');
-    expect(headers[1]).toHaveTextContent('número');
+    expect(headers[0]).toHaveTextContent('ACQUIRER');
+    expect(headers[0]).toHaveTextContent('text');
+    expect(headers[1]).toHaveTextContent('number');
+    expect(screen.getByText('2 rows · 182ms')).toBeInTheDocument();
+    expect(screen.getByText('Suggestion: Ranking / bars')).toBeInTheDocument();
+  });
+
+  it('renders in pt-BR', () => {
+    renderWithLocale(<PreviewTable preview={preview} />, 'pt-BR');
+    const table = screen.getByRole('table', { name: 'Resultado do preview' });
+    expect(within(table).getAllByRole('columnheader')[1]).toHaveTextContent('número');
     expect(screen.getByText('2 linhas · 182ms')).toBeInTheDocument();
     expect(screen.getByText('Sugestão: Ranking / barras')).toBeInTheDocument();
   });
 
-  it('valores nulos aparecem como NULL', () => {
+  it('null values show as NULL', () => {
     render(<PreviewTable preview={preview} />);
     expect(screen.getByText('NULL')).toBeInTheDocument();
   });
 
-  it('status HTTP quando presente', () => {
+  it('HTTP status when present', () => {
     render(<PreviewTable preview={{ ...preview, status: 200 }} />);
     expect(screen.getByText('HTTP 200')).toBeInTheDocument();
   });
 
-  it('sem linhas', () => {
+  it('no rows', () => {
     render(<PreviewTable preview={{ ...preview, rows: [] }} />);
-    expect(screen.getByText('A consulta não devolveu linhas')).toBeInTheDocument();
+    expect(screen.getByText('The query returned no rows')).toBeInTheDocument();
   });
 });

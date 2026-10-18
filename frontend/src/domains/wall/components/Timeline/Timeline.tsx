@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { TimelineEvent, TimelineKind } from '@/shared/api/types';
 import { formatClock } from '@/shared/format';
 import { Panel } from '@/shared/ui';
@@ -7,7 +8,7 @@ export interface TimelineProps {
   freshIds: ReadonlySet<string>;
 }
 
-/** Reconhecimentos entram em azul (informativo), não em verde. */
+/** Acknowledgements come in blue (informational), not green. */
 const DOT: Record<TimelineKind, string> = {
   DOWN: 'bg-down',
   WARN: 'bg-warn',
@@ -16,19 +17,12 @@ const DOT: Record<TimelineKind, string> = {
   INFO: 'bg-muted',
 };
 
-const KIND_LABEL: Record<TimelineKind, string> = {
-  DOWN: 'fora',
-  WARN: 'atenção',
-  OK: 'recuperado',
-  ACK: 'reconhecido',
-  INFO: 'informativo',
-};
-
 export function Timeline({ events, freshIds }: TimelineProps) {
+  const { t } = useTranslation();
   return (
-    <Panel title="Linha do tempo" className="h-full">
+    <Panel title={t('wall.timeline.title')} className="h-full">
       {events.length === 0 ? (
-        <p className="m-0 text-[0.85rem] text-muted">Sem eventos recentes</p>
+        <p className="m-0 text-[0.85rem] text-muted">{t('wall.timeline.empty')}</p>
       ) : (
         <ol className="m-0 flex min-h-0 list-none flex-col gap-[0.2rem] overflow-hidden p-0">
           {events.map((event) => (
@@ -43,7 +37,7 @@ export function Timeline({ events, freshIds }: TimelineProps) {
               <span
                 data-dot
                 role="img"
-                aria-label={KIND_LABEL[event.kind]}
+                aria-label={t(`wall.timeline.kind.${event.kind}`)}
                 className={`mt-[0.32rem] size-[0.5rem] rounded-full ${DOT[event.kind]}`}
               />
               <span className="min-w-0">

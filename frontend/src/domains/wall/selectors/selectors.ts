@@ -1,5 +1,5 @@
 import type { Group, Incident, MonitorView, Status, WallSnapshot } from '@/shared/api/types';
-import { groupSummary, sortExceptionsFirst, worstStatus } from '@/domains/monitor/status';
+import { groupSummary, sortExceptionsFirst, worstStatus, type GroupSummary } from '@/domains/monitor/status';
 
 export interface HeroSelection {
   monitor: MonitorView;
@@ -11,7 +11,7 @@ function acknowledgedIds(snapshot: WallSnapshot): Set<string> {
   return new Set(snapshot.incidents.filter((i) => i.acknowledgedBy).map((i) => i.monitorId));
 }
 
-/** O herói é o pior problema: fora antes de atenção, sem responsável antes, mais antigo antes. */
+/** The hero is the worst problem: down before warning, unowned before owned, oldest first. */
 export function pickHero(snapshot: WallSnapshot): HeroSelection | null {
   const problems = snapshot.monitors.filter((m) => m.status !== 'OK');
   const [monitor] = sortExceptionsFirst(problems, acknowledgedIds(snapshot));
@@ -23,7 +23,7 @@ export function pickHero(snapshot: WallSnapshot): HeroSelection | null {
   };
 }
 
-/** "Também ativos": demais monitores em problema, sem o herói. */
+/** "Also active": the other monitors with problems, without the hero. */
 export function alsoActive(snapshot: WallSnapshot, heroMonitorId: string | null): MonitorView[] {
   const others = snapshot.monitors.filter((m) => m.status !== 'OK' && m.id !== heroMonitorId);
   return sortExceptionsFirst(others, acknowledgedIds(snapshot));
@@ -32,13 +32,13 @@ export function alsoActive(snapshot: WallSnapshot, heroMonitorId: string | null)
 export interface GroupRow {
   group: Group;
   status: Status;
-  summary: string;
+  summary: GroupSummary;
   monitors: MonitorView[];
 }
 
 const RANK: Record<Status, number> = { DOWN: 0, WARN: 1, OK: 2 };
 
-/** Linhas da matriz: grupos com problema sobem; células com problema vêm primeiro. */
+/** Matrix rows: groups with problems move up; problem cells come first. */
 export function groupRows(snapshot: WallSnapshot): GroupRow[] {
   const acked = acknowledgedIds(snapshot);
   const rows: GroupRow[] = [];

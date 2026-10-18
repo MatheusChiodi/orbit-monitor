@@ -1,7 +1,9 @@
 import { useId, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatReading, ruleText } from '@/domains/monitor/rules';
-import { groupSummary, sortExceptionsFirst, statusLabel } from '@/domains/monitor/status';
+import { groupSummary, sortExceptionsFirst } from '@/domains/monitor/status';
 import type { Group, MonitorView } from '@/shared/api/types';
+import { currentLocale } from '@/shared/i18n/i18n';
 import { Button, StatusDot, TEXT_CLASS } from '@/shared/ui';
 
 export interface GroupListProps {
@@ -16,23 +18,29 @@ function normalize(text: string): string {
 }
 
 function GroupSection({ group, monitors }: { group: Group; monitors: MonitorView[] }) {
+  const { t, i18n } = useTranslation();
+  const locale = currentLocale(i18n);
   const titleId = useId();
+  const { ok, total, status } = groupSummary(monitors);
+  const summary = t('status.groupSummary', { ok, total });
   return (
     <section aria-labelledby={titleId} className="rounded-[0.9rem] border border-line bg-s1">
       <header className="flex items-center justify-between border-b border-line px-[0.9rem] py-[0.6rem]">
         <h2 id={titleId} className="m-0 text-[1rem] font-semibold">
           {group.name}
         </h2>
-        <span className="font-mono text-[0.8rem] text-muted">{groupSummary(monitors)}</span>
+        <span className="font-mono text-[0.8rem] text-muted">
+          {status === 'OK' ? summary : `${summary} · ${t(`status.label.${status}`)}`}
+        </span>
       </header>
       <table className="w-full border-collapse text-[0.9rem]">
         <thead className="sr-only">
           <tr>
-            <th>Estado</th>
-            <th>Monitor</th>
-            <th>Tipo</th>
-            <th>Regra</th>
-            <th>Valor</th>
+            <th>{t('console.monitors.columns.state')}</th>
+            <th>{t('console.monitors.columns.monitor')}</th>
+            <th>{t('console.monitors.columns.type')}</th>
+            <th>{t('console.monitors.columns.rule')}</th>
+            <th>{t('console.monitors.columns.value')}</th>
           </tr>
         </thead>
         <tbody>
@@ -41,13 +49,13 @@ function GroupSection({ group, monitors }: { group: Group; monitors: MonitorView
               <td className="w-[7rem] px-[0.9rem] py-[0.5rem]">
                 <span className="inline-flex items-center gap-[0.4rem]">
                   <StatusDot status={m.status} />
-                  <span className={`text-[0.75rem] font-semibold ${TEXT_CLASS[m.status]}`}>{statusLabel(m.status)}</span>
+                  <span className={`text-[0.75rem] font-semibold ${TEXT_CLASS[m.status]}`}>{t(`status.label.${m.status}`)}</span>
                 </span>
               </td>
               <td className="py-[0.5rem] font-medium">{m.name}</td>
               <td className="py-[0.5rem] font-mono text-[0.8rem] text-muted">{m.type}</td>
-              <td className="py-[0.5rem] font-mono text-[0.8rem] text-muted">{m.rule ? ruleText(m.rule) : '—'}</td>
-              <td className="px-[0.9rem] py-[0.5rem] text-right font-mono">{formatReading(m.value, m.unit)}</td>
+              <td className="py-[0.5rem] font-mono text-[0.8rem] text-muted">{m.rule ? ruleText(m.rule, locale) : '—'}</td>
+              <td className="px-[0.9rem] py-[0.5rem] text-right font-mono">{formatReading(m.value, m.unit, locale)}</td>
             </tr>
           ))}
         </tbody>
@@ -56,8 +64,9 @@ function GroupSection({ group, monitors }: { group: Group; monitors: MonitorView
   );
 }
 
-/** Lista de grupos e monitores do console, com filtro por texto. */
+/** Console list of groups and monitors, with a text filter. */
 export function GroupList({ groups, monitors, onNewMonitor, canEdit = true }: GroupListProps) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const needle = normalize(query.trim());
   const visible = needle ? monitors.filter((m) => normalize(m.name).includes(needle)) : monitors;
@@ -70,20 +79,20 @@ export function GroupList({ groups, monitors, onNewMonitor, canEdit = true }: Gr
       <div className="flex flex-wrap items-center gap-[0.8rem]">
         <input
           type="search"
-          aria-label="Filtrar monitores"
-          placeholder="Filtrar monitores"
+          aria-label={t('console.monitors.filter')}
+          placeholder={t('console.monitors.filter')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="h-[2.2rem] min-w-[14rem] flex-1 rounded-[0.45rem] border border-line-2 bg-s2 px-[0.7rem] text-text placeholder:text-dim focus:border-info focus:outline-none"
         />
         {canEdit && (
           <Button variant="primary" onClick={onNewMonitor}>
-            Novo monitor
+            {t('console.monitors.new')}
           </Button>
         )}
       </div>
       {sections.length === 0 ? (
-        <p className="text-muted">Nenhum monitor encontrado</p>
+        <p className="text-muted">{t('console.monitors.empty')}</p>
       ) : (
         sections.map((s) => <GroupSection key={s.group.id} group={s.group} monitors={s.monitors} />)
       )}

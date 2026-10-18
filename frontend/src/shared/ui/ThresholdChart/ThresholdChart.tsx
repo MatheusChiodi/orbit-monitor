@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
+import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import type { Rule, Status } from '@/shared/api/types';
-import { formatDecimal, formatInteger } from '@/shared/format';
+import { formatDecimal, formatInteger, formatNumber } from '@/shared/format';
+import { currentLocale, type Locale } from '@/shared/i18n/i18n';
 import { thresholdGeometry, type ChartBox, type ThresholdGeometry } from './geometry';
 
-/** Canvas não lê CSS vars; espelha os tokens de 03-design.md. */
+/** Canvas cannot read CSS vars; mirrors the tokens of docs/03-design.md. */
 const COLOR: Record<Status, string> = { OK: '#22c55e', WARN: '#f5a524', DOWN: '#ff3b4f' };
 const DOWN_RGB = '255, 59, 79';
 
@@ -22,16 +25,16 @@ function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
 }
 
-function formatNumber(value: number): string {
-  return Number.isInteger(value) ? formatInteger(value) : formatDecimal(value, 1);
+function formatPoint(value: number, locale: Locale): string {
+  return Number.isInteger(value) ? formatInteger(value, locale) : formatDecimal(value, 1, locale);
 }
 
-function describe(series: readonly (number | null)[], rule?: Rule): string {
-  const current = [...series].reverse().find((v): v is number => v !== null);
-  const head = rule ? `Últimos 60 min de ${rule.field}` : 'Últimos 60 min';
-  const value = current === undefined ? 'sem resposta' : `atual ${formatNumber(current)}`;
-  const limit = rule ? `, limite ${rule.field} ${rule.operator} ${formatNumber(rule.limit)}` : '';
-  return `${head}: ${value}${limit}`;
+function describe(series: readonly (number | null)[], rule: Rule | undefined, t: TFunction, locale: Locale): string {
+  const value = [...series].reverse().find((v): v is number => v !== null);
+  const current = value === undefined ? t('reading.noResponse') : t('chart.current', { value: formatPoint(value, locale) });
+  if (!rule) return t('chart.labelNoRule', { current });
+  const ruleText = `${rule.field} ${rule.operator} ${formatNumber(rule.limit, locale)}`;
+  return t('chart.label', { field: rule.field, current, rule: ruleText });
 }
 
 function draw(ctx: CanvasRenderingContext2D, g: ThresholdGeometry, box: ChartBox, status: Status, dpr: number) {
@@ -39,7 +42,7 @@ function draw(ctx: CanvasRenderingContext2D, g: ThresholdGeometry, box: ChartBox
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, box.width, box.height);
 
-  // grade a 5%
+  // 5% grid
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
   ctx.lineWidth = 1;
   ctx.setLineDash([]);
@@ -51,7 +54,7 @@ function draw(ctx: CanvasRenderingContext2D, g: ThresholdGeometry, box: ChartBox
     ctx.stroke();
   }
 
-  // buracos sem resposta
+  // no-response gaps
   ctx.fillStyle = `rgba(${DOWN_RGB}, 0.14)`;
   for (const gap of g.gaps) {
     const x0 = box.padding.left + (gap.from - 0.5) * g.step;
@@ -59,7 +62,7 @@ function draw(ctx: CanvasRenderingContext2D, g: ThresholdGeometry, box: ChartBox
     ctx.fillRect(x0, box.padding.top, x1 - x0, box.height - box.padding.top - box.padding.bottom);
   }
 
-  // área violada entre linha e limite
+  // violated area between the line and the limit
   if (g.limitY !== null) {
     ctx.fillStyle = hexToRgba(color, 0.17);
     let run: { x: number; y: number }[] = [];
@@ -81,7 +84,7 @@ function draw(ctx: CanvasRenderingContext2D, g: ThresholdGeometry, box: ChartBox
     flush();
   }
 
-  // linha da série
+  // series line
   ctx.strokeStyle = color;
   ctx.lineWidth = 2;
   ctx.lineJoin = 'round';
@@ -98,7 +101,7 @@ function draw(ctx: CanvasRenderingContext2D, g: ThresholdGeometry, box: ChartBox
   }
   ctx.stroke();
 
-  // limite tracejado branco a 45%
+  // dashed white limit at 45%
   if (g.limitY !== null) {
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
     ctx.lineWidth = 1;
@@ -110,7 +113,7 @@ function draw(ctx: CanvasRenderingContext2D, g: ThresholdGeometry, box: ChartBox
     ctx.setLineDash([]);
   }
 
-  // ponto no valor atual
+  // dot on the current value
   if (g.current) {
     ctx.fillStyle = color;
     ctx.beginPath();
@@ -119,8 +122,10 @@ function draw(ctx: CanvasRenderingContext2D, g: ThresholdGeometry, box: ChartBox
   }
 }
 
-/** Gráfico de limite do herói: canvas próprio, como no protótipo. */
+/** Hero threshold chart: custom canvas, as in the prototype. */
 export function ThresholdChart({ series, rule, status, className = '' }: ThresholdChartProps) {
+  const { t, i18n } = useTranslation();
+  const locale = currentLocale(i18n);
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [size, setSize] = useState(FALLBACK);
@@ -157,13 +162,13 @@ export function ThresholdChart({ series, rule, status, className = '' }: Thresho
         <canvas
           ref={canvasRef}
           role="img"
-          aria-label={describe(series, rule)}
+          aria-label={describe(series, rule, t, locale)}
           className="absolute inset-0 h-full w-full"
         />
       </div>
       <div aria-hidden className="mt-[0.3rem] flex justify-between font-mono text-[0.62rem] text-dim">
         {geometry.ticks.map((tick) => (
-          <span key={tick.label}>{tick.label}</span>
+          <span key={tick.minutes}>{tick.minutes === 0 ? t('chart.now') : `${tick.minutes}min`}</span>
         ))}
       </div>
     </div>

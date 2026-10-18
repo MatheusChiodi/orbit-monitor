@@ -1,13 +1,12 @@
 import type {
+  AccessInfo,
   Connection,
   Group,
   Incident,
-  LoginRequest,
   MonitorDefinition,
   MonitorView,
   PreviewRequest,
   PreviewResult,
-  Session,
   WallSnapshot,
 } from './types';
 
@@ -24,8 +23,12 @@ export class ApiError extends Error {
 export interface ApiClientOptions {
   baseUrl?: string;
   fetch?: typeof fetch;
-  getToken?: () => string | null;
+  /** Self-declared operator name, sent as `X-Orbit-Operator` (percent-encoded UTF-8). */
+  getOperator?: () => string | null;
 }
+
+/** Header that carries the self-declared operator name (docs/01-architecture.md §3). */
+export const OPERATOR_HEADER = 'X-Orbit-Operator';
 
 type HttpVerb = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
@@ -35,14 +38,15 @@ export interface RequestOptions {
 }
 
 async function readErrorMessage(response: Response): Promise<string> {
-  const fallback = `Falha na requisição (${response.status})`;
+  const fallback = `Request failed (${response.status})`;
   try {
     const data: unknown = await response.json();
-    if (data && typeof data === 'object' && 'message' in data && typeof data.message === 'string') {
-      return data.message;
+    if (data && typeof data === 'object') {
+      if ('detail' in data && typeof data.detail === 'string') return data.detail;
+      if ('message' in data && typeof data.message === 'string') return data.message;
     }
   } catch {
-    // corpo sem JSON: usa a mensagem genérica
+    // body without JSON: use the generic message
   }
   return fallback;
 }
@@ -54,14 +58,14 @@ export function createApiClient(options: ApiClientOptions = {}) {
   async function request<T>(path: string, { method = 'GET', body }: RequestOptions = {}): Promise<T> {
     const headers = new Headers({ Accept: 'application/json' });
     if (body !== undefined) headers.set('Content-Type', 'application/json');
-    const token = options.getToken?.();
-    if (token) headers.set('Authorization', `Bearer ${token}`);
+    const operator = options.getOperator?.();
+    if (operator) headers.set(OPERATOR_HEADER, encodeURIComponent(operator));
 
     const response = await doFetch(`${baseUrl}${path}`, {
       method,
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
-      credentials: 'include',
+      cache: 'no-store',
     });
     if (!response.ok) throw new ApiError(response.status, await readErrorMessage(response));
     if (response.status === 204) return undefined as T;
@@ -70,10 +74,10 @@ export function createApiClient(options: ApiClientOptions = {}) {
 
   return {
     request,
+    getAccess: () => request<AccessInfo>('/api/access'),
     getWallSnapshot: () => request<WallSnapshot>('/api/wall/snapshot'),
     acknowledgeIncident: (id: string, by: string) =>
       request<Incident>(`/api/incidents/${encodeURIComponent(id)}/ack`, { method: 'POST', body: { by } }),
-    login: (credentials: LoginRequest) => request<Session>('/api/auth/login', { method: 'POST', body: credentials }),
     listGroups: () => request<Group[]>('/api/groups'),
     listMonitors: () => request<MonitorView[]>('/api/monitors'),
     listConnections: () => request<Connection[]>('/api/connections'),

@@ -8,7 +8,7 @@ const now = new Date(2026, 9, 18, 17, 10, 0);
 function incident(id: string, extra: Partial<Incident>): Incident {
   return {
     id,
-    monitorId: 'conciliacao',
+    monitorId: 'reconciliation',
     severity: 'DOWN',
     openedAt: now.toISOString(),
     acknowledgedBy: null,
@@ -20,55 +20,55 @@ function incident(id: string, extra: Partial<Incident>): Incident {
 }
 
 describe('pickHero', () => {
-  it('escolhe o incidente fora sem responsável', () => {
+  it('picks the unowned down incident', () => {
     const hero = pickHero(mockSnapshot('incident', now));
-    expect(hero?.monitor.id).toBe('conciliacao');
-    expect(hero?.incident?.id).toBe('inc-conciliacao');
-    expect(hero?.group?.name).toBe('Pagamentos');
+    expect(hero?.monitor.id).toBe('reconciliation');
+    expect(hero?.incident?.id).toBe('inc-reconciliation');
+    expect(hero?.group?.name).toBe('Payments');
   });
 
-  it('null quando tudo está ok', () => {
+  it('null when everything is ok', () => {
     expect(pickHero(mockSnapshot('ok', now))).toBeNull();
   });
 
-  it('fora vence atenção mesmo reconhecido', () => {
+  it('down beats warning even when acknowledged', () => {
     const snap = mockSnapshot('incident', now);
     snap.incidents = [
-      incident('w', { monitorId: 'adquirente', severity: 'WARN' }),
-      incident('d', { monitorId: 'conciliacao', acknowledgedBy: 'Ana', acknowledgedAt: now.toISOString() }),
+      incident('w', { monitorId: 'acquirer', severity: 'WARN' }),
+      incident('d', { monitorId: 'reconciliation', acknowledgedBy: 'Ana', acknowledgedAt: now.toISOString() }),
     ];
     expect(pickHero(snap)?.incident?.id).toBe('d');
   });
 
-  it('monitor em problema sem incidente aberto também vira herói', () => {
+  it('a problem monitor without an open incident also becomes the hero', () => {
     const snap = mockSnapshot('incident', now);
     snap.incidents = [];
-    expect(pickHero(snap)?.monitor.id).toBe('conciliacao');
+    expect(pickHero(snap)?.monitor.id).toBe('reconciliation');
     expect(pickHero(snap)?.incident).toBeNull();
   });
 });
 
 describe('alsoActive', () => {
-  it('lista os outros problemas, exceções primeiro, sem o herói', () => {
+  it('lists the other problems, exceptions first, without the hero', () => {
     const snap = mockSnapshot('incident', now);
-    const list = alsoActive(snap, 'conciliacao');
-    expect(list.map((m) => m.id)).not.toContain('conciliacao');
+    const list = alsoActive(snap, 'reconciliation');
+    expect(list.map((m) => m.id)).not.toContain('reconciliation');
     expect(list.every((m) => m.status !== 'OK')).toBe(true);
     expect(list).toHaveLength(2);
   });
 });
 
 describe('groupRows', () => {
-  it('grupos com problema sobem e células com problema vêm primeiro', () => {
+  it('groups with problems move up and problem cells come first', () => {
     const rows = groupRows(mockSnapshot('incident', now));
-    expect(rows[0]?.group.name).toBe('Pagamentos');
-    expect(rows[0]?.monitors[0]?.id).toBe('conciliacao');
+    expect(rows[0]?.group.name).toBe('Payments');
+    expect(rows[0]?.monitors[0]?.id).toBe('reconciliation');
     expect(rows[0]?.status).toBe('DOWN');
-    expect(rows[0]?.summary).toBe('2/4 ok · FORA');
+    expect(rows[0]?.summary).toEqual({ ok: 2, total: 4, status: 'DOWN' });
   });
-  it('grupos sem monitores são omitidos', () => {
+  it('groups without monitors are omitted', () => {
     const snap = mockSnapshot('ok', now);
-    snap.groups.push({ id: 'vazio', name: 'Vazio' });
-    expect(groupRows(snap).some((r) => r.group.id === 'vazio')).toBe(false);
+    snap.groups.push({ id: 'empty', name: 'Empty' });
+    expect(groupRows(snap).some((r) => r.group.id === 'empty')).toBe(false);
   });
 });

@@ -1,41 +1,39 @@
-import type { ColumnType, PreviewResult } from '@/shared/api/types';
+import { useTranslation } from 'react-i18next';
+import type { PreviewResult } from '@/shared/api/types';
 import { formatDuration } from '@/shared/format';
-import { READ_MODE_LABEL, suggestReadMode } from '../../display';
+import { suggestReadMode } from '../../display';
 
 export interface PreviewTableProps {
   preview: PreviewResult;
   maxRows?: number;
 }
 
-const TYPE_LABEL: Record<ColumnType, string> = {
-  number: 'número',
-  text: 'texto',
-  date: 'data',
-  boolean: 'booleano',
-};
-
-/** Resultado do preview em tabela, com os tipos detectados de cada coluna. */
+/** Preview result as a table, with the detected type of each column. */
 export function PreviewTable({ preview, maxRows = 50 }: PreviewTableProps) {
+  const { t } = useTranslation();
   const { columns, rows } = preview;
-  const summary = `${rows.length} ${rows.length === 1 ? 'linha' : 'linhas'} · ${formatDuration(preview.elapsedMs)}`;
+  const summary = `${t('preview.rows', { count: rows.length })} · ${formatDuration(preview.elapsedMs)}`;
+  const mode = t(`readMode.${suggestReadMode(preview)}`);
   return (
     <div className="flex min-w-0 flex-col gap-[0.5rem]">
       <div className="flex flex-wrap items-center gap-[0.8rem] text-[0.8rem] text-muted">
-        {preview.status !== undefined && <span className="font-mono text-text">{`HTTP ${preview.status}`}</span>}
+        {preview.status !== undefined && (
+          <span className="font-mono text-text">{t('preview.httpStatus', { status: preview.status })}</span>
+        )}
         <span className="font-mono">{summary}</span>
-        <span className="ml-auto text-info">{`Sugestão: ${READ_MODE_LABEL[suggestReadMode(preview)]}`}</span>
+        <span className="ml-auto text-info">{t('preview.suggestion', { mode })}</span>
       </div>
       {rows.length === 0 ? (
-        <p className="m-0 text-[0.85rem] text-muted">A consulta não devolveu linhas</p>
+        <p className="m-0 text-[0.85rem] text-muted">{t('preview.empty')}</p>
       ) : (
         <div className="overflow-auto rounded-[0.45rem] border border-line">
-          <table aria-label="Resultado do preview" className="w-full border-collapse text-[0.8rem]">
+          <table aria-label={t('preview.label')} className="w-full border-collapse text-[0.8rem]">
             <thead className="bg-s2">
               <tr>
                 {columns.map((col) => (
                   <th key={col.name} scope="col" className="px-[0.6rem] py-[0.4rem] text-left font-semibold">
                     <span className="block font-mono">{col.name}</span>
-                    <span className="block text-[0.7rem] font-normal text-muted">{TYPE_LABEL[col.type]}</span>
+                    <span className="block text-[0.7rem] font-normal text-muted">{t(`preview.columnType.${col.type}`)}</span>
                   </th>
                 ))}
               </tr>

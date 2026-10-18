@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { DisplayMode, FieldDisplay } from '@/shared/api/types';
 import type { FieldFormat } from '@/shared/format';
 import { INPUT_CLASS, SELECT_CLASS } from '@/shared/ui';
@@ -7,33 +8,16 @@ export interface DataDisplayStepProps {
   onChange: (fields: FieldDisplay[]) => void;
 }
 
-const FORMATS: { value: FieldFormat; label: string }[] = [
-  { value: 'integer', label: 'Inteiro' },
-  { value: 'decimal', label: 'Decimal' },
-  { value: 'currency', label: 'Moeda' },
-  { value: 'percent', label: 'Percentual' },
-  { value: 'duration', label: 'Duração' },
-  { value: 'relative', label: 'Data relativa' },
-  { value: 'text', label: 'Texto' },
-];
-
-const DISPLAYS: { value: DisplayMode; label: string }[] = [
-  { value: 'number', label: 'Número' },
-  { value: 'gauge', label: 'Medidor' },
-  { value: 'indicators', label: 'Indicadores' },
-  { value: 'line', label: 'Gráfico de linha' },
-  { value: 'bars', label: 'Barras / ranking' },
-  { value: 'table', label: 'Tabela' },
-  { value: 'text', label: 'Texto / estado' },
-  { value: 'semaphore', label: 'Semáforo' },
-  { value: 'hidden', label: 'Oculto' },
-];
+const FORMATS: FieldFormat[] = ['integer', 'decimal', 'currency', 'percent', 'duration', 'relative', 'text'];
+const DISPLAYS: DisplayMode[] = ['number', 'gauge', 'indicators', 'line', 'bars', 'table', 'text', 'semaphore', 'hidden'];
 
 /**
- * Passo "Dados e exibição": marcar o que guardar e como cada campo aparece.
- * Campos não marcados não são armazenados.
+ * "Data & display" step: choose what to store and how each field appears.
+ * Unchecked fields are not stored.
  */
 export function DataDisplayStep({ fields, onChange }: DataDisplayStepProps) {
+  const { t } = useTranslation();
+
   function update(index: number, patch: Partial<FieldDisplay>) {
     onChange(fields.map((f, i) => (i === index ? { ...f, ...patch } : f)));
   }
@@ -42,7 +26,7 @@ export function DataDisplayStep({ fields, onChange }: DataDisplayStepProps) {
 
   return (
     <div className="flex flex-col gap-[0.5rem]">
-      <p className="m-0 text-[0.8rem] text-muted">{`${selected} de ${fields.length} campos serão guardados`}</p>
+      <p className="m-0 text-[0.8rem] text-muted">{t('fields.count', { selected, total: fields.length })}</p>
       {fields.map((field, index) => {
         const off = !field.selected;
         return (
@@ -55,60 +39,60 @@ export function DataDisplayStep({ fields, onChange }: DataDisplayStepProps) {
             <label className="flex min-w-0 items-center gap-[0.45rem] font-mono text-[0.8rem]">
               <input
                 type="checkbox"
-                aria-label={`Guardar ${field.field}`}
+                aria-label={t('fields.store', { field: field.field })}
                 checked={field.selected}
                 onChange={(e) => update(index, { selected: e.target.checked })}
               />
               <span className="truncate">{field.field}</span>
             </label>
             <input
-              aria-label="Rótulo"
+              aria-label={t('fields.label')}
               className={INPUT_CLASS}
               value={field.label}
               disabled={off}
               onChange={(e) => update(index, { label: e.target.value })}
             />
             <select
-              aria-label="Formato"
+              aria-label={t('fields.format')}
               className={SELECT_CLASS}
               value={field.format}
               disabled={off}
               onChange={(e) => update(index, { format: e.target.value as FieldFormat })}
             >
               {FORMATS.map((f) => (
-                <option key={f.value} value={f.value}>
-                  {f.label}
+                <option key={f} value={f}>
+                  {t(`fields.formats.${f}`)}
                 </option>
               ))}
             </select>
             <input
-              aria-label="Unidade"
+              aria-label={t('fields.unit')}
               className={INPUT_CLASS}
               value={field.unit ?? ''}
-              placeholder="un."
+              placeholder={t('fields.unitPlaceholder')}
               disabled={off}
               onChange={(e) => update(index, { unit: e.target.value || undefined })}
             />
             <label className="flex items-center gap-[0.35rem] text-[0.78rem] whitespace-nowrap text-muted">
               <input
                 type="checkbox"
-                aria-label="Guardar como série"
+                aria-label={t('fields.series')}
                 checked={field.storeAsSeries}
                 disabled={off}
                 onChange={(e) => update(index, { storeAsSeries: e.target.checked })}
               />
-              série
+              {t('fields.seriesShort')}
             </label>
             <select
-              aria-label="Exibição"
+              aria-label={t('fields.display')}
               className={SELECT_CLASS}
               value={field.display}
               disabled={off}
               onChange={(e) => update(index, { display: e.target.value as DisplayMode })}
             >
               {DISPLAYS.map((d) => (
-                <option key={d.value} value={d.value}>
-                  {d.label}
+                <option key={d} value={d}>
+                  {t(`fields.displays.${d}`)}
                 </option>
               ))}
             </select>

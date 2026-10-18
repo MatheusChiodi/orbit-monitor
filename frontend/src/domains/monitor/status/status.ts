@@ -1,5 +1,5 @@
 import type { MonitorView, Status } from '@/shared/api/types';
-import { STATUS_LABEL } from '@/shared/ui/tones';
+import { msg, type Message } from '@/shared/i18n/message';
 import { headroom } from '../rules';
 
 export interface StatusCounts {
@@ -10,10 +10,6 @@ export interface StatusCounts {
 }
 
 const SEVERITY_RANK: Record<Status, number> = { DOWN: 0, WARN: 1, OK: 2 };
-
-export function statusLabel(status: Status): string {
-  return STATUS_LABEL[status];
-}
 
 export function countByStatus(monitors: readonly MonitorView[]): StatusCounts {
   const counts: StatusCounts = { down: 0, warn: 0, ok: 0, total: monitors.length };
@@ -35,22 +31,22 @@ export function statusFromCounts(counts: StatusCounts): Status {
   return 'OK';
 }
 
-/** Frase curta do cabeçalho: "1 monitor fora", "2 em atenção", "Tudo operacional". */
-export function globalPhrase(counts: StatusCounts): string {
-  if (counts.down > 0) return `${counts.down} ${counts.down === 1 ? 'monitor' : 'monitores'} fora`;
-  if (counts.warn > 0) return `${counts.warn} em atenção`;
-  return 'Tudo operacional';
+/** Short header phrase: "1 monitor down", "2 warning", "All systems operational". */
+export function globalPhrase(counts: StatusCounts): Message {
+  if (counts.down > 0) return msg('status.phrase.down', { count: counts.down });
+  if (counts.warn > 0) return msg('status.phrase.warn', { count: counts.warn });
+  return msg('status.phrase.ok');
 }
 
-/** Título da aba: "(3) Orbit". */
+/** Tab title: "(3) Orbit". */
 export function tabTitle(counts: StatusCounts): string {
   const problems = counts.down + counts.warn;
   return problems > 0 ? `(${problems}) Orbit` : 'Orbit';
 }
 
 /**
- * Exceções primeiro: fora → atenção → ok; no mesmo estado, sem responsável antes,
- * depois o mais antigo; ok em ordem alfabética.
+ * Exceptions first: down → warning → ok; within the same state, unowned first,
+ * then the oldest; ok monitors in alphabetical order.
  */
 export function sortExceptionsFirst(
   monitors: readonly MonitorView[],
@@ -65,16 +61,20 @@ export function sortExceptionsFirst(
       const age = Date.parse(a.since) - Date.parse(b.since);
       if (age !== 0) return age;
     }
-    return a.name.localeCompare(b.name, 'pt-BR');
+    return a.name.localeCompare(b.name, 'en');
   });
 }
 
-/** Resumo do grupo na matriz: "3/4 ok · ATENÇÃO". */
-export function groupSummary(monitors: readonly MonitorView[]): string {
+export interface GroupSummary {
+  ok: number;
+  total: number;
+  status: Status;
+}
+
+/** Data for the matrix group label: "3/4 ok · WARNING". */
+export function groupSummary(monitors: readonly MonitorView[]): GroupSummary {
   const counts = countByStatus(monitors);
-  const base = `${counts.ok}/${counts.total} ok`;
-  const status = statusFromCounts(counts);
-  return status === 'OK' ? base : `${base} · ${statusLabel(status)}`;
+  return { ok: counts.ok, total: counts.total, status: statusFromCounts(counts) };
 }
 
 export interface NearLimitItem {
@@ -82,7 +82,7 @@ export interface NearLimitItem {
   headroom: number;
 }
 
-/** "Perto do limite": monitores não fora, com regra e valor, da menor folga para a maior. */
+/** "Near threshold": monitors not down, with a rule and a value, from least to most headroom. */
 export function nearLimit(monitors: readonly MonitorView[], max = 5): NearLimitItem[] {
   const items: NearLimitItem[] = [];
   for (const monitor of monitors) {

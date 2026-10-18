@@ -9,25 +9,38 @@ function jsonResponse(body: unknown, status = 200): Response {
 }
 
 describe('createApiClient', () => {
-  it('faz GET em /api/wall/snapshot e devolve o JSON tipado', async () => {
-    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ environment: 'Produção' }));
+  it('GETs /api/wall/snapshot and returns the typed JSON', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ environment: 'Production' }));
     const api = createApiClient({ fetch: fetchMock });
     const snapshot = await api.getWallSnapshot();
-    expect(snapshot.environment).toBe('Produção');
+    expect(snapshot.environment).toBe('Production');
     const [url, init] = fetchMock.mock.calls[0] ?? [];
     expect(url).toBe('/api/wall/snapshot');
     expect(init?.method).toBe('GET');
   });
 
-  it('envia o token como Bearer quando existe', async () => {
+  it('sends the operator name as X-Orbit-Operator (percent-encoded) and never an Authorization header', async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse([]));
-    const api = createApiClient({ fetch: fetchMock, getToken: () => 'abc' });
+    const api = createApiClient({ fetch: fetchMock, getOperator: () => 'João Silva' });
     await api.listGroups();
     const headers = new Headers(fetchMock.mock.calls[0]?.[1]?.headers);
-    expect(headers.get('Authorization')).toBe('Bearer abc');
+    expect(headers.get('X-Orbit-Operator')).toBe('Jo%C3%A3o%20Silva');
+    expect(headers.get('Authorization')).toBeNull();
   });
 
-  it('POST de reconhecimento com corpo JSON', async () => {
+  it('without an operator name the header is omitted', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse([]));
+    await createApiClient({ fetch: fetchMock, getOperator: () => null }).listGroups();
+    expect(new Headers(fetchMock.mock.calls[0]?.[1]?.headers).has('X-Orbit-Operator')).toBe(false);
+  });
+
+  it('never lets the browser cache API responses', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse([]));
+    await createApiClient({ fetch: fetchMock }).listMonitors();
+    expect(fetchMock.mock.calls[0]?.[1]?.cache).toBe('no-store');
+  });
+
+  it('acknowledgement POST with a JSON body', async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ id: 'i1', acknowledgedBy: 'Ana' }));
     const api = createApiClient({ fetch: fetchMock, baseUrl: 'http://h' });
     const incident = await api.acknowledgeIncident('i1', 'Ana');
@@ -38,17 +51,19 @@ describe('createApiClient', () => {
     expect(JSON.parse(String(init?.body))).toEqual({ by: 'Ana' });
   });
 
-  it('login devolve token e usuário', async () => {
-    const fetchMock = vi
-      .fn<typeof fetch>()
-      .mockResolvedValue(jsonResponse({ token: 't', user: { id: 'u', name: 'Ana', role: 'admin' } }));
-    const api = createApiClient({ fetch: fetchMock });
-    const session = await api.login({ username: 'ana', password: 'x' });
-    expect(session.user.name).toBe('Ana');
-    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toEqual({ username: 'ana', password: 'x' });
+  it('reads the access mode from /api/access', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ mode: 'view-only', client: 'lan' }));
+    const access = await createApiClient({ fetch: fetchMock }).getAccess();
+    expect(access.mode).toBe('view-only');
+    expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/access');
   });
 
-  it('preview de monitor SQL', async () => {
+  it('uses the Problem Details detail as the error message', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ title: 'Forbidden', detail: 'Edits only from loopback' }, 403));
+    await expect(createApiClient({ fetch: fetchMock }).createMonitor({} as never)).rejects.toThrow('Edits only from loopback');
+  });
+
+  it('SQL monitor preview', async () => {
     const fetchMock = vi
       .fn<typeof fetch>()
       .mockResolvedValue(jsonResponse({ columns: [{ name: 'QTD', type: 'number' }], rows: [{ QTD: 3 }], elapsedMs: 12 }));
@@ -58,22 +73,22 @@ describe('createApiClient', () => {
     expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/monitors/preview');
   });
 
-  it('lança ApiError com status e mensagem do servidor', async () => {
-    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ message: 'Somente SELECT' }, 422));
+  it('throws ApiError with the server status and message', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ message: 'SELECT only' }, 422));
     const api = createApiClient({ fetch: fetchMock });
     const error = await api.listMonitors().catch((e: unknown) => e);
     expect(error).toBeInstanceOf(ApiError);
     expect((error as ApiError).status).toBe(422);
-    expect((error as ApiError).message).toBe('Somente SELECT');
+    expect((error as ApiError).message).toBe('SELECT only');
   });
 
-  it('lança ApiError genérico em falha sem corpo JSON', async () => {
+  it('throws a generic ApiError when the body has no JSON', async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(new Response('x', { status: 500 }));
     const api = createApiClient({ fetch: fetchMock });
-    await expect(api.listGroups()).rejects.toThrow('Falha na requisição (500)');
+    await expect(api.listGroups()).rejects.toThrow('Request failed (500)');
   });
 
-  it('204 devolve undefined', async () => {
+  it('204 returns undefined', async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(new Response(null, { status: 204 }));
     const api = createApiClient({ fetch: fetchMock });
     await expect(api.request<void>('/api/x', { method: 'DELETE' })).resolves.toBeUndefined();

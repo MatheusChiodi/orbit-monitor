@@ -6,6 +6,7 @@ import type {
   PreviewRequest,
   PreviewResult,
 } from '@/shared/api/types';
+import { msg, type Message } from '@/shared/i18n/message';
 import type { EvaluationContext } from '../conditions';
 import { checkSelect } from '../sql';
 
@@ -45,7 +46,7 @@ export function initialFormState(): MonitorFormState {
   };
 }
 
-/** Uma linha por header, no formato `Nome: valor`. */
+/** One header per line, as `Name: value`. */
 export function parseHeaders(text: string): Record<string, string> {
   const headers: Record<string, string> = {};
   for (const line of text.split('\n')) {
@@ -69,26 +70,26 @@ export function buildTarget(state: MonitorFormState): PreviewRequest {
   return target;
 }
 
-/** Erros que impedem o preview (só a parte do alvo). */
-export function validateTarget(state: MonitorFormState): string[] {
-  const errors: string[] = [];
+/** Errors that block the preview (target part only). */
+export function validateTarget(state: MonitorFormState): Message[] {
+  const errors: Message[] = [];
   if (state.type === 'SQL') {
-    if (!state.connectionId) errors.push('Escolha a conexão');
+    if (!state.connectionId) errors.push(msg('form.errors.connectionRequired'));
     const sqlError = checkSelect(state.sql);
     if (sqlError) errors.push(sqlError);
   } else if (!/^https?:\/\/\S+$/i.test(state.url.trim())) {
-    errors.push('URL deve começar com http:// ou https://');
+    errors.push(msg('form.errors.urlInvalid'));
   }
   return errors;
 }
 
-/** Erros que impedem salvar o monitor. */
-export function validateForm(state: MonitorFormState): string[] {
-  const errors: string[] = [];
-  if (!state.name.trim()) errors.push('Informe o nome');
-  if (!state.groupId) errors.push('Escolha o grupo');
+/** Errors that block saving the monitor. */
+export function validateForm(state: MonitorFormState): Message[] {
+  const errors: Message[] = [];
+  if (!state.name.trim()) errors.push(msg('form.errors.nameRequired'));
+  if (!state.groupId) errors.push(msg('form.errors.groupRequired'));
   errors.push(...validateTarget(state));
-  if (state.intervalSeconds < 15 || state.intervalSeconds > 86_400) errors.push('Intervalo entre 15 s e 24 h');
+  if (state.intervalSeconds < 15 || state.intervalSeconds > 86_400) errors.push(msg('form.errors.intervalRange'));
   return errors;
 }
 
@@ -105,7 +106,7 @@ export function buildDefinition(state: MonitorFormState): MonitorDefinition {
   };
 }
 
-/** Contexto para testar as condições contra o resultado do preview. */
+/** Context used to test the conditions against the preview result. */
 export function previewContext(preview: PreviewResult, now: Date = new Date()): EvaluationContext {
   return {
     row: preview.rows[0] ?? {},

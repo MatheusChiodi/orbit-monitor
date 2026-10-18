@@ -9,7 +9,7 @@ beforeEach(() => {
 afterEach(() => vi.useRealTimers());
 
 describe('useNow', () => {
-  it('atualiza a cada intervalo', () => {
+  it('updates on every interval', () => {
     const { result } = renderHook(() => useNow(1000));
     expect(result.current.getSeconds()).toBe(0);
     act(() => {
@@ -18,7 +18,7 @@ describe('useNow', () => {
     expect(result.current.getSeconds()).toBe(3);
   });
 
-  it('para o timer ao desmontar', () => {
+  it('stops the timer on unmount', () => {
     const { unmount } = renderHook(() => useNow(1000));
     unmount();
     expect(vi.getTimerCount()).toBe(0);

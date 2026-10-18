@@ -1,38 +1,34 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { I18nextProvider } from 'react-i18next';
+import { loadOperator, normalizeOperatorName, saveOperator } from '@/domains/security/operator';
 import { WallApp, operatorName } from '@/domains/wall/WallApp';
 import { mockSnapshot } from '@/domains/wall/mock';
 import { createApiClient } from '@/shared/api/client';
+import { wallLayoutSlug } from '@/shared/api/wallSocket';
+import { createI18n, detectLocale } from '@/shared/i18n/i18n';
 import './theme.css';
 
 const params = new URLSearchParams(window.location.search);
-const token = params.get('token') ?? undefined;
-const scenario = params.get('cenario') === 'ok' ? 'ok' : 'incident';
-const OPERATOR_KEY = 'orbit.operator';
+const scenario = params.get('scenario') === 'ok' ? 'ok' : 'incident';
+const layout = wallLayoutSlug(window.location.pathname);
 
-function savedOperator(): string | null {
-  try {
-    return localStorage.getItem(OPERATOR_KEY);
-  } catch {
-    return null;
-  }
-}
+const operator = operatorName(window.location.search, loadOperator());
+saveOperator(normalizeOperatorName(operator));
 
-const operator = operatorName(window.location.search, savedOperator());
-try {
-  localStorage.setItem(OPERATOR_KEY, operator);
-} catch {
-  // armazenamento bloqueado: segue sem lembrar o nome
-}
-
-const api = createApiClient({ getToken: () => token ?? null });
+const api = createApiClient({ getOperator: () => operator });
 const mock = () => mockSnapshot(scenario);
+const locale = detectLocale();
+const i18n = createI18n(locale);
+document.documentElement.lang = locale;
 
 const root = document.getElementById('root');
 if (root) {
   createRoot(root).render(
     <StrictMode>
-      <WallApp api={api} operator={operator} mock={mock} token={token} />
+      <I18nextProvider i18n={i18n}>
+        <WallApp api={api} operator={operator} mock={mock} layout={layout} />
+      </I18nextProvider>
     </StrictMode>,
   );
 }

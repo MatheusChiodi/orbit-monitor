@@ -4,7 +4,7 @@ import { applyMessage, createWallStore, TIMELINE_LIMIT } from './wallStore';
 
 const monitor: MonitorView = {
   id: 'm1',
-  name: 'Fila de conciliação',
+  name: 'Reconciliation queue',
   groupId: 'g1',
   type: 'SQL',
   status: 'OK',
@@ -26,8 +26,8 @@ const incident: Incident = {
 function snapshot(extra: Partial<WallSnapshot> = {}): WallSnapshot {
   return {
     generatedAt: '2026-10-18T17:00:00.000Z',
-    environment: 'Produção',
-    groups: [{ id: 'g1', name: 'Pagamentos' }],
+    environment: 'Production',
+    groups: [{ id: 'g1', name: 'Payments' }],
     monitors: [monitor],
     incidents: [],
     timeline: [],
@@ -42,16 +42,16 @@ function event(id: string): TimelineEvent {
 }
 
 describe('applyMessage', () => {
-  it('snapshot substitui tudo', () => {
+  it('a snapshot replaces everything', () => {
     const next = applyMessage(null, { type: 'snapshot', payload: snapshot() });
-    expect(next?.environment).toBe('Produção');
+    expect(next?.environment).toBe('Production');
   });
 
-  it('sem snapshot ignora mensagens parciais', () => {
+  it('without a snapshot partial messages are ignored', () => {
     expect(applyMessage(null, { type: 'monitor', payload: monitor })).toBeNull();
   });
 
-  it('monitor existente é atualizado; novo é adicionado', () => {
+  it('an existing monitor is updated; a new one is added', () => {
     const base = snapshot();
     const updated = applyMessage(base, { type: 'monitor', payload: { ...monitor, status: 'DOWN', value: 349 } });
     expect(updated?.monitors).toHaveLength(1);
@@ -61,7 +61,7 @@ describe('applyMessage', () => {
     expect(base.monitors).toHaveLength(1);
   });
 
-  it('incidente é inserido, atualizado e removido quando resolvido', () => {
+  it('an incident is inserted, updated and removed on recovery', () => {
     const opened = applyMessage(snapshot(), { type: 'incident', payload: incident });
     expect(opened?.incidents).toHaveLength(1);
     const acked = applyMessage(opened, {
@@ -73,27 +73,27 @@ describe('applyMessage', () => {
     expect(recovered?.incidents).toHaveLength(0);
   });
 
-  it('evento entra no topo da linha do tempo e respeita o limite', () => {
+  it('an event goes to the top of the timeline and respects the limit', () => {
     const many = snapshot({ timeline: Array.from({ length: TIMELINE_LIMIT }, (_, i) => event(`e${i}`)) });
     const next = applyMessage(many, { type: 'event', payload: event('novo') });
     expect(next?.timeline[0]?.id).toBe('novo');
     expect(next?.timeline).toHaveLength(TIMELINE_LIMIT);
   });
 
-  it('evento repetido não duplica', () => {
+  it('a repeated event is not duplicated', () => {
     const base = snapshot({ timeline: [event('e1')] });
     expect(applyMessage(base, { type: 'event', payload: event('e1') })?.timeline).toHaveLength(1);
   });
 });
 
 describe('createWallStore', () => {
-  it('começa vazio e conectando', () => {
+  it('starts empty and connecting', () => {
     const store = createWallStore();
     expect(store.getState().snapshot).toBeNull();
     expect(store.getState().connection).toBe('connecting');
   });
 
-  it('receive aplica mensagens e registra novos eventos como recentes', () => {
+  it('receive applies messages and marks new events as fresh', () => {
     const store = createWallStore();
     store.getState().receive({ type: 'snapshot', payload: snapshot() });
     store.getState().receive({ type: 'event', payload: event('e9') });
@@ -101,17 +101,21 @@ describe('createWallStore', () => {
     expect(store.getState().freshEventIds.has('e9')).toBe(true);
   });
 
-  it('acknowledgeLocal marca o incidente e adiciona evento ACK', () => {
+  it('acknowledgeLocal marks the incident and adds an ACK event in the active locale', () => {
     const store = createWallStore();
     store.getState().receive({ type: 'snapshot', payload: snapshot({ incidents: [incident] }) });
     store.getState().acknowledgeLocal('i1', 'M. Chiodi', new Date(2026, 9, 18, 17, 4));
     const state = store.getState().snapshot;
     expect(state?.incidents[0]?.acknowledgedBy).toBe('M. Chiodi');
     expect(state?.timeline[0]?.kind).toBe('ACK');
-    expect(state?.timeline[0]?.title).toContain('M. Chiodi');
+    expect(state?.timeline[0]?.title).toBe('M. Chiodi acknowledged at 17:04');
+    const pt = createWallStore();
+    pt.getState().receive({ type: 'snapshot', payload: snapshot({ incidents: [incident] }) });
+    pt.getState().acknowledgeLocal('i1', 'M. Chiodi', new Date(2026, 9, 18, 17, 4), 'pt-BR');
+    expect(pt.getState().snapshot?.timeline[0]?.title).toBe('M. Chiodi reconheceu às 17:04');
   });
 
-  it('setConnection atualiza o estado da conexão', () => {
+  it('setConnection updates the connection state', () => {
     const store = createWallStore();
     store.getState().setConnection('mock');
     expect(store.getState().connection).toBe('mock');

@@ -11,7 +11,7 @@ function round(n: number): number {
   return Number(n.toFixed(2));
 }
 
-/** Caminho SVG da série; `null` quebra a linha (sem resposta). */
+/** SVG path of the series; `null` breaks the line (no response). */
 export function sparklinePath(values: readonly (number | null)[], width: number, height: number): string {
   const numbers = values.filter((v): v is number => v !== null);
   if (numbers.length === 0) return '';

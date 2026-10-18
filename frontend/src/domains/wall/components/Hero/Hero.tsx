@@ -1,6 +1,8 @@
+import { useTranslation } from 'react-i18next';
 import { deviationLabel, formatReading, ruleText } from '@/domains/monitor/rules';
-import { statusLabel } from '@/domains/monitor/status';
 import { formatDuration, formatElapsed } from '@/shared/format';
+import { currentLocale } from '@/shared/i18n/i18n';
+import { translate } from '@/shared/i18n/message';
 import { Badge, Panel, TEXT_CLASS, ThresholdChart } from '@/shared/ui';
 import type { HeroSelection } from '../../selectors';
 import { AcknowledgeButton } from '../AcknowledgeButton';
@@ -11,25 +13,32 @@ export interface HeroProps {
   onAcknowledge: (incidentId: string) => void;
 }
 
-/** Herói: identificação; nome + valor + regra + desvio; gráfico; impacto e reconhecimento. */
+/** Hero: identification; name + value + rule + deviation; chart; impact and acknowledgement. */
 export function Hero({ selection, now, onAcknowledge }: HeroProps) {
+  const { t, i18n } = useTranslation();
+  const locale = currentLocale(i18n);
   const { monitor, incident, group } = selection;
   const status = monitor.status;
   const unowned = Boolean(incident && !incident.acknowledgedBy);
-  const deviation = monitor.rule && monitor.value !== null ? deviationLabel(monitor.value, monitor.rule) : null;
-  const escalatesIn =
-    incident?.escalatesAt && unowned ? Date.parse(incident.escalatesAt) - now.getTime() : null;
+  const deviation = monitor.rule && monitor.value !== null ? deviationLabel(monitor.value, monitor.rule, locale) : null;
+  const escalatesIn = incident?.escalatesAt && unowned ? Date.parse(incident.escalatesAt) - now.getTime() : null;
 
   return (
-    <Panel title="Situação" tone={status} pulse={status === 'DOWN' && unowned} live className="h-full pl-[1.25rem]">
+    <Panel
+      title={t('wall.hero.title')}
+      tone={status}
+      pulse={status === 'DOWN' && unowned}
+      live
+      className="h-full pl-[1.25rem]"
+    >
       <div className="flex items-center gap-[0.6rem] text-[0.85rem] text-muted">
-        <span className={`font-semibold ${TEXT_CLASS[status]}`}>{statusLabel(status)}</span>
+        <span className={`font-semibold ${TEXT_CLASS[status]}`}>{t(`status.label.${status}`)}</span>
         <span aria-hidden>·</span>
         {group && <span>{group.name}</span>}
         {group && <span aria-hidden>·</span>}
         <span>{monitor.type}</span>
         <span className="ml-auto font-mono text-[1.15rem] text-text">
-          {formatElapsed(incident?.openedAt ?? monitor.since, now)}
+          {formatElapsed(incident?.openedAt ?? monitor.since, now, locale)}
         </span>
       </div>
 
@@ -39,12 +48,14 @@ export function Hero({ selection, now, onAcknowledge }: HeroProps) {
 
       <div className="mt-[0.35rem] flex flex-wrap items-baseline gap-x-[0.9rem] gap-y-[0.3rem]">
         <span className={`font-mono text-[1.5rem] font-semibold ${TEXT_CLASS[status]}`}>
-          {formatReading(monitor.value, monitor.unit)}
+          {formatReading(monitor.value, monitor.unit, locale)}
         </span>
-        {monitor.rule && <span className="font-mono text-[0.85rem] text-muted">{`regra ${ruleText(monitor.rule)}`}</span>}
+        {monitor.rule && (
+          <span className="font-mono text-[0.85rem] text-muted">{t('rule.text', { rule: ruleText(monitor.rule, locale) })}</span>
+        )}
         {deviation && (
           <Badge tone={status} mono>
-            {deviation}
+            {translate(t, deviation)}
           </Badge>
         )}
       </div>
@@ -59,7 +70,7 @@ export function Hero({ selection, now, onAcknowledge }: HeroProps) {
       <footer className="mt-[0.7rem] flex flex-wrap items-center gap-[0.6rem]">
         {incident && incident.impact.length > 0 && (
           <div className="flex flex-wrap items-center gap-[0.4rem]">
-            <span className="text-[0.78rem] text-muted">Impacto provável</span>
+            <span className="text-[0.78rem] text-muted">{t('wall.hero.impact')}</span>
             {incident.impact.map((item) => (
               <Badge key={item}>{item}</Badge>
             ))}
@@ -67,7 +78,9 @@ export function Hero({ selection, now, onAcknowledge }: HeroProps) {
         )}
         <div className="ml-auto flex w-full flex-col items-stretch gap-[0.5rem] sm:w-auto sm:flex-row sm:items-center sm:gap-[0.8rem]">
           {escalatesIn !== null && escalatesIn > 0 && (
-            <span className="font-mono text-[0.85rem] text-warn-text">{`escalona em ${formatDuration(escalatesIn)}`}</span>
+            <span className="font-mono text-[0.85rem] text-warn-text">
+              {t('wall.hero.escalatesIn', { duration: formatDuration(escalatesIn) })}
+            </span>
           )}
           {incident && <AcknowledgeButton incident={incident} onAcknowledge={onAcknowledge} className="w-full sm:w-auto" />}
         </div>

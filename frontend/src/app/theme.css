@@ -9,7 +9,7 @@
 @import '@fontsource/geist-mono/latin-500.css';
 @import '@fontsource/geist-mono/latin-600.css';
 
-/* Tokens de 03-design.md, seção 2 */
+/* Tokens from docs/03-design.md, section 2 */
 :root {
   --bg: #07090d;
   --s1: #0d1117;
@@ -84,12 +84,12 @@ body {
   outline-offset: 2px;
 }
 
-/* Console: densidade maior e fonte fixa */
+/* Console: higher density and a fixed font size */
 html.console {
   font-size: 15px;
 }
 
-/* < 1100 px ou proporção >= 4:3: uma coluna, fonte fixa 14 px */
+/* < 1100 px or aspect ratio >= 4:3: one column, fixed 14 px font */
 @media (max-width: 1099px), (max-aspect-ratio: 4/3) {
   html.wall {
     font-size: 14px;
@@ -122,7 +122,7 @@ html.console {
   }
 }
 
-/* Parede: uma coluna rolável por padrão (celular, notebook, 4:3) */
+/* Wall: one scrollable column by default (phone, laptop, 4:3) */
 .wall-layout {
   display: flex;
   flex-direction: column;
@@ -140,7 +140,7 @@ html.console {
   min-height: 12rem;
 }
 
-/* >= 1100 px e mais largo que 4:3: parede completa sem scroll, colunas 1.5 : 1 */
+/* >= 1100 px and wider than 4:3: full wall without scroll, columns 1.5 : 1 */
 @media (min-width: 1100px) and (min-aspect-ratio: 1334/1000) {
   .wall-root {
     display: flex;

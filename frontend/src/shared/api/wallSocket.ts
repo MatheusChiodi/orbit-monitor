@@ -2,7 +2,7 @@ import type { WallMessage } from './types';
 
 export type ConnectionStatus = 'connecting' | 'open' | 'closed';
 
-/** Subconjunto do WebSocket usado aqui; facilita testar com um falso. */
+/** Subset of WebSocket used here; makes it easy to test with a fake. */
 export interface SocketLike {
   onopen: (() => void) | null;
   onclose: (() => void) | null;
@@ -29,9 +29,17 @@ export function parseWallMessage(data: unknown): WallMessage | null {
   return parsed as WallMessage;
 }
 
-export function wallSocketUrl(location: { protocol: string; host: string }, token?: string): string {
+export const DEFAULT_WALL_LAYOUT = 'noc';
+
+/** The wall has no token: it is addressed by layout slug (`/wall/noc`); `wall.html` means the default layout. */
+export function wallLayoutSlug(pathname: string): string {
+  const match = /^\/wall\/([a-z0-9][a-z0-9-]{0,63})\/?$/i.exec(pathname);
+  return match ? match[1]!.toLowerCase() : DEFAULT_WALL_LAYOUT;
+}
+
+export function wallSocketUrl(location: { protocol: string; host: string }, layout?: string): string {
   const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const query = token ? `?token=${encodeURIComponent(token)}` : '';
+  const query = layout ? `?layout=${encodeURIComponent(layout)}` : '';
   return `${protocol}//${location.host}/ws/wall${query}`;
 }
 
@@ -47,7 +55,7 @@ export interface WallConnection {
   close(): void;
 }
 
-/** Conecta em `/ws/wall` e reconecta sozinho com espera exponencial (até 30 s). */
+/** Connects to `/ws/wall` and reconnects on its own with exponential backoff (up to 30 s). */
 export function connectWall(options: ConnectWallOptions): WallConnection {
   const createSocket = options.createSocket ?? ((url: string) => new WebSocket(url) as SocketLike);
   const baseDelay = options.reconnectMs ?? 1000;
