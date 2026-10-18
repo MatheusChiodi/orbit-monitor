@@ -11,6 +11,7 @@ Monitoring for websites, APIs and databases, with a **TV wall** that changes sha
 - **Gatus-style conditions**: `[STATUS] == 200`, `[COL].PENDING_QTY < 50`, with warning/down levels and hysteresis.
 - **Wall (TV mode)**: hero panel with the worst incident, "near threshold", monitor matrix, timeline and acknowledgement.
 - **Incidents and alerts**: acknowledgement, escalation and channels (e-mail, Teams, Slack, webhook).
+- **Privacy by design (LGPD & PCI DSS)**: card numbers, CVV, CPF, e-mails and secrets are detected and masked at the probe boundary; a full card number is never displayed, logged or stored.
 - **Internationalization**: English by default, with Brazilian Portuguese (pt-BR) available in the UI and in user-facing messages.
 
 ## Repository layout
@@ -22,6 +23,7 @@ Monitoring for websites, APIs and databases, with a **TV wall** that changes sha
 | [`docs/01-architecture.md`](docs/01-architecture.md) | Architecture and domains |
 | [`docs/02-features.md`](docs/02-features.md) | Features |
 | [`docs/03-design.md`](docs/03-design.md) | Design principles and tokens |
+| [`docs/04-data-protection.md`](docs/04-data-protection.md) | LGPD and PCI DSS controls |
 
 ## Running locally
 

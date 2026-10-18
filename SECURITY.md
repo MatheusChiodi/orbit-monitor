@@ -18,4 +18,4 @@ You will get a response within 7 days. Once fixed, you will be credited in the c
 
 ## Sensitive areas
 
-SQL `SELECT` validation (read-only enforcement), SSRF protection in the HTTP monitor, the credential vault (AES-256-GCM), authentication/RBAC and wall tokens.
+Sensitive data masking (card numbers, CVV, CPF/CNPJ, e-mails, secrets — see [docs/04-data-protection.md](docs/04-data-protection.md)), SQL `SELECT` validation (read-only enforcement), SSRF protection in the HTTP monitor, the credential vault (AES-256-GCM), authentication/RBAC and wall tokens.
