@@ -1,3 +1,5 @@
+import type { FieldFormat } from '@/shared/format';
+
 /**
  * Contrato de dados entre o front e a API do Orbit (REST `/api`, WebSocket `/ws/wall`).
  * Datas trafegam como ISO-8601.
@@ -76,3 +78,110 @@ export type WallMessage =
   | { type: 'monitor'; payload: MonitorView }
   | { type: 'incident'; payload: Incident }
   | { type: 'event'; payload: TimelineEvent };
+
+// ---------- Console ----------
+
+export type Role = 'viewer' | 'operator' | 'editor' | 'admin';
+
+export interface User {
+  id: string;
+  name: string;
+  role: Role;
+}
+
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface Session {
+  token: string;
+  user: User;
+}
+
+export type ColumnType = 'number' | 'text' | 'date' | 'boolean';
+
+export interface PreviewColumn {
+  name: string;
+  type: ColumnType;
+}
+
+export type PreviewRow = Record<string, string | number | boolean | null>;
+
+export interface PreviewResult {
+  columns: PreviewColumn[];
+  rows: PreviewRow[];
+  elapsedMs: number;
+  /** Status HTTP, quando o monitor é HTTP. */
+  status?: number;
+}
+
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'HEAD';
+
+export interface SqlTarget {
+  type: 'SQL';
+  connectionId: string;
+  sql: string;
+}
+
+export interface HttpTarget {
+  type: 'HTTP';
+  method: HttpMethod;
+  url: string;
+  headers: Record<string, string>;
+  body?: string;
+}
+
+export type PreviewRequest = SqlTarget | HttpTarget;
+
+export type ConditionOperator = ComparisonOperator | 'between' | 'in' | 'older_than';
+
+export interface Condition {
+  field: string;
+  operator: ConditionOperator;
+  value: string;
+  level: Severity;
+}
+
+export type DisplayMode =
+  | 'number'
+  | 'gauge'
+  | 'indicators'
+  | 'line'
+  | 'bars'
+  | 'table'
+  | 'text'
+  | 'semaphore'
+  | 'hidden';
+
+export interface FieldDisplay {
+  field: string;
+  selected: boolean;
+  label: string;
+  format: FieldFormat;
+  unit?: string;
+  decimals?: number;
+  storeAsSeries: boolean;
+  display: DisplayMode;
+}
+
+export interface MonitorDefinitionBase {
+  id?: string;
+  name: string;
+  groupId: string;
+  intervalSeconds: number;
+  timeoutSeconds: number;
+  retries: number;
+  conditions: Condition[];
+  fields: FieldDisplay[];
+}
+
+export type MonitorDefinition = MonitorDefinitionBase & (SqlTarget | HttpTarget);
+
+export type DatabaseKind = 'ORACLE' | 'POSTGRES' | 'SQLSERVER' | 'MYSQL';
+
+export interface Connection {
+  id: string;
+  name: string;
+  kind: DatabaseKind;
+}
