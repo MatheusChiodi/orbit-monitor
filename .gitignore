@@ -1,0 +1,19 @@
+# Node
+node_modules/
+dist/
+coverage/
+*.log
+# Java
+target/
+*.class
+.mvn/wrapper/maven-wrapper.jar
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+# Local data
+*.mv.db
+*.trace.db
+.env
