@@ -19,6 +19,7 @@
 
     <modules>
         <module>orbit-common</module>
+        <module>orbit-config</module>
         <module>orbit-monitor</module>
         <module>orbit-probe</module>
         <module>orbit-telemetry</module>
@@ -41,6 +42,11 @@
             <dependency>
                 <groupId>io.orbit</groupId>
                 <artifactId>orbit-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.orbit</groupId>
+                <artifactId>orbit-config</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
