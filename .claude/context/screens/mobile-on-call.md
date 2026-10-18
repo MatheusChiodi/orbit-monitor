@@ -22,7 +22,7 @@ Hero, active incidents and full-width Acknowledge.
 - Privacy: every probe value rendered through `<SafeValue>`
 
 ## Features on this screen
-- [FE-49 · Mobile on-call view](../features/FE-49-mobile-on-call-view.md) — planned
+- [FE-49 · Mobile on-call view](../features/FE-49-mobile-on-call-view.md) — tests-pending
 
 ## Code
 - `frontend/src/app/theme.css`

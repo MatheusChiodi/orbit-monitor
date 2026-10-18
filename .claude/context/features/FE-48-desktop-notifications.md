@@ -3,7 +3,7 @@ id: FE-48
 title: "Desktop notifications"
 area: frontend
 group: "Wall runtime and preferences"
-status: planned
+status: tests-pending
 screens: [preferences]
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 Opt-in browser notifications for new incidents
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -26,10 +26,11 @@ Opt-in browser notifications for new incidents
 _None yet._
 
 ## Tests
-_None yet._
+- `frontend/src/domains/alerting/desktopNotifications/desktopNotifications.pending.test.ts`
 
 ## Decisions and notes
 _None yet._
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending test suite written (status: tests-pending).

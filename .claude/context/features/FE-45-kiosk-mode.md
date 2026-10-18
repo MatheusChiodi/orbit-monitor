@@ -3,7 +3,7 @@ id: FE-45
 title: "Kiosk mode"
 area: frontend
 group: "Wall runtime and preferences"
-status: planned
+status: tests-pending
 screens: [wall]
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 Fullscreen, hidden cursor, Screen Wake Lock, auto-reconnect
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -26,10 +26,11 @@ Fullscreen, hidden cursor, Screen Wake Lock, auto-reconnect
 _None yet._
 
 ## Tests
-_None yet._
+- `frontend/src/domains/wall/kiosk/kiosk.pending.test.ts`
 
 ## Decisions and notes
 _None yet._
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending test suite written (status: tests-pending).
