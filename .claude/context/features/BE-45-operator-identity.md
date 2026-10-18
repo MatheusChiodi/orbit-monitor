@@ -3,7 +3,7 @@ id: BE-45
 title: "Operator identity"
 area: backend
 group: "Security and platform"
-status: planned
+status: in-progress
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,21 +15,26 @@ updated: 2026-10-18
 Self-declared `X-Orbit-Operator` name recorded on acknowledgements, comments and audit; anonymization endpoint
 
 ## Status
-- [ ] Tests written (pending or active)
-- [ ] Implemented
+- [x] Tests written (pending or active)
+- [x] Implemented
 - [ ] All tests green, none pending
 
 ## Screens
 —
 
 ## Code
-_None yet._
+- `backend/orbit-api/src/main/java/io/orbit/api/web/Operators.java`
+- `backend/orbit-common/src/main/java/io/orbit/common/OperatorName.java`
+- `backend/orbit-api/src/main/java/io/orbit/api/web/AuditController.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-common/src/test/java/io/orbit/common/OperatorNameTest.java`
+- `backend/orbit-api/src/test/java/io/orbit/api/web/AccessAndGroupsApiTest.java`
 
 ## Decisions and notes
-_None yet._
+- Every change needs `X-Orbit-Operator` (acknowledgement also accepts `by` in the body); missing name is `400 operator-required`.
+- `POST /api/operators/anonymize {name}` anonymizes the audit entries in memory; incidents are not anonymized yet.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — operator header and audit anonymization endpoint.

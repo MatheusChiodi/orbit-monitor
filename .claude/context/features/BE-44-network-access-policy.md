@@ -3,7 +3,7 @@ id: BE-44
 title: "Network access policy"
 area: backend
 group: "Security and platform"
-status: planned
+status: done
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,21 +15,26 @@ updated: 2026-10-18
 No login; mutations only from loopback by default, `lan` or CIDR allowlist configurable, view-only otherwise; `403` Problem Details
 
 ## Status
-- [ ] Tests written (pending or active)
-- [ ] Implemented
-- [ ] All tests green, none pending
+- [x] Tests written (pending or active)
+- [x] Implemented
+- [x] All tests green, none pending
 
 ## Screens
 —
 
 ## Code
-_None yet._
+- `backend/orbit-api/src/main/java/io/orbit/api/web/AccessFilter.java`
+- `backend/orbit-security/src/main/java/io/orbit/security/access/AccessPolicy.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-api/src/test/java/io/orbit/api/web/AccessAndGroupsApiTest.java`
+- `backend/orbit-security/src/test/java/io/orbit/security/access/AccessPolicyTest.java`
 
 ## Decisions and notes
-_None yet._
+- Servlet filter at highest precedence: GET/HEAD/OPTIONS are reads, `POST /api/incidents/**` is acknowledge, everything else is a mutation; the client address is the TCP peer (forwarding headers ignored).
+- Denied requests get `403` Problem Details with `code: access-denied`.
+- Mode comes from `orbit.access.*` properties for now; moving it to `orbit.settings.json` is pending.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — access filter implemented (status: done).

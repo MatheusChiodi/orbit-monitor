@@ -1,0 +1,127 @@
+package io.orbit.api.web;
+
+import io.orbit.common.privacy.DataClass;
+import io.orbit.common.privacy.SensitiveDataRedactor;
+import io.orbit.monitor.condition.Severity;
+import io.orbit.monitor.definition.ConditionDef;
+import io.orbit.monitor.definition.FieldDef;
+import io.orbit.monitor.definition.HttpMonitorDef;
+import io.orbit.monitor.definition.MonitorDefinitions;
+import io.orbit.monitor.definition.SqlMonitorDef;
+import io.orbit.monitor.condition.Hysteresis;
+import io.orbit.security.vault.SecretRef;
+import io.orbit.security.vault.SecretResolver;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+/**
+ * Converts the console's monitor form into config-file definitions. Credential headers are sealed
+ * into the vault; the masked placeholder sent back by the console keeps the stored secret.
+ */
+public class MonitorRequestMapper {
+
+    static final String MASKED = "•••• (vault)";
+    private static final Set<String> CREDENTIAL_HEADERS = Set.of("authorization", "proxy-authorization", "cookie",
+            "x-api-key", "x-auth-token");
+
+    private final SecretResolver secrets;
+    private final SensitiveDataRedactor redactor;
+    private final MonitorDefinitions definitions;
+
+    public MonitorRequestMapper(SecretResolver secrets, SensitiveDataRedactor redactor, MonitorDefinitions definitions) {
+        this.secrets = secrets;
+        this.redactor = redactor;
+        this.definitions = definitions;
+    }
+
+    public SqlMonitorDef toSql(MonitorRequest r) {
+        String id = idOf(r, "sel_");
+        return new SqlMonitorDef(id, r.name(), r.groupId(), r.connectionId(), r.sql(), or(r.intervalSeconds(), 60),
+                or(r.timeoutSeconds(), 30) * 1_000L, or(r.maxRows(), 500), or(r.retries(), 1),
+                r.hysteresis() == null ? Hysteresis.DEFAULT_RATIO : r.hysteresis(), Boolean.TRUE.equals(r.openOnWarn()),
+                conditions(r, "[COL]."), fields(r), Boolean.TRUE.equals(r.paused()), null, null);
+    }
+
+    public HttpMonitorDef toHttp(MonitorRequest r) {
+        String id = idOf(r, "req_");
+        Map<String, String> plain = new HashMap<>();
+        Map<String, SecretRef> sealed = new HashMap<>();
+        Map<String, SecretRef> existing = definitions.monitor(id)
+                .filter(HttpMonitorDef.class::isInstance).map(m -> ((HttpMonitorDef) m).secretHeaders())
+                .orElse(Map.of());
+        (r.headers() == null ? Map.<String, String>of() : r.headers()).forEach((name, value) -> {
+            if (!isCredential(name)) {
+                plain.put(name, value);
+            } else if (MASKED.equals(value) && existing.containsKey(name)) {
+                sealed.put(name, existing.get(name));
+            } else {
+                sealed.put(name, secrets.seal(value));
+            }
+        });
+        return new HttpMonitorDef(id, r.name(), r.groupId(), r.method() == null ? "GET" : r.method(), r.url(), plain,
+                sealed, r.body(), or(r.intervalSeconds(), 60), or(r.timeoutSeconds(), 10) * 1_000L,
+                r.followRedirects() == null || r.followRedirects(), or(r.retries(), 1),
+                r.hysteresis() == null ? Hysteresis.DEFAULT_RATIO : r.hysteresis(), Boolean.TRUE.equals(r.openOnWarn()),
+                conditions(r, "[BODY]."), fields(r), Boolean.TRUE.equals(r.paused()), null, null);
+    }
+
+    private boolean isCredential(String header) {
+        return CREDENTIAL_HEADERS.contains(header.toLowerCase(Locale.ROOT))
+                || redactor.classifyName(header) == DataClass.SECRET;
+    }
+
+    private static List<ConditionDef> conditions(MonitorRequest r, String fieldPrefix) {
+        if (r.conditions() == null) {
+            return List.of();
+        }
+        return r.conditions().stream().map(c -> new ConditionDef(expression(c, fieldPrefix), severity(c.level())))
+                .toList();
+    }
+
+    static String expression(MonitorRequest.ConditionRequest c, String fieldPrefix) {
+        if (c.expression() != null && !c.expression().isBlank()) {
+            return c.expression();
+        }
+        if (c.field() == null || c.operator() == null || c.value() == null) {
+            throw new IllegalArgumentException("A condition needs an expression or field, operator and value");
+        }
+        String field = c.field().strip();
+        String left = field.startsWith("[") ? field
+                : fieldPrefix + (field.startsWith("$.") ? field.substring(2) : field);
+        String operator = c.operator().replace('_', ' ');
+        return left + " " + operator + " " + c.value().strip();
+    }
+
+    private static Severity severity(String level) {
+        return level == null ? Severity.DOWN : Severity.valueOf(level.toUpperCase(Locale.ROOT));
+    }
+
+    private static List<FieldDef> fields(MonitorRequest r) {
+        if (r.fields() == null) {
+            return List.of();
+        }
+        return r.fields().stream().filter(f -> f.selected() == null || f.selected())
+                .map(f -> new FieldDef(f.field(), f.label(), f.format(), f.unit(), f.decimals(),
+                        Boolean.TRUE.equals(f.storeAsSeries()), f.display()))
+                .toList();
+    }
+
+    private static String idOf(MonitorRequest r, String prefix) {
+        if (r.id() != null && !r.id().isBlank()) {
+            return r.id();
+        }
+        String slug = (r.name() == null ? "monitor" : r.name()).toLowerCase(Locale.ROOT)
+                .replaceAll("[^a-z0-9]+", "_").replaceAll("^_|_$", "");
+        slug = slug.length() > 40 ? slug.substring(0, 40) : slug;
+        return prefix + (slug.isEmpty() ? "monitor" : slug) + "_" + UUID.randomUUID().toString().substring(0, 6);
+    }
+
+    private static int or(Integer value, int fallback) {
+        return value == null ? fallback : value;
+    }
+}
