@@ -11,9 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.LocaleResolver;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -27,10 +29,14 @@ public class AccessFilter extends OncePerRequestFilter {
 
     private final AccessPolicy policy;
     private final ObjectMapper json;
+    private final Messages messages;
+    private final LocaleResolver locales;
 
-    public AccessFilter(AccessPolicy policy, ObjectMapper json) {
+    public AccessFilter(AccessPolicy policy, ObjectMapper json, Messages messages, LocaleResolver locales) {
         this.policy = policy;
         this.json = json;
+        this.messages = messages;
+        this.locales = locales;
     }
 
     @Override
@@ -40,7 +46,7 @@ public class AccessFilter extends OncePerRequestFilter {
         AccessAction action = actionOf(request);
         InetAddress remote = InetAddress.getByName(request.getRemoteAddr());
         if (!policy.decide(remote, action)) {
-            deny(response);
+            deny(response, locales.resolveLocale(request));
             return;
         }
         chain.doFilter(request, response);
@@ -57,10 +63,10 @@ public class AccessFilter extends OncePerRequestFilter {
         return AccessAction.MUTATE;
     }
 
-    private void deny(HttpServletResponse response) throws IOException {
+    private void deny(HttpServletResponse response, Locale locale) throws IOException {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN,
-                "Changes are only allowed from an address permitted by the access policy (" + policy.mode() + ")");
-        problem.setTitle("Forbidden");
+                messages.get("problem.access-denied.detail", locale, policy.mode()));
+        problem.setTitle(messages.get("problem.access-denied.title", locale));
         problem.setProperty("code", "access-denied");
         response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);

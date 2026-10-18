@@ -97,7 +97,7 @@ class CheckRunnerTest {
 
     @Test
     void ssrfBlockIsDownWithError() {
-        when(httpProbe.execute(request)).thenThrow(new SsrfBlockedException("Internal address blocked"));
+        when(httpProbe.execute(request)).thenThrow(new SsrfBlockedException("private", "Internal address blocked"));
         assertThat(runner.runHttp("m", request, List.of()).error()).contains("blocked");
     }
 
@@ -122,7 +122,7 @@ class CheckRunnerTest {
     void sqlFailuresAreDownWithError() {
         when(sqlProbe.execute(any(), any(), anyString(), any()))
                 .thenThrow(new SqlProbeException("Query timed out after 30000 ms", true, null))
-                .thenThrow(new UnsafeSqlException("Only SELECT/WITH is allowed"));
+                .thenThrow(new UnsafeSqlException("select-only", "Only SELECT/WITH is allowed"));
 
         CheckResult timeout = runner.runSql("s", dataSource, Dialect.H2, "SELECT 1", SqlProbeOptions.defaults(), List.of());
         CheckResult unsafe = runner.runSql("s", dataSource, Dialect.H2, "DELETE", SqlProbeOptions.defaults(), List.of());

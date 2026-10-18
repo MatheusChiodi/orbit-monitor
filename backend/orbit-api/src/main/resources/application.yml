@@ -2,6 +2,11 @@
 spring:
   application:
     name: orbit-monitor
+  messages:
+    basename: messages
+    encoding: UTF-8
+    # Never follow the OS language: English is the default, pt-BR only when requested.
+    fallback-to-system-locale: false
 
 server:
   address: ${ORBIT_BIND_ADDRESS:127.0.0.1}

@@ -28,20 +28,23 @@ public class ConditionParser {
         String expr = expression == null ? "" : expression.trim();
         Matcher left = LEFT.matcher(expr);
         if (!left.matches()) {
-            throw new ConditionSyntaxException("Expected format: [PLACEHOLDER] operator value");
+            throw new ConditionSyntaxException("format", "Expected format: [PLACEHOLDER] operator value");
         }
         Placeholder placeholder = placeholder(left.group(1));
         String path = left.group(2);
         if (!placeholder.accepts(path)) {
-            throw new ConditionSyntaxException(path == null
-                    ? "[" + placeholder + "] requires a field, e.g. [" + placeholder + "].NAME"
-                    : "[" + placeholder + "] does not accept a field");
+            throw path == null
+                    ? new ConditionSyntaxException("field-required",
+                            "[" + placeholder + "] requires a field, e.g. [" + placeholder + "].NAME", placeholder)
+                    : new ConditionSyntaxException("field-not-allowed", "[" + placeholder + "] does not accept a field",
+                            placeholder);
         }
         String rest = left.group(3).trim();
         Operator operator = operator(rest);
         String right = rest.substring(operator.symbol().length()).trim();
         if (right.isEmpty()) {
-            throw new ConditionSyntaxException("Missing value after '" + operator.symbol() + "'");
+            throw new ConditionSyntaxException("missing-value", "Missing value after '" + operator.symbol() + "'",
+                    operator.symbol());
         }
         return new Condition(expr, placeholder, path, operator, operand(operator, right), severity);
     }
@@ -50,7 +53,7 @@ public class ConditionParser {
         try {
             return Placeholder.valueOf(name.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
-            throw new ConditionSyntaxException("Unknown placeholder: [" + name + "]");
+            throw new ConditionSyntaxException("unknown-placeholder", "Unknown placeholder: [" + name + "]", name);
         }
     }
 
@@ -67,7 +70,7 @@ public class ConditionParser {
             }
             return op;
         }
-        throw new ConditionSyntaxException("Invalid operator in: " + rest);
+        throw new ConditionSyntaxException("invalid-operator", "Invalid operator in: " + rest, rest);
     }
 
     private static Operand operand(Operator operator, String right) {
@@ -75,14 +78,14 @@ public class ConditionParser {
             case BETWEEN -> {
                 Matcher m = BETWEEN.matcher(right);
                 if (!m.matches()) {
-                    throw new ConditionSyntaxException("Use: between <min> and <max>");
+                    throw new ConditionSyntaxException("between-format", "Use: between <min> and <max>");
                 }
                 yield new Operand.RangeOperand(literal(m.group(1).trim()), literal(m.group(2).trim()));
             }
             case IN -> {
                 Matcher m = LIST.matcher(right);
                 if (!m.matches()) {
-                    throw new ConditionSyntaxException("Use: in (a, b, c)");
+                    throw new ConditionSyntaxException("in-format", "Use: in (a, b, c)");
                 }
                 yield new Operand.ListOperand(splitList(m.group(1)).stream().map(ConditionParser::literal).toList());
             }
@@ -113,13 +116,13 @@ public class ConditionParser {
         if (BARE_WORD.matcher(text).matches()) {
             return new Operand.TextOperand(text);
         }
-        throw new ConditionSyntaxException("Invalid value: " + text);
+        throw new ConditionSyntaxException("invalid-value", "Invalid value: " + text, text);
     }
 
     static Duration duration(String raw) {
         Matcher m = DURATION.matcher(raw.trim());
         if (!m.matches()) {
-            throw new ConditionSyntaxException("Invalid duration (use ms, s, min, h, d): " + raw);
+            throw new ConditionSyntaxException("invalid-duration", "Invalid duration (use ms, s, min, h, d): " + raw, raw);
         }
         long factorMs = switch (m.group(2)) {
             case "ms" -> 1L;
@@ -155,7 +158,7 @@ public class ConditionParser {
         }
         items.add(current.toString().trim());
         if (items.stream().anyMatch(String::isEmpty)) {
-            throw new ConditionSyntaxException("List with an empty item: (" + body + ")");
+            throw new ConditionSyntaxException("empty-list-item", "List with an empty item: (" + body + ")", body);
         }
         return items;
     }

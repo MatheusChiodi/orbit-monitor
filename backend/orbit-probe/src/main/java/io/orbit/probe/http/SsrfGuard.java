@@ -71,24 +71,26 @@ public class SsrfGuard {
     public void check(URI uri) {
         String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase(Locale.ROOT);
         if (!scheme.equals("http") && !scheme.equals("https")) {
-            throw new SsrfBlockedException("Only http/https is allowed: " + uri);
+            throw new SsrfBlockedException("scheme", "Only http/https is allowed: " + uri, uri);
         }
         String host = hostOf(uri);
         if (METADATA_HOSTS.contains(host)) {
-            throw new SsrfBlockedException("Cloud metadata target blocked: " + host);
+            throw new SsrfBlockedException("metadata", "Cloud metadata target blocked: " + host, host);
         }
         boolean hostAllowed = allowedHosts.contains(host);
         for (InetAddress address : resolve(host)) {
             if (METADATA.stream().anyMatch(r -> r.contains(address))) {
-                throw new SsrfBlockedException("Cloud metadata target blocked: " + address.getHostAddress());
+                throw new SsrfBlockedException("metadata", "Cloud metadata target blocked: " + address.getHostAddress(),
+                        address.getHostAddress());
             }
             if (NEVER.stream().anyMatch(r -> r.contains(address)) || address.isMulticastAddress()) {
-                throw new SsrfBlockedException("Reserved address blocked: " + address.getHostAddress());
+                throw new SsrfBlockedException("reserved", "Reserved address blocked: " + address.getHostAddress(),
+                        address.getHostAddress());
             }
             boolean allowed = hostAllowed || allowedRanges.stream().anyMatch(r -> r.contains(address));
             if (blockPrivate && !allowed && isPrivate(address)) {
-                throw new SsrfBlockedException("Internal address blocked (" + address.getHostAddress()
-                        + "). Add it to the allowlist to monitor it.");
+                throw new SsrfBlockedException("private", "Internal address blocked (" + address.getHostAddress()
+                        + "). Add it to the allowlist to monitor it.", address.getHostAddress());
             }
         }
     }
@@ -96,7 +98,7 @@ public class SsrfGuard {
     private static String hostOf(URI uri) {
         String host = uri.getHost();
         if (host == null || host.isBlank()) {
-            throw new SsrfBlockedException("URL without host: " + uri);
+            throw new SsrfBlockedException("no-host", "URL without host: " + uri, uri);
         }
         host = host.toLowerCase(Locale.ROOT);
         return host.startsWith("[") && host.endsWith("]") ? host.substring(1, host.length() - 1) : host;
@@ -106,11 +108,11 @@ public class SsrfGuard {
         try {
             List<InetAddress> addresses = resolver.resolve(host);
             if (addresses.isEmpty()) {
-                throw new SsrfBlockedException("Could not resolve host: " + host);
+                throw new SsrfBlockedException("unresolved", "Could not resolve host: " + host, host);
             }
             return addresses;
         } catch (UnknownHostException e) {
-            throw new SsrfBlockedException("Could not resolve host: " + host);
+            throw new SsrfBlockedException("unresolved", "Could not resolve host: " + host, host);
         }
     }
 
