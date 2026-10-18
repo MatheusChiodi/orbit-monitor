@@ -46,10 +46,16 @@ public class CheckRunner {
     }
 
     public CheckResult runHttp(String monitorId, HttpProbeRequest request, List<Condition> conditions) {
+        return runHttp(monitorId, request, conditions, CheckPolicy.initial());
+    }
+
+    public CheckResult runHttp(String monitorId, HttpProbeRequest request, List<Condition> conditions,
+                               CheckPolicy policy) {
         long start = System.nanoTime();
         try {
             HttpResponseSnapshot raw = httpProbe.execute(request);
-            Evaluation evaluation = engine.evaluateAll(conditions, new HttpEvaluationContext(raw));
+            Evaluation evaluation = engine.evaluateAll(conditions, new HttpEvaluationContext(raw),
+                    policy.previousState(), policy.hysteresisRatio());
             return success(monitorId, evaluation, raw.responseTimeMs(), redactor.redact(raw));
         } catch (HttpProbeException | SsrfBlockedException | IllegalArgumentException e) {
             return failure(monitorId, e.getMessage(), elapsedMs(start));
@@ -58,10 +64,16 @@ public class CheckRunner {
 
     public CheckResult runSql(String monitorId, DataSource dataSource, Dialect dialect, String sql,
                               SqlProbeOptions options, List<Condition> conditions) {
+        return runSql(monitorId, dataSource, dialect, sql, options, conditions, CheckPolicy.initial());
+    }
+
+    public CheckResult runSql(String monitorId, DataSource dataSource, Dialect dialect, String sql,
+                              SqlProbeOptions options, List<Condition> conditions, CheckPolicy policy) {
         long start = System.nanoTime();
         try {
             ResultPayload raw = sqlProbe.execute(dataSource, dialect, sql, options);
-            Evaluation evaluation = engine.evaluateAll(conditions, new SqlEvaluationContext(raw));
+            Evaluation evaluation = engine.evaluateAll(conditions, new SqlEvaluationContext(raw),
+                    policy.previousState(), policy.hysteresisRatio());
             return success(monitorId, evaluation, raw.ms(), redactor.redact(raw));
         } catch (SqlProbeException | UnsafeSqlException e) {
             return failure(monitorId, e.getMessage(), elapsedMs(start));

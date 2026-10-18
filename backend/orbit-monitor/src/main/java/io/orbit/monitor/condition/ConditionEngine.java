@@ -54,6 +54,19 @@ public class ConditionEngine {
         return new Evaluation(state, results);
     }
 
+    /**
+     * Evaluates with hysteresis: while the monitor is WARN or DOWN, thresholds are tightened by
+     * {@code hysteresisRatio} so recovery needs a margin beyond the limit.
+     */
+    public Evaluation evaluateAll(List<Condition> conditions, EvaluationContext context, MonitorState previous,
+                                  double hysteresisRatio) {
+        boolean unhealthy = previous == MonitorState.WARN || previous == MonitorState.DOWN;
+        if (!unhealthy || hysteresisRatio <= 0) {
+            return evaluateAll(conditions, context);
+        }
+        return evaluateAll(conditions.stream().map(c -> Hysteresis.tighten(c, hysteresisRatio)).toList(), context);
+    }
+
     private static String label(Condition c) {
         return "[" + c.placeholder() + "]" + (c.path() == null ? "" : "." + c.path());
     }

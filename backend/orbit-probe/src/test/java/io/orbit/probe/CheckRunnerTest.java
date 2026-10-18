@@ -133,6 +133,22 @@ class CheckRunnerTest {
     }
 
     @Test
+    void previousUnhealthyStateAppliesHysteresis() {
+        var payload = new ResultPayload(List.of(new ResultColumn("QTY", ColumnType.NUMBER, "NUMBER")),
+                List.of(List.of(190)), 5L, false);
+        when(sqlProbe.execute(any(), any(), anyString(), any())).thenReturn(payload);
+        var conds = List.of(parser.parse("[COL].QTY < 200", Severity.WARN));
+
+        CheckResult fromOk = runner.runSql("s", dataSource, Dialect.H2, "SELECT 1", SqlProbeOptions.defaults(), conds,
+                new CheckPolicy(MonitorState.OK, 0.10));
+        CheckResult fromWarn = runner.runSql("s", dataSource, Dialect.H2, "SELECT 1", SqlProbeOptions.defaults(), conds,
+                new CheckPolicy(MonitorState.WARN, 0.10));
+
+        assertThat(fromOk.state()).isEqualTo(MonitorState.OK);
+        assertThat(fromWarn.state()).isEqualTo(MonitorState.WARN);
+    }
+
+    @Test
     void errorMessagesAreRedacted() {
         when(httpProbe.execute(request)).thenThrow(new HttpProbeException("Connection failed: " + TEST_PAN, null));
         assertThat(runner.runHttp("m", request, List.of()).error()).doesNotContain(TEST_PAN);
