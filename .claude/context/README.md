@@ -60,16 +60,16 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 
 | ID | Feature | Area | Status |
 |---|---|---|---|
-| [FE-01](features/FE-01-theme-editor.md) | Theme editor | frontend | planned |
-| [FE-02](features/FE-02-contrast-guard.md) | Contrast guard | frontend | planned |
-| [FE-03](features/FE-03-theme-presets.md) | Theme presets | frontend | planned |
-| [FE-04](features/FE-04-theme-import-export.md) | Theme import/export | frontend | planned |
-| [FE-05](features/FE-05-per-layout-theme.md) | Per-layout theme | frontend | planned |
-| [FE-06](features/FE-06-animation-level.md) | Animation level | frontend | planned |
-| [FE-07](features/FE-07-density.md) | Density | frontend | planned |
-| [FE-08](features/FE-08-viewing-distance-scale.md) | Viewing distance scale | frontend | planned |
-| [FE-09](features/FE-09-night-mode-schedule.md) | Night mode schedule | frontend | planned |
-| [FE-10](features/FE-10-workspace-branding.md) | Workspace branding | frontend | planned |
+| [FE-01](features/FE-01-theme-editor.md) | Theme editor | frontend | tests-pending |
+| [FE-02](features/FE-02-contrast-guard.md) | Contrast guard | frontend | tests-pending |
+| [FE-03](features/FE-03-theme-presets.md) | Theme presets | frontend | tests-pending |
+| [FE-04](features/FE-04-theme-import-export.md) | Theme import/export | frontend | tests-pending |
+| [FE-05](features/FE-05-per-layout-theme.md) | Per-layout theme | frontend | tests-pending |
+| [FE-06](features/FE-06-animation-level.md) | Animation level | frontend | tests-pending |
+| [FE-07](features/FE-07-density.md) | Density | frontend | tests-pending |
+| [FE-08](features/FE-08-viewing-distance-scale.md) | Viewing distance scale | frontend | tests-pending |
+| [FE-09](features/FE-09-night-mode-schedule.md) | Night mode schedule | frontend | tests-pending |
+| [FE-10](features/FE-10-workspace-branding.md) | Workspace branding | frontend | tests-pending |
 | [FE-11](features/FE-11-wall-layout-editor.md) | Wall layout editor | frontend | planned |
 | [FE-12](features/FE-12-keyboard-drag-and-drop.md) | Keyboard drag and drop | frontend | planned |
 | [FE-13](features/FE-13-reorder-monitors-and-groups.md) | Reorder monitors and groups | frontend | planned |
@@ -109,7 +109,7 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [FE-47](features/FE-47-sound-alerts.md) | Sound alerts | frontend | planned |
 | [FE-48](features/FE-48-desktop-notifications.md) | Desktop notifications | frontend | planned |
 | [FE-49](features/FE-49-mobile-on-call-view.md) | Mobile on-call view | frontend | planned |
-| [FE-50](features/FE-50-device-preferences.md) | Device preferences | frontend | planned |
+| [FE-50](features/FE-50-device-preferences.md) | Device preferences | frontend | tests-pending |
 | [FE-51](features/FE-51-component-motion-system.md) | Component motion system | frontend | planned |
 
 ### Backend

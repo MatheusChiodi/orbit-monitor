@@ -262,5 +262,422 @@
       "range": "Use \"mín..máx\"",
       "duration": "Use uma duração: 10min, 2h, 30s"
     }
+  },
+  "theme": {
+    "editor": {
+      "name": "Nome do tema",
+      "startFrom": "Começar de um preset",
+      "wallPreview": "Pré-visualização da parede",
+      "consolePreview": "Pré-visualização do console",
+      "save": "Salvar tema",
+      "cancel": "Cancelar",
+      "useSuggested": "Usar valor sugerido"
+    },
+    "presets": {
+      "orbit-dark": "Orbit Dark",
+      "light": "Claro",
+      "high-contrast": "Alto contraste",
+      "oled-black": "Preto OLED",
+      "deuteranopia": "Seguro para daltonismo (deuteranopia)",
+      "protanopia": "Seguro para daltonismo (protanopia)",
+      "tritanopia": "Seguro para daltonismo (tritanopia)"
+    },
+    "contrast": {
+      "body": "{{foreground}} sobre {{background}} tem contraste {{ratio}}:1; texto corrido precisa de 4,5:1",
+      "large": "{{foreground}} sobre {{background}} tem contraste {{ratio}}:1; rótulos grandes precisam de 3:1",
+      "indistinguishable": "{{foreground}} e {{background}} são parecidas demais para distinguir os estados"
+    },
+    "file": {
+      "invalidJson": "Este arquivo não é um JSON válido",
+      "missingToken": "O tema não tem valor para {{token}}",
+      "invalidColor": "{{token}} não é uma cor hexadecimal",
+      "unsupportedVersion": "A versão {{version}} do arquivo de tema não é suportada"
+    }
+  },
+  "nightMode": {
+    "label": "Modo noturno"
+  },
+  "branding": {
+    "logoAlt": "Logo de {{name}}",
+    "errors": {
+      "notSvg": "O logo precisa ser um arquivo SVG",
+      "tooLarge": "O logo é grande demais"
+    }
+  },
+  "preferences": {
+    "title": "Preferências do dispositivo",
+    "theme": "Tema",
+    "animation": "Nível de animação",
+    "density": "Densidade",
+    "language": "Idioma",
+    "scale": "Distância de visualização",
+    "operatorName": "Nome do operador",
+    "hint": "Guardado só neste dispositivo. Os padrões do workspace valem para o que você não alterar.",
+    "workspaceDefault": "padrão do workspace",
+    "reducedMotion": "Seu sistema pede movimento reduzido, então as animações ficam desligadas.",
+    "export": "Exportar preferências",
+    "import": "Importar preferências",
+    "imported": "Preferências importadas",
+    "reset": "Voltar aos padrões do workspace",
+    "animationLevels": {
+      "off": "Desligado",
+      "minimal": "Mínimo",
+      "standard": "Padrão",
+      "expressive": "Expressivo"
+    },
+    "densities": {
+      "compact": "Compacta",
+      "comfortable": "Confortável",
+      "spacious": "Espaçosa"
+    },
+    "scales": {
+      "2m": "2 m",
+      "3m": "3 m",
+      "5m": "5 m"
+    },
+    "file": {
+      "invalidJson": "Este arquivo não é um JSON válido",
+      "unsupportedVersion": "A versão {{version}} do arquivo de preferências não é suportada"
+    }
+  },
+  "layout": {
+    "editor": "Editor de layout da parede",
+    "block": "bloco {{name}}",
+    "resize": "Redimensionar {{name}}",
+    "save": "Salvar layout",
+    "undo": "Desfazer",
+    "redo": "Refazer",
+    "template": "Modelo",
+    "templates": {
+      "noc": "NOC",
+      "executive": "Diretoria",
+      "team": "Time",
+      "single-incident": "Incidente único"
+    },
+    "dnd": {
+      "grabbed": "{{name}} pego na coluna {{x}}, linha {{y}}",
+      "moved": "{{name}} movido para a coluna {{x}}, linha {{y}}",
+      "resized": "{{name}} redimensionado para {{w}} × {{h}}",
+      "dropped": "{{name}} solto",
+      "cancelled": "Movimento cancelado",
+      "reorder": "Reordenar {{name}}",
+      "position": "{{name}} movido para a posição {{position}} de {{total}}"
+    },
+    "simulator": {
+      "monitor": "Monitor",
+      "severity": "Gravidade",
+      "run": "Simular incidente",
+      "reset": "Restaurar",
+      "notice": "Simulação: nada é real e nenhum alerta é enviado"
+    },
+    "preview": {
+      "label": "Pré-visualização da tela",
+      "presets": {
+        "1080p": "1080p (1920×1080)",
+        "4k": "4K (3840×2160)",
+        "ultrawide": "Ultrawide (3440×1440)",
+        "portrait": "Retrato (1080×1920)"
+      }
+    },
+    "tile": "Parte {{index}} de {{total}}"
+  },
+  "palette": {
+    "title": "Paleta de comandos",
+    "search": "Buscar monitores, grupos, layouts e ações",
+    "noResults": "Nenhum resultado para \"{{query}}\"",
+    "kinds": {
+      "monitor": "Monitores",
+      "group": "Grupos",
+      "layout": "Layouts",
+      "action": "Ações"
+    }
+  },
+  "shortcuts": {
+    "title": "Atalhos de teclado",
+    "openPalette": "Abrir paleta de comandos",
+    "newMonitor": "Novo monitor",
+    "help": "Mostrar atalhos de teclado",
+    "undo": "Desfazer",
+    "redo": "Refazer",
+    "close": "Fechar"
+  },
+  "views": {
+    "save": "Salvar visão",
+    "name": "Nome da visão",
+    "delete": "Excluir visão {{name}}",
+    "confirmDelete": "Excluir",
+    "empty": "Nenhuma visão salva ainda. As visões ficam só neste dispositivo."
+  },
+  "bulk": {
+    "toolbar": "Ações em lote",
+    "selected": "{{count}} selecionados",
+    "pause": "Pausar",
+    "tag": "Tag",
+    "move": "Mover para grupo",
+    "targetGroup": "Grupo de destino",
+    "moveConfirm": "Mover",
+    "delete": "Excluir",
+    "confirmTitle": "Excluir {{count}} monitores?",
+    "confirmAction": "Excluir {{count}} monitores",
+    "cancel": "Cancelar"
+  },
+  "templates": {
+    "title": "Começar de um modelo",
+    "use": "Usar modelo",
+    "blank": "Monitor em branco",
+    "copyOf": "Cópia de {{name}}",
+    "springHealth": "Saúde do Spring Actuator",
+    "oracleLocks": "Locks bloqueantes no Oracle"
+  },
+  "explorer": {
+    "tree": "Corpo da resposta",
+    "use": "Usar {{path}} como campo",
+    "copy": "Copiar valor de {{path}}",
+    "empty": "A resposta não tem corpo JSON",
+    "pci": "PCI · mascarado"
+  },
+  "diff": {
+    "table": "Alterações do SELECT",
+    "author": "{{name}} (autodeclarado) · {{client}}",
+    "summary": "{{removed}} linha removida, {{added}} linha adicionada",
+    "empty": "Nenhuma alteração deste SELECT na trilha de auditoria ainda"
+  },
+  "onboarding": {
+    "title": "Crie seu primeiro monitor",
+    "steps": "Primeiros passos",
+    "connection": "Adicione uma conexão de banco",
+    "monitor": "Crie um monitor (URL ou SELECT)",
+    "layout": "Escolha o que a parede mostra",
+    "done": "Feito",
+    "http": "Monitorar uma URL",
+    "sql": "Monitorar um SELECT",
+    "viewOnly": "Os monitores são criados na máquina onde o Orbit roda."
+  },
+  "notifications": {
+    "bell": "Notificações",
+    "bellUnread": "Notificações ({{count}} não lidas)",
+    "feed": "Feed de incidentes",
+    "markRead": "Marcar {{title}} como lida",
+    "markAll": "Marcar todas como lidas",
+    "empty": "Nenhuma notificação nas últimas 24 h",
+    "region": "Notificações"
+  },
+  "incident": {
+    "timeline": "Linha do tempo",
+    "comment": "Comentário",
+    "addComment": "Adicionar comentário",
+    "author": "{{name}} (autodeclarado)",
+    "ticket": "Chamado",
+    "linkTicket": "Vincular chamado",
+    "postmortem": "Pós-incidente",
+    "mtta": "Tempo até reconhecer",
+    "mttr": "Tempo até resolver",
+    "escalation": "Escalonamento",
+    "escalatesIn": "Escalona em {{time}}",
+    "escalatedTo": "Escalonado para {{step}}",
+    "nextStep": "próximo: {{step}}"
+  },
+  "maintenance": {
+    "calendar": "Calendário de manutenção",
+    "newWindow": "Nova janela de manutenção",
+    "title": "Título",
+    "group": "Grupo",
+    "create": "Criar janela",
+    "note": "Monitores em janela de manutenção ficam silenciados e não contam no uptime.",
+    "empty": "Nenhuma janela de manutenção ainda. Arraste no calendário para criar uma."
+  },
+  "dependencies": {
+    "impacts_one": "{{name}} impacta {{count}} monitor: {{list}}",
+    "impacts_other": "{{name}} impacta {{count}} monitores: {{list}}",
+    "empty": "Nenhuma dependência ainda. Ligue monitores para ver o raio de impacto e suprimir cascatas.",
+    "graph": "Grafo de dependências"
+  },
+  "reports": {
+    "history": "Histórico disponível: últimas {{hours}} h",
+    "table": "Uptime por monitor",
+    "partial": "Só as últimas {{hours}} h estão disponíveis; o uptime de {{period}} ficaria incompleto.",
+    "exportCsv": "Exportar CSV",
+    "empty": "Ainda não há histórico. O Orbit guarda as últimas 24 h em memória; ao reiniciar começa vazio.",
+    "period": "Período"
+  },
+  "statusPage": {
+    "title": "Título",
+    "slug": "Slug",
+    "preview": "Prévia",
+    "public": "Pública",
+    "internal": "Interna",
+    "publicWarning": "Qualquer pessoa com o link vê esta página. Só o estado dos grupos aparece.",
+    "save": "Salvar página de status",
+    "groupRequired": "Escolha pelo menos um grupo",
+    "empty": "Nenhuma página de status ainda."
+  },
+  "privacy": {
+    "pciNotice": "Dados de cartão são sempre mascarados (PCI DSS)",
+    "personalNotice": "Dados pessoais são mascarados por padrão (LGPD)",
+    "pciBadge": "PCI · mascarado",
+    "personalBadge": "Dado pessoal (LGPD)",
+    "masked": "Mascarado",
+    "showOnWall": "Mostrar na parede",
+    "vault": "•••• (cofre)"
+  },
+  "settings": {
+    "title": "Configurações",
+    "editMode": "Modo de edição: esta máquina roda o Orbit",
+    "defaults": "Padrões do workspace",
+    "defaultLanguage": "Idioma padrão",
+    "saveDefaults": "Salvar padrões",
+    "files": "Arquivos de configuração",
+    "fileOk": "OK",
+    "fileMissing": "Ainda não criado",
+    "fileInvalid": "Inválido",
+    "export": "Exportar configuração",
+    "exportNote": "Segredos nunca são exportados",
+    "import": "Importar configuração",
+    "importPreview": "Prévia da importação",
+    "importSummary": "{{added}} adicionados · {{changed}} alterados · {{removed}} removidos",
+    "applyImport": "Aplicar importação",
+    "empty": "Nada cadastrado ainda"
+  },
+  "history": {
+    "available": "Histórico disponível: últimas {{hours}} h",
+    "requested": "{{period}} solicitados; dados mais antigos não são guardados",
+    "partial": "Apenas {{hours}} h registradas desde que o Orbit iniciou"
+  },
+  "kiosk": {
+    "enter": "Modo quiosque",
+    "exit": "Sair do modo quiosque",
+    "wakeLockUnavailable": "A tela pode apagar neste dispositivo"
+  },
+  "stale": {
+    "age": "dados de {{age}}",
+    "stale": "Dados desatualizados · última atualização {{ago}}",
+    "never": "Nenhum dado recebido ainda"
+  },
+  "sound": {
+    "label": "Alertas sonoros",
+    "muted": "Sem som",
+    "on": "Som ligado",
+    "volume": "Volume"
+  },
+  "desktopNotifications": {
+    "enable": "Ativar notificações na área de trabalho",
+    "disable": "Desativar notificações na área de trabalho",
+    "denied": "Notificações bloqueadas pelo navegador",
+    "title": "{{name}} fora",
+    "titleWarn": "{{name}} em atenção"
+  },
+  "onCall": {
+    "active": "Incidentes ativos",
+    "none": "Nenhum incidente ativo"
+  },
+  "viz": {
+    "noData": "Sem dados ainda",
+    "noDataCell": "sem dados",
+    "historyWindow": "Histórico disponível: últimas {{hours}} h",
+    "pciNotice": "Dados de cartão são sempre mascarados (PCI DSS)",
+    "trend": {
+      "up": "subindo",
+      "down": "descendo",
+      "flat": "estável"
+    },
+    "modes": {
+      "big-number": "Número grande",
+      "radial-gauge": "Medidor radial",
+      "bullet": "Gráfico bullet",
+      "headroom-bar": "Barra de folga",
+      "kpi-card": "Cartão de KPIs",
+      "line": "Gráfico de linha",
+      "area": "Gráfico de área",
+      "step-line": "Linha em degraus",
+      "bar-ranking": "Barras / ranking",
+      "stacked-bar": "Barras empilhadas",
+      "donut": "Rosca",
+      "weekday-hour-heatmap": "Mapa de calor hora × dia",
+      "calendar-heatmap": "Mapa de calor de calendário",
+      "uptime-ribbon": "Faixa de disponibilidade",
+      "traffic-light": "Semáforo",
+      "status-pill": "Pílula de estado",
+      "live-table": "Tabela ao vivo",
+      "small-multiples": "Múltiplos pequenos",
+      "histogram": "Histograma",
+      "hex-grid": "Grade hexagonal"
+    },
+    "gauge": {
+      "min": "mín. {{value}}",
+      "max": "máx. {{value}}"
+    },
+    "bullet": {
+      "target": "meta {{value}}"
+    },
+    "donut": {
+      "other": "Outros"
+    },
+    "ribbon": {
+      "uptime": "{{pct}} de disponibilidade"
+    },
+    "table": {
+      "violates": "viola a regra"
+    },
+    "histogram": {
+      "p95": "p95 {{value}}"
+    },
+    "picker": {
+      "title": "Escolha como mostrar {{field}}",
+      "suggested": "Sugerido",
+      "empty": "Execute o preview para comparar visualizações"
+    },
+    "reasons": {
+      "needsNumber": "Precisa de um número",
+      "needsCategories": "Precisa de categorias",
+      "needsSeries": "Precisa de uma série guardada",
+      "needsRows": "Precisa de várias linhas",
+      "tooManySlices": "No máximo {{max}} fatias",
+      "needsLongerHistory": "Precisa de mais que as últimas {{hours}} h de histórico",
+      "pci": "Dados de cartão são sempre mascarados (PCI DSS)",
+      "personal": "Dados pessoais nunca aparecem na parede (LGPD)"
+    },
+    "settings": {
+      "addBand": "Adicionar faixa de cor",
+      "band": "Faixa {{n}}",
+      "upTo": "Até",
+      "from": "De",
+      "state": "Estado",
+      "decimals": "Casas decimais",
+      "prefix": "Prefixo",
+      "suffix": "Sufixo",
+      "min": "Mín.",
+      "max": "Máx.",
+      "thresholdLine": "Mostrar linha de limite",
+      "onFail": "Quando a regra falhar",
+      "onFailOptions": {
+        "deviation": "Mostrar o desvio",
+        "color": "Deixar o valor vermelho",
+        "both": "Ambos"
+      },
+      "preview": "Prévia",
+      "errors": {
+        "overlap": "As faixas não podem se sobrepor",
+        "decimals": "Casas decimais entre 0 e 4",
+        "minMax": "O mínimo deve ser menor que o máximo"
+      }
+    },
+    "wow": {
+      "legend": "Mesmo período da semana passada",
+      "unavailable": "Semana passada indisponível: o histórico cobre só as últimas {{hours}} h"
+    },
+    "annotations": {
+      "incidentAt": "Incidente às {{time}}",
+      "maintenance": "Manutenção {{from}}–{{to}}",
+      "deployAt": "Deploy às {{time}}"
+    },
+    "zoom": {
+      "start": "Início do zoom",
+      "end": "Fim do zoom",
+      "reset": "Restaurar zoom",
+      "showing": "Mostrando {{from}}–{{to}}"
+    },
+    "crosshair": {
+      "readout": "{{time}} · {{value}}"
+    }
   }
 }

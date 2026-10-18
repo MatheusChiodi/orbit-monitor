@@ -3,7 +3,7 @@ id: FE-08
 title: "Viewing distance scale"
 area: frontend
 group: "Theming and personalization"
-status: planned
+status: tests-pending
 screens: [preferences, wall]
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 Wall font presets for 2 m / 3 m / 5 m on top of the fluid base
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -26,10 +26,11 @@ Wall font presets for 2 m / 3 m / 5 m on top of the fluid base
 _None yet._
 
 ## Tests
-_None yet._
+- `frontend/src/domains/wall/display/viewingScale.pending.test.ts`
 
 ## Decisions and notes
 _None yet._
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending test suite written (status: tests-pending).

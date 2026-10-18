@@ -30,7 +30,7 @@ Header with global status and clock, hero (incident / all operational), also act
 - [CORE-05 · State, hysteresis, uptime and p95](../features/CORE-05-state-hysteresis-uptime-and-p95.md) — done
 - [CORE-06 · Incidents and acknowledgement](../features/CORE-06-incidents-and-acknowledgement.md) — in-progress
 - [CORE-07 · Workspaces and groups](../features/CORE-07-workspaces-and-groups.md) — in-progress
-- [CORE-20 · Local-first runtime](../features/CORE-20-local-first-runtime.md) — planned
+- [CORE-20 · Local-first runtime](../features/CORE-20-local-first-runtime.md) — in-progress
 - [CORE-09 · Realtime wall updates](../features/CORE-09-realtime-wall-updates.md) — in-progress
 - [CORE-11 · Global status summary](../features/CORE-11-global-status-summary.md) — done
 - [CORE-12 · Value formatting](../features/CORE-12-value-formatting.md) — done
@@ -38,11 +38,11 @@ Header with global status and clock, hero (incident / all operational), also act
 - [CORE-15 · Internationalization (en / pt-BR)](../features/CORE-15-internationalization-en-pt-br.md) — in-progress
 - [CORE-16 · Sensitive data protection (LGPD / PCI DSS)](../features/CORE-16-sensitive-data-protection-lgpd-pci-dss.md) — in-progress
 - [CORE-17 · Design tokens and base theme](../features/CORE-17-design-tokens-and-base-theme.md) — done
-- [FE-06 · Animation level](../features/FE-06-animation-level.md) — planned
-- [FE-07 · Density](../features/FE-07-density.md) — planned
-- [FE-08 · Viewing distance scale](../features/FE-08-viewing-distance-scale.md) — planned
-- [FE-09 · Night mode schedule](../features/FE-09-night-mode-schedule.md) — planned
-- [FE-10 · Workspace branding](../features/FE-10-workspace-branding.md) — planned
+- [FE-06 · Animation level](../features/FE-06-animation-level.md) — tests-pending
+- [FE-07 · Density](../features/FE-07-density.md) — tests-pending
+- [FE-08 · Viewing distance scale](../features/FE-08-viewing-distance-scale.md) — tests-pending
+- [FE-09 · Night mode schedule](../features/FE-09-night-mode-schedule.md) — tests-pending
+- [FE-10 · Workspace branding](../features/FE-10-workspace-branding.md) — tests-pending
 - [FE-13 · Reorder monitors and groups](../features/FE-13-reorder-monitors-and-groups.md) — planned
 - [FE-21 · Visualization picker](../features/FE-21-visualization-picker.md) — planned
 - [FE-22 · Compatibility rules](../features/FE-22-compatibility-rules.md) — planned

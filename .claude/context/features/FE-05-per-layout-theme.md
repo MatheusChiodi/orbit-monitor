@@ -3,7 +3,7 @@ id: FE-05
 title: "Per-layout theme"
 area: frontend
 group: "Theming and personalization"
-status: planned
+status: tests-pending
 screens: [theme-editor]
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 A wall layout can override the console theme
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -26,10 +26,11 @@ A wall layout can override the console theme
 _None yet._
 
 ## Tests
-_None yet._
+- `frontend/src/domains/workspace/theme/applyTheme.pending.test.ts`
 
 ## Decisions and notes
 _None yet._
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending test suite written (status: tests-pending).

@@ -23,13 +23,13 @@ _To be filled as the screen is built (component tree, file paths)._
 
 ## Features on this screen
 - [CORE-15 · Internationalization (en / pt-BR)](../features/CORE-15-internationalization-en-pt-br.md) — in-progress
-- [FE-06 · Animation level](../features/FE-06-animation-level.md) — planned
-- [FE-07 · Density](../features/FE-07-density.md) — planned
-- [FE-08 · Viewing distance scale](../features/FE-08-viewing-distance-scale.md) — planned
-- [FE-09 · Night mode schedule](../features/FE-09-night-mode-schedule.md) — planned
+- [FE-06 · Animation level](../features/FE-06-animation-level.md) — tests-pending
+- [FE-07 · Density](../features/FE-07-density.md) — tests-pending
+- [FE-08 · Viewing distance scale](../features/FE-08-viewing-distance-scale.md) — tests-pending
+- [FE-09 · Night mode schedule](../features/FE-09-night-mode-schedule.md) — tests-pending
 - [FE-47 · Sound alerts](../features/FE-47-sound-alerts.md) — planned
 - [FE-48 · Desktop notifications](../features/FE-48-desktop-notifications.md) — planned
-- [FE-50 · Device preferences](../features/FE-50-device-preferences.md) — planned
+- [FE-50 · Device preferences](../features/FE-50-device-preferences.md) — tests-pending
 
 ## Code
 _None yet._

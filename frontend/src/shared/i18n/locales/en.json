@@ -262,5 +262,422 @@
       "range": "Use \"min..max\"",
       "duration": "Use a duration: 10min, 2h, 30s"
     }
+  },
+  "theme": {
+    "editor": {
+      "name": "Theme name",
+      "startFrom": "Start from preset",
+      "wallPreview": "Wall preview",
+      "consolePreview": "Console preview",
+      "save": "Save theme",
+      "cancel": "Cancel",
+      "useSuggested": "Use suggested value"
+    },
+    "presets": {
+      "orbit-dark": "Orbit Dark",
+      "light": "Light",
+      "high-contrast": "High contrast",
+      "oled-black": "OLED black",
+      "deuteranopia": "Color-blind safe (deuteranopia)",
+      "protanopia": "Color-blind safe (protanopia)",
+      "tritanopia": "Color-blind safe (tritanopia)"
+    },
+    "contrast": {
+      "body": "{{foreground}} on {{background}} has contrast {{ratio}}:1; body text needs 4.5:1",
+      "large": "{{foreground}} on {{background}} has contrast {{ratio}}:1; large labels need 3:1",
+      "indistinguishable": "{{foreground}} and {{background}} are too similar to tell states apart"
+    },
+    "file": {
+      "invalidJson": "This file is not valid JSON",
+      "missingToken": "The theme has no value for {{token}}",
+      "invalidColor": "{{token}} is not a hex color",
+      "unsupportedVersion": "Theme file version {{version}} is not supported"
+    }
+  },
+  "nightMode": {
+    "label": "Night mode"
+  },
+  "branding": {
+    "logoAlt": "{{name}} logo",
+    "errors": {
+      "notSvg": "The logo must be an SVG file",
+      "tooLarge": "The logo is too large"
+    }
+  },
+  "preferences": {
+    "title": "Device preferences",
+    "theme": "Theme",
+    "animation": "Animation level",
+    "density": "Density",
+    "language": "Language",
+    "scale": "Viewing distance",
+    "operatorName": "Operator name",
+    "hint": "Saved on this device only. Workspace defaults apply to anything you leave unchanged.",
+    "workspaceDefault": "workspace default",
+    "reducedMotion": "Your system asks for reduced motion, so animations stay off.",
+    "export": "Export preferences",
+    "import": "Import preferences",
+    "imported": "Preferences imported",
+    "reset": "Reset to workspace defaults",
+    "animationLevels": {
+      "off": "Off",
+      "minimal": "Minimal",
+      "standard": "Standard",
+      "expressive": "Expressive"
+    },
+    "densities": {
+      "compact": "Compact",
+      "comfortable": "Comfortable",
+      "spacious": "Spacious"
+    },
+    "scales": {
+      "2m": "2 m",
+      "3m": "3 m",
+      "5m": "5 m"
+    },
+    "file": {
+      "invalidJson": "This file is not valid JSON",
+      "unsupportedVersion": "Preferences file version {{version}} is not supported"
+    }
+  },
+  "layout": {
+    "editor": "Wall layout editor",
+    "block": "{{name}} block",
+    "resize": "Resize {{name}}",
+    "save": "Save layout",
+    "undo": "Undo",
+    "redo": "Redo",
+    "template": "Template",
+    "templates": {
+      "noc": "NOC",
+      "executive": "Executive",
+      "team": "Team",
+      "single-incident": "Single incident"
+    },
+    "dnd": {
+      "grabbed": "Grabbed {{name}} at column {{x}}, row {{y}}",
+      "moved": "{{name}} moved to column {{x}}, row {{y}}",
+      "resized": "{{name}} resized to {{w}} × {{h}}",
+      "dropped": "{{name}} dropped",
+      "cancelled": "Move cancelled",
+      "reorder": "Reorder {{name}}",
+      "position": "{{name}} moved to position {{position}} of {{total}}"
+    },
+    "simulator": {
+      "monitor": "Monitor",
+      "severity": "Severity",
+      "run": "Simulate incident",
+      "reset": "Reset",
+      "notice": "Simulation: nothing is real and no alert is sent"
+    },
+    "preview": {
+      "label": "Screen preview",
+      "presets": {
+        "1080p": "1080p (1920×1080)",
+        "4k": "4K (3840×2160)",
+        "ultrawide": "Ultrawide (3440×1440)",
+        "portrait": "Portrait (1080×1920)"
+      }
+    },
+    "tile": "Tile {{index}} of {{total}}"
+  },
+  "palette": {
+    "title": "Command palette",
+    "search": "Search monitors, groups, layouts and actions",
+    "noResults": "No results for \"{{query}}\"",
+    "kinds": {
+      "monitor": "Monitors",
+      "group": "Groups",
+      "layout": "Layouts",
+      "action": "Actions"
+    }
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "openPalette": "Open command palette",
+    "newMonitor": "New monitor",
+    "help": "Show keyboard shortcuts",
+    "undo": "Undo",
+    "redo": "Redo",
+    "close": "Close"
+  },
+  "views": {
+    "save": "Save view",
+    "name": "View name",
+    "delete": "Delete view {{name}}",
+    "confirmDelete": "Delete",
+    "empty": "No saved views yet. Views are kept on this device only."
+  },
+  "bulk": {
+    "toolbar": "Bulk actions",
+    "selected": "{{count}} selected",
+    "pause": "Pause",
+    "tag": "Tag",
+    "move": "Move to group",
+    "targetGroup": "Target group",
+    "moveConfirm": "Move",
+    "delete": "Delete",
+    "confirmTitle": "Delete {{count}} monitors?",
+    "confirmAction": "Delete {{count}} monitors",
+    "cancel": "Cancel"
+  },
+  "templates": {
+    "title": "Start from a template",
+    "use": "Use template",
+    "blank": "Blank monitor",
+    "copyOf": "Copy of {{name}}",
+    "springHealth": "Spring Actuator health",
+    "oracleLocks": "Oracle blocking locks"
+  },
+  "explorer": {
+    "tree": "Response body",
+    "use": "Use {{path}} as a field",
+    "copy": "Copy value of {{path}}",
+    "empty": "The response has no JSON body",
+    "pci": "PCI · masked"
+  },
+  "diff": {
+    "table": "SELECT changes",
+    "author": "{{name}} (self-declared) · {{client}}",
+    "summary": "{{removed}} line removed, {{added}} line added",
+    "empty": "No changes to this SELECT in the audit trail yet"
+  },
+  "onboarding": {
+    "title": "Create your first monitor",
+    "steps": "Getting started",
+    "connection": "Add a database connection",
+    "monitor": "Create a monitor (URL or SELECT)",
+    "layout": "Choose what the wall shows",
+    "done": "Done",
+    "http": "Monitor a URL",
+    "sql": "Monitor a SELECT",
+    "viewOnly": "Monitors are created on the machine running Orbit."
+  },
+  "notifications": {
+    "bell": "Notifications",
+    "bellUnread": "Notifications ({{count}} unread)",
+    "feed": "Incident feed",
+    "markRead": "Mark {{title}} as read",
+    "markAll": "Mark all as read",
+    "empty": "No notifications in the last 24 h",
+    "region": "Notifications"
+  },
+  "incident": {
+    "timeline": "Timeline",
+    "comment": "Comment",
+    "addComment": "Add comment",
+    "author": "{{name}} (self-declared)",
+    "ticket": "Ticket",
+    "linkTicket": "Link ticket",
+    "postmortem": "Postmortem",
+    "mtta": "Time to acknowledge",
+    "mttr": "Time to resolve",
+    "escalation": "Escalation",
+    "escalatesIn": "Escalates in {{time}}",
+    "escalatedTo": "Escalated to {{step}}",
+    "nextStep": "next: {{step}}"
+  },
+  "maintenance": {
+    "calendar": "Maintenance calendar",
+    "newWindow": "New maintenance window",
+    "title": "Title",
+    "group": "Group",
+    "create": "Create window",
+    "note": "Monitors in a maintenance window are silenced and do not count against uptime.",
+    "empty": "No maintenance windows yet. Drag on the calendar to create one."
+  },
+  "dependencies": {
+    "impacts_one": "{{name}} impacts {{count}} monitor: {{list}}",
+    "impacts_other": "{{name}} impacts {{count}} monitors: {{list}}",
+    "empty": "No dependencies yet. Link monitors to see the impact radius and suppress cascades.",
+    "graph": "Dependency graph"
+  },
+  "reports": {
+    "history": "History available: last {{hours}} h",
+    "table": "Uptime by monitor",
+    "partial": "Only the last {{hours}} h are available; {{period}} uptime would be incomplete.",
+    "exportCsv": "Export CSV",
+    "empty": "No history yet. Orbit keeps the last 24 h in memory; it restarts empty.",
+    "period": "Period"
+  },
+  "statusPage": {
+    "title": "Title",
+    "slug": "Slug",
+    "preview": "Preview",
+    "public": "Public",
+    "internal": "Internal",
+    "publicWarning": "Anyone with the link can see this page. Only group states are shown.",
+    "save": "Save status page",
+    "groupRequired": "Choose at least one group",
+    "empty": "No status pages yet."
+  },
+  "privacy": {
+    "pciNotice": "Card data is always masked (PCI DSS)",
+    "personalNotice": "Personal data is masked by default (LGPD)",
+    "pciBadge": "PCI · masked",
+    "personalBadge": "Personal data (LGPD)",
+    "masked": "Masked",
+    "showOnWall": "Show on the wall",
+    "vault": "•••• (vault)"
+  },
+  "settings": {
+    "title": "Settings",
+    "editMode": "Edit mode: this machine runs Orbit",
+    "defaults": "Workspace defaults",
+    "defaultLanguage": "Default language",
+    "saveDefaults": "Save defaults",
+    "files": "Config files",
+    "fileOk": "OK",
+    "fileMissing": "Not created yet",
+    "fileInvalid": "Invalid",
+    "export": "Export config",
+    "exportNote": "Secrets are never exported",
+    "import": "Import config",
+    "importPreview": "Import preview",
+    "importSummary": "{{added}} added · {{changed}} changed · {{removed}} removed",
+    "applyImport": "Apply import",
+    "empty": "Nothing registered yet"
+  },
+  "history": {
+    "available": "History available: last {{hours}} h",
+    "requested": "{{period}} requested; older data is not kept",
+    "partial": "Only {{hours}} h recorded since Orbit started"
+  },
+  "kiosk": {
+    "enter": "Kiosk mode",
+    "exit": "Exit kiosk mode",
+    "wakeLockUnavailable": "The screen may turn off on this device"
+  },
+  "stale": {
+    "age": "data {{age}} old",
+    "stale": "Stale data · last update {{ago}}",
+    "never": "No data received yet"
+  },
+  "sound": {
+    "label": "Sound alerts",
+    "muted": "Muted",
+    "on": "Sound on",
+    "volume": "Volume"
+  },
+  "desktopNotifications": {
+    "enable": "Enable desktop notifications",
+    "disable": "Disable desktop notifications",
+    "denied": "Notifications are blocked by the browser",
+    "title": "{{name}} down",
+    "titleWarn": "{{name}} warning"
+  },
+  "onCall": {
+    "active": "Active incidents",
+    "none": "No active incidents"
+  },
+  "viz": {
+    "noData": "No data yet",
+    "noDataCell": "no data",
+    "historyWindow": "History available: last {{hours}} h",
+    "pciNotice": "Card data is always masked (PCI DSS)",
+    "trend": {
+      "up": "up",
+      "down": "down",
+      "flat": "steady"
+    },
+    "modes": {
+      "big-number": "Big number",
+      "radial-gauge": "Radial gauge",
+      "bullet": "Bullet chart",
+      "headroom-bar": "Headroom bar",
+      "kpi-card": "KPI card",
+      "line": "Line chart",
+      "area": "Area chart",
+      "step-line": "Step line",
+      "bar-ranking": "Bar / ranking",
+      "stacked-bar": "Stacked bar",
+      "donut": "Donut",
+      "weekday-hour-heatmap": "Hour × weekday heatmap",
+      "calendar-heatmap": "Calendar heatmap",
+      "uptime-ribbon": "Uptime ribbon",
+      "traffic-light": "Traffic light",
+      "status-pill": "Status pill",
+      "live-table": "Live table",
+      "small-multiples": "Small multiples",
+      "histogram": "Histogram",
+      "hex-grid": "Hex grid"
+    },
+    "gauge": {
+      "min": "min. {{value}}",
+      "max": "max. {{value}}"
+    },
+    "bullet": {
+      "target": "target {{value}}"
+    },
+    "donut": {
+      "other": "Other"
+    },
+    "ribbon": {
+      "uptime": "{{pct}} uptime"
+    },
+    "table": {
+      "violates": "violates the rule"
+    },
+    "histogram": {
+      "p95": "p95 {{value}}"
+    },
+    "picker": {
+      "title": "Choose how to show {{field}}",
+      "suggested": "Suggested",
+      "empty": "Run the preview to compare visualizations"
+    },
+    "reasons": {
+      "needsNumber": "Needs a number",
+      "needsCategories": "Needs categories",
+      "needsSeries": "Needs a stored series",
+      "needsRows": "Needs several rows",
+      "tooManySlices": "At most {{max}} slices",
+      "needsLongerHistory": "Needs more than the last {{hours}} h of history",
+      "pci": "Card data is always masked (PCI DSS)",
+      "personal": "Personal data is never shown on the wall (LGPD)"
+    },
+    "settings": {
+      "addBand": "Add color band",
+      "band": "Band {{n}}",
+      "upTo": "Up to",
+      "from": "From",
+      "state": "State",
+      "decimals": "Decimals",
+      "prefix": "Prefix",
+      "suffix": "Suffix",
+      "min": "Min",
+      "max": "Max",
+      "thresholdLine": "Show threshold line",
+      "onFail": "When the rule fails",
+      "onFailOptions": {
+        "deviation": "Show the deviation",
+        "color": "Turn the value red",
+        "both": "Both"
+      },
+      "preview": "Preview",
+      "errors": {
+        "overlap": "Bands must not overlap",
+        "decimals": "Decimals between 0 and 4",
+        "minMax": "Min must be lower than max"
+      }
+    },
+    "wow": {
+      "legend": "Same period last week",
+      "unavailable": "Last week is not available: history covers only the last {{hours}} h"
+    },
+    "annotations": {
+      "incidentAt": "Incident at {{time}}",
+      "maintenance": "Maintenance {{from}}–{{to}}",
+      "deployAt": "Deploy at {{time}}"
+    },
+    "zoom": {
+      "start": "Zoom start",
+      "end": "Zoom end",
+      "reset": "Reset zoom",
+      "showing": "Showing {{from}}–{{to}}"
+    },
+    "crosshair": {
+      "readout": "{{time}} · {{value}}"
+    }
   }
 }

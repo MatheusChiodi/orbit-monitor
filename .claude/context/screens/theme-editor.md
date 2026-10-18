@@ -23,11 +23,11 @@ _To be filled as the screen is built (component tree, file paths)._
 
 ## Features on this screen
 - [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — in-progress
-- [FE-01 · Theme editor](../features/FE-01-theme-editor.md) — planned
-- [FE-02 · Contrast guard](../features/FE-02-contrast-guard.md) — planned
-- [FE-03 · Theme presets](../features/FE-03-theme-presets.md) — planned
-- [FE-04 · Theme import/export](../features/FE-04-theme-import-export.md) — planned
-- [FE-05 · Per-layout theme](../features/FE-05-per-layout-theme.md) — planned
+- [FE-01 · Theme editor](../features/FE-01-theme-editor.md) — tests-pending
+- [FE-02 · Contrast guard](../features/FE-02-contrast-guard.md) — tests-pending
+- [FE-03 · Theme presets](../features/FE-03-theme-presets.md) — tests-pending
+- [FE-04 · Theme import/export](../features/FE-04-theme-import-export.md) — tests-pending
+- [FE-05 · Per-layout theme](../features/FE-05-per-layout-theme.md) — tests-pending
 
 ## Code
 _None yet._
