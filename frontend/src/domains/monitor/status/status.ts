@@ -1,4 +1,5 @@
 import type { MonitorView, Status } from '@/shared/api/types';
+import { STATUS_LABEL } from '@/shared/ui/tones';
 import { headroom } from '../rules';
 
 export interface StatusCounts {
@@ -10,10 +11,8 @@ export interface StatusCounts {
 
 const SEVERITY_RANK: Record<Status, number> = { DOWN: 0, WARN: 1, OK: 2 };
 
-const LABELS: Record<Status, string> = { DOWN: 'FORA', WARN: 'ATENÇÃO', OK: 'OK' };
-
 export function statusLabel(status: Status): string {
-  return LABELS[status];
+  return STATUS_LABEL[status];
 }
 
 export function countByStatus(monitors: readonly MonitorView[]): StatusCounts {
