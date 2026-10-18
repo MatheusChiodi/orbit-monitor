@@ -42,6 +42,7 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `frontend/src/domains/workspace/GroupList/GroupList.tsx`
 - `frontend/src/domains/monitor/rules/rules.ts`
 - `frontend/src/shared/ui/ThresholdChart/ThresholdChart.tsx`
+- `frontend/src/shared/ui/SecretInput/SecretInput.tsx`
 
 ## Tests
 - `backend/orbit-common/src/test/java/io/orbit/common/privacy/SensitiveDataRedactorTest.java`
@@ -61,6 +62,7 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `frontend/src/domains/workspace/GroupList/GroupList.privacy.test.tsx`
 - `frontend/src/app/console/ConsoleApp.privacy.test.tsx`
 - `frontend/src/shared/ui/SecretInput/SecretInput.pending.test.tsx`
+- `frontend/src/shared/ui/SecretInput/SecretInput.test.tsx`
 
 ## Decisions and notes
 - Backend: `SensitiveDataRedactor` classifies by field-name tokens (camelCase, snake_case and adjacent pairs such as `api_key`) and by value: Luhn PAN (13-19 digits, also as numeric values), CPF/CNPJ check digits, e-mail, formatted BR phone, JWT and Bearer tokens.
@@ -74,6 +76,7 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - Frontend: Wall surface (`surface="wall"`) hides personal data entirely (`•••`) instead of masking it; card data keeps the last-4 mask.
 - Frontend: The preview shows a `role=note` PCI notice whenever the result contains card data.
 - Frontend: Data & display: fields carry `dataClass`, `masked` and `showOnWall`; sensitive fields are never pre-selected; PCI fields show "PCI · masked", cannot be stored as a series nor unmasked; personal fields show "Personal data (LGPD)" and are masked by default; neither can be shown on the wall.
+- Frontend: Frontend: `SecretInput` is `type=password` + `autocomplete=off`, uncontrolled (the value never lands in a DOM attribute), no show toggle; stored secrets appear only as `•••• (vault)`.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -84,3 +87,4 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - 2026-10-18 — frontend: `<SafeValue>` and `useSafeValue`.
 - 2026-10-18 — frontend: every existing renderer routed through `<SafeValue>`; the wall hides personal data.
 - 2026-10-18 — frontend: Data & display privacy badges and minimization rules.
+- 2026-10-18 — frontend: frontend: secret input.

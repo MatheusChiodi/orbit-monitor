@@ -6,3 +6,4 @@ export * from './StatusPill';
 export * from './ThresholdChart';
 export * from './tones';
 export * from './formStyles';
+export * from './SecretInput';
