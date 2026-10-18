@@ -35,7 +35,9 @@ public class SensitiveDataRedactor {
     private static final Pattern PHONE = Pattern.compile("(?:\\+55\\s?)?\\(\\d{2}\\)\\s?(9?\\d{4})-?(\\d{4})");
     private static final Pattern JWT = Pattern.compile("eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]*");
     private static final Pattern BEARER = Pattern.compile("(?i)(bearer)\\s+[A-Za-z0-9._~+/=-]+");
-    private static final Pattern CAMEL = Pattern.compile("(?<=[a-z0-9])(?=[A-Z])");
+    private static final Pattern KEY_VALUE_SECRET = Pattern.compile(
+            "(?i)(\\b(?:password|passwd|pwd|senha|secret|token|api[_-]?key)\"?\\s*[=:]\\s*\"?)([^\\s\";,&}]+)");
+    private static final Pattern CAMEL =Pattern.compile("(?<=[a-z0-9])(?=[A-Z])");
 
     public DataClass classifyName(String fieldName) {
         if (fieldName == null || fieldName.isBlank()) {
@@ -88,6 +90,7 @@ public class SensitiveDataRedactor {
         s = replace(EMAIL, s, m -> m.group(1) + "•••@" + m.group(2) + "•••." + m.group(3));
         s = replace(PHONE, s, m -> "(••) " + "•".repeat(m.group(1).length()) + "-" + m.group(2));
         s = replace(JWT, s, m -> DOTS);
+        s = replace(KEY_VALUE_SECRET, s, m -> m.group(1) + DOTS);
         return replace(BEARER, s, m -> m.group(1) + " " + DOTS);
     }
 

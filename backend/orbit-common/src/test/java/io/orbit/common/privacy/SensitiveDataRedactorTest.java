@@ -104,6 +104,13 @@ class SensitiveDataRedactorTest {
     }
 
     @Test
+    void keyValueSecretsInTextAreMasked() {
+        assertThat(redactor.redactText("user=core password=hunter2;timeout=5"))
+                .isEqualTo("user=core password=••••;timeout=5");
+        assertThat(redactor.redactText("{\"api_key\": \"abc123\"}")).isEqualTo("{\"api_key\": \"••••\"}");
+    }
+
+    @Test
     void personalFieldByNameIsMaskedGenerically() {
         assertThat(redactor.redact("customer_name", "Maria Silva")).isEqualTo("M•••");
         assertThat(redactor.redact("cpf", "529.982.247-25")).isEqualTo("•••.•••.•••-25");
