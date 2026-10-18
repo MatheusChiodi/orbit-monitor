@@ -19,6 +19,7 @@
 
     <modules>
         <module>orbit-common</module>
+        <module>orbit-monitor</module>
         <module>orbit-api</module>
     </modules>
 
