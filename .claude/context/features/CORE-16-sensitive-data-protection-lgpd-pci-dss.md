@@ -76,7 +76,7 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - Frontend: Wall surface (`surface="wall"`) hides personal data entirely (`•••`) instead of masking it; card data keeps the last-4 mask.
 - Frontend: The preview shows a `role=note` PCI notice whenever the result contains card data.
 - Frontend: Data & display: fields carry `dataClass`, `masked` and `showOnWall`; sensitive fields are never pre-selected; PCI fields show "PCI · masked", cannot be stored as a series nor unmasked; personal fields show "Personal data (LGPD)" and are masked by default; neither can be shown on the wall.
-- Frontend: Frontend: `SecretInput` is `type=password` + `autocomplete=off`, uncontrolled (the value never lands in a DOM attribute), no show toggle; stored secrets appear only as `•••• (vault)`.
+- Frontend: `SecretInput` is `type=password` + `autocomplete=off`, uncontrolled (the value never lands in a DOM attribute), no show toggle; stored secrets appear only as `•••• (vault)`.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).

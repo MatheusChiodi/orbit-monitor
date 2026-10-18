@@ -29,7 +29,7 @@ describe('CORE-19 config resource client (one orbit.<feature>.json per resource)
   });
 
   it('creates, updates and deletes items through the resource endpoint', async () => {
-    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ id: 'sel_1', name: 'Queue' }));
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async () => jsonResponse({ id: 'sel_1', name: 'Queue' }));
     const client = createConfigClient({ fetch: fetchMock, getOperator: () => 'M. Chiodi' });
     await client.create('selects', { name: 'Queue' });
     await client.update('selects', 'sel_1', { name: 'Queue 2' });
