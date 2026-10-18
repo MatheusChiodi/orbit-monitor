@@ -66,10 +66,10 @@ Every monitor, after the preview, opens the **Data & display** step. Orbit lists
 **Step 1: choose the data.**
 The result is presented as a list of fields:
 
-* SQL: each column of the SELECT, with its detected type (`QTD_PENDENTES · number`, `DT_ULT_LOTE · date`, `STATUS · text`), plus the system fields `[ROWS]` and `[EXEC_TIME]`.
+* SQL: each column of the SELECT, with its detected type (`PENDING_QTY · number`, `LAST_BATCH_AT · date`, `STATUS · text`), plus the system fields `[ROWS]` and `[EXEC_TIME]`.
 * HTTP: the response JSON tree (`$.status`, `$.queue.size`, `$.items[*].value`), plus `[STATUS]`, `[RESPONSE_TIME]`, `[CERT_DAYS_LEFT]` and headers.
 
-For each checked field you define: **label** (how it appears on screen: "Pending" instead of `QTD_PENDENTES`), **format** (integer, decimal, currency, percentage, duration, relative date "12 min ago", text), **unit** and whether it is **stored as a series** (becomes history and a chart) or only displayed in the moment. Unchecked fields are not stored, which keeps Orbit's database small and avoids storing sensitive data by accident.
+For each checked field you define: **label** (how it appears on screen: "Pending" instead of `PENDING_QTY`), **format** (integer, decimal, currency, percentage, duration, relative date "12 min ago", text), **unit** and whether it is **stored as a series** (becomes history and a chart) or only displayed in the moment. Unchecked fields are not stored, which keeps Orbit's database small and avoids storing sensitive data by accident.
 
 **Step 2: choose the display.**
 Each field (or the whole monitor) gets a **display mode**, with an automatic suggestion based on the result's shape and free switching:

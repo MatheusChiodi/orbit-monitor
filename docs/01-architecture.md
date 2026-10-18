@@ -73,8 +73,8 @@ Conditions are short expressions evaluated against the result, Gatus-style:
 [RESPONSE_TIME] < 800ms
 [BODY].status == "UP"            (JSONPath)
 [ROWS] == 0
-[COL].QTD_PENDENTES < 50
-[COL].ULT_LOTE > now() - 60min
+[COL].PENDING_QTY < 50
+[COL].LAST_BATCH_AT > now() - 60min
 [EXEC_TIME] < 2s
 ```
 
