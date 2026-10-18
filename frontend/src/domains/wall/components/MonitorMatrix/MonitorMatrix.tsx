@@ -19,7 +19,7 @@ export function MonitorMatrix({ rows, unownedMonitorIds }: MonitorMatrixProps) {
             key={row.group.id}
             role="group"
             aria-label={row.group.name}
-            className="grid grid-cols-1 gap-[0.45rem] md:grid-cols-[8rem_1fr]"
+            className="grid grid-cols-1 gap-[0.45rem] md:grid-cols-[6.8rem_1fr]"
           >
             <div className="flex flex-col justify-center">
               <span className="truncate text-[0.88rem] font-semibold">{row.group.name}</span>
@@ -40,13 +40,10 @@ export function MonitorMatrix({ rows, unownedMonitorIds }: MonitorMatrixProps) {
                     className={`flex min-w-0 items-center gap-[0.45rem] rounded-[0.45rem] border px-[0.55rem] py-[0.35rem] transition-colors duration-[400ms] ${surface} ${blink ? 'anim-blink' : ''}`}
                   >
                     <StatusDot status={m.status} />
-                    {/* Em telas largas nome e valor ficam em duas linhas para o nome não truncar cedo. */}
-                    <span className="flex min-w-0 flex-1 items-center justify-between gap-[0.45rem] xl:flex-col xl:items-start xl:gap-0">
-                      <span className="block max-w-full truncate text-[0.78rem]" title={m.name}>
-                        {m.name}
-                      </span>
-                      <span className="shrink-0 font-mono text-[0.72rem] text-muted">{formatReading(m.value, m.unit)}</span>
+                    <span className="min-w-0 flex-1 truncate text-[0.78rem]" title={m.name}>
+                      {m.name}
                     </span>
+                    <span className="shrink-0 font-mono text-[0.72rem] text-muted">{formatReading(m.value, m.unit)}</span>
                   </motion.li>
                 );
               })}
