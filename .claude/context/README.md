@@ -80,13 +80,13 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [FE-18](features/FE-18-screen-previews.md) | Screen previews | frontend | tests-pending |
 | [FE-19](features/FE-19-layout-playlist.md) | Layout playlist | frontend | tests-pending |
 | [FE-20](features/FE-20-video-wall-tiling.md) | Video wall tiling | frontend | tests-pending |
-| [FE-21](features/FE-21-visualization-picker.md) | Visualization picker | frontend | planned |
-| [FE-22](features/FE-22-compatibility-rules.md) | Compatibility rules | frontend | planned |
-| [FE-23](features/FE-23-visualization-settings.md) | Visualization settings | frontend | planned |
-| [FE-24](features/FE-24-20-display-modes.md) | 20 display modes | frontend | planned |
-| [FE-25](features/FE-25-week-over-week-overlay.md) | Week-over-week overlay | frontend | planned |
-| [FE-26](features/FE-26-chart-annotations.md) | Chart annotations | frontend | planned |
-| [FE-27](features/FE-27-zoom-and-synced-crosshair.md) | Zoom and synced crosshair | frontend | planned |
+| [FE-21](features/FE-21-visualization-picker.md) | Visualization picker | frontend | tests-pending |
+| [FE-22](features/FE-22-compatibility-rules.md) | Compatibility rules | frontend | tests-pending |
+| [FE-23](features/FE-23-visualization-settings.md) | Visualization settings | frontend | tests-pending |
+| [FE-24](features/FE-24-20-display-modes.md) | 20 display modes | frontend | tests-pending |
+| [FE-25](features/FE-25-week-over-week-overlay.md) | Week-over-week overlay | frontend | tests-pending |
+| [FE-26](features/FE-26-chart-annotations.md) | Chart annotations | frontend | tests-pending |
+| [FE-27](features/FE-27-zoom-and-synced-crosshair.md) | Zoom and synced crosshair | frontend | tests-pending |
 | [FE-28](features/FE-28-command-palette.md) | Command palette | frontend | planned |
 | [FE-29](features/FE-29-keyboard-shortcuts.md) | Keyboard shortcuts | frontend | planned |
 | [FE-30](features/FE-30-saved-views.md) | Saved views | frontend | planned |

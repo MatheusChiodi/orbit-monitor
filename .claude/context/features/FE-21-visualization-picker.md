@@ -3,7 +3,7 @@ id: FE-21
 title: "Visualization picker"
 area: frontend
 group: "Visualizations"
-status: planned
+status: tests-pending
 screens: [data-and-display, wall]
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 Shows the field's real data rendered in every compatible mode side by side; the user clicks the one they like
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -26,10 +26,11 @@ Shows the field's real data rendered in every compatible mode side by side; the 
 _None yet._
 
 ## Tests
-_None yet._
+- `frontend/src/domains/monitor/components/VisualizationPicker/VisualizationPicker.pending.test.tsx`
 
 ## Decisions and notes
 _None yet._
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending test suite written (status: tests-pending).
