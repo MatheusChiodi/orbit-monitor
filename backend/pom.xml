@@ -20,6 +20,7 @@
     <modules>
         <module>orbit-common</module>
         <module>orbit-monitor</module>
+        <module>orbit-probe</module>
         <module>orbit-api</module>
     </modules>
 
@@ -35,6 +36,36 @@
             <dependency>
                 <groupId>io.orbit</groupId>
                 <artifactId>orbit-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.orbit</groupId>
+                <artifactId>orbit-monitor</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.orbit</groupId>
+                <artifactId>orbit-probe</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.orbit</groupId>
+                <artifactId>orbit-telemetry</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.orbit</groupId>
+                <artifactId>orbit-alerting</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.orbit</groupId>
+                <artifactId>orbit-workspace</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.orbit</groupId>
+                <artifactId>orbit-security</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
