@@ -1,4 +1,5 @@
 import type { FieldFormat } from '@/shared/format';
+import type { DataClass } from '@/shared/privacy/redact';
 
 /**
  * Data contract between the frontend and the Orbit API (REST `/api`, WebSocket `/ws/wall`).
@@ -156,6 +157,12 @@ export interface FieldDisplay {
   decimals?: number;
   storeAsSeries: boolean;
   display: DisplayMode;
+  /** Sensitive class detected by name or sample value (docs/04-data-protection.md). */
+  dataClass?: DataClass | null;
+  /** Always true for PCI fields; personal data is masked by default. */
+  masked?: boolean;
+  /** Personal and card data never go to the wall. */
+  showOnWall?: boolean;
 }
 
 export interface MonitorDefinitionBase {

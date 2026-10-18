@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import type { DisplayMode, FieldDisplay } from '@/shared/api/types';
 import type { FieldFormat } from '@/shared/format';
-import { INPUT_CLASS, SELECT_CLASS } from '@/shared/ui';
+import { safeText, type DataClass } from '@/shared/privacy/redact';
+import { Badge, INPUT_CLASS, SELECT_CLASS } from '@/shared/ui';
 
 export interface DataDisplayStepProps {
   fields: readonly FieldDisplay[];
@@ -11,32 +12,58 @@ export interface DataDisplayStepProps {
 const FORMATS: FieldFormat[] = ['integer', 'decimal', 'currency', 'percent', 'duration', 'relative', 'text'];
 const DISPLAYS: DisplayMode[] = ['number', 'gauge', 'indicators', 'line', 'bars', 'table', 'text', 'semaphore', 'hidden'];
 
+function isPci(dataClass: DataClass | null | undefined): boolean {
+  return dataClass === 'PCI_PAN' || dataClass === 'PCI_SAD';
+}
+
+function isSensitive(dataClass: DataClass | null | undefined): boolean {
+  return dataClass !== null && dataClass !== undefined;
+}
+
+function PrivacyBadge({ dataClass }: { dataClass: DataClass | null | undefined }) {
+  const { t } = useTranslation();
+  if (isPci(dataClass)) return <Badge tone="WARN">{t('privacy.pciBadge')}</Badge>;
+  if (dataClass === 'PERSONAL') return <Badge tone="INFO">{t('privacy.personalBadge')}</Badge>;
+  return null;
+}
+
 /**
  * "Data & display" step: choose what to store and how each field appears.
- * Unchecked fields are not stored.
+ * Unchecked fields are not stored. Card data is always masked and never stored as a series;
+ * personal data is masked by default; neither can go to the wall.
  */
 export function DataDisplayStep({ fields, onChange }: DataDisplayStepProps) {
   const { t } = useTranslation();
 
   function update(index: number, patch: Partial<FieldDisplay>) {
+    const current = fields[index];
+    if (!current) return;
+    // Card data rules cannot be relaxed from the UI (the API rejects them too).
+    if (isPci(current.dataClass) && (patch.storeAsSeries === true || patch.masked === false)) return;
+    if (isSensitive(current.dataClass) && patch.showOnWall === true) return;
     onChange(fields.map((f, i) => (i === index ? { ...f, ...patch } : f)));
   }
 
   const selected = fields.filter((f) => f.selected).length;
+  const hasCardData = fields.some((f) => isPci(f.dataClass));
 
   return (
     <div className="flex flex-col gap-[0.5rem]">
       <p className="m-0 text-[0.8rem] text-muted">{t('fields.count', { selected, total: fields.length })}</p>
+      {hasCardData && <p className="m-0 text-[0.8rem] text-warn-text">{t('privacy.pciNotice')}</p>}
       {fields.map((field, index) => {
         const off = !field.selected;
+        const pci = isPci(field.dataClass);
+        const sensitive = isSensitive(field.dataClass);
+        const masked = pci || Boolean(field.masked);
         return (
           <div
             key={field.field}
             role="group"
             aria-label={field.field}
-            className={`grid grid-cols-1 items-center gap-[0.4rem] rounded-[0.45rem] border border-line p-[0.55rem] md:grid-cols-[minmax(9rem,1.2fr)_1.2fr_1fr_0.6fr_auto_1fr] ${off ? 'bg-transparent' : 'bg-s1'}`}
+            className={`grid grid-cols-1 items-center gap-[0.4rem] rounded-[0.45rem] border border-line p-[0.55rem] md:grid-cols-[minmax(9rem,1.2fr)_1.2fr_1fr_0.6fr_auto_1fr_auto] ${off ? 'bg-transparent' : 'bg-s1'}`}
           >
-            <label className="flex min-w-0 items-center gap-[0.45rem] font-mono text-[0.8rem]">
+            <label className="flex min-w-0 flex-wrap items-center gap-[0.45rem] font-mono text-[0.8rem]">
               <input
                 type="checkbox"
                 aria-label={t('fields.store', { field: field.field })}
@@ -44,11 +71,12 @@ export function DataDisplayStep({ fields, onChange }: DataDisplayStepProps) {
                 onChange={(e) => update(index, { selected: e.target.checked })}
               />
               <span className="truncate">{field.field}</span>
+              <PrivacyBadge dataClass={field.dataClass} />
             </label>
             <input
               aria-label={t('fields.label')}
               className={INPUT_CLASS}
-              value={field.label}
+              value={safeText(field.label)}
               disabled={off}
               onChange={(e) => update(index, { label: e.target.value })}
             />
@@ -56,7 +84,7 @@ export function DataDisplayStep({ fields, onChange }: DataDisplayStepProps) {
               aria-label={t('fields.format')}
               className={SELECT_CLASS}
               value={field.format}
-              disabled={off}
+              disabled={off || pci}
               onChange={(e) => update(index, { format: e.target.value as FieldFormat })}
             >
               {FORMATS.map((f) => (
@@ -77,8 +105,8 @@ export function DataDisplayStep({ fields, onChange }: DataDisplayStepProps) {
               <input
                 type="checkbox"
                 aria-label={t('fields.series')}
-                checked={field.storeAsSeries}
-                disabled={off}
+                checked={field.storeAsSeries && !pci}
+                disabled={off || pci}
                 onChange={(e) => update(index, { storeAsSeries: e.target.checked })}
               />
               {t('fields.seriesShort')}
@@ -96,6 +124,28 @@ export function DataDisplayStep({ fields, onChange }: DataDisplayStepProps) {
                 </option>
               ))}
             </select>
+            <span className="flex flex-col gap-[0.2rem] text-[0.75rem] whitespace-nowrap text-muted">
+              <label className="flex items-center gap-[0.35rem]">
+                <input
+                  type="checkbox"
+                  aria-label={t('privacy.masked')}
+                  checked={masked}
+                  disabled={pci || !sensitive}
+                  onChange={(e) => update(index, { masked: e.target.checked })}
+                />
+                {t('privacy.masked')}
+              </label>
+              <label className="flex items-center gap-[0.35rem]">
+                <input
+                  type="checkbox"
+                  aria-label={t('privacy.showOnWall')}
+                  checked={!sensitive && field.showOnWall !== false}
+                  disabled={sensitive || off}
+                  onChange={(e) => update(index, { showOnWall: e.target.checked })}
+                />
+                {t('privacy.showOnWall')}
+              </label>
+            </span>
           </div>
         );
       })}

@@ -1,5 +1,6 @@
 import type { FieldDisplay, PreviewColumn, PreviewResult } from '@/shared/api/types';
 import { DEFAULT_LOCALE, messages, type Locale } from '@/shared/i18n/i18n';
+import { detectSensitive } from '@/shared/privacy/redact';
 
 /** How the result is read (docs/02-features.md, section 2.2); labels live under `readMode.*`. */
 export type ReadMode = 'single' | 'indicators' | 'ranking' | 'series' | 'table' | 'rowcount';
@@ -41,7 +42,22 @@ function numberField(column: PreviewColumn, preview: PreviewResult): FieldDispla
     : { ...base, format: 'decimal', decimals: 2, display: 'number' };
 }
 
+function sampleValue(column: PreviewColumn, preview: PreviewResult) {
+  return preview.rows.map((row) => row[column.name]).find((v) => v !== null && v !== undefined);
+}
+
+/**
+ * Sensitive fields (by name or sample) are never pre-selected, never stored as series and always masked
+ * (data minimization, docs/04-data-protection.md §4).
+ */
 function columnField(column: PreviewColumn, preview: PreviewResult): FieldDisplay {
+  const dataClass = detectSensitive(sampleValue(column, preview), column.name);
+  const field = plainColumnField(column, preview);
+  if (!dataClass) return { ...field, dataClass: null, masked: false, showOnWall: true };
+  return { ...field, dataClass, masked: true, selected: false, storeAsSeries: false, showOnWall: false, format: 'text', display: 'text' };
+}
+
+function plainColumnField(column: PreviewColumn, preview: PreviewResult): FieldDisplay {
   const base = { field: column.name, selected: true, label: humanizeLabel(column.name), storeAsSeries: false };
   switch (column.type) {
     case 'number':
@@ -56,7 +72,7 @@ function columnField(column: PreviewColumn, preview: PreviewResult): FieldDispla
 }
 
 function systemField(field: string, label: string, format: FieldDisplay['format']): FieldDisplay {
-  return { field, selected: false, label, format, storeAsSeries: false, display: 'hidden' };
+  return { field, selected: false, label, format, storeAsSeries: false, display: 'hidden', dataClass: null, masked: false };
 }
 
 /**

@@ -32,6 +32,8 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `frontend/src/shared/privacy/redact.ts`
 - `frontend/src/shared/privacy/SafeValue/SafeValue.tsx`
 - `frontend/src/domains/monitor/components/PreviewTable/PreviewTable.tsx`
+- `frontend/src/domains/monitor/components/DataDisplayStep/DataDisplayStep.tsx`
+- `frontend/src/domains/monitor/display/display.ts`
 - `frontend/src/domains/wall/components/Hero/Hero.tsx`
 - `frontend/src/domains/wall/components/Timeline/Timeline.tsx`
 - `frontend/src/domains/wall/components/AlsoActive/AlsoActive.tsx`
@@ -48,6 +50,8 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `frontend/src/shared/privacy/redact.test.ts`
 - `frontend/src/shared/privacy/SafeValue/SafeValue.test.tsx`
 - `frontend/src/domains/monitor/components/PreviewTable/PreviewTable.privacy.test.tsx`
+- `frontend/src/domains/monitor/components/DataDisplayStep/DataDisplayStep.privacy.test.tsx`
+- `frontend/src/domains/monitor/display/display.privacy.test.ts`
 - `frontend/src/domains/wall/components/Hero/Hero.privacy.test.tsx`
 - `frontend/src/domains/wall/components/Timeline/Timeline.privacy.test.tsx`
 - `frontend/src/domains/wall/components/AlsoActive/AlsoActive.privacy.test.tsx`
@@ -56,8 +60,6 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `frontend/src/domains/wall/components/WallScreen/WallScreen.privacy.test.tsx`
 - `frontend/src/domains/workspace/GroupList/GroupList.privacy.test.tsx`
 - `frontend/src/app/console/ConsoleApp.privacy.test.tsx`
-- `frontend/src/domains/monitor/components/DataDisplayStep/DataDisplayStep.privacy.pending.test.tsx`
-- `frontend/src/domains/monitor/display/display.privacy.pending.test.ts`
 - `frontend/src/shared/ui/SecretInput/SecretInput.pending.test.tsx`
 
 ## Decisions and notes
@@ -71,6 +73,7 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - Frontend: Every probe-value renderer (preview table, hero, timeline, also active, matrix, near threshold, monitor list, chart description, readings) goes through `<SafeValue>` or `safeText`; attributes (`title`, `aria-label`) use `safeText`.
 - Frontend: Wall surface (`surface="wall"`) hides personal data entirely (`•••`) instead of masking it; card data keeps the last-4 mask.
 - Frontend: The preview shows a `role=note` PCI notice whenever the result contains card data.
+- Frontend: Data & display: fields carry `dataClass`, `masked` and `showOnWall`; sensitive fields are never pre-selected; PCI fields show "PCI · masked", cannot be stored as a series nor unmasked; personal fields show "Personal data (LGPD)" and are masked by default; neither can be shown on the wall.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -80,3 +83,4 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - 2026-10-18 — frontend: Luhn-based PAN redaction and detectors in `src/shared/privacy`.
 - 2026-10-18 — frontend: `<SafeValue>` and `useSafeValue`.
 - 2026-10-18 — frontend: every existing renderer routed through `<SafeValue>`; the wall hides personal data.
+- 2026-10-18 — frontend: Data & display privacy badges and minimization rules.
