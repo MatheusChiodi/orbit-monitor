@@ -25,7 +25,8 @@ Monitoring for websites, APIs and databases with a TV wall that changes shape by
 1. **TDD**: test first, watch it fail, implement, watch it pass. Tests for unimplemented features are *pending* (`@Tag("pending")` / `*.pending.test.ts(x)`), excluded from the default run.
 2. **English everywhere** in the repository (code, comments, commits, docs). The product supports **en (default) and pt-BR** via i18n.
 3. **Privacy (LGPD / PCI DSS)**: a full card number is never displayed, logged, serialized or stored. All probe values are redacted at the probe boundary and rendered through `<SafeValue>`.
-4. **Git**: work on `developer` and push after every commit (`main` holds the base; a hook blocks commits on it); no other branches for now; Conventional Commits; each agent stages only its own folder plus its context files; never switch branches in the shared working tree.
+4. **Commit authorship**: the owner is the sole author; never add Co-Authored-By, session links or any AI attribution.
+5. **Git**: work on `developer` and push after every commit (`main` holds the base; a hook blocks commits on it); no other branches for now; Conventional Commits; each agent stages only its own folder plus its context files; never switch branches in the shared working tree.
 5. **Config files are never committed**: only `*.example.json` / `*.schema.json`. `.gitignore` + tracked pre-commit hook (`git config core.hooksPath .githooks`).
 6. Files up to ~400 lines; one component per folder on the frontend; no `any`.
 

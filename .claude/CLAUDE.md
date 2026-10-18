@@ -18,3 +18,8 @@ Read [`context/project.md`](context/project.md) and [`context/README.md`](contex
 - English in the repository; i18n en + pt-BR in the product.
 - LGPD / PCI DSS controls in `docs/04-data-protection.md` are mandatory.
 - Commit on `developer` only and `git push origin developer` after each commit; `main` holds the base; no other branches for now. Repository is public: https://github.com/MatheusChiodi/orbit-monitor. Conventional Commits, stage explicit paths only; never switch branches, stash or reset in the shared working tree.
+
+## Commit authorship (mandatory)
+- The repository owner is the **sole author** of every commit. Use the local `git config user.name` / `user.email` as-is; never change them.
+- **Never** add `Co-Authored-By`, `Claude-Session`, "Generated with Claude Code" or any other AI/assistant attribution to commit messages, PR descriptions, code comments or docs.
+- Commit messages contain only the Conventional Commit subject and, when useful, a plain body.
