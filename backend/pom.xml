@@ -20,6 +20,7 @@
     <modules>
         <module>orbit-common</module>
         <module>orbit-config</module>
+        <module>orbit-security</module>
         <module>orbit-monitor</module>
         <module>orbit-probe</module>
         <module>orbit-telemetry</module>
