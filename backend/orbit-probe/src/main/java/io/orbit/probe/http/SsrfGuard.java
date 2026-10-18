@@ -1,5 +1,7 @@
 package io.orbit.probe.http;
 
+import io.orbit.common.net.Cidr;
+
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;

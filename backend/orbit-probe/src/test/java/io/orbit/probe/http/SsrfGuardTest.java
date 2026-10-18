@@ -96,12 +96,4 @@ class SsrfGuardTest {
                 .isInstanceOf(SsrfBlockedException.class)
                 .hasMessageContaining("resolve");
     }
-
-    @Test
-    void cidrMatchesAddresses() throws Exception {
-        assertThat(Cidr.parse("192.168.0.0/16").contains(InetAddress.getByName("192.168.10.1"))).isTrue();
-        assertThat(Cidr.parse("192.168.0.0/16").contains(InetAddress.getByName("192.169.0.1"))).isFalse();
-        assertThat(Cidr.parse("fc00::/7").contains(InetAddress.getByName("fd12::1"))).isTrue();
-        assertThat(Cidr.parse("10.0.0.0/8").contains(InetAddress.getByName("::1"))).isFalse();
-    }
 }

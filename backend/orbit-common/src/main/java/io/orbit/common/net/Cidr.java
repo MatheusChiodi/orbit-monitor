@@ -1,4 +1,4 @@
-package io.orbit.probe.http;
+package io.orbit.common.net;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
