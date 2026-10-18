@@ -11,8 +11,8 @@
     </parent>
 
     <artifactId>orbit-probe</artifactId>
-    <name>Orbit Monitor - domínio Probe</name>
-    <description>Executores de checagem HTTP (com anti-SSRF) e SQL (somente leitura).</description>
+    <name>Orbit Monitor - Probe domain</name>
+    <description>HTTP (SSRF-protected) and read-only SQL check executors.</description>
 
     <dependencies>
         <dependency>

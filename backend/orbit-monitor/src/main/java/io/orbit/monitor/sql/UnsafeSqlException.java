@@ -1,6 +1,6 @@
 package io.orbit.monitor.sql;
 
-/** SELECT recusado pelo modo seguro; a mensagem explica o motivo ao operador. */
+/** SELECT rejected by safe mode; the message tells the operator why. */
 public class UnsafeSqlException extends RuntimeException {
 
     public UnsafeSqlException(String message) {

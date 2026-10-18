@@ -1,6 +1,6 @@
 package io.orbit.monitor.condition;
 
-/** Valor real e operando de tipos incompatíveis (ex.: texto comparado com número). */
+/** Actual value and operand have incompatible types (e.g. text compared with a number). */
 public class IncomparableValuesException extends RuntimeException {
 
     public IncomparableValuesException(String message) {

@@ -3,8 +3,8 @@ package io.orbit.common;
 import java.util.Collection;
 
 /**
- * Estado de saúde de um monitor ou grupo, em ordem crescente de gravidade.
- * UNKNOWN significa "ainda sem dados" e fica entre OK e WARN.
+ * Health state of a monitor or group, in increasing order of severity.
+ * UNKNOWN means "no data yet" and sits between OK and WARN.
  */
 public enum MonitorState {
     OK,
@@ -20,7 +20,7 @@ public enum MonitorState {
         return a.isWorseThan(b) ? a : b;
     }
 
-    /** Pior estado da coleção; coleção vazia resulta em UNKNOWN. */
+    /** Worst state in the collection; an empty collection yields UNKNOWN. */
     public static MonitorState worstOf(Collection<MonitorState> states) {
         return states.stream().reduce(MonitorState::worst).orElse(UNKNOWN);
     }

@@ -22,8 +22,8 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Executa checagens HTTP. Redirecionamentos são seguidos manualmente para que cada salto
- * passe de novo pelo {@link SsrfGuard}.
+ * Runs HTTP checks. Redirects are followed manually so that every hop
+ * goes through the {@link SsrfGuard} again.
  */
 public class HttpProbe {
 
@@ -49,7 +49,7 @@ public class HttpProbe {
     public HttpResponseSnapshot execute(HttpProbeRequest request) {
         String method = request.method().toUpperCase(Locale.ROOT);
         if (!METHODS.contains(method)) {
-            throw new IllegalArgumentException("Método HTTP não suportado: " + request.method());
+            throw new IllegalArgumentException("Unsupported HTTP method: " + request.method());
         }
         long start = System.nanoTime();
         URI uri = request.uri();
@@ -79,12 +79,12 @@ public class HttpProbe {
         try {
             return client.send(builder.build(), HttpResponse.BodyHandlers.ofString());
         } catch (HttpTimeoutException e) {
-            throw new HttpProbeException("Tempo esgotado após " + request.timeout().toMillis() + " ms", e);
+            throw new HttpProbeException("Timed out after " + request.timeout().toMillis() + " ms", e);
         } catch (IOException e) {
-            throw new HttpProbeException("Falha de conexão: " + e.getMessage(), e);
+            throw new HttpProbeException("Connection failed: " + e.getMessage(), e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new HttpProbeException("Checagem interrompida", e);
+            throw new HttpProbeException("Check interrupted", e);
         }
     }
 

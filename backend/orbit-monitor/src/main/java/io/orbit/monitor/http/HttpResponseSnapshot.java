@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Resposta HTTP já coletada pelo probe, no formato que as condições enxergam.
+ * HTTP response collected by the probe, in the shape conditions see.
  *
- * @param certDaysLeft dias até o certificado TLS vencer; nulo quando não há TLS
+ * @param certDaysLeft days until the TLS certificate expires; null without TLS
  */
 public record HttpResponseSnapshot(
         int status,

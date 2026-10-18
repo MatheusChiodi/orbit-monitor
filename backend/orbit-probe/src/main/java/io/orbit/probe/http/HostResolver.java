@@ -4,7 +4,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 
-/** Resolução de nomes isolada para permitir testes do anti-SSRF sem DNS real. */
+/** Name resolution behind an interface so SSRF tests run without real DNS. */
 @FunctionalInterface
 public interface HostResolver {
 

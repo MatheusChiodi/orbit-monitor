@@ -1,14 +1,11 @@
+# Orbit is local-first: no database of its own, binds to loopback by default.
 spring:
   application:
     name: orbit-monitor
-  profiles:
-    default: local
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
 
 server:
-  port: 8080
+  address: ${ORBIT_BIND_ADDRESS:127.0.0.1}
+  port: ${ORBIT_PORT:8080}
 
 management:
   endpoints:

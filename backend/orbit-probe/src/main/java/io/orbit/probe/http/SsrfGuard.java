@@ -9,9 +9,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Anti-SSRF do HttpProbe: resolve o DNS e bloqueia loopback, faixas privadas, link-local
- * (inclui o metadata de nuvem 169.254.169.254), CGNAT e ULA IPv6, salvo allowlist do workspace.
- * A allowlist aceita nomes de host ({@code interno.empresa}) e faixas CIDR ({@code 10.0.0.0/24}).
+ * SSRF protection for the HttpProbe: resolves DNS and blocks loopback, private ranges, link-local
+ * (including cloud metadata 169.254.169.254), CGNAT and IPv6 ULA unless the workspace allowlists them.
+ * The allowlist accepts host names ({@code internal.corp}) and CIDR ranges ({@code 10.0.0.0/24}).
  */
 public class SsrfGuard {
 
@@ -52,22 +52,22 @@ public class SsrfGuard {
     public void check(URI uri) {
         String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase(Locale.ROOT);
         if (!scheme.equals("http") && !scheme.equals("https")) {
-            throw new SsrfBlockedException("Somente http/https: " + uri);
+            throw new SsrfBlockedException("Only http/https is allowed: " + uri);
         }
         String host = hostOf(uri);
         if (allowedHosts.contains(host)) {
             return;
         }
         if (METADATA_HOSTS.contains(host)) {
-            throw new SsrfBlockedException("Destino de metadata de nuvem bloqueado: " + host);
+            throw new SsrfBlockedException("Cloud metadata target blocked: " + host);
         }
         for (InetAddress address : resolve(host)) {
             if (allowedRanges.stream().anyMatch(r -> r.contains(address))) {
                 continue;
             }
             if (isBlocked(address)) {
-                throw new SsrfBlockedException("Endereço interno bloqueado (" + address.getHostAddress()
-                        + "). Peça a um admin para incluir na allowlist do workspace.");
+                throw new SsrfBlockedException("Internal address blocked (" + address.getHostAddress()
+                        + "). Add it to the workspace allowlist to monitor it.");
             }
         }
     }
@@ -75,7 +75,7 @@ public class SsrfGuard {
     private static String hostOf(URI uri) {
         String host = uri.getHost();
         if (host == null || host.isBlank()) {
-            throw new SsrfBlockedException("URL sem host: " + uri);
+            throw new SsrfBlockedException("URL without host: " + uri);
         }
         host = host.toLowerCase(Locale.ROOT);
         return host.startsWith("[") && host.endsWith("]") ? host.substring(1, host.length() - 1) : host;
@@ -85,11 +85,11 @@ public class SsrfGuard {
         try {
             List<InetAddress> addresses = resolver.resolve(host);
             if (addresses.isEmpty()) {
-                throw new SsrfBlockedException("Não foi possível resolver o host: " + host);
+                throw new SsrfBlockedException("Could not resolve host: " + host);
             }
             return addresses;
         } catch (UnknownHostException e) {
-            throw new SsrfBlockedException("Não foi possível resolver o host: " + host);
+            throw new SsrfBlockedException("Could not resolve host: " + host);
         }
     }
 

@@ -1,8 +1,8 @@
 package io.orbit.monitor.condition;
 
 /**
- * Condição de saúde já interpretada. Expressa o estado saudável (estilo Gatus):
- * quando a condição não é satisfeita, o monitor assume o estado do seu {@link Severity}.
+ * A parsed health condition. It states the healthy case (Gatus style):
+ * when it is not satisfied the monitor takes the state of its {@link Severity}.
  */
 public record Condition(
         String expression,

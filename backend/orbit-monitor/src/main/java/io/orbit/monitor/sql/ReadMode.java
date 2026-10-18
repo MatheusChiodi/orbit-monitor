@@ -1,6 +1,6 @@
 package io.orbit.monitor.sql;
 
-/** Modos de leitura do resultado de um SELECT (seção 2.2 das funcionalidades). */
+/** Read modes for a SELECT result (features spec, section 2.2). */
 public enum ReadMode {
     SINGLE_VALUE,
     INDICATOR_CARD,

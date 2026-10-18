@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Resultado de um SELECT: colunas com tipos, linhas (valores podem ser nulos),
- * tempo de execução em ms e se o resultado foi cortado pelo limite de linhas.
+ * Result of a SELECT: typed columns, rows (values may be null), execution time in ms
+ * and whether the row limit truncated the result.
  */
 public record ResultPayload(List<ResultColumn> columns, List<List<Object>> rows, long ms, boolean truncated) {
 
@@ -25,7 +25,7 @@ public record ResultPayload(List<ResultColumn> columns, List<List<Object>> rows,
         return rows.size();
     }
 
-    /** Índice da coluna pelo nome, sem diferenciar caixa; -1 se não existir. */
+    /** Case-insensitive column index by name; -1 when absent. */
     public int columnIndex(String name) {
         for (int i = 0; i < columns.size(); i++) {
             if (columns.get(i).name().equalsIgnoreCase(name)) {

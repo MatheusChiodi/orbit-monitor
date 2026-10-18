@@ -11,6 +11,6 @@
     </parent>
 
     <artifactId>orbit-common</artifactId>
-    <name>Orbit Monitor - kernel compartilhado</name>
-    <description>Tipos compartilhados entre domínios (estado de monitor, eventos).</description>
+    <name>Orbit Monitor - shared kernel</name>
+    <description>Types shared across domains (monitor state, events).</description>
 </project>

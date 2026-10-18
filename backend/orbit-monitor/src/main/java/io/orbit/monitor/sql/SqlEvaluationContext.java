@@ -6,8 +6,8 @@ import io.orbit.monitor.condition.Placeholder;
 import java.util.Optional;
 
 /**
- * Valores de um resultado SQL para as condições: {@code [ROWS]}, {@code [EXEC_TIME]} e
- * {@code [COL].NOME} (lido da primeira linha).
+ * SQL result values for conditions: {@code [ROWS]}, {@code [EXEC_TIME]} and
+ * {@code [COL].NAME} (read from the first row).
  */
 public class SqlEvaluationContext implements EvaluationContext {
 

@@ -1,5 +1,5 @@
 package io.orbit.monitor.sql;
 
-/** SELECT aprovado pelo {@link SelectValidator}, já sem ';' final. Só ele pode ser executado. */
+/** SELECT approved by {@link SelectValidator}, without a trailing ';'. Only this can be executed. */
 public record ValidatedSelect(String sql) {
 }

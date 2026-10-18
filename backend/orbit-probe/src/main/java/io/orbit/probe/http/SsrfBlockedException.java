@@ -1,6 +1,6 @@
 package io.orbit.probe.http;
 
-/** Destino recusado pelo anti-SSRF (faixa privada, metadata de nuvem, esquema inválido...). */
+/** Target rejected by SSRF protection (private range, cloud metadata, invalid scheme...). */
 public class SsrfBlockedException extends RuntimeException {
 
     public SsrfBlockedException(String message) {

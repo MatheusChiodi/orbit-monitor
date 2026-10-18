@@ -16,7 +16,7 @@ class ConditionParserTest {
     private final ConditionParser parser = new ConditionParser();
 
     @Test
-    void interpretaStatusIgualANumero() {
+    void parsesStatusEqualsNumber() {
         Condition c = parser.parse("[STATUS] == 200", Severity.DOWN);
 
         assertThat(c.placeholder()).isEqualTo(Placeholder.STATUS);
@@ -28,7 +28,7 @@ class ConditionParserTest {
     }
 
     @Test
-    void interpretaDuracaoEmMilissegundos() {
+    void parsesMillisecondDuration() {
         Condition c = parser.parse("[RESPONSE_TIME] < 800ms", Severity.WARN);
 
         assertThat(c.operator()).isEqualTo(Operator.LT);
@@ -36,7 +36,7 @@ class ConditionParserTest {
     }
 
     @Test
-    void interpretaDuracaoEmSegundosEMinutos() {
+    void parsesSecondAndMinuteDurations() {
         assertThat(parser.parse("[EXEC_TIME] < 2s", Severity.DOWN).operand())
                 .isEqualTo(new Operand.DurationOperand(Duration.ofSeconds(2)));
         assertThat(parser.parse("[EXEC_TIME] <= 1.5min", Severity.DOWN).operand())
@@ -44,7 +44,7 @@ class ConditionParserTest {
     }
 
     @Test
-    void interpretaCaminhoJsonDoBodyETextoEntreAspas() {
+    void parsesBodyJsonPathAndQuotedText() {
         Condition c = parser.parse("[BODY].status == \"UP\"", Severity.DOWN);
 
         assertThat(c.placeholder()).isEqualTo(Placeholder.BODY);
@@ -53,23 +53,23 @@ class ConditionParserTest {
     }
 
     @Test
-    void interpretaColunaComPath() {
-        Condition c = parser.parse("[COL].QTD_PENDENTES < 50", Severity.WARN);
+    void parsesColumnWithPath() {
+        Condition c = parser.parse("[COL].PENDING_QTY < 50", Severity.WARN);
 
         assertThat(c.placeholder()).isEqualTo(Placeholder.COL);
-        assertThat(c.path()).isEqualTo("QTD_PENDENTES");
+        assertThat(c.path()).isEqualTo("PENDING_QTY");
         assertThat(c.operator()).isEqualTo(Operator.LT);
     }
 
     @Test
-    void interpretaTempoRelativoAAgora() {
-        Condition c = parser.parse("[COL].ULT_LOTE > now() - 60min", Severity.DOWN);
+    void parsesTimeRelativeToNow() {
+        Condition c = parser.parse("[COL].LAST_BATCH > now() - 60min", Severity.DOWN);
 
         assertThat(c.operand()).isEqualTo(new Operand.RelativeTimeOperand(Duration.ofMinutes(-60)));
     }
 
     @Test
-    void interpretaBetween() {
+    void parsesBetween() {
         Condition c = parser.parse("[COL].PCT between 1 and 5.5", Severity.WARN);
 
         assertThat(c.operator()).isEqualTo(Operator.BETWEEN);
@@ -79,7 +79,7 @@ class ConditionParserTest {
     }
 
     @Test
-    void interpretaInComListaMista() {
+    void parsesInWithMixedList() {
         Condition c = parser.parse("[STATUS] in (200, 201, \"204\")", Severity.DOWN);
 
         assertThat(c.operator()).isEqualTo(Operator.IN);
@@ -90,15 +90,15 @@ class ConditionParserTest {
     }
 
     @Test
-    void interpretaOlderThan() {
-        Condition c = parser.parse("[COL].DT_ULT_LOTE older than 10min", Severity.DOWN);
+    void parsesOlderThan() {
+        Condition c = parser.parse("[COL].LAST_BATCH_AT older than 10min", Severity.DOWN);
 
         assertThat(c.operator()).isEqualTo(Operator.OLDER_THAN);
         assertThat(c.operand()).isEqualTo(new Operand.DurationOperand(Duration.ofMinutes(10)));
     }
 
     @Test
-    void interpretaContainsEPlaceholderEmMinusculas() {
+    void parsesContainsAndLowercasePlaceholder() {
         Condition c = parser.parse("  [body] contains \"pong\"  ", Severity.DOWN);
 
         assertThat(c.placeholder()).isEqualTo(Placeholder.BODY);
@@ -107,7 +107,7 @@ class ConditionParserTest {
     }
 
     @Test
-    void palavraSemAspasViraTexto() {
+    void bareWordBecomesText() {
         assertThat(parser.parse("[BODY].status != DOWN", Severity.DOWN).operand())
                 .isEqualTo(new Operand.TextOperand("DOWN"));
     }
@@ -125,7 +125,7 @@ class ConditionParserTest {
             "[COL].X older than 10",
             "[STATUS] in 200"
     })
-    void rejeitaExpressoesInvalidas(String expr) {
+    void rejectsInvalidExpressions(String expr) {
         assertThatThrownBy(() -> parser.parse(expr, Severity.DOWN))
                 .isInstanceOf(ConditionSyntaxException.class);
     }

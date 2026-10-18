@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Valores de uma resposta HTTP para as condições. {@code [BODY].a.b} é lido via JSONPath
- * ({@code $.a.b}); sem caminho, {@code [BODY]} é o texto inteiro.
+ * HTTP response values for conditions. {@code [BODY].a.b} is read through JSONPath
+ * ({@code $.a.b}); without a path {@code [BODY]} is the whole text.
  */
 public class HttpEvaluationContext implements EvaluationContext {
 

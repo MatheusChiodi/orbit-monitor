@@ -12,13 +12,13 @@ import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Optional;
 
-/** Coerção de valores reais (vindos de JSON, JDBC, HTTP) para comparação com operandos. */
+/** Coerces actual values (from JSON, JDBC, HTTP) so they can be compared with operands. */
 final class ValueComparator {
 
     private ValueComparator() {
     }
 
-    /** Compara o valor real com o operando: negativo, zero ou positivo. */
+    /** Compares the actual value with the operand: negative, zero or positive. */
     static int compare(Object actual, Operand operand, Clock clock) {
         return switch (operand) {
             case Operand.NumberOperand n -> requireNumber(actual).compareTo(n.value());
@@ -26,13 +26,13 @@ final class ValueComparator {
             case Operand.RelativeTimeOperand r -> requireInstant(actual, clock).compareTo(clock.instant().plus(r.offset()));
             case Operand.TextOperand t -> number(t.value())
                     .map(n -> requireNumber(actual).compareTo(n))
-                    .orElseThrow(() -> new IncomparableValuesException("Texto não pode ser comparado por ordem: " + t.value()));
-            case Operand.RangeOperand r -> throw new IncomparableValuesException("Faixa só vale com between");
-            case Operand.ListOperand l -> throw new IncomparableValuesException("Lista só vale com in");
+                    .orElseThrow(() -> new IncomparableValuesException("Text cannot be ordered: " + t.value()));
+            case Operand.RangeOperand r -> throw new IncomparableValuesException("A range is only valid with between");
+            case Operand.ListOperand l -> throw new IncomparableValuesException("A list is only valid with in");
         };
     }
 
-    /** Igualdade tolerante: numérica quando os dois lados são números, textual nos demais casos. */
+    /** Lenient equality: numeric when both sides are numbers, textual otherwise. */
     static boolean matches(Object actual, Operand operand, Clock clock) {
         return switch (operand) {
             case Operand.TextOperand t -> {
@@ -77,12 +77,12 @@ final class ValueComparator {
     }
 
     static BigDecimal requireNumber(Object actual) {
-        return number(actual).orElseThrow(() -> new IncomparableValuesException("Valor não numérico: " + actual));
+        return number(actual).orElseThrow(() -> new IncomparableValuesException("Not a number: " + actual));
     }
 
     static Instant requireInstant(Object actual, Clock clock) {
         return instant(actual, clock)
-                .orElseThrow(() -> new IncomparableValuesException("Valor não é data/hora: " + actual));
+                .orElseThrow(() -> new IncomparableValuesException("Not a date/time: " + actual));
     }
 
     private static Optional<BigDecimal> parseNumber(String s) {
@@ -98,7 +98,7 @@ final class ValueComparator {
         try {
             return Optional.of(OffsetDateTime.parse(text).toInstant());
         } catch (DateTimeParseException ignored) {
-            // sem fuso: tenta como data/hora local no fuso do relógio
+            // no offset: parse as a local date-time in the clock zone
         }
         try {
             return Optional.of(LocalDateTime.parse(text.replace(' ', 'T')).atZone(clock.getZone()).toInstant());

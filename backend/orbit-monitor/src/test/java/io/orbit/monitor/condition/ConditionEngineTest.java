@@ -38,13 +38,13 @@ class ConditionEngineTest {
             "[STATUS] in (200, 201) | 201 | true",
             "[STATUS] in (200, 201) | 404 | false"
     })
-    void operadoresNumericos(String expr, int status, boolean expected) {
+    void numericOperators(String expr, int status, boolean expected) {
         var ctx = new MapEvaluationContext().with(Placeholder.STATUS, status);
         assertThat(eval(expr, ctx).passed()).isEqualTo(expected);
     }
 
     @Test
-    void duracaoComparaEmMilissegundos() {
+    void durationComparesInMilliseconds() {
         var ctx = new MapEvaluationContext().with(Placeholder.RESPONSE_TIME, 750L);
         assertThat(eval("[RESPONSE_TIME] < 800ms", ctx).passed()).isTrue();
         assertThat(eval("[RESPONSE_TIME] < 0.5s", ctx).passed()).isFalse();
@@ -52,7 +52,7 @@ class ConditionEngineTest {
     }
 
     @Test
-    void textoIgualEDiferente() {
+    void textEqualsAndNotEquals() {
         var ctx = new MapEvaluationContext().with(Placeholder.BODY, "status", "UP");
         assertThat(eval("[BODY].status == \"UP\"", ctx).passed()).isTrue();
         assertThat(eval("[BODY].status != UP", ctx).passed()).isFalse();
@@ -60,44 +60,44 @@ class ConditionEngineTest {
     }
 
     @Test
-    void numeroVindoComoTextoEhConvertido() {
-        var ctx = new MapEvaluationContext().with(Placeholder.COL, "QTD", "42");
-        assertThat(eval("[COL].QTD < 50", ctx).passed()).isTrue();
+    void numberAsTextIsConverted() {
+        var ctx = new MapEvaluationContext().with(Placeholder.COL, "QTY", "42");
+        assertThat(eval("[COL].QTY < 50", ctx).passed()).isTrue();
     }
 
     @Test
-    void containsProcuraSubstring() {
+    void containsLooksForSubstring() {
         var ctx = new MapEvaluationContext().with(Placeholder.BODY, "{\"msg\":\"pong\"}");
         assertThat(eval("[BODY] contains \"pong\"", ctx).passed()).isTrue();
         assertThat(eval("[BODY] contains ping", ctx).passed()).isFalse();
     }
 
     @Test
-    void olderThanENewerThanUsamORelogio() {
+    void olderThanAndNewerThanUseTheClock() {
         var ctx = new MapEvaluationContext()
-                .with(Placeholder.COL, "ANTIGO", NOW.minusSeconds(15 * 60))
-                .with(Placeholder.COL, "RECENTE", LocalDateTime.ofInstant(NOW.minusSeconds(60), ZoneOffset.UTC));
-        assertThat(eval("[COL].ANTIGO older than 10min", ctx).passed()).isTrue();
-        assertThat(eval("[COL].RECENTE older than 10min", ctx).passed()).isFalse();
-        assertThat(eval("[COL].RECENTE newer than 10min", ctx).passed()).isTrue();
+                .with(Placeholder.COL, "OLD", NOW.minusSeconds(15 * 60))
+                .with(Placeholder.COL, "RECENT", LocalDateTime.ofInstant(NOW.minusSeconds(60), ZoneOffset.UTC));
+        assertThat(eval("[COL].OLD older than 10min", ctx).passed()).isTrue();
+        assertThat(eval("[COL].RECENT older than 10min", ctx).passed()).isFalse();
+        assertThat(eval("[COL].RECENT newer than 10min", ctx).passed()).isTrue();
     }
 
     @Test
-    void comparacaoComNowMenosDuracao() {
-        var ctx = new MapEvaluationContext().with(Placeholder.COL, "ULT_LOTE", NOW.minusSeconds(30 * 60));
-        assertThat(eval("[COL].ULT_LOTE > now() - 60min", ctx).passed()).isTrue();
-        assertThat(eval("[COL].ULT_LOTE > now() - 10min", ctx).passed()).isFalse();
+    void comparesWithNowMinusDuration() {
+        var ctx = new MapEvaluationContext().with(Placeholder.COL, "LAST_BATCH", NOW.minusSeconds(30 * 60));
+        assertThat(eval("[COL].LAST_BATCH > now() - 60min", ctx).passed()).isTrue();
+        assertThat(eval("[COL].LAST_BATCH > now() - 10min", ctx).passed()).isFalse();
     }
 
     @Test
-    void valorAusenteFalhaComMensagem() {
+    void missingValueFailsWithMessage() {
         ConditionResult r = eval("[COL].X < 50", new MapEvaluationContext());
         assertThat(r.passed()).isFalse();
-        assertThat(r.message()).contains("sem valor");
+        assertThat(r.message()).contains("no value");
     }
 
     @Test
-    void tiposIncompativeisFalhamSemExcecao() {
+    void incompatibleTypesFailWithoutException() {
         var ctx = new MapEvaluationContext().with(Placeholder.BODY, "status", "UP");
         ConditionResult r = eval("[BODY].status < 10", ctx);
         assertThat(r.passed()).isFalse();
@@ -105,7 +105,7 @@ class ConditionEngineTest {
     }
 
     @Test
-    void resultadoGuardaValorAtual() {
+    void resultKeepsActualValue() {
         var ctx = new MapEvaluationContext().with(Placeholder.ROWS, 3);
         ConditionResult r = eval("[ROWS] == 0", ctx);
         assertThat(r.passed()).isFalse();
@@ -113,7 +113,7 @@ class ConditionEngineTest {
     }
 
     @Test
-    void estadoFinalEhOPiorNivelQueFalhou() {
+    void finalStateIsWorstFailedLevel() {
         var ctx = new MapEvaluationContext()
                 .with(Placeholder.STATUS, 200)
                 .with(Placeholder.RESPONSE_TIME, 1200L);
@@ -130,7 +130,7 @@ class ConditionEngineTest {
     }
 
     @Test
-    void falhaCriticaPrevaleceSobreAtencao() {
+    void criticalFailureWinsOverWarning() {
         var ctx = new MapEvaluationContext().with(Placeholder.STATUS, 500).with(Placeholder.RESPONSE_TIME, 1200L);
         var conds = List.of(
                 parser.parse("[STATUS] == 200", Severity.DOWN),
@@ -139,14 +139,14 @@ class ConditionEngineTest {
     }
 
     @Test
-    void semFalhasEhOk() {
+    void noFailuresIsOk() {
         var ctx = new MapEvaluationContext().with(Placeholder.COL, "PCT", new BigDecimal("1.2"));
         var conds = List.of(parser.parse("[COL].PCT < 2", Severity.WARN));
         assertThat(engine.evaluateAll(conds, ctx).state()).isEqualTo(MonitorState.OK);
     }
 
     @Test
-    void cadaOperadorTemUmAvaliadorRegistrado() {
+    void everyOperatorHasARegisteredEvaluator() {
         for (Operator op : Operator.values()) {
             assertThat(engine.evaluatorFor(op)).as(op.name()).isNotNull();
         }

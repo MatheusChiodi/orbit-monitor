@@ -32,44 +32,44 @@ class ReadModeSuggesterTest {
     }
 
     @Test
-    void umaLinhaUmaColunaNumericaEhValorUnico() {
-        var s = suggester.suggest(payload(List.of(col("QTD", ColumnType.NUMBER)), 1));
+    void oneRowOneNumericColumnIsSingleValue() {
+        var s = suggester.suggest(payload(List.of(col("QTY", ColumnType.NUMBER)), 1));
         assertThat(s.suggested()).isEqualTo(ReadMode.SINGLE_VALUE);
     }
 
     @Test
-    void umaLinhaVariasColunasEhCartaoDeIndicadores() {
-        var cols = List.of(col("PENDENTES", ColumnType.NUMBER), col("ERRO", ColumnType.NUMBER), col("OK", ColumnType.NUMBER));
+    void oneRowManyColumnsIsIndicatorCard() {
+        var cols = List.of(col("PENDING", ColumnType.NUMBER), col("ERROR", ColumnType.NUMBER), col("OK", ColumnType.NUMBER));
         assertThat(suggester.suggest(payload(cols, 1)).suggested()).isEqualTo(ReadMode.INDICATOR_CARD);
     }
 
     @Test
-    void variasLinhasCategoriaENumeroEhRanking() {
-        var cols = List.of(col("ADQUIRENTE", ColumnType.TEXT), col("QTD_ERRO", ColumnType.NUMBER));
+    void manyRowsCategoryAndNumberIsRanking() {
+        var cols = List.of(col("ACQUIRER", ColumnType.TEXT), col("ERROR_QTY", ColumnType.NUMBER));
         assertThat(suggester.suggest(payload(cols, 5)).suggested()).isEqualTo(ReadMode.RANKING);
     }
 
     @Test
-    void variasLinhasComDataEhSerieTemporal() {
-        var cols = List.of(col("DIA", ColumnType.DATE), col("TOTAL", ColumnType.NUMBER));
+    void manyRowsWithDateIsTimeSeries() {
+        var cols = List.of(col("DAY", ColumnType.DATE), col("TOTAL", ColumnType.NUMBER));
         assertThat(suggester.suggest(payload(cols, 24)).suggested()).isEqualTo(ReadMode.TIME_SERIES);
     }
 
     @Test
-    void variasLinhasFormatoLivreEhTabela() {
-        var cols = List.of(col("ID", ColumnType.TEXT), col("CLIENTE", ColumnType.TEXT), col("STATUS", ColumnType.TEXT));
+    void manyRowsFreeShapeIsTable() {
+        var cols = List.of(col("ID", ColumnType.TEXT), col("CUSTOMER", ColumnType.TEXT), col("STATUS", ColumnType.TEXT));
         assertThat(suggester.suggest(payload(cols, 3)).suggested()).isEqualTo(ReadMode.TABLE);
     }
 
     @Test
-    void zeroLinhasEhContagemDeLinhas() {
-        var cols = List.of(col("SID", ColumnType.NUMBER), col("BLOQUEADO_POR", ColumnType.NUMBER));
+    void zeroRowsIsRowCount() {
+        var cols = List.of(col("SID", ColumnType.NUMBER), col("BLOCKED_BY", ColumnType.NUMBER));
         assertThat(suggester.suggest(payload(cols, 0)).suggested()).isEqualTo(ReadMode.ROW_COUNT);
     }
 
     @Test
-    void sempreOfereceTabelaEContagemComoAlternativas() {
-        var s = suggester.suggest(payload(List.of(col("QTD", ColumnType.NUMBER)), 1));
+    void alwaysOffersTableAndRowCountAsAlternatives() {
+        var s = suggester.suggest(payload(List.of(col("QTY", ColumnType.NUMBER)), 1));
         assertThat(s.alternatives()).contains(ReadMode.TABLE, ReadMode.ROW_COUNT).doesNotContain(ReadMode.SINGLE_VALUE);
     }
 }

@@ -2,7 +2,7 @@ package io.orbit.monitor.condition;
 
 import io.orbit.common.MonitorState;
 
-/** Nível de uma condição: se ela falhar, o monitor vai para atenção (WARN) ou fora (DOWN). */
+/** Level of a condition: when it fails the monitor goes to WARN or DOWN. */
 public enum Severity {
     WARN(MonitorState.WARN),
     DOWN(MonitorState.DOWN);

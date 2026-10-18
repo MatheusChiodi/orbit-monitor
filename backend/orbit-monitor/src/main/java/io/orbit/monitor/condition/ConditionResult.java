@@ -1,5 +1,5 @@
 package io.orbit.monitor.condition;
 
-/** Resultado de uma condição: passou ou não, com o valor real observado e uma explicação curta. */
+/** Outcome of one condition: whether it passed, the observed value and a short explanation. */
 public record ConditionResult(Condition condition, boolean passed, Object actual, String message) {
 }

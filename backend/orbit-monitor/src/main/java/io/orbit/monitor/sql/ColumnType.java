@@ -2,7 +2,7 @@ package io.orbit.monitor.sql;
 
 import java.sql.Types;
 
-/** Tipo detectado de uma coluna do SELECT, usado na sugestão de exibição e nas condições. */
+/** Detected type of a SELECT column, used for display suggestions and conditions. */
 public enum ColumnType {
     NUMBER,
     TEXT,
@@ -10,7 +10,7 @@ public enum ColumnType {
     BOOLEAN,
     OTHER;
 
-    /** Converte um {@link java.sql.Types} vindo do {@code ResultSetMetaData}. */
+    /** Maps a {@link java.sql.Types} value from {@code ResultSetMetaData}. */
     public static ColumnType fromJdbc(int sqlType) {
         return switch (sqlType) {
             case Types.TINYINT, Types.SMALLINT, Types.INTEGER, Types.BIGINT, Types.FLOAT, Types.REAL,

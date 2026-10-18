@@ -2,7 +2,7 @@ package io.orbit.monitor.sql;
 
 import java.util.Locale;
 
-/** Dialetos dos bancos alvo suportados (H2 serve para testes e para o próprio Orbit local). */
+/** Supported target database dialects (H2 is used in tests). */
 public enum Dialect {
     ORACLE,
     POSTGRES,
@@ -27,6 +27,6 @@ public enum Dialect {
         if (u.startsWith("jdbc:h2:")) {
             return H2;
         }
-        throw new IllegalArgumentException("Banco não suportado: " + url);
+        throw new IllegalArgumentException("Unsupported database: " + url);
     }
 }

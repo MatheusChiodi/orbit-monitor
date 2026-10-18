@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-/** Operadores suportados nas condições. */
+/** Operators supported in conditions. */
 public enum Operator {
     LE("<="),
     GE(">="),
@@ -29,7 +29,7 @@ public enum Operator {
         return symbol;
     }
 
-    /** Símbolos do maior para o menor, para que {@code <=} case antes de {@code <}. */
+    /** Longest symbols first, so that {@code <=} matches before {@code <}. */
     static List<Operator> bySymbolLength() {
         return Arrays.stream(values())
                 .sorted(Comparator.comparingInt((Operator o) -> o.symbol.length()).reversed())

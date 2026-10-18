@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Avalia condições sobre um resultado usando um {@code Map<Operator, ConditionEvaluator>}.
- * Estado final: DOWN se alguma condição DOWN falhou, WARN se alguma WARN falhou, senão OK.
+ * Evaluates conditions against a result through a {@code Map<Operator, ConditionEvaluator>}.
+ * Final state: DOWN if a DOWN condition failed, WARN if a WARN condition failed, OK otherwise.
  */
 public class ConditionEngine {
 
@@ -33,12 +33,12 @@ public class ConditionEngine {
     public ConditionResult evaluate(Condition condition, EvaluationContext context) {
         Optional<Object> actual = context.resolve(condition.placeholder(), condition.path());
         if (actual.isEmpty()) {
-            return new ConditionResult(condition, false, null, label(condition) + " sem valor no resultado");
+            return new ConditionResult(condition, false, null, label(condition) + " has no value in the result");
         }
         Object value = actual.get();
         try {
             boolean passed = evaluators.get(condition.operator()).test(value, condition.operand(), clock);
-            String message = passed ? "ok" : label(condition) + " = " + value + " · regra " + condition.expression();
+            String message = passed ? "ok" : label(condition) + " = " + value + " · rule " + condition.expression();
             return new ConditionResult(condition, passed, value, message);
         } catch (IncomparableValuesException e) {
             return new ConditionResult(condition, false, value, e.getMessage());

@@ -1,5 +1,5 @@
 package io.orbit.monitor.sql;
 
-/** Coluna do resultado: nome, tipo detectado e o nome do tipo no banco de origem. */
+/** Result column: name, detected type and the source database type name. */
 public record ResultColumn(String name, ColumnType type, String dbTypeName) {
 }

@@ -5,7 +5,7 @@ import java.time.Instant;
 import java.util.EnumMap;
 import java.util.Map;
 
-/** Registro padrão {@code Operator -> ConditionEvaluator}. */
+/** Default {@code Operator -> ConditionEvaluator} registry. */
 final class Evaluators {
 
     private Evaluators() {
@@ -42,7 +42,7 @@ final class Evaluators {
         return switch (operand) {
             case Operand.TextOperand t -> t.value();
             case Operand.NumberOperand n -> n.value().toPlainString();
-            default -> throw new IncomparableValuesException("contains espera texto");
+            default -> throw new IncomparableValuesException("contains expects text");
         };
     }
 }

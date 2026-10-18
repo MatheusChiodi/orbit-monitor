@@ -29,7 +29,10 @@ Maven multi-module, `orbit-api` app, `/actuator/health`.
 - `backend/orbit-api/src/test/java/io/orbit/api/HealthEndpointTest.java`
 
 ## Decisions and notes
-_None yet._
+- No Orbit database: datasource, Flyway and H2 were removed from `orbit-api`.
+- Binds to `127.0.0.1` by default (`ORBIT_BIND_ADDRESS`, `ORBIT_PORT`).
+- Tests tagged `pending` are excluded by default; `./mvnw test -Ppending` runs them.
 
 ## Changelog
 - 2026-10-18 — context file created (status: done).
+- 2026-10-18 — removed the database, bind to loopback, pending-test profile.

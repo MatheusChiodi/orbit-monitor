@@ -2,12 +2,12 @@ package io.orbit.monitor.condition;
 
 import java.time.Clock;
 
-/** Avalia um operador sobre o valor real e o operando da condição. */
+/** Applies one operator to the actual value and the condition operand. */
 @FunctionalInterface
 public interface ConditionEvaluator {
 
     /**
-     * @throws IncomparableValuesException quando o valor real não pode ser comparado ao operando
+     * @throws IncomparableValuesException when the actual value cannot be compared to the operand
      */
     boolean test(Object actual, Operand operand, Clock clock);
 }

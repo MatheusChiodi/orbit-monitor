@@ -27,16 +27,16 @@ class HttpProbeTest {
     @BeforeEach
     void startServer() throws IOException {
         server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);
-        server.createContext("/health", ex -> respond(ex, 200, "{\"status\":\"UP\"}", Map.of("X-Versao", "1.2")));
-        server.createContext("/erro", ex -> respond(ex, 503, "fora", Map.of()));
-        server.createContext("/eco", ex -> {
+        server.createContext("/health", ex -> respond(ex, 200, "{\"status\":\"UP\"}", Map.of("X-Version", "1.2")));
+        server.createContext("/error", ex -> respond(ex, 503, "down", Map.of()));
+        server.createContext("/echo", ex -> {
             String body = new String(ex.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             respond(ex, 200, ex.getRequestMethod() + ":" + ex.getRequestHeaders().getFirst("X-Token") + ":" + body, Map.of());
         });
         server.createContext("/redir-local", ex -> respond(ex, 302, "", Map.of("Location", "/health")));
         server.createContext("/redir-metadata", ex ->
                 respond(ex, 302, "", Map.of("Location", "http://169.254.169.254/latest/meta-data/")));
-        server.createContext("/lento", ex -> {
+        server.createContext("/slow", ex -> {
             try {
                 Thread.sleep(1_500);
             } catch (InterruptedException e) {
@@ -73,68 +73,68 @@ class HttpProbeTest {
     }
 
     @Test
-    void coletaStatusBodyHeadersETempo() {
+    void collectsStatusBodyHeadersAndTime() {
         HttpResponseSnapshot r = probeAllowingLocalhost().execute(get(base + "/health"));
 
         assertThat(r.status()).isEqualTo(200);
         assertThat(r.body()).isEqualTo("{\"status\":\"UP\"}");
-        assertThat(r.headers()).containsKey("x-versao");
+        assertThat(r.headers()).containsKey("x-version");
         assertThat(r.responseTimeMs()).isGreaterThanOrEqualTo(0);
         assertThat(r.certDaysLeft()).isNull();
     }
 
     @Test
-    void statusDeErroNaoEhExcecao() {
-        assertThat(probeAllowingLocalhost().execute(get(base + "/erro")).status()).isEqualTo(503);
+    void errorStatusIsNotAnException() {
+        assertThat(probeAllowingLocalhost().execute(get(base + "/error")).status()).isEqualTo(503);
     }
 
     @Test
-    void enviaMetodoHeadersEBody() {
-        var req = new HttpProbeRequest("POST", URI.create(base + "/eco"), Map.of("X-Token", "abc"), "{\"a\":1}",
+    void sendsMethodHeadersAndBody() {
+        var req = new HttpProbeRequest("POST", URI.create(base + "/echo"), Map.of("X-Token", "abc"), "{\"a\":1}",
                 Duration.ofSeconds(5), true);
         assertThat(probeAllowingLocalhost().execute(req).body()).isEqualTo("POST:abc:{\"a\":1}");
     }
 
     @Test
-    void segueRedirecionamentoPermitido() {
+    void followsAllowedRedirect() {
         assertThat(probeAllowingLocalhost().execute(get(base + "/redir-local")).status()).isEqualTo(200);
     }
 
     @Test
-    void naoSegueQuandoDesligado() {
+    void doesNotFollowWhenDisabled() {
         var req = new HttpProbeRequest("GET", URI.create(base + "/redir-local"), Map.of(), null, Duration.ofSeconds(5), false);
         assertThat(probeAllowingLocalhost().execute(req).status()).isEqualTo(302);
     }
 
     @Test
-    void redirecionamentoParaMetadataEhBloqueado() {
+    void redirectToMetadataIsBlocked() {
         assertThatThrownBy(() -> probeAllowingLocalhost().execute(get(base + "/redir-metadata")))
                 .isInstanceOf(SsrfBlockedException.class);
     }
 
     @Test
-    void semAllowlistLocalhostEhBloqueado() {
+    void localhostIsBlockedWithoutAllowlist() {
         var probe = new HttpProbe(new SsrfGuard(HostResolver.system(), Set.of()));
         assertThatThrownBy(() -> probe.execute(get(base + "/health"))).isInstanceOf(SsrfBlockedException.class);
     }
 
     @Test
-    void estouroDeTempoViraProbeException() {
-        var req = new HttpProbeRequest("GET", URI.create(base + "/lento"), Map.of(), null, Duration.ofMillis(300), true);
+    void timeoutBecomesProbeException() {
+        var req = new HttpProbeRequest("GET", URI.create(base + "/slow"), Map.of(), null, Duration.ofMillis(300), true);
         assertThatThrownBy(() -> probeAllowingLocalhost().execute(req))
                 .isInstanceOf(HttpProbeException.class)
-                .hasMessageContaining("Tempo");
+                .hasMessageContaining("Timed out");
     }
 
     @Test
-    void metodoInvalidoEhRecusado() {
+    void invalidMethodIsRejected() {
         var req = new HttpProbeRequest("CONNECT", URI.create(base + "/health"), Map.of(), null, Duration.ofSeconds(1), true);
         assertThatThrownBy(() -> probeAllowingLocalhost().execute(req)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    void headersSaoListas() {
+    void headersAreLists() {
         HttpResponseSnapshot r = probeAllowingLocalhost().execute(get(base + "/health"));
-        assertThat(r.headers().get("x-versao")).isEqualTo(List.of("1.2"));
+        assertThat(r.headers().get("x-version")).isEqualTo(List.of("1.2"));
     }
 }

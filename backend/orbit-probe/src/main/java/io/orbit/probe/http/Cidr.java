@@ -3,23 +3,23 @@ package io.orbit.probe.http;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-/** Faixa de endereços IPv4/IPv6 em notação CIDR ({@code 10.0.0.0/8}, {@code fc00::/7}). */
+/** IPv4/IPv6 address range in CIDR notation ({@code 10.0.0.0/8}, {@code fc00::/7}). */
 public record Cidr(byte[] network, int prefixLength) {
 
     public static Cidr parse(String text) {
         String[] parts = text.trim().split("/");
         if (parts.length != 2) {
-            throw new IllegalArgumentException("CIDR inválido: " + text);
+            throw new IllegalArgumentException("Invalid CIDR: " + text);
         }
         try {
             byte[] network = InetAddress.getByName(parts[0]).getAddress();
             int prefix = Integer.parseInt(parts[1]);
             if (prefix < 0 || prefix > network.length * 8) {
-                throw new IllegalArgumentException("Prefixo inválido: " + text);
+                throw new IllegalArgumentException("Invalid prefix: " + text);
             }
             return new Cidr(network, prefix);
         } catch (UnknownHostException | NumberFormatException e) {
-            throw new IllegalArgumentException("CIDR inválido: " + text, e);
+            throw new IllegalArgumentException("Invalid CIDR: " + text, e);
         }
     }
 

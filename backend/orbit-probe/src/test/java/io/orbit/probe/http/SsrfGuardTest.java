@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class SsrfGuardTest {
 
-    /** Resolve nomes fictícios para IPs fixos, sem DNS real. */
+    /** Resolves fake names to fixed IPs, without real DNS. */
     private static HostResolver fakeDns(Map<String, String> table) {
         return host -> {
             String ip = table.get(host);
@@ -29,15 +29,15 @@ class SsrfGuardTest {
     }
 
     private final HostResolver dns = fakeDns(Map.of(
-            "api.publica.com", "93.184.216.34",
-            "interno.empresa", "10.0.0.5",
+            "api.example.com", "93.184.216.34",
+            "internal.corp", "10.0.0.5",
             "rebind.attacker", "169.254.169.254",
             "localhost", "127.0.0.1"));
 
     @Test
-    void permiteEnderecoPublico() {
+    void allowsPublicAddress() {
         var guard = new SsrfGuard(dns, Set.of());
-        assertThatCode(() -> guard.check(URI.create("https://api.publica.com/health"))).doesNotThrowAnyException();
+        assertThatCode(() -> guard.check(URI.create("https://api.example.com/health"))).doesNotThrowAnyException();
     }
 
     @ParameterizedTest
@@ -53,52 +53,52 @@ class SsrfGuardTest {
             "http://[::1]/",
             "http://[fd00::1]/",
             "http://[fe80::1]/",
-            "http://interno.empresa/",
+            "http://internal.corp/",
             "http://rebind.attacker/"
     })
-    void bloqueiaFaixasPrivadasLoopbackEMetadata(String url) {
+    void blocksPrivateLoopbackAndMetadataRanges(String url) {
         var guard = new SsrfGuard(dns, Set.of());
         assertThatThrownBy(() -> guard.check(URI.create(url))).isInstanceOf(SsrfBlockedException.class);
     }
 
     @Test
-    void bloqueiaHostDeMetadataPeloNome() {
+    void blocksMetadataHostByName() {
         var guard = new SsrfGuard(fakeDns(Map.of("metadata.google.internal", "93.184.216.34")), Set.of());
         assertThatThrownBy(() -> guard.check(URI.create("http://metadata.google.internal/")))
                 .isInstanceOf(SsrfBlockedException.class);
     }
 
     @Test
-    void bloqueiaEsquemaDiferenteDeHttp() {
+    void blocksNonHttpSchemes() {
         var guard = new SsrfGuard(dns, Set.of());
         assertThatThrownBy(() -> guard.check(URI.create("file:///etc/passwd"))).isInstanceOf(SsrfBlockedException.class);
-        assertThatThrownBy(() -> guard.check(URI.create("ftp://api.publica.com/"))).isInstanceOf(SsrfBlockedException.class);
+        assertThatThrownBy(() -> guard.check(URI.create("ftp://api.example.com/"))).isInstanceOf(SsrfBlockedException.class);
     }
 
     @Test
-    void allowlistPorHostLiberaEnderecoPrivado() {
-        var guard = new SsrfGuard(dns, Set.of("interno.empresa", "localhost"));
-        assertThatCode(() -> guard.check(URI.create("http://interno.empresa/status"))).doesNotThrowAnyException();
+    void hostAllowlistOpensPrivateAddress() {
+        var guard = new SsrfGuard(dns, Set.of("internal.corp", "localhost"));
+        assertThatCode(() -> guard.check(URI.create("http://internal.corp/status"))).doesNotThrowAnyException();
         assertThatCode(() -> guard.check(URI.create("http://LOCALHOST:8080/actuator/health"))).doesNotThrowAnyException();
     }
 
     @Test
-    void allowlistPorCidrLiberaFaixa() {
+    void cidrAllowlistOpensRange() {
         var guard = new SsrfGuard(dns, Set.of("10.0.0.0/24"));
-        assertThatCode(() -> guard.check(URI.create("http://interno.empresa/"))).doesNotThrowAnyException();
+        assertThatCode(() -> guard.check(URI.create("http://internal.corp/"))).doesNotThrowAnyException();
         assertThatThrownBy(() -> guard.check(URI.create("http://10.1.0.1/"))).isInstanceOf(SsrfBlockedException.class);
     }
 
     @Test
-    void hostQueNaoResolveEhBloqueado() {
+    void unresolvableHostIsBlocked() {
         var guard = new SsrfGuard(dns, Set.of());
-        assertThatThrownBy(() -> guard.check(URI.create("http://nao.existe/")))
+        assertThatThrownBy(() -> guard.check(URI.create("http://does.not.exist/")))
                 .isInstanceOf(SsrfBlockedException.class)
-                .hasMessageContaining("resolver");
+                .hasMessageContaining("resolve");
     }
 
     @Test
-    void cidrCasaEnderecos() throws Exception {
+    void cidrMatchesAddresses() throws Exception {
         assertThat(Cidr.parse("192.168.0.0/16").contains(InetAddress.getByName("192.168.10.1"))).isTrue();
         assertThat(Cidr.parse("192.168.0.0/16").contains(InetAddress.getByName("192.169.0.1"))).isFalse();
         assertThat(Cidr.parse("fc00::/7").contains(InetAddress.getByName("fd12::1"))).isTrue();

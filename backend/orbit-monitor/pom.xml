@@ -11,8 +11,8 @@
     </parent>
 
     <artifactId>orbit-monitor</artifactId>
-    <name>Orbit Monitor - domínio Monitor</name>
-    <description>Definição de monitores, condições de saúde e validação de SELECT.</description>
+    <name>Orbit Monitor - Monitor domain</name>
+    <description>Monitor definitions, health conditions and SELECT validation.</description>
 
     <dependencies>
         <dependency>

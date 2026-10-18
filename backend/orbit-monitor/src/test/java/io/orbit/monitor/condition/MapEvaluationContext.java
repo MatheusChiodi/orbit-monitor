@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-/** Contexto de teste: valores registrados por placeholder + path. */
+/** Test context: values registered by placeholder + path. */
 final class MapEvaluationContext implements EvaluationContext {
 
     private final Map<String, Object> values = new HashMap<>();

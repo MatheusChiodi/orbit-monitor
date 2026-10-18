@@ -1,6 +1,6 @@
 package io.orbit.monitor.condition;
 
-/** Expressão de condição mal formada; a mensagem é exibida ao operador no formulário. */
+/** Malformed condition expression; the message is shown to the operator in the editor. */
 public class ConditionSyntaxException extends RuntimeException {
 
     public ConditionSyntaxException(String message) {

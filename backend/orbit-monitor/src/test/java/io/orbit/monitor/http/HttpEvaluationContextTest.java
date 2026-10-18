@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class HttpEvaluationContextTest {
 
     private static final String BODY = """
-            {"status":"UP","fila":{"tamanho":42},"itens":[{"valor":1.5},{"valor":2}]}
+            {"status":"UP","queue":{"size":42},"items":[{"value":1.5},{"value":2}]}
             """;
 
     private final HttpResponseSnapshot response = new HttpResponseSnapshot(
@@ -20,40 +20,40 @@ class HttpEvaluationContextTest {
     private final HttpEvaluationContext ctx = new HttpEvaluationContext(response);
 
     @Test
-    void statusTempoECertificado() {
+    void statusTimeAndCertificate() {
         assertThat(ctx.resolve(Placeholder.STATUS, null)).contains(200);
         assertThat(ctx.resolve(Placeholder.RESPONSE_TIME, null)).contains(312L);
         assertThat(ctx.resolve(Placeholder.CERT_DAYS_LEFT, null)).contains(45);
     }
 
     @Test
-    void bodySemCaminhoEhOTextoInteiro() {
+    void bodyWithoutPathIsWholeText() {
         assertThat(ctx.resolve(Placeholder.BODY, null)).contains(BODY);
     }
 
     @Test
-    void bodyComCaminhoUsaJsonPath() {
+    void bodyWithPathUsesJsonPath() {
         assertThat(ctx.resolve(Placeholder.BODY, "status")).contains("UP");
-        assertThat(ctx.resolve(Placeholder.BODY, "fila.tamanho")).contains(42);
-        assertThat(ctx.resolve(Placeholder.BODY, "$.itens[0].valor")).contains(1.5);
+        assertThat(ctx.resolve(Placeholder.BODY, "queue.size")).contains(42);
+        assertThat(ctx.resolve(Placeholder.BODY, "$.items[0].value")).contains(1.5);
     }
 
     @Test
-    void caminhoInexistenteOuBodyNaoJsonNaoTemValor() {
-        assertThat(ctx.resolve(Placeholder.BODY, "nao.existe")).isEmpty();
-        var texto = new HttpEvaluationContext(new HttpResponseSnapshot(200, 1L, "pong", Map.of(), null));
-        assertThat(texto.resolve(Placeholder.BODY, "status")).isEmpty();
-        assertThat(texto.resolve(Placeholder.CERT_DAYS_LEFT, null)).isEmpty();
+    void missingPathOrNonJsonBodyHasNoValue() {
+        assertThat(ctx.resolve(Placeholder.BODY, "does.not.exist")).isEmpty();
+        var plain = new HttpEvaluationContext(new HttpResponseSnapshot(200, 1L, "pong", Map.of(), null));
+        assertThat(plain.resolve(Placeholder.BODY, "status")).isEmpty();
+        assertThat(plain.resolve(Placeholder.CERT_DAYS_LEFT, null)).isEmpty();
     }
 
     @Test
-    void headerSemDiferenciarCaixa() {
+    void headerIsCaseInsensitive() {
         assertThat(ctx.resolve(Placeholder.HEADER, "content-type")).contains("application/json");
-        assertThat(ctx.resolve(Placeholder.HEADER, "x-nada")).isEmpty();
+        assertThat(ctx.resolve(Placeholder.HEADER, "x-missing")).isEmpty();
     }
 
     @Test
-    void placeholdersSqlNaoExistemNoHttp() {
+    void sqlPlaceholdersDoNotExistInHttp() {
         assertThat(ctx.resolve(Placeholder.ROWS, null)).isEmpty();
     }
 }

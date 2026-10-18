@@ -4,7 +4,7 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.Map;
 
-/** Pedido de checagem HTTP; segredos já vêm resolvidos do cofre nos headers. */
+/** HTTP check request; secrets arrive already resolved from the vault into the headers. */
 public record HttpProbeRequest(
         String method,
         URI uri,

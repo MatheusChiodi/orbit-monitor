@@ -14,9 +14,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Modo seguro do monitor SQL: aceita somente uma consulta SELECT/WITH, sem DML/DDL/CALL/EXEC,
- * sem SELECT INTO/FOR UPDATE e sem funções da lista negra (DBMS_*, UTL_*, pg_sleep, xp_cmdshell...).
- * Combina a árvore do JSqlParser com uma checagem textual sobre o SQL sem literais e comentários.
+ * SQL monitor safe mode: accepts a single SELECT/WITH query only, with no DML/DDL/CALL/EXEC,
+ * no SELECT INTO/FOR UPDATE and no blocklisted functions (DBMS_*, UTL_*, pg_sleep, xp_cmdshell...).
+ * Combines the JSqlParser tree with a textual check on the SQL stripped of literals and comments.
  */
 public class SelectValidator {
 
@@ -33,22 +33,22 @@ public class SelectValidator {
 
     public ValidatedSelect validate(String sql) {
         if (sql == null || sql.isBlank()) {
-            throw new UnsafeSqlException("Informe um SELECT");
+            throw new UnsafeSqlException("A SELECT is required");
         }
         String trimmed = SqlText.stripTrailingSemicolons(sql);
         String code = SqlText.codeOnly(trimmed);
 
         Matcher fn = BLACKLISTED_FUNCTIONS.matcher(code);
         if (fn.find()) {
-            throw new UnsafeSqlException("Função não permitida no modo seguro: " + fn.group(1));
+            throw new UnsafeSqlException("Function not allowed in safe mode: " + fn.group(1));
         }
         if (code.contains(";")) {
-            throw new UnsafeSqlException("Envie uma única consulta (sem ';' separando comandos)");
+            throw new UnsafeSqlException("Send a single query (no ';' between statements)");
         }
         Matcher kw = FORBIDDEN_KEYWORDS.matcher(code);
         if (kw.find()) {
-            throw new UnsafeSqlException("Comando não permitido: " + kw.group(1).toUpperCase(Locale.ROOT)
-                    + ". Somente SELECT/WITH");
+            throw new UnsafeSqlException("Statement not allowed: " + kw.group(1).toUpperCase(Locale.ROOT)
+                    + ". Only SELECT/WITH");
         }
         checkTree(parse(trimmed));
         return new ValidatedSelect(trimmed);
@@ -58,31 +58,31 @@ public class SelectValidator {
         try {
             Statements statements = CCJSqlParserUtil.parseStatements(sql);
             if (statements.size() != 1) {
-                throw new UnsafeSqlException("Envie uma única consulta (sem ';' separando comandos)");
+                throw new UnsafeSqlException("Send a single query (no ';' between statements)");
             }
             return statements.getFirst();
         } catch (JSQLParserException e) {
-            throw new UnsafeSqlException("SELECT inválido: não foi possível interpretar a consulta");
+            throw new UnsafeSqlException("Invalid SELECT: the query could not be parsed");
         }
     }
 
     private static void checkTree(Statement statement) {
         if (!(statement instanceof Select select)) {
-            throw new UnsafeSqlException("Somente SELECT/WITH é permitido");
+            throw new UnsafeSqlException("Only SELECT/WITH is allowed");
         }
         List<WithItem<?>> withItems = select.getWithItemsList();
         if (withItems != null) {
             for (WithItem<?> item : withItems) {
                 if (!(item.getParenthesedStatement() instanceof Select)) {
-                    throw new UnsafeSqlException("WITH não pode modificar dados");
+                    throw new UnsafeSqlException("WITH must not modify data");
                 }
             }
         }
         if (select.getForMode() != null) {
-            throw new UnsafeSqlException("SELECT ... FOR UPDATE não é permitido (trava linhas no alvo)");
+            throw new UnsafeSqlException("SELECT ... FOR UPDATE is not allowed (it locks rows on the target)");
         }
         if (select instanceof PlainSelect plain && plain.getIntoTables() != null) {
-            throw new UnsafeSqlException("SELECT INTO não é permitido");
+            throw new UnsafeSqlException("SELECT INTO is not allowed");
         }
     }
 }

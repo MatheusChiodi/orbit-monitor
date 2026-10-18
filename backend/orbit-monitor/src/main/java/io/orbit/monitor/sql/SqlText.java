@@ -1,15 +1,15 @@
 package io.orbit.monitor.sql;
 
-/** Utilitários de texto SQL que não dependem de dialeto. */
+/** Dialect-independent SQL text helpers. */
 final class SqlText {
 
     private SqlText() {
     }
 
     /**
-     * Devolve só o "código" do SQL: literais ('...'), identificadores entre aspas ("...", `...`, [...])
-     * e comentários (-- e /* *&#47;) viram espaço. Assim palavras dentro de textos não disparam
-     * as verificações de palavras-chave e funções proibidas.
+     * Returns only the SQL "code": literals ('...'), quoted identifiers ("...", `...`, [...])
+     * and comments (-- and /* *&#47;) become a space, so words inside text never trigger
+     * the forbidden keyword and function checks.
      */
     static String codeOnly(String sql) {
         StringBuilder out = new StringBuilder(sql.length());
@@ -35,7 +35,7 @@ final class SqlText {
         return out.toString();
     }
 
-    /** Remove espaços e pontos e vírgulas finais. */
+    /** Strips trailing whitespace and semicolons. */
     static String stripTrailingSemicolons(String sql) {
         String s = sql.strip();
         while (s.endsWith(";")) {
@@ -49,7 +49,7 @@ final class SqlText {
         return idx < 0 ? sql.length() : idx + end.length();
     }
 
-    /** Pula um trecho entre aspas, tratando a aspa duplicada ('') como escape. */
+    /** Skips a quoted section, treating a doubled quote ('') as an escape. */
     private static int skipQuoted(String sql, int from, char quote) {
         int i = from;
         while (i < sql.length()) {

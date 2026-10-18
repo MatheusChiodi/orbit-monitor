@@ -2,7 +2,7 @@ package io.orbit.monitor.condition;
 
 import java.util.Optional;
 
-/** Fonte dos valores reais (resultado HTTP ou SQL) consultada durante a avaliação. */
+/** Source of actual values (HTTP or SQL result) looked up during evaluation. */
 public interface EvaluationContext {
 
     Optional<Object> resolve(Placeholder placeholder, String path);

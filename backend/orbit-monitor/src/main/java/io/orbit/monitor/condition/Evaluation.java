@@ -4,7 +4,7 @@ import io.orbit.common.MonitorState;
 
 import java.util.List;
 
-/** Avaliação de todas as condições de um monitor sobre um resultado. */
+/** Evaluation of all conditions of a monitor against one result. */
 public record Evaluation(MonitorState state, List<ConditionResult> results) {
 
     public Evaluation {

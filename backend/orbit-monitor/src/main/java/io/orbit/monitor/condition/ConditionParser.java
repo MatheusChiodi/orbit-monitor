@@ -10,9 +10,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Interpreta expressões curtas no estilo Gatus, por exemplo
- * {@code [COL].QTD_PENDENTES < 50} ou {@code [RESPONSE_TIME] < 800ms}.
- * Não há engine de script: a gramática é fechada e cada parte vira um tipo.
+ * Parses short Gatus-style expressions such as
+ * {@code [COL].PENDING_QTY < 50} or {@code [RESPONSE_TIME] < 800ms}.
+ * There is no script engine: the grammar is closed and every part becomes a type.
  */
 public class ConditionParser {
 
@@ -28,20 +28,20 @@ public class ConditionParser {
         String expr = expression == null ? "" : expression.trim();
         Matcher left = LEFT.matcher(expr);
         if (!left.matches()) {
-            throw new ConditionSyntaxException("Formato esperado: [PLACEHOLDER] operador valor");
+            throw new ConditionSyntaxException("Expected format: [PLACEHOLDER] operator value");
         }
         Placeholder placeholder = placeholder(left.group(1));
         String path = left.group(2);
         if (!placeholder.accepts(path)) {
             throw new ConditionSyntaxException(path == null
-                    ? "[" + placeholder + "] exige um campo, ex.: [" + placeholder + "].NOME"
-                    : "[" + placeholder + "] não aceita campo");
+                    ? "[" + placeholder + "] requires a field, e.g. [" + placeholder + "].NAME"
+                    : "[" + placeholder + "] does not accept a field");
         }
         String rest = left.group(3).trim();
         Operator operator = operator(rest);
         String right = rest.substring(operator.symbol().length()).trim();
         if (right.isEmpty()) {
-            throw new ConditionSyntaxException("Falta o valor depois de '" + operator.symbol() + "'");
+            throw new ConditionSyntaxException("Missing value after '" + operator.symbol() + "'");
         }
         return new Condition(expr, placeholder, path, operator, operand(operator, right), severity);
     }
@@ -50,7 +50,7 @@ public class ConditionParser {
         try {
             return Placeholder.valueOf(name.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
-            throw new ConditionSyntaxException("Placeholder desconhecido: [" + name + "]");
+            throw new ConditionSyntaxException("Unknown placeholder: [" + name + "]");
         }
     }
 
@@ -67,7 +67,7 @@ public class ConditionParser {
             }
             return op;
         }
-        throw new ConditionSyntaxException("Operador inválido em: " + rest);
+        throw new ConditionSyntaxException("Invalid operator in: " + rest);
     }
 
     private static Operand operand(Operator operator, String right) {
@@ -75,7 +75,7 @@ public class ConditionParser {
             case BETWEEN -> {
                 Matcher m = BETWEEN.matcher(right);
                 if (!m.matches()) {
-                    throw new ConditionSyntaxException("Use: between <mín> and <máx>");
+                    throw new ConditionSyntaxException("Use: between <min> and <max>");
                 }
                 yield new Operand.RangeOperand(literal(m.group(1).trim()), literal(m.group(2).trim()));
             }
@@ -113,13 +113,13 @@ public class ConditionParser {
         if (BARE_WORD.matcher(text).matches()) {
             return new Operand.TextOperand(text);
         }
-        throw new ConditionSyntaxException("Valor inválido: " + text);
+        throw new ConditionSyntaxException("Invalid value: " + text);
     }
 
     static Duration duration(String raw) {
         Matcher m = DURATION.matcher(raw.trim());
         if (!m.matches()) {
-            throw new ConditionSyntaxException("Duração inválida (use ms, s, min, h, d): " + raw);
+            throw new ConditionSyntaxException("Invalid duration (use ms, s, min, h, d): " + raw);
         }
         long factorMs = switch (m.group(2)) {
             case "ms" -> 1L;
@@ -136,7 +136,7 @@ public class ConditionParser {
         return c == '"' || c == '\'';
     }
 
-    /** Separa por vírgula respeitando aspas. */
+    /** Splits on commas, respecting quotes. */
     private static List<String> splitList(String body) {
         List<String> items = new ArrayList<>();
         StringBuilder current = new StringBuilder();
@@ -155,7 +155,7 @@ public class ConditionParser {
         }
         items.add(current.toString().trim());
         if (items.stream().anyMatch(String::isEmpty)) {
-            throw new ConditionSyntaxException("Lista com item vazio: (" + body + ")");
+            throw new ConditionSyntaxException("List with an empty item: (" + body + ")");
         }
         return items;
     }

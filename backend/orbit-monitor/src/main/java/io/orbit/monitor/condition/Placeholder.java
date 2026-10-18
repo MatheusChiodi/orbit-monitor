@@ -1,9 +1,9 @@
 package io.orbit.monitor.condition;
 
 /**
- * Lado esquerdo de uma condição: o dado do resultado que será avaliado.
- * Alguns placeholders exigem um caminho ({@code [COL].QTD}, {@code [HEADER].x}),
- * outros não aceitam ({@code [STATUS]}), e o {@code [BODY]} aceita ambos.
+ * Left-hand side of a condition: the piece of the result being evaluated.
+ * Some placeholders require a path ({@code [COL].QTY}, {@code [HEADER].x}),
+ * others reject one ({@code [STATUS]}), and {@code [BODY]} accepts both.
  */
 public enum Placeholder {
     STATUS(PathRule.FORBIDDEN),

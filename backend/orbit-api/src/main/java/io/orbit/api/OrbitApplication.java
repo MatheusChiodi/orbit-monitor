@@ -3,7 +3,7 @@ package io.orbit.api;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-/** Ponto de entrada do Orbit Monitor: agrega todos os domínios num único processo. */
+/** Orbit Monitor entry point: wires every domain into a single local process. */
 @SpringBootApplication(scanBasePackages = "io.orbit")
 public class OrbitApplication {
 

@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
 
-/** Lado direito de uma condição, já tipado pelo parser. */
+/** Right-hand side of a condition, typed by the parser. */
 public sealed interface Operand {
 
     record NumberOperand(BigDecimal value) implements Operand { }
@@ -13,7 +13,7 @@ public sealed interface Operand {
 
     record TextOperand(String value) implements Operand { }
 
-    /** {@code now() - 60min} vira offset de -60 minutos sobre o relógio da avaliação. */
+    /** {@code now() - 60min} becomes an offset of -60 minutes from the evaluation clock. */
     record RelativeTimeOperand(Duration offset) implements Operand { }
 
     record RangeOperand(Operand low, Operand high) implements Operand { }

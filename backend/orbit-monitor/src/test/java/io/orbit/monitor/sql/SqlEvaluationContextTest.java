@@ -11,45 +11,45 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SqlEvaluationContextTest {
 
     private final ResultPayload payload = new ResultPayload(
-            List.of(new ResultColumn("QTD_PENDENTES", ColumnType.NUMBER, "NUMBER"),
+            List.of(new ResultColumn("PENDING_QTY", ColumnType.NUMBER, "NUMBER"),
                     new ResultColumn("STATUS", ColumnType.TEXT, "VARCHAR2")),
-            List.of(List.of(new BigDecimal("12"), "OK"), List.of(new BigDecimal("3"), "ERRO")),
+            List.of(List.of(new BigDecimal("12"), "OK"), List.of(new BigDecimal("3"), "ERROR")),
             87L,
             false);
 
     private final SqlEvaluationContext ctx = new SqlEvaluationContext(payload);
 
     @Test
-    void rowsEhAQuantidadeDeLinhas() {
+    void rowsIsTheRowCount() {
         assertThat(ctx.resolve(Placeholder.ROWS, null)).contains(2);
     }
 
     @Test
-    void execTimeEhOTempoEmMs() {
+    void execTimeIsMilliseconds() {
         assertThat(ctx.resolve(Placeholder.EXEC_TIME, null)).contains(87L);
     }
 
     @Test
-    void colLeAPrimeiraLinhaSemDiferenciarCaixa() {
-        assertThat(ctx.resolve(Placeholder.COL, "qtd_pendentes")).contains(new BigDecimal("12"));
+    void colReadsFirstRowCaseInsensitively() {
+        assertThat(ctx.resolve(Placeholder.COL, "pending_qty")).contains(new BigDecimal("12"));
         assertThat(ctx.resolve(Placeholder.COL, "STATUS")).contains("OK");
     }
 
     @Test
-    void colunaInexistenteOuResultadoVazioNaoTemValor() {
-        assertThat(ctx.resolve(Placeholder.COL, "NAO_EXISTE")).isEmpty();
-        var vazio = new SqlEvaluationContext(new ResultPayload(payload.columns(), List.of(), 5L, false));
-        assertThat(vazio.resolve(Placeholder.COL, "STATUS")).isEmpty();
-        assertThat(vazio.resolve(Placeholder.ROWS, null)).contains(0);
+    void missingColumnOrEmptyResultHasNoValue() {
+        assertThat(ctx.resolve(Placeholder.COL, "MISSING")).isEmpty();
+        var empty = new SqlEvaluationContext(new ResultPayload(payload.columns(), List.of(), 5L, false));
+        assertThat(empty.resolve(Placeholder.COL, "STATUS")).isEmpty();
+        assertThat(empty.resolve(Placeholder.ROWS, null)).contains(0);
     }
 
     @Test
-    void placeholdersHttpNaoExistemNoSql() {
+    void httpPlaceholdersDoNotExistInSql() {
         assertThat(ctx.resolve(Placeholder.STATUS, null)).isEmpty();
     }
 
     @Test
-    void payloadExpoeLinhasComoMapaPorColuna() {
-        assertThat(payload.rowAsMap(1)).containsEntry("STATUS", "ERRO").containsEntry("QTD_PENDENTES", new BigDecimal("3"));
+    void payloadExposesRowsAsColumnMap() {
+        assertThat(payload.rowAsMap(1)).containsEntry("STATUS", "ERROR").containsEntry("PENDING_QTY", new BigDecimal("3"));
     }
 }

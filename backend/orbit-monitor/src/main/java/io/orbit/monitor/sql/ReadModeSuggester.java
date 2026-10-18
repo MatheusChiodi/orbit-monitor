@@ -4,14 +4,14 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Sugere o modo de leitura a partir do formato do resultado:
+ * Suggests a read mode from the shape of the result:
  * <ul>
- *   <li>0 linhas → contagem de linhas</li>
- *   <li>1 linha, 1 coluna numérica → valor único</li>
- *   <li>1 linha, N colunas → cartão de indicadores</li>
- *   <li>N linhas com coluna de data e número → série temporal</li>
- *   <li>N linhas, categoria + número → ranking</li>
- *   <li>demais casos → tabela</li>
+ *   <li>0 rows → row count</li>
+ *   <li>1 row, 1 numeric column → single value</li>
+ *   <li>1 row, N columns → indicator card</li>
+ *   <li>N rows with a date and a number column → time series</li>
+ *   <li>N rows, category + number → ranking</li>
+ *   <li>anything else → table</li>
  * </ul>
  */
 public class ReadModeSuggester {

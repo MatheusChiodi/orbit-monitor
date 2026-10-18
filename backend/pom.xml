@@ -29,6 +29,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jsqlparser.version>5.1</jsqlparser.version>
         <springdoc.version>2.8.6</springdoc.version>
+        <!-- Tests tagged "pending" cover features not implemented yet (docs/05 section 3). -->
+        <surefire.excludedGroups>pending</surefire.excludedGroups>
+        <surefire.groups></surefire.groups>
     </properties>
 
     <dependencyManagement>
@@ -80,6 +83,31 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <excludedGroups>${surefire.excludedGroups}</excludedGroups>
+                        <groups>${surefire.groups}</groups>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>pending</id>
+            <properties>
+                <surefire.excludedGroups></surefire.excludedGroups>
+                <surefire.groups>pending</surefire.groups>
+            </properties>
+        </profile>
+    </profiles>
 
     <dependencies>
         <dependency>

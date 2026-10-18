@@ -14,15 +14,15 @@ class SelectValidatorTest {
     @ParameterizedTest
     @ValueSource(strings = {
             "SELECT 1",
-            "select count(*) as qtd_pendentes from conciliacao where status = 'PENDENTE'",
-            "SELECT a.id, b.nome FROM a JOIN b ON a.b_id = b.id ORDER BY a.id",
-            "WITH ult AS (SELECT max(dt) dt FROM lote) SELECT dt FROM ult",
-            "SELECT adquirente, count(*) FROM erro GROUP BY adquirente UNION ALL SELECT 'TOTAL', count(*) FROM erro",
-            "SELECT * FROM v_fila WHERE obs = 'delete; drop table x'",
+            "select count(*) as pending_qty from reconciliation where status = 'PENDING'",
+            "SELECT a.id, b.name FROM a JOIN b ON a.b_id = b.id ORDER BY a.id",
+            "WITH last_batch AS (SELECT max(dt) dt FROM batch) SELECT dt FROM last_batch",
+            "SELECT acquirer, count(*) FROM error_log GROUP BY acquirer UNION ALL SELECT 'TOTAL', count(*) FROM error_log",
+            "SELECT * FROM v_queue WHERE obs = 'delete; drop table x'",
             "SELECT 1 FROM dual;",
             "SELECT \"Update\" FROM t"
     })
-    void aceitaSelectsSeguros(String sql) {
+    void acceptsSafeSelects(String sql) {
         ValidatedSelect validated = validator.validate(sql);
         assertThat(validated.sql()).doesNotEndWith(";");
     }
@@ -41,19 +41,19 @@ class SelectValidatorTest {
             "EXEC sp_who",
             "GRANT SELECT ON t TO u"
     })
-    void rejeitaDmlDdlEChamadas(String sql) {
+    void rejectsDmlDdlAndCalls(String sql) {
         assertThatThrownBy(() -> validator.validate(sql)).isInstanceOf(UnsafeSqlException.class);
     }
 
     @Test
-    void rejeitaMultiplosStatements() {
+    void rejectsMultipleStatements() {
         assertThatThrownBy(() -> validator.validate("SELECT 1; SELECT 2"))
                 .isInstanceOf(UnsafeSqlException.class)
-                .hasMessageContaining("uma única");
+                .hasMessageContaining("single query");
     }
 
     @Test
-    void rejeitaSelectSeguidoDeDml() {
+    void rejectsSelectFollowedByDml() {
         assertThatThrownBy(() -> validator.validate("SELECT 1; DELETE FROM t"))
                 .isInstanceOf(UnsafeSqlException.class);
     }
@@ -66,40 +66,40 @@ class SelectValidatorTest {
             "SELECT pg_sleep(10)",
             "SELECT * FROM t WHERE 1 = (SELECT 1 FROM pg_sleep(5))",
             "SELECT xp_cmdshell('dir')",
-            "SELECT * FROM t /* comentário */ WHERE x = utl_file.fopen('a','b','r')"
+            "SELECT * FROM t /* comment */ WHERE x = utl_file.fopen('a','b','r')"
     })
-    void rejeitaFuncoesDaListaNegra(String sql) {
+    void rejectsBlocklistedFunctions(String sql) {
         assertThatThrownBy(() -> validator.validate(sql))
                 .isInstanceOf(UnsafeSqlException.class)
-                .hasMessageContaining("não permitida");
+                .hasMessageContaining("not allowed");
     }
 
     @Test
-    void funcaoProibidaDentroDeLiteralNaoConta() {
-        assertThat(validator.validate("SELECT 'pg_sleep(10)' AS texto").sql()).contains("pg_sleep");
+    void blocklistedFunctionInsideLiteralIsIgnored() {
+        assertThat(validator.validate("SELECT 'pg_sleep(10)' AS label").sql()).contains("pg_sleep");
     }
 
     @Test
-    void rejeitaSelectForUpdate() {
+    void rejectsSelectForUpdate() {
         assertThatThrownBy(() -> validator.validate("SELECT * FROM t FOR UPDATE"))
                 .isInstanceOf(UnsafeSqlException.class);
     }
 
     @Test
-    void rejeitaSelectInto() {
-        assertThatThrownBy(() -> validator.validate("SELECT * INTO copia FROM t"))
+    void rejectsSelectInto() {
+        assertThatThrownBy(() -> validator.validate("SELECT * INTO copy_t FROM t"))
                 .isInstanceOf(UnsafeSqlException.class);
     }
 
     @Test
-    void rejeitaCteQueModificaDados() {
+    void rejectsDataModifyingCte() {
         assertThatThrownBy(() -> validator.validate(
                 "WITH d AS (DELETE FROM t RETURNING *) SELECT * FROM d"))
                 .isInstanceOf(UnsafeSqlException.class);
     }
 
     @Test
-    void rejeitaSqlVazioOuInvalido() {
+    void rejectsBlankOrInvalidSql() {
         assertThatThrownBy(() -> validator.validate("   ")).isInstanceOf(UnsafeSqlException.class);
         assertThatThrownBy(() -> validator.validate("SELEC 1 FROM")).isInstanceOf(UnsafeSqlException.class);
     }
