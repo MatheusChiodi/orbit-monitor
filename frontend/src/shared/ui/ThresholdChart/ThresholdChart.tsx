@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { Rule, Status } from '@/shared/api/types';
 import { formatDecimal, formatInteger, formatNumber } from '@/shared/format';
 import { currentLocale, type Locale } from '@/shared/i18n/i18n';
+import { detectSensitive, safeText } from '@/shared/privacy/redact';
 import { thresholdGeometry, type ChartBox, type ThresholdGeometry } from './geometry';
 
 /** Canvas cannot read CSS vars; mirrors the tokens of docs/03-design.md. */
@@ -26,6 +27,7 @@ function hexToRgba(hex: string, alpha: number): string {
 }
 
 function formatPoint(value: number, locale: Locale): string {
+  if (detectSensitive(value)) return safeText(value);
   return Number.isInteger(value) ? formatInteger(value, locale) : formatDecimal(value, 1, locale);
 }
 

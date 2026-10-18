@@ -3,6 +3,7 @@ import { formatReading } from '@/domains/monitor/rules';
 import type { Group, MonitorView } from '@/shared/api/types';
 import { formatElapsed } from '@/shared/format';
 import { currentLocale } from '@/shared/i18n/i18n';
+import { SafeValue } from '@/shared/privacy/SafeValue';
 import { Panel, StatusDot, TEXT_CLASS } from '@/shared/ui';
 
 export interface AlsoActiveProps {
@@ -27,8 +28,8 @@ export function AlsoActive({ monitors, groups, now }: AlsoActiveProps) {
               <StatusDot status={m.status} />
               <span className={`text-[0.68rem] font-semibold ${TEXT_CLASS[m.status]}`}>{t(`status.label.${m.status}`)}</span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-[0.88rem] font-semibold">{m.name}</span>
-                <span className="block truncate text-[0.72rem] text-muted">{groupName.get(m.groupId)}</span>
+                <SafeValue value={m.name} surface="wall" className="block truncate text-[0.88rem] font-semibold" />
+                <SafeValue value={groupName.get(m.groupId)} surface="wall" className="block truncate text-[0.72rem] text-muted" />
               </span>
               <span className="text-right">
                 <span className="block font-mono text-[0.85rem]">{formatReading(m.value, m.unit, locale)}</span>

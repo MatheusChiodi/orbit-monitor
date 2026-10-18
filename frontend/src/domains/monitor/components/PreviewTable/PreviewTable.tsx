@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import type { PreviewResult } from '@/shared/api/types';
 import { formatDuration } from '@/shared/format';
+import { detectSensitive } from '@/shared/privacy/redact';
+import { SafeValue } from '@/shared/privacy/SafeValue';
 import { suggestReadMode } from '../../display';
 
 export interface PreviewTableProps {
@@ -14,6 +16,12 @@ export function PreviewTable({ preview, maxRows = 50 }: PreviewTableProps) {
   const { columns, rows } = preview;
   const summary = `${t('preview.rows', { count: rows.length })} · ${formatDuration(preview.elapsedMs)}`;
   const mode = t(`readMode.${suggestReadMode(preview)}`);
+  const hasCardData = rows.some((row) =>
+    columns.some((col) => {
+      const dataClass = detectSensitive(row[col.name], col.name);
+      return dataClass === 'PCI_PAN' || dataClass === 'PCI_SAD';
+    }),
+  );
   return (
     <div className="flex min-w-0 flex-col gap-[0.5rem]">
       <div className="flex flex-wrap items-center gap-[0.8rem] text-[0.8rem] text-muted">
@@ -23,6 +31,11 @@ export function PreviewTable({ preview, maxRows = 50 }: PreviewTableProps) {
         <span className="font-mono">{summary}</span>
         <span className="ml-auto text-info">{t('preview.suggestion', { mode })}</span>
       </div>
+      {hasCardData && (
+        <p role="note" className="m-0 rounded-[0.45rem] border border-warn/50 bg-warn/12 px-[0.6rem] py-[0.35rem] text-[0.8rem] text-warn-text">
+          {t('privacy.pciNotice')}
+        </p>
+      )}
       {rows.length === 0 ? (
         <p className="m-0 text-[0.85rem] text-muted">{t('preview.empty')}</p>
       ) : (
@@ -45,7 +58,11 @@ export function PreviewTable({ preview, maxRows = 50 }: PreviewTableProps) {
                     const value = row[col.name];
                     return (
                       <td key={col.name} className="px-[0.6rem] py-[0.35rem] font-mono">
-                        {value === null || value === undefined ? <span className="text-dim">NULL</span> : String(value)}
+                        {value === null || value === undefined ? (
+                          <span className="text-dim">NULL</span>
+                        ) : (
+                          <SafeValue value={value} field={col.name} />
+                        )}
                       </td>
                     );
                   })}

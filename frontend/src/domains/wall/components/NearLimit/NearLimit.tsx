@@ -2,6 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { formatReading, ruleText } from '@/domains/monitor/rules';
 import type { NearLimitItem } from '@/domains/monitor/status';
 import { currentLocale } from '@/shared/i18n/i18n';
+import { safeText } from '@/shared/privacy/redact';
+import { SafeValue } from '@/shared/privacy/SafeValue';
 import { Panel } from '@/shared/ui';
 
 export interface NearLimitProps {
@@ -26,7 +28,7 @@ export function NearLimit({ items }: NearLimitProps) {
             const rule = monitor.rule ? t('rule.text', { rule: ruleText(monitor.rule, locale) }) : '';
             return (
               <li key={monitor.id} className="grid grid-cols-[1fr_auto] items-center gap-x-[0.8rem] gap-y-[0.2rem]">
-                <span className="truncate text-[0.88rem] font-semibold">{monitor.name}</span>
+                <SafeValue value={monitor.name} surface="wall" className="truncate text-[0.88rem] font-semibold" />
                 <span
                   className={`row-span-2 font-mono text-[1.25rem] ${tone === 'WARN' ? 'text-warn-text' : 'text-ok-text'}`}
                 >
@@ -35,7 +37,7 @@ export function NearLimit({ items }: NearLimitProps) {
                 <span className="flex flex-col gap-[0.25rem]">
                   <span
                     role="meter"
-                    aria-label={t('wall.nearLimit.headroomOf', { name: monitor.name })}
+                    aria-label={t('wall.nearLimit.headroomOf', { name: safeText(monitor.name, undefined, { surface: 'wall' }) })}
                     aria-valuemin={0}
                     aria-valuemax={100}
                     aria-valuenow={pct}

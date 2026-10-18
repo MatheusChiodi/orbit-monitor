@@ -12,7 +12,14 @@ export const MASKS = {
   pan: (last4: string) => `•••• •••• •••• ${last4}`,
   cpf: (checkDigits: string) => `•••.•••.•••-${checkDigits}`,
   cnpj: (checkDigits: string) => `••.•••.•••/••••-${checkDigits}`,
+  /** Personal data on the wall is removed, not just masked. */
+  hidden: '•••',
 } as const;
+
+export interface RedactOptions {
+  /** `wall`: personal data is hidden entirely (docs/04-data-protection.md §5). */
+  surface?: 'wall' | 'console';
+}
 
 /** Splits `cardNumber`, `NUM_CARTAO`, `api-key` into lowercase tokens plus adjacent pairs. */
 function nameTokens(field: string): Set<string> {
@@ -96,7 +103,7 @@ function onlyDigits(text: string): string {
 }
 
 /** Masks every sensitive pattern found in free text (also JSON strings). */
-function redactText(text: string): string {
+function redactText(text: string, hidePersonal = false): string {
   return text
     .replace(JWT, MASKS.secret)
     .replace(BEARER, MASKS.secret)
@@ -106,13 +113,15 @@ function redactText(text: string): string {
     })
     .replace(CNPJ, (run) => {
       const digits = onlyDigits(run);
-      return cnpjValid(digits) ? MASKS.cnpj(digits.slice(-2)) : run;
+      return cnpjValid(digits) ? (hidePersonal ? MASKS.hidden : MASKS.cnpj(digits.slice(-2))) : run;
     })
     .replace(CPF, (run) => {
       const digits = onlyDigits(run);
-      return cpfValid(digits) ? MASKS.cpf(digits.slice(-2)) : run;
+      return cpfValid(digits) ? (hidePersonal ? MASKS.hidden : MASKS.cpf(digits.slice(-2))) : run;
     })
-    .replace(EMAIL, (_m, user: string, domain: string, tld: string) => `${user}•••@${domain}•••.${tld}`);
+    .replace(EMAIL, (_m, user: string, domain: string, tld: string) =>
+      hidePersonal ? MASKS.hidden : `${user}•••@${domain}•••.${tld}`,
+    );
 }
 
 function classifyValue(value: string): DataClass | null {
@@ -136,18 +145,28 @@ export function detectSensitive(value: ProbeValue, field?: string): DataClass | 
 }
 
 /** Returns the value safe to display. Non-sensitive values keep their type. */
-export function redact<T extends ProbeValue>(value: T, field?: string): T | string {
+export function redact<T extends ProbeValue>(value: T, field?: string, options: RedactOptions = {}): T | string {
+  const hidePersonal = options.surface === 'wall';
   if (value === null || value === undefined || typeof value === 'boolean') return value;
   const byName = field ? classifyFieldName(field) : null;
   if (byName === 'PCI_SAD') return MASKS.sad;
   if (byName === 'SECRET') return MASKS.secret;
   const text = String(value);
-  const masked = redactText(text);
+  const masked = redactText(text, hidePersonal);
   if (byName === 'PCI_PAN' && masked === text) {
     const digits = onlyDigits(text);
     return digits.length >= 4 ? MASKS.pan(digits.slice(-4)) : MASKS.secret;
   }
-  if (byName === 'PERSONAL' && masked === text) return text.length > 0 ? `${text[0]}•••` : text;
+  if (byName === 'PERSONAL') {
+    if (hidePersonal) return MASKS.hidden;
+    if (masked === text) return text.length > 0 ? `${text[0]}•••` : text;
+  }
   if (masked === text) return value;
   return masked;
+}
+
+/** Redacted text for attributes (`title`, `aria-label`) and plain strings. */
+export function safeText(value: ProbeValue, field?: string, options: RedactOptions = {}): string {
+  if (value === null || value === undefined) return '';
+  return String(redact(value, field, options));
 }

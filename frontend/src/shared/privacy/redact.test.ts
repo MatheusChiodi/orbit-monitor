@@ -109,3 +109,16 @@ describe('CORE-16 redaction', () => {
     expect(redact(redact(pan))).toBe(maskedPan);
   });
 });
+
+describe('CORE-16 wall surface hides personal data', () => {
+  it('personal data is removed, not just masked', () => {
+    const cpf = makeCpf();
+    const out = String(redact(`contact jane.doe@domain.com doc ${cpf}`, undefined, { surface: 'wall' }));
+    expect(out).toBe(`contact ${MASKS.hidden} doc ${MASKS.hidden}`);
+    expect(redact('Jane Doe', 'customer_name', { surface: 'wall' })).toBe(MASKS.hidden);
+  });
+
+  it('card data stays masked the same way', () => {
+    expect(redact(pan, undefined, { surface: 'wall' })).toBe(maskedPan);
+  });
+});

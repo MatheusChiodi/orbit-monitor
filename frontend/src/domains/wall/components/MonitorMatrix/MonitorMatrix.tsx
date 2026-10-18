@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { formatReading } from '@/domains/monitor/rules';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { layoutTransition } from '@/shared/motion';
+import { safeText } from '@/shared/privacy/redact';
+import { SafeValue } from '@/shared/privacy/SafeValue';
 import { Panel, SOFT_CLASS, StatusDot, TEXT_CLASS } from '@/shared/ui';
 import type { GroupRow } from '../../selectors';
 
@@ -25,11 +27,11 @@ export function MonitorMatrix({ rows, unownedMonitorIds }: MonitorMatrixProps) {
             <div
               key={row.group.id}
               role="group"
-              aria-label={row.group.name}
+              aria-label={safeText(row.group.name, undefined, { surface: 'wall' })}
               className="grid grid-cols-1 gap-[0.45rem] md:grid-cols-[6.8rem_1fr]"
             >
               <div className="flex flex-col justify-center">
-                <span className="truncate text-[0.88rem] font-semibold">{row.group.name}</span>
+                <SafeValue value={row.group.name} surface="wall" className="truncate text-[0.88rem] font-semibold" />
                 <span className={`font-mono text-[0.68rem] ${status === 'OK' ? 'text-muted' : TEXT_CLASS[status]}`}>
                   {status === 'OK' ? summary : `${summary} · ${t(`status.label.${status}`)}`}
                 </span>
@@ -47,8 +49,11 @@ export function MonitorMatrix({ rows, unownedMonitorIds }: MonitorMatrixProps) {
                       className={`flex min-w-0 items-center gap-[0.45rem] rounded-[0.45rem] border px-[0.55rem] py-[0.35rem] transition-colors duration-[400ms] ${surface} ${blink ? 'anim-blink' : ''}`}
                     >
                       <StatusDot status={m.status} />
-                      <span className="min-w-0 flex-1 truncate text-[0.78rem]" title={m.name}>
-                        {m.name}
+                      <span
+                        className="min-w-0 flex-1 truncate text-[0.78rem]"
+                        title={safeText(m.name, undefined, { surface: 'wall' })}
+                      >
+                        <SafeValue value={m.name} surface="wall" />
                       </span>
                       <span className="shrink-0 font-mono text-[0.72rem] text-muted">
                         {formatReading(m.value, m.unit, locale)}

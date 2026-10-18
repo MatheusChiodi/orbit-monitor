@@ -3,6 +3,7 @@ import { deviationLabel, formatReading, ruleText } from '@/domains/monitor/rules
 import { formatDuration, formatElapsed } from '@/shared/format';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { translate } from '@/shared/i18n/message';
+import { SafeValue } from '@/shared/privacy/SafeValue';
 import { Badge, Panel, TEXT_CLASS, ThresholdChart } from '@/shared/ui';
 import type { HeroSelection } from '../../selectors';
 import { AcknowledgeButton } from '../AcknowledgeButton';
@@ -34,7 +35,7 @@ export function Hero({ selection, now, onAcknowledge }: HeroProps) {
       <div className="flex items-center gap-[0.6rem] text-[0.85rem] text-muted">
         <span className={`font-semibold ${TEXT_CLASS[status]}`}>{t(`status.label.${status}`)}</span>
         <span aria-hidden>·</span>
-        {group && <span>{group.name}</span>}
+        {group && <SafeValue value={group.name} surface="wall" />}
         {group && <span aria-hidden>·</span>}
         <span>{monitor.type}</span>
         <span className="ml-auto font-mono text-[1.15rem] text-text">
@@ -43,7 +44,7 @@ export function Hero({ selection, now, onAcknowledge }: HeroProps) {
       </div>
 
       <h3 className="mt-[0.35rem] mb-0 font-display text-[2.4rem] leading-tight font-bold tracking-tight">
-        {monitor.name}
+        <SafeValue value={monitor.name} surface="wall" />
       </h3>
 
       <div className="mt-[0.35rem] flex flex-wrap items-baseline gap-x-[0.9rem] gap-y-[0.3rem]">
@@ -72,7 +73,9 @@ export function Hero({ selection, now, onAcknowledge }: HeroProps) {
           <div className="flex flex-wrap items-center gap-[0.4rem]">
             <span className="text-[0.78rem] text-muted">{t('wall.hero.impact')}</span>
             {incident.impact.map((item) => (
-              <Badge key={item}>{item}</Badge>
+              <Badge key={item}>
+                <SafeValue value={item} surface="wall" />
+              </Badge>
             ))}
           </div>
         )}

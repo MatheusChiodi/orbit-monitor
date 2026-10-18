@@ -1,6 +1,6 @@
 import { useId, type ClipboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { detectSensitive, redact, type DataClass, type ProbeValue } from '../redact';
+import { detectSensitive, redact, type DataClass, type ProbeValue, type RedactOptions } from '../redact';
 
 const EMPTY = '—';
 
@@ -11,11 +11,16 @@ export interface SafeValueState {
 }
 
 /** Redacts a probe value; every probe value must pass through this before reaching the DOM. */
-export function useSafeValue(value: ProbeValue, field?: string, format?: (value: ProbeValue) => string): SafeValueState {
+export function useSafeValue(
+  value: ProbeValue,
+  field?: string,
+  format?: (value: ProbeValue) => string,
+  surface: RedactOptions['surface'] = 'console',
+): SafeValueState {
   if (value === null || value === undefined) return { text: EMPTY, masked: false, dataClass: null };
   const dataClass = detectSensitive(value, field);
   if (!dataClass) return { text: format ? format(value) : String(value), masked: false, dataClass: null };
-  return { text: String(redact(value, field)), masked: true, dataClass };
+  return { text: String(redact(value, field, { surface })), masked: true, dataClass };
 }
 
 export interface SafeValueProps {
@@ -24,6 +29,8 @@ export interface SafeValueProps {
   field?: string;
   /** Formats non-sensitive values only (sensitive ones are always shown masked). */
   format?: (value: ProbeValue) => string;
+  /** `wall` hides personal data entirely. */
+  surface?: RedactOptions['surface'];
   className?: string;
 }
 
@@ -34,10 +41,10 @@ const NOTICE: Record<DataClass, 'privacy.pciNotice' | 'privacy.personalNotice' |
   SECRET: 'privacy.vault',
 };
 
-export function SafeValue({ value, field, format, className = '' }: SafeValueProps) {
+export function SafeValue({ value, field, format, surface = 'console', className = '' }: SafeValueProps) {
   const { t } = useTranslation();
   const noticeId = useId();
-  const { text, masked, dataClass } = useSafeValue(value, field, format);
+  const { text, masked, dataClass } = useSafeValue(value, field, format, surface);
   if (!masked || !dataClass) return <span className={className}>{text}</span>;
 
   // Copying a masked value copies the masked text only.

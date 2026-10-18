@@ -2,6 +2,7 @@ import type { Rule } from '@/shared/api/types';
 import { formatDecimal, formatInteger, formatNumber } from '@/shared/format';
 import { DEFAULT_LOCALE, messages, type Locale } from '@/shared/i18n/i18n';
 import { msg, type Message } from '@/shared/i18n/message';
+import { detectSensitive, safeText } from '@/shared/privacy/redact';
 
 export function passesRule(value: number, rule: Rule): boolean {
   switch (rule.operator) {
@@ -67,6 +68,7 @@ export function headroom(value: number, rule: Rule): number | null {
 /** Current reading of a monitor: "349 QTY", "1.8%", "no response". */
 export function formatReading(value: number | null, unit?: string, locale: Locale = DEFAULT_LOCALE): string {
   if (value === null) return messages(locale).reading.noResponse;
+  if (detectSensitive(value)) return safeText(value);
   const text = Number.isInteger(value) ? formatInteger(value, locale) : formatDecimal(value, 1, locale);
   if (!unit) return text;
   return unit === '%' ? `${text}%` : `${text} ${unit}`;

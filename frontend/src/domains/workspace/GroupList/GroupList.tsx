@@ -4,6 +4,7 @@ import { formatReading, ruleText } from '@/domains/monitor/rules';
 import { groupSummary, sortExceptionsFirst } from '@/domains/monitor/status';
 import type { Group, MonitorView } from '@/shared/api/types';
 import { currentLocale } from '@/shared/i18n/i18n';
+import { SafeValue } from '@/shared/privacy/SafeValue';
 import { Button, StatusDot, TEXT_CLASS } from '@/shared/ui';
 
 export interface GroupListProps {
@@ -27,7 +28,7 @@ function GroupSection({ group, monitors }: { group: Group; monitors: MonitorView
     <section aria-labelledby={titleId} className="rounded-[0.9rem] border border-line bg-s1">
       <header className="flex items-center justify-between border-b border-line px-[0.9rem] py-[0.6rem]">
         <h2 id={titleId} className="m-0 text-[1rem] font-semibold">
-          {group.name}
+          <SafeValue value={group.name} />
         </h2>
         <span className="font-mono text-[0.8rem] text-muted">
           {status === 'OK' ? summary : `${summary} · ${t(`status.label.${status}`)}`}
@@ -52,7 +53,9 @@ function GroupSection({ group, monitors }: { group: Group; monitors: MonitorView
                   <span className={`text-[0.75rem] font-semibold ${TEXT_CLASS[m.status]}`}>{t(`status.label.${m.status}`)}</span>
                 </span>
               </td>
-              <td className="py-[0.5rem] font-medium">{m.name}</td>
+              <td className="py-[0.5rem] font-medium">
+                <SafeValue value={m.name} />
+              </td>
               <td className="py-[0.5rem] font-mono text-[0.8rem] text-muted">{m.type}</td>
               <td className="py-[0.5rem] font-mono text-[0.8rem] text-muted">{m.rule ? ruleText(m.rule, locale) : '—'}</td>
               <td className="px-[0.9rem] py-[0.5rem] text-right font-mono">{formatReading(m.value, m.unit, locale)}</td>

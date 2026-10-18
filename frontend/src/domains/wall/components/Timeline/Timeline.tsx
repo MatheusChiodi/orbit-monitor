@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { TimelineEvent, TimelineKind } from '@/shared/api/types';
 import { formatClock } from '@/shared/format';
+import { SafeValue } from '@/shared/privacy/SafeValue';
 import { Panel } from '@/shared/ui';
 
 export interface TimelineProps {
@@ -41,8 +42,10 @@ export function Timeline({ events, freshIds }: TimelineProps) {
                 className={`mt-[0.32rem] size-[0.5rem] rounded-full ${DOT[event.kind]}`}
               />
               <span className="min-w-0">
-                <span className="block text-[0.85rem] font-semibold">{event.title}</span>
-                {event.detail && <span className="block font-mono text-[0.72rem] text-muted">{event.detail}</span>}
+                <SafeValue value={event.title} surface="wall" className="block text-[0.85rem] font-semibold" />
+                {event.detail && (
+                  <SafeValue value={event.detail} surface="wall" className="block font-mono text-[0.72rem] text-muted" />
+                )}
               </span>
             </li>
           ))}
