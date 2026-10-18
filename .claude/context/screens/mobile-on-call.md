@@ -2,7 +2,7 @@
 screen: mobile-on-call
 title: "Mobile on-call view"
 route: "wall.html (narrow)"
-status: planned
+status: in-progress
 spec: FE-49, docs/03-design.md §6
 updated: 2026-10-18
 ---
@@ -13,7 +13,7 @@ updated: 2026-10-18
 Hero, active incidents and full-width Acknowledge.
 
 ## Layout and components
-_To be filled as the screen is built (component tree, file paths)._
+- Today the wall itself collapses to one column on phones: hero, also active, near threshold, matrix, timeline; Acknowledge at full width
 
 ## States
 - Loading, empty, error, stale data
@@ -25,10 +25,12 @@ _To be filled as the screen is built (component tree, file paths)._
 - [FE-49 · Mobile on-call view](../features/FE-49-mobile-on-call-view.md) — planned
 
 ## Code
-_None yet._
+- `frontend/src/app/theme.css`
+- `frontend/src/domains/wall/components/Hero/Hero.tsx`
 
 ## Tests
-_None yet._
+- `frontend/src/domains/wall/components/WallScreen/WallScreen.test.tsx`
 
 ## Changelog
 - 2026-10-18 — context file created.
+- 2026-10-18 — responsive wall order in place; dedicated on-call view pending (FE-49).

@@ -22,7 +22,7 @@ _To be filled as the screen is built (component tree, file paths)._
 - Privacy: every probe value rendered through `<SafeValue>`
 
 ## Features on this screen
-- [CORE-05 · State, hysteresis, uptime and p95](../features/CORE-05-state-hysteresis-uptime-and-p95.md) — planned
+- [CORE-05 · State, hysteresis, uptime and p95](../features/CORE-05-state-hysteresis-uptime-and-p95.md) — done
 - [CORE-20 · Local-first runtime](../features/CORE-20-local-first-runtime.md) — planned
 - [FE-43 · SLA reports](../features/FE-43-sla-reports.md) — planned
 

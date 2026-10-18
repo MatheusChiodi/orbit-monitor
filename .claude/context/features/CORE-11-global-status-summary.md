@@ -24,12 +24,17 @@ Header phrase ("1 monitor down" / "All systems operational"), counts, tab title 
 
 ## Code
 - `frontend/src/domains/monitor/status/status.ts`
+- `frontend/src/domains/wall/components/WallHeader/WallHeader.tsx`
 
 ## Tests
 - `frontend/src/domains/monitor/status/status.test.ts`
+- `frontend/src/domains/wall/components/WallHeader/WallHeader.test.tsx`
 
 ## Decisions and notes
-_None yet._
+- `globalPhrase` returns a `Message` ("1 monitor down" / "1 monitor fora", plural via i18next); the header shows it in an `aria-live` status region.
+- Counters `1 down · 2 warning · 17 ok`; a zero counter is dimmed so color only carries meaning.
+- Tab title `(3) Orbit`; exceptions-first sort: down → warning → ok, unowned before acknowledged, oldest first.
 
 ## Changelog
 - 2026-10-18 — context file created (status: done).
+- 2026-10-18 — translated to English with en/pt-BR phrases (status: done).

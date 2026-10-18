@@ -22,7 +22,7 @@ _To be filled as the screen is built (component tree, file paths)._
 - Privacy: every probe value rendered through `<SafeValue>`
 
 ## Features on this screen
-- [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — planned
+- [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — in-progress
 - [FE-01 · Theme editor](../features/FE-01-theme-editor.md) — planned
 - [FE-02 · Contrast guard](../features/FE-02-contrast-guard.md) — planned
 - [FE-03 · Theme presets](../features/FE-03-theme-presets.md) — planned

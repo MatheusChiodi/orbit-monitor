@@ -22,7 +22,7 @@ _To be filled as the screen is built (component tree, file paths)._
 - Privacy: every probe value rendered through `<SafeValue>`
 
 ## Features on this screen
-- [CORE-15 · Internationalization (en / pt-BR)](../features/CORE-15-internationalization-en-pt-br.md) — planned
+- [CORE-15 · Internationalization (en / pt-BR)](../features/CORE-15-internationalization-en-pt-br.md) — in-progress
 - [FE-06 · Animation level](../features/FE-06-animation-level.md) — planned
 - [FE-07 · Density](../features/FE-07-density.md) — planned
 - [FE-08 · Viewing distance scale](../features/FE-08-viewing-distance-scale.md) — planned

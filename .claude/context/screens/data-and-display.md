@@ -2,7 +2,7 @@
 screen: data-and-display
 title: "Data & display step"
 route: "index.html#/monitors/:id/display"
-status: planned
+status: in-progress
 spec: docs/02-features.md §2.3
 updated: 2026-10-18
 ---
@@ -13,7 +13,7 @@ updated: 2026-10-18
 Pick fields to store, label/format/unit, series or not, display mode via visualization picker, privacy badges.
 
 ## Layout and components
-_To be filled as the screen is built (component tree, file paths)._
+- `PreviewTable` (detected column types, read-mode suggestion) + `DataDisplayStep` (store, label, format, unit, series, display per field)
 
 ## States
 - Loading, empty, error, stale data
@@ -22,10 +22,10 @@ _To be filled as the screen is built (component tree, file paths)._
 - Privacy: every probe value rendered through `<SafeValue>`
 
 ## Features on this screen
-- [CORE-03 · SQL probe and result payload](../features/CORE-03-sql-probe-and-result-payload.md) — planned
-- [CORE-10 · Data & display step](../features/CORE-10-data-display-step.md) — planned
-- [CORE-12 · Value formatting](../features/CORE-12-value-formatting.md) — in-progress
-- [CORE-16 · Sensitive data protection (LGPD / PCI DSS)](../features/CORE-16-sensitive-data-protection-lgpd-pci-dss.md) — planned
+- [CORE-03 · SQL probe and result payload](../features/CORE-03-sql-probe-and-result-payload.md) — in-progress
+- [CORE-10 · Data & display step](../features/CORE-10-data-display-step.md) — in-progress
+- [CORE-12 · Value formatting](../features/CORE-12-value-formatting.md) — done
+- [CORE-16 · Sensitive data protection (LGPD / PCI DSS)](../features/CORE-16-sensitive-data-protection-lgpd-pci-dss.md) — in-progress
 - [FE-14 · Reorder fields and columns](../features/FE-14-reorder-fields-and-columns.md) — planned
 - [FE-21 · Visualization picker](../features/FE-21-visualization-picker.md) — planned
 - [FE-22 · Compatibility rules](../features/FE-22-compatibility-rules.md) — planned
@@ -36,10 +36,15 @@ _To be filled as the screen is built (component tree, file paths)._
 - [FE-27 · Zoom and synced crosshair](../features/FE-27-zoom-and-synced-crosshair.md) — planned
 
 ## Code
-_None yet._
+- `frontend/src/domains/monitor/components/DataDisplayStep/DataDisplayStep.tsx`
+- `frontend/src/domains/monitor/components/PreviewTable/PreviewTable.tsx`
+- `frontend/src/domains/monitor/display/display.ts`
 
 ## Tests
-_None yet._
+- `frontend/src/domains/monitor/components/DataDisplayStep/DataDisplayStep.test.tsx`
+- `frontend/src/domains/monitor/components/PreviewTable/PreviewTable.test.tsx`
+- `frontend/src/domains/monitor/display/display.test.ts`
 
 ## Changelog
 - 2026-10-18 — context file created.
+- 2026-10-18 — first version inside the monitor form; privacy badges pending (CORE-16).

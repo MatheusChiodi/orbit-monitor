@@ -46,9 +46,9 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [CORE-19](features/CORE-19-per-feature-json-configuration-files.md) | Per-feature JSON configuration files | backend | planned |
 | [CORE-20](features/CORE-20-local-first-runtime.md) | Local-first runtime | full-stack | planned |
 | [CORE-09](features/CORE-09-realtime-wall-updates.md) | Realtime wall updates | full-stack | in-progress |
-| [CORE-10](features/CORE-10-data-display-step.md) | Data & display step | frontend | planned |
+| [CORE-10](features/CORE-10-data-display-step.md) | Data & display step | frontend | in-progress |
 | [CORE-11](features/CORE-11-global-status-summary.md) | Global status summary | frontend | done |
-| [CORE-12](features/CORE-12-value-formatting.md) | Value formatting | frontend | in-progress |
+| [CORE-12](features/CORE-12-value-formatting.md) | Value formatting | frontend | done |
 | [CORE-13](features/CORE-13-threshold-rule-headroom-and-deviation.md) | Threshold rule, headroom and deviation | frontend | done |
 | [CORE-14](features/CORE-14-monitor-state-severity.md) | Monitor state severity | backend | done |
 | [CORE-15](features/CORE-15-internationalization-en-pt-br.md) | Internationalization (en / pt-BR) | full-stack | planned |

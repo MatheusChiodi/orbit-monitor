@@ -23,12 +23,14 @@ English default, pt-BR available; i18next on the front, MessageSource + Accept-L
 [preferences](../screens/preferences.md), [wall](../screens/wall.md), [settings](../screens/settings.md)
 
 ## Code
-- `frontend/src/shared/i18n/i18n.ts` — instance factory, locale resolution and persistence
-- `frontend/src/shared/i18n/locales/en.json`, `frontend/src/shared/i18n/locales/pt-BR.json`
-- `frontend/src/shared/i18n/i18next.d.ts` — typed keys
-- `frontend/src/shared/i18n/message.ts` — `Message` descriptors for pure code
-- `frontend/src/shared/i18n/LanguageSelector/LanguageSelector.tsx`
+- `frontend/src/shared/i18n/i18n.ts`
+- `frontend/src/shared/i18n/locales/en.json`
+- `frontend/src/shared/i18n/locales/pt-BR.json`
+- `frontend/src/shared/i18n/i18next.d.ts`
+- `frontend/src/shared/i18n/message.ts`
 - `frontend/src/shared/i18n/useLocale.ts`
+- `frontend/src/shared/i18n/LanguageSelector/LanguageSelector.tsx`
+- `frontend/src/test/renderWithLocale.tsx`
 
 ## Tests
 - `frontend/src/shared/i18n/i18n.test.ts`
@@ -36,11 +38,11 @@ English default, pt-BR available; i18next on the front, MessageSource + Accept-L
 - `frontend/src/shared/i18n/LanguageSelector/LanguageSelector.test.tsx`
 
 ## Decisions and notes
-- Frontend: locale order is `?lang=` → `localStorage` (`orbit.locale`, try/catch) → `navigator.languages` (`pt-*` → `pt-BR`) → `en`.
-- Frontend: all UI text lives in the two locale files; a parity test fails if their keys differ.
-- Frontend: pure functions return `Message` (`{ key, params }`) and components translate them, so domain code stays language-neutral.
-- Frontend: formatters take the locale explicitly and read time phrases ("12 min ago" / "há 12 min") from the locale files.
+- Frontend: Locale order: `?lang=` → `localStorage` (`orbit.locale`) → `navigator.languages` (`pt-*` → `pt-BR`) → `en`.
+- Frontend: All UI text lives in the two locale files (parity test); pure code returns `Message` descriptors.
+- Frontend: Every screen and component test covers both languages.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — frontend: i18next infrastructure, en/pt-BR locale files, typed keys and language selector (status: in-progress).
+- 2026-10-18 — frontend: every screen and component now translated; language selector in the console header.

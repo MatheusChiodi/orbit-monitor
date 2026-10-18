@@ -2,7 +2,7 @@
 screen: monitor-list
 title: "Monitor list"
 route: "index.html#/monitors"
-status: planned
+status: in-progress
 spec: docs/02-features.md §1–2
 updated: 2026-10-18
 ---
@@ -13,7 +13,8 @@ updated: 2026-10-18
 Groups and monitors with state, filters, saved views, bulk actions.
 
 ## Layout and components
-_To be filled as the screen is built (component tree, file paths)._
+- `ConsoleApp` → operator prompt (first visit) → header (language, open wall, operator name, change name) → `ViewOnlyBanner` → `GroupList`
+- `GroupList`: text filter, "New monitor" (edit mode only), one section per group with summary and a row per monitor (state text, name, type, rule, value)
 
 ## States
 - Loading, empty, error, stale data
@@ -22,7 +23,7 @@ _To be filled as the screen is built (component tree, file paths)._
 - Privacy: every probe value rendered through `<SafeValue>`
 
 ## Features on this screen
-- [CORE-07 · Workspaces and groups](../features/CORE-07-workspaces-and-groups.md) — planned
+- [CORE-07 · Workspaces and groups](../features/CORE-07-workspaces-and-groups.md) — in-progress
 - [FE-13 · Reorder monitors and groups](../features/FE-13-reorder-monitors-and-groups.md) — planned
 - [FE-28 · Command palette](../features/FE-28-command-palette.md) — planned
 - [FE-29 · Keyboard shortcuts](../features/FE-29-keyboard-shortcuts.md) — planned
@@ -32,10 +33,16 @@ _To be filled as the screen is built (component tree, file paths)._
 - [FE-37 · Onboarding](../features/FE-37-onboarding.md) — planned
 
 ## Code
-_None yet._
+- `frontend/src/app/console/ConsoleApp.tsx`
+- `frontend/src/app/console/consoleSource.ts`
+- `frontend/src/domains/workspace/GroupList/GroupList.tsx`
+- `frontend/src/app/console-main.tsx`
 
 ## Tests
-_None yet._
+- `frontend/src/app/console/ConsoleApp.test.tsx`
+- `frontend/src/app/console/consoleSource.test.ts`
+- `frontend/src/domains/workspace/GroupList/GroupList.test.tsx`
 
 ## Changelog
 - 2026-10-18 — context file created.
+- 2026-10-18 — monitor list with filter, view-only handling and demo fallback; en/pt-BR.
