@@ -7,3 +7,4 @@ export * from './ThresholdChart';
 export * from './tones';
 export * from './formStyles';
 export * from './SecretInput';
+export * from './HistoryNotice';
