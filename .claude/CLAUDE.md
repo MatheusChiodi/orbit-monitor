@@ -17,4 +17,4 @@ Read [`context/project.md`](context/project.md) and [`context/README.md`](contex
 - TDD; pending-test convention in `docs/05-extended-features.md` §3.
 - English in the repository; i18n en + pt-BR in the product.
 - LGPD / PCI DSS controls in `docs/04-data-protection.md` are mandatory.
-- Commit on `develop` only, Conventional Commits, stage explicit paths only; never switch branches, stash or reset in the shared working tree.
+- Commit on `developer` only and `git push origin developer` after each commit; `main` holds the base; no other branches for now. Repository is public: https://github.com/MatheusChiodi/orbit-monitor. Conventional Commits, stage explicit paths only; never switch branches, stash or reset in the shared working tree.

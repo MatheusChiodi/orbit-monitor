@@ -6,7 +6,7 @@ Thanks for your interest. A few rules keep the project healthy.
 
 0. Enable the repository hooks: `git config core.hooksPath .githooks`.
 1. Open an issue describing the problem or proposal before large changes.
-2. Fork the repository and create a branch from `main` (`feat/my-feature`, `fix/my-bug`).
+2. Fork the repository and branch from `developer` (integration branch); `main` holds the stable base. Open pull requests against `developer`.
 3. Open a small, focused pull request describing what changed and how to test it.
 
 ## TDD is the rule
