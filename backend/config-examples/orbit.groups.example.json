@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "grp_payments",
+      "name": "Payments",
+      "color": "#3b9eff",
+      "icon": "credit-card",
+      "description": "Card authorization and reconciliation",
+      "owner": "Payments team",
+      "tags": ["critical"],
+      "order": 1,
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    }
+  ]
+}

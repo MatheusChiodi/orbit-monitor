@@ -25,6 +25,7 @@
         <module>orbit-probe</module>
         <module>orbit-telemetry</module>
         <module>orbit-alerting</module>
+        <module>orbit-workspace</module>
         <module>orbit-api</module>
     </modules>
 

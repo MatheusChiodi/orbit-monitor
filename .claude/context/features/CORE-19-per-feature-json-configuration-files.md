@@ -27,9 +27,11 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 - `backend/orbit-config/src/main/java/io/orbit/config/ConfigMapper.java`
 - `backend/orbit-config/src/main/java/io/orbit/config/ConfigItem.java`
 - `backend/orbit-config/src/main/java/io/orbit/config/ConfigValidator.java`
+- `backend/config-examples/orbit.groups.example.json`
 
 ## Tests
 - `backend/orbit-config/src/test/java/io/orbit/config/ConfigFileTest.java`
+- `backend/orbit-config/src/test/java/io/orbit/config/ConfigExamplesTest.java`
 
 ## Decisions and notes
 - `ConfigFile<T>` handles one `orbit.<feature>.json`: `{"version":1,"items":[...]}`, ids required and unique, feature validator on read and write.
@@ -41,3 +43,4 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — generic config file store (validation, atomic write, .bak, reload).
+- 2026-10-18 — example files folder with a test that fails on secrets, card numbers or CPFs.
