@@ -1,0 +1,266 @@
+{
+  "app": {
+    "name": "Orbit",
+    "console": "Console",
+    "loading": "Loading…",
+    "demoData": "demo data",
+    "language": "Language",
+    "languages": {
+      "en": "English",
+      "pt-BR": "Português (Brasil)"
+    }
+  },
+  "status": {
+    "label": {
+      "OK": "OK",
+      "WARN": "WARNING",
+      "DOWN": "DOWN"
+    },
+    "phrase": {
+      "down_one": "{{count}} monitor down",
+      "down_other": "{{count}} monitors down",
+      "warn_one": "{{count}} warning",
+      "warn_other": "{{count}} warning",
+      "ok": "All systems operational"
+    },
+    "counter": {
+      "down": "{{count}} down",
+      "warn": "{{count}} warning",
+      "ok": "{{count}} ok"
+    },
+    "counts": "Count by state",
+    "groupSummary": "{{ok}}/{{total}} ok"
+  },
+  "time": {
+    "now": "now",
+    "ago": "{{duration}} ago"
+  },
+  "reading": {
+    "noResponse": "no response"
+  },
+  "rule": {
+    "text": "rule {{rule}}",
+    "over": "+{{pct}}% over limit",
+    "under": "-{{pct}}% under limit",
+    "above": "+{{diff}} above limit",
+    "below": "-{{diff}} below limit"
+  },
+  "chart": {
+    "label": "Last 60 min of {{field}}: {{current}}, limit {{rule}}",
+    "labelNoRule": "Last 60 min: {{current}}",
+    "current": "current {{value}}",
+    "now": "now"
+  },
+  "wall": {
+    "loading": "Loading the wall…",
+    "fullscreen": "Fullscreen",
+    "updated": "updated {{when}}",
+    "connection": {
+      "mock": "demo data",
+      "closed": "reconnecting",
+      "connecting": "connecting"
+    },
+    "hero": {
+      "title": "Situation",
+      "impact": "Probable impact",
+      "escalatesIn": "escalates in {{duration}}"
+    },
+    "calm": {
+      "uptime": "24 h availability",
+      "lastRecovery": "Last recovery",
+      "none": "none",
+      "nearLimit": "Near threshold",
+      "monitors_one": "{{count}} monitor",
+      "monitors_other": "{{count}} monitors"
+    },
+    "ack": {
+      "button": "Acknowledge",
+      "doneAt": "{{name}} acknowledged at {{time}}",
+      "done": "{{name}} acknowledged"
+    },
+    "alsoActive": {
+      "title": "Also active",
+      "empty": "No other active problems"
+    },
+    "nearLimit": {
+      "title": "Near threshold",
+      "empty": "No monitor with a numeric rule",
+      "headroomOf": "Headroom of {{name}}"
+    },
+    "matrix": {
+      "title": "All monitors"
+    },
+    "timeline": {
+      "title": "Timeline",
+      "empty": "No recent events",
+      "kind": {
+        "DOWN": "down",
+        "WARN": "warning",
+        "OK": "recovered",
+        "ACK": "acknowledged",
+        "INFO": "informational"
+      }
+    }
+  },
+  "access": {
+    "viewOnly": "View-only: edits are allowed only on the machine running Orbit"
+  },
+  "operator": {
+    "title": "What name should appear on your actions?",
+    "label": "Operator name",
+    "hint": "Saved on this device only. It is self-declared, not a login.",
+    "submit": "Continue",
+    "required": "Enter a name",
+    "change": "Change name"
+  },
+  "console": {
+    "openWall": "Open wall",
+    "monitors": {
+      "title": "Monitors",
+      "loadError": "Could not load the monitors.",
+      "filter": "Filter monitors",
+      "new": "New monitor",
+      "empty": "No monitors found",
+      "saved": "Monitor \"{{name}}\" saved",
+      "newTitle": "New monitor",
+      "columns": {
+        "state": "State",
+        "monitor": "Monitor",
+        "type": "Type",
+        "rule": "Rule",
+        "value": "Value"
+      }
+    }
+  },
+  "form": {
+    "configuration": "Configuration",
+    "preview": "Preview",
+    "type": "Type",
+    "name": "Name",
+    "group": "Group",
+    "choose": "Choose…",
+    "interval": "Interval (s)",
+    "retries": "Retries before marking down",
+    "connection": "Connection",
+    "method": "Method",
+    "url": "URL",
+    "headers": "Headers (one per line, Name: value)",
+    "body": "Body",
+    "secretsNote": "Secrets (tokens, passwords) go to the vault and come back as •••• (vault).",
+    "runPreview": "Run preview",
+    "running": "Running…",
+    "previewEmpty": "Run the preview to see the result and choose the data.",
+    "previewFailed": "Preview failed",
+    "dataDisplay": "Data & display",
+    "conditions": "Conditions",
+    "save": "Save monitor",
+    "cancel": "Cancel",
+    "saveFailed": "Save failed",
+    "errors": {
+      "nameRequired": "Enter the name",
+      "groupRequired": "Choose the group",
+      "connectionRequired": "Choose the connection",
+      "urlInvalid": "URL must start with http:// or https://",
+      "intervalRange": "Interval between 15 s and 24 h"
+    }
+  },
+  "sql": {
+    "label": "SQL query",
+    "guards": "Query guards",
+    "guard": {
+      "selectOnly": "SELECT only",
+      "timeout": "Timeout 5s",
+      "maxRows": "Max. 500 rows",
+      "vault": "Credential in vault"
+    },
+    "errors": {
+      "empty": "Paste a SELECT",
+      "notSelect": "SELECT or WITH only",
+      "multiple": "Only one statement per query",
+      "forbidden": "Statement not allowed: {{word}}",
+      "blocked": "Blocked function: {{name}}"
+    }
+  },
+  "preview": {
+    "label": "Preview result",
+    "rows_one": "{{count}} row",
+    "rows_other": "{{count}} rows",
+    "suggestion": "Suggestion: {{mode}}",
+    "empty": "The query returned no rows",
+    "httpStatus": "HTTP {{status}}",
+    "columnType": {
+      "number": "number",
+      "text": "text",
+      "date": "date",
+      "boolean": "boolean"
+    }
+  },
+  "readMode": {
+    "single": "Single value",
+    "indicators": "Indicator card",
+    "ranking": "Ranking / bars",
+    "series": "Time series",
+    "table": "Table",
+    "rowcount": "Row count"
+  },
+  "fields": {
+    "count": "{{selected}} of {{total}} fields will be stored",
+    "store": "Store {{field}}",
+    "label": "Label",
+    "format": "Format",
+    "unit": "Unit",
+    "unitPlaceholder": "unit",
+    "series": "Store as series",
+    "seriesShort": "series",
+    "display": "Display",
+    "formats": {
+      "integer": "Integer",
+      "decimal": "Decimal",
+      "currency": "Currency",
+      "percent": "Percentage",
+      "duration": "Duration",
+      "relative": "Relative date",
+      "text": "Text"
+    },
+    "displays": {
+      "number": "Number",
+      "gauge": "Gauge",
+      "indicators": "Indicators",
+      "line": "Line chart",
+      "bars": "Bars / ranking",
+      "table": "Table",
+      "text": "Text / state",
+      "semaphore": "Traffic light",
+      "hidden": "Hidden"
+    },
+    "system": {
+      "rows": "Rows",
+      "execTime": "Execution time",
+      "status": "HTTP status",
+      "responseTime": "Response time"
+    }
+  },
+  "conditions": {
+    "field": "Field",
+    "operator": "Operator",
+    "value": "Value",
+    "level": "Level",
+    "levels": {
+      "WARN": "Warning",
+      "DOWN": "Down"
+    },
+    "newerThan": "newer than",
+    "group": "Condition {{n}}",
+    "remove": "Remove condition {{n}}",
+    "add": "Add condition",
+    "wouldFail": "This condition would fail now ({{level}})",
+    "passes": "Passes with the current result",
+    "cannotEvaluate": "Cannot evaluate with the current result",
+    "errors": {
+      "unknownField": "Field does not exist in the result",
+      "valueRequired": "Enter a value",
+      "range": "Use \"min..max\"",
+      "duration": "Use a duration: 10min, 2h, 30s"
+    }
+  }
+}

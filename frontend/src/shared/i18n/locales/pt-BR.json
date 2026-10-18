@@ -1,0 +1,266 @@
+{
+  "app": {
+    "name": "Orbit",
+    "console": "Console",
+    "loading": "Carregando…",
+    "demoData": "dados de demonstração",
+    "language": "Idioma",
+    "languages": {
+      "en": "English",
+      "pt-BR": "Português (Brasil)"
+    }
+  },
+  "status": {
+    "label": {
+      "OK": "OK",
+      "WARN": "ATENÇÃO",
+      "DOWN": "FORA"
+    },
+    "phrase": {
+      "down_one": "{{count}} monitor fora",
+      "down_other": "{{count}} monitores fora",
+      "warn_one": "{{count}} em atenção",
+      "warn_other": "{{count}} em atenção",
+      "ok": "Tudo operacional"
+    },
+    "counter": {
+      "down": "{{count}} fora",
+      "warn": "{{count}} atenção",
+      "ok": "{{count}} ok"
+    },
+    "counts": "Contagem por estado",
+    "groupSummary": "{{ok}}/{{total}} ok"
+  },
+  "time": {
+    "now": "agora",
+    "ago": "há {{duration}}"
+  },
+  "reading": {
+    "noResponse": "sem resposta"
+  },
+  "rule": {
+    "text": "regra {{rule}}",
+    "over": "+{{pct}}% do limite",
+    "under": "-{{pct}}% do limite",
+    "above": "+{{diff}} acima do limite",
+    "below": "-{{diff}} abaixo do limite"
+  },
+  "chart": {
+    "label": "Últimos 60 min de {{field}}: {{current}}, limite {{rule}}",
+    "labelNoRule": "Últimos 60 min: {{current}}",
+    "current": "atual {{value}}",
+    "now": "agora"
+  },
+  "wall": {
+    "loading": "Carregando a parede…",
+    "fullscreen": "Tela cheia",
+    "updated": "atualizado {{when}}",
+    "connection": {
+      "mock": "dados de demonstração",
+      "closed": "reconectando",
+      "connecting": "conectando"
+    },
+    "hero": {
+      "title": "Situação",
+      "impact": "Impacto provável",
+      "escalatesIn": "escalona em {{duration}}"
+    },
+    "calm": {
+      "uptime": "Disponibilidade 24 h",
+      "lastRecovery": "Última recuperação",
+      "none": "nenhuma",
+      "nearLimit": "Perto do limite",
+      "monitors_one": "{{count}} monitor",
+      "monitors_other": "{{count}} monitores"
+    },
+    "ack": {
+      "button": "Reconhecer",
+      "doneAt": "{{name}} reconheceu às {{time}}",
+      "done": "{{name}} reconheceu"
+    },
+    "alsoActive": {
+      "title": "Também ativos",
+      "empty": "Nenhum outro problema ativo"
+    },
+    "nearLimit": {
+      "title": "Perto do limite",
+      "empty": "Nenhum monitor com regra numérica",
+      "headroomOf": "Folga de {{name}}"
+    },
+    "matrix": {
+      "title": "Todos os monitores"
+    },
+    "timeline": {
+      "title": "Linha do tempo",
+      "empty": "Sem eventos recentes",
+      "kind": {
+        "DOWN": "fora",
+        "WARN": "atenção",
+        "OK": "recuperado",
+        "ACK": "reconhecido",
+        "INFO": "informativo"
+      }
+    }
+  },
+  "access": {
+    "viewOnly": "Somente leitura: edições só na máquina onde o Orbit roda"
+  },
+  "operator": {
+    "title": "Qual nome deve aparecer nas suas ações?",
+    "label": "Nome do operador",
+    "hint": "Guardado só neste dispositivo. É autodeclarado, não é um login.",
+    "submit": "Continuar",
+    "required": "Informe um nome",
+    "change": "Trocar nome"
+  },
+  "console": {
+    "openWall": "Abrir parede",
+    "monitors": {
+      "title": "Monitores",
+      "loadError": "Não foi possível carregar os monitores.",
+      "filter": "Filtrar monitores",
+      "new": "Novo monitor",
+      "empty": "Nenhum monitor encontrado",
+      "saved": "Monitor \"{{name}}\" salvo",
+      "newTitle": "Novo monitor",
+      "columns": {
+        "state": "Estado",
+        "monitor": "Monitor",
+        "type": "Tipo",
+        "rule": "Regra",
+        "value": "Valor"
+      }
+    }
+  },
+  "form": {
+    "configuration": "Configuração",
+    "preview": "Preview",
+    "type": "Tipo",
+    "name": "Nome",
+    "group": "Grupo",
+    "choose": "Escolha…",
+    "interval": "Intervalo (s)",
+    "retries": "Tentativas antes de marcar fora",
+    "connection": "Conexão",
+    "method": "Método",
+    "url": "URL",
+    "headers": "Headers (um por linha, Nome: valor)",
+    "body": "Body",
+    "secretsNote": "Segredos (tokens, senhas) vão para o cofre e voltam como •••• (cofre).",
+    "runPreview": "Executar preview",
+    "running": "Executando…",
+    "previewEmpty": "Execute o preview para ver o resultado e escolher os dados.",
+    "previewFailed": "Falha ao executar o preview",
+    "dataDisplay": "Dados e exibição",
+    "conditions": "Condições",
+    "save": "Salvar monitor",
+    "cancel": "Cancelar",
+    "saveFailed": "Falha ao salvar",
+    "errors": {
+      "nameRequired": "Informe o nome",
+      "groupRequired": "Escolha o grupo",
+      "connectionRequired": "Escolha a conexão",
+      "urlInvalid": "URL deve começar com http:// ou https://",
+      "intervalRange": "Intervalo entre 15 s e 24 h"
+    }
+  },
+  "sql": {
+    "label": "Consulta SQL",
+    "guards": "Guardas da consulta",
+    "guard": {
+      "selectOnly": "Somente SELECT",
+      "timeout": "Timeout 5s",
+      "maxRows": "Máx. 500 linhas",
+      "vault": "Credencial no cofre"
+    },
+    "errors": {
+      "empty": "Cole um SELECT",
+      "notSelect": "Somente SELECT ou WITH",
+      "multiple": "Apenas um comando por consulta",
+      "forbidden": "Comando não permitido: {{word}}",
+      "blocked": "Função bloqueada: {{name}}"
+    }
+  },
+  "preview": {
+    "label": "Resultado do preview",
+    "rows_one": "{{count}} linha",
+    "rows_other": "{{count}} linhas",
+    "suggestion": "Sugestão: {{mode}}",
+    "empty": "A consulta não devolveu linhas",
+    "httpStatus": "HTTP {{status}}",
+    "columnType": {
+      "number": "número",
+      "text": "texto",
+      "date": "data",
+      "boolean": "booleano"
+    }
+  },
+  "readMode": {
+    "single": "Valor único",
+    "indicators": "Cartão de indicadores",
+    "ranking": "Ranking / barras",
+    "series": "Série temporal",
+    "table": "Tabela",
+    "rowcount": "Contagem de linhas"
+  },
+  "fields": {
+    "count": "{{selected}} de {{total}} campos serão guardados",
+    "store": "Guardar {{field}}",
+    "label": "Rótulo",
+    "format": "Formato",
+    "unit": "Unidade",
+    "unitPlaceholder": "un.",
+    "series": "Guardar como série",
+    "seriesShort": "série",
+    "display": "Exibição",
+    "formats": {
+      "integer": "Inteiro",
+      "decimal": "Decimal",
+      "currency": "Moeda",
+      "percent": "Percentual",
+      "duration": "Duração",
+      "relative": "Data relativa",
+      "text": "Texto"
+    },
+    "displays": {
+      "number": "Número",
+      "gauge": "Medidor",
+      "indicators": "Indicadores",
+      "line": "Gráfico de linha",
+      "bars": "Barras / ranking",
+      "table": "Tabela",
+      "text": "Texto / estado",
+      "semaphore": "Semáforo",
+      "hidden": "Oculto"
+    },
+    "system": {
+      "rows": "Linhas",
+      "execTime": "Tempo de execução",
+      "status": "Status HTTP",
+      "responseTime": "Tempo de resposta"
+    }
+  },
+  "conditions": {
+    "field": "Campo",
+    "operator": "Operador",
+    "value": "Valor",
+    "level": "Nível",
+    "levels": {
+      "WARN": "Atenção",
+      "DOWN": "Fora"
+    },
+    "newerThan": "mais recente que",
+    "group": "Condição {{n}}",
+    "remove": "Remover condição {{n}}",
+    "add": "Adicionar condição",
+    "wouldFail": "Essa condição falharia agora ({{level}})",
+    "passes": "Passa com o resultado atual",
+    "cannotEvaluate": "Não dá para avaliar com o resultado atual",
+    "errors": {
+      "unknownField": "Campo não existe no resultado",
+      "valueRequired": "Informe um valor",
+      "range": "Use \"mín..máx\"",
+      "duration": "Use uma duração: 10min, 2h, 30s"
+    }
+  }
+}
