@@ -42,7 +42,7 @@ public final class Statistics {
 
     /**
      * Last primary value per minute for the {@code minutes} minutes ending at {@code now}'s minute,
-     * oldest first; minutes without a value (or only DOWN checks) are null gaps.
+     * oldest first; minutes without a value (no answer) are null gaps.
      */
     public static List<Double> minuteSeries(List<Heartbeat> heartbeats, Instant now, int minutes) {
         Instant end = now.truncatedTo(ChronoUnit.MINUTES);
@@ -50,7 +50,7 @@ public final class Statistics {
         Double[] buckets = new Double[minutes];
         for (Heartbeat h : heartbeats) {
             Instant minute = h.at().truncatedTo(ChronoUnit.MINUTES);
-            if (h.value() == null || h.state() == MonitorState.DOWN || minute.isBefore(start) || minute.isAfter(end)) {
+            if (h.value() == null || minute.isBefore(start) || minute.isAfter(end)) {
                 continue;
             }
             buckets[(int) ChronoUnit.MINUTES.between(start, minute)] = h.value();

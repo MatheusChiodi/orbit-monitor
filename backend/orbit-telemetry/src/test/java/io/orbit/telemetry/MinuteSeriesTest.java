@@ -29,12 +29,18 @@ class MinuteSeriesTest {
     }
 
     @Test
-    void downChecksAreGapsAndOldBeatsAreIgnored() {
+    void checksWithoutAnswerAreGapsAndOldBeatsAreIgnored() {
         List<Heartbeat> beats = List.of(
                 value(1, NOW.minusSeconds(3_600)),
                 new Heartbeat("m", MonitorState.DOWN, 0, null, NOW.minusSeconds(10)));
 
         assertThat(Statistics.minuteSeries(beats, NOW, 2)).containsExactly(null, null);
+    }
+
+    @Test
+    void failedConditionStillPlotsItsValue() {
+        List<Heartbeat> beats = List.of(new Heartbeat("m", MonitorState.DOWN, 5, 347.0, NOW.minusSeconds(5)));
+        assertThat(Statistics.minuteSeries(beats, NOW, 1)).containsExactly(347.0);
     }
 
     @Test
