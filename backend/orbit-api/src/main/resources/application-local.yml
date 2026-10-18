@@ -1,0 +1,6 @@
+# Perfil local: tudo embutido, sem Docker (H2 em arquivo, fila e cache em memória).
+spring:
+  datasource:
+    url: jdbc:h2:file:${user.home}/.orbit/orbit;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;AUTO_SERVER=TRUE
+    username: sa
+    password: ""
