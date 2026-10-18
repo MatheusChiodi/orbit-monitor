@@ -31,6 +31,8 @@ Runs entirely on the operator machine with no Orbit database; binds to 127.0.0.1
 ## Tests
 - `backend/orbit-api/src/test/java/io/orbit/api/HealthEndpointTest.java`
 - `backend/orbit-api/src/test/java/io/orbit/api/runtime/MonitorRuntimeTest.java`
+- `frontend/src/domains/telemetry/history/history.pending.test.ts`
+- `frontend/src/shared/ui/HistoryNotice/HistoryNotice.pending.test.tsx`
 
 ## Decisions and notes
 - Backend: No datasource for Orbit itself; binds to `127.0.0.1:8080` by default; config in `~/.orbit/config`, key in `~/.orbit/master.key` (both overridable).
@@ -41,3 +43,4 @@ Runs entirely on the operator machine with no Orbit database; binds to 127.0.0.1
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — backend: local runtime wired and smoke-tested.
+- 2026-10-18 — frontend: pending test suite written.

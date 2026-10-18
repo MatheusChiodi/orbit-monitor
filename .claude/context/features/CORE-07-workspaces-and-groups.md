@@ -29,6 +29,7 @@ Group state = worst monitor state; color, icon, owner, tags.
 
 ## Tests
 - `backend/orbit-workspace/src/test/java/io/orbit/workspace/GroupServiceTest.java`
+- `frontend/src/domains/workspace/groups/groups.pending.test.ts`
 
 ## Decisions and notes
 - Backend: Groups live in `orbit.groups.json` (id, name, color `#rrggbb`, icon, description, owner, tags, order, updatedAt, updatedBy).
@@ -38,3 +39,4 @@ Group state = worst monitor state; color, icon, owner, tags.
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — backend: groups stored in orbit.groups.json and worst-state rule.
+- 2026-10-18 — frontend: pending test suite written.

@@ -34,6 +34,20 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `backend/orbit-common/src/test/java/io/orbit/common/privacy/SensitiveDataRedactorTest.java`
 - `backend/orbit-monitor/src/test/java/io/orbit/monitor/privacy/PayloadRedactorTest.java`
 - `backend/orbit-probe/src/test/java/io/orbit/probe/CheckRunnerTest.java`
+- `frontend/src/app/console/ConsoleApp.privacy.pending.test.tsx`
+- `frontend/src/domains/monitor/components/DataDisplayStep/DataDisplayStep.privacy.pending.test.tsx`
+- `frontend/src/domains/monitor/components/PreviewTable/PreviewTable.privacy.pending.test.tsx`
+- `frontend/src/domains/monitor/display/display.privacy.pending.test.ts`
+- `frontend/src/domains/wall/components/AlsoActive/AlsoActive.privacy.pending.test.tsx`
+- `frontend/src/domains/wall/components/Hero/Hero.privacy.pending.test.tsx`
+- `frontend/src/domains/wall/components/MonitorMatrix/MonitorMatrix.privacy.pending.test.tsx`
+- `frontend/src/domains/wall/components/NearLimit/NearLimit.privacy.pending.test.tsx`
+- `frontend/src/domains/wall/components/Timeline/Timeline.privacy.pending.test.tsx`
+- `frontend/src/domains/wall/components/WallScreen/WallScreen.privacy.pending.test.tsx`
+- `frontend/src/domains/workspace/GroupList/GroupList.privacy.pending.test.tsx`
+- `frontend/src/shared/privacy/SafeValue/SafeValue.pending.test.tsx`
+- `frontend/src/shared/privacy/redact.pending.test.ts`
+- `frontend/src/shared/ui/SecretInput/SecretInput.pending.test.tsx`
 
 ## Decisions and notes
 - Backend: `SensitiveDataRedactor` classifies by field-name tokens (camelCase, snake_case and adjacent pairs such as `api_key`) and by value: Luhn PAN (13-19 digits, also as numeric values), CPF/CNPJ check digits, e-mail, formatted BR phone, JWT and Bearer tokens.
@@ -45,3 +59,4 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — backend: redaction core (detectors and masks) in orbit-common.
 - 2026-10-18 — backend: probe-boundary redaction (PayloadRedactor + CheckRunner).
+- 2026-10-18 — frontend: pending test suite written.
