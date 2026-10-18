@@ -85,6 +85,11 @@ public class CheckRunner {
                 evaluation.results().stream().map(redactor::redact).toList(), null, clock.instant());
     }
 
+    /** A check that could not even start (missing secret, unknown connection): DOWN with the reason. */
+    public CheckResult failed(String monitorId, String reason) {
+        return failure(monitorId, reason, 0);
+    }
+
     private CheckResult failure(String monitorId, String reason, long latencyMs) {
         String error = reason == null ? "Check failed" : redactor.redactText(reason);
         return new CheckResult(monitorId, MonitorState.DOWN, latencyMs, null, List.of(), error, clock.instant());

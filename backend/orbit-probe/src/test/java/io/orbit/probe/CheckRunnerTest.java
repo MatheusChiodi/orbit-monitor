@@ -149,6 +149,14 @@ class CheckRunnerTest {
     }
 
     @Test
+    void checkThatCannotStartIsDown() {
+        CheckResult r = runner.failed("m", "Environment variable not set: X");
+        assertThat(r.state()).isEqualTo(MonitorState.DOWN);
+        assertThat(r.error()).contains("not set");
+        assertThat(r.checkedAt()).isEqualTo(NOW);
+    }
+
+    @Test
     void errorMessagesAreRedacted() {
         when(httpProbe.execute(request)).thenThrow(new HttpProbeException("Connection failed: " + TEST_PAN, null));
         assertThat(runner.runHttp("m", request, List.of()).error()).doesNotContain(TEST_PAN);

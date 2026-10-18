@@ -19,3 +19,20 @@ management:
 springdoc:
   api-docs:
     path: /v3/api-docs
+
+orbit:
+  # Configuration files (orbit.<feature>.json) and the vault key; never committed.
+  config-dir: ${ORBIT_CONFIG_DIR:${user.home}/.orbit/config}
+  master-key: ${ORBIT_MASTER_KEY:${user.home}/.orbit/master.key}
+  history: 24h
+  workers: 4
+  environment: Local
+  access:
+    mode: LOOPBACK
+    lan-acknowledge: true
+  http:
+    allowlist: []
+  wall:
+    allowed-origins:
+      - "http://localhost:[*]"
+      - "http://127.0.0.1:[*]"
