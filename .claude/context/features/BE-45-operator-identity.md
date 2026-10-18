@@ -38,3 +38,4 @@ Self-declared `X-Orbit-Operator` name recorded on acknowledgements, comments and
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — operator header and audit anonymization endpoint.
+- 2026-10-18 — X-Orbit-Operator is percent-decoded as UTF-8 (frontend sends encodeURIComponent).

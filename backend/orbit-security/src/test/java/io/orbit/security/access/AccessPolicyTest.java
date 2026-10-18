@@ -58,4 +58,11 @@ class AccessPolicyTest {
         assertThat(policy.decide(ip("192.168.0.20"), AccessAction.READ)).isTrue();
         assertThat(policy.decide(ip("192.168.0.20"), AccessAction.MUTATE)).isFalse();
     }
+
+    @Test
+    void classifiesClients() throws Exception {
+        assertThat(AccessPolicy.clientKind(ip("127.0.0.1"))).isEqualTo("loopback");
+        assertThat(AccessPolicy.clientKind(ip("10.0.0.7"))).isEqualTo("lan");
+        assertThat(AccessPolicy.clientKind(ip("8.8.8.8"))).isEqualTo("unknown");
+    }
 }

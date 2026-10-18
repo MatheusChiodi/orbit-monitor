@@ -45,6 +45,14 @@ public record AccessPolicy(AccessMode mode, List<Cidr> ranges, boolean lanAcknow
         };
     }
 
+    /** Where a client sits: {@code loopback}, {@code lan} (private networks) or {@code unknown}. */
+    public static String clientKind(InetAddress remote) {
+        if (remote.isLoopbackAddress()) {
+            return "loopback";
+        }
+        return PRIVATE.stream().anyMatch(r -> r.contains(remote)) ? "lan" : "unknown";
+    }
+
     public boolean decide(InetAddress remote, AccessAction action) {
         return switch (action) {
             case READ -> true;

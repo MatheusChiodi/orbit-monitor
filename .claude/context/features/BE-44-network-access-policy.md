@@ -24,6 +24,7 @@ No login; mutations only from loopback by default, `lan` or CIDR allowlist confi
 
 ## Code
 - `backend/orbit-api/src/main/java/io/orbit/api/web/AccessFilter.java`
+- `backend/orbit-api/src/main/java/io/orbit/api/web/AccessController.java`
 - `backend/orbit-security/src/main/java/io/orbit/security/access/AccessPolicy.java`
 
 ## Tests
@@ -38,3 +39,4 @@ No login; mutations only from loopback by default, `lan` or CIDR allowlist confi
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — access filter implemented (status: done).
+- 2026-10-18 — GET /api/access returns {mode: edit|view-only, client: loopback|lan|unknown}; 403 is translated.

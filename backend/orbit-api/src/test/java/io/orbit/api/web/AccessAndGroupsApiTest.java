@@ -93,6 +93,27 @@ class AccessAndGroupsApiTest {
     }
 
     @Test
+    void accessEndpointTellsTheClientWhatItMayDo() throws Exception {
+        mvc.perform(get("/api/access"))
+                .andExpect(jsonPath("$.mode").value("edit"))
+                .andExpect(jsonPath("$.client").value("loopback"));
+        mvc.perform(get("/api/access").with(from("192.168.0.5")))
+                .andExpect(jsonPath("$.mode").value("view-only"))
+                .andExpect(jsonPath("$.client").value("lan"));
+        mvc.perform(get("/api/access").with(from("8.8.8.8")))
+                .andExpect(jsonPath("$.mode").value("view-only"))
+                .andExpect(jsonPath("$.client").value("unknown"));
+    }
+
+    @Test
+    void percentEncodedOperatorNameIsDecoded() throws Exception {
+        mvc.perform(put("/api/groups/grp_utf8").header(Operators.HEADER, "Jo%C3%A3o%20Silva")
+                        .contentType(MediaType.APPLICATION_JSON).content(GROUP))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.updatedBy").value("João Silva"));
+    }
+
+    @Test
     void invalidGroupIsUnprocessable() throws Exception {
         mvc.perform(put("/api/groups/grp_bad").header(Operators.HEADER, "Ana")
                         .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"X\",\"color\":\"blue\"}"))
