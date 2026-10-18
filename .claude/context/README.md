@@ -87,23 +87,23 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [FE-25](features/FE-25-week-over-week-overlay.md) | Week-over-week overlay | frontend | tests-pending |
 | [FE-26](features/FE-26-chart-annotations.md) | Chart annotations | frontend | tests-pending |
 | [FE-27](features/FE-27-zoom-and-synced-crosshair.md) | Zoom and synced crosshair | frontend | tests-pending |
-| [FE-28](features/FE-28-command-palette.md) | Command palette | frontend | planned |
-| [FE-29](features/FE-29-keyboard-shortcuts.md) | Keyboard shortcuts | frontend | planned |
-| [FE-30](features/FE-30-saved-views.md) | Saved views | frontend | planned |
-| [FE-31](features/FE-31-bulk-actions.md) | Bulk actions | frontend | planned |
-| [FE-32](features/FE-32-monitor-templates-and-clone.md) | Monitor templates and clone | frontend | planned |
-| [FE-33](features/FE-33-sql-editor.md) | SQL editor | frontend | planned |
-| [FE-34](features/FE-34-condition-builder.md) | Condition builder | frontend | planned |
-| [FE-35](features/FE-35-json-explorer.md) | JSON explorer | frontend | planned |
-| [FE-36](features/FE-36-query-history-diff.md) | Query history diff | frontend | planned |
-| [FE-37](features/FE-37-onboarding.md) | Onboarding | frontend | planned |
-| [FE-38](features/FE-38-notification-center.md) | Notification center | frontend | planned |
-| [FE-39](features/FE-39-incident-page.md) | Incident page | frontend | planned |
-| [FE-40](features/FE-40-escalation-countdown.md) | Escalation countdown | frontend | planned |
-| [FE-41](features/FE-41-maintenance-calendar.md) | Maintenance calendar | frontend | planned |
-| [FE-42](features/FE-42-dependency-graph.md) | Dependency graph | frontend | planned |
-| [FE-43](features/FE-43-sla-reports.md) | SLA reports | frontend | planned |
-| [FE-44](features/FE-44-status-page-builder.md) | Status page builder | frontend | planned |
+| [FE-28](features/FE-28-command-palette.md) | Command palette | frontend | tests-pending |
+| [FE-29](features/FE-29-keyboard-shortcuts.md) | Keyboard shortcuts | frontend | tests-pending |
+| [FE-30](features/FE-30-saved-views.md) | Saved views | frontend | tests-pending |
+| [FE-31](features/FE-31-bulk-actions.md) | Bulk actions | frontend | tests-pending |
+| [FE-32](features/FE-32-monitor-templates-and-clone.md) | Monitor templates and clone | frontend | tests-pending |
+| [FE-33](features/FE-33-sql-editor.md) | SQL editor | frontend | tests-pending |
+| [FE-34](features/FE-34-condition-builder.md) | Condition builder | frontend | tests-pending |
+| [FE-35](features/FE-35-json-explorer.md) | JSON explorer | frontend | tests-pending |
+| [FE-36](features/FE-36-query-history-diff.md) | Query history diff | frontend | tests-pending |
+| [FE-37](features/FE-37-onboarding.md) | Onboarding | frontend | tests-pending |
+| [FE-38](features/FE-38-notification-center.md) | Notification center | frontend | tests-pending |
+| [FE-39](features/FE-39-incident-page.md) | Incident page | frontend | tests-pending |
+| [FE-40](features/FE-40-escalation-countdown.md) | Escalation countdown | frontend | tests-pending |
+| [FE-41](features/FE-41-maintenance-calendar.md) | Maintenance calendar | frontend | tests-pending |
+| [FE-42](features/FE-42-dependency-graph.md) | Dependency graph | frontend | tests-pending |
+| [FE-43](features/FE-43-sla-reports.md) | SLA reports | frontend | tests-pending |
+| [FE-44](features/FE-44-status-page-builder.md) | Status page builder | frontend | tests-pending |
 | [FE-45](features/FE-45-kiosk-mode.md) | Kiosk mode | frontend | planned |
 | [FE-46](features/FE-46-stale-data-indicator.md) | Stale data indicator | frontend | planned |
 | [FE-47](features/FE-47-sound-alerts.md) | Sound alerts | frontend | planned |

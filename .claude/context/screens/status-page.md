@@ -22,7 +22,7 @@ _To be filled as the screen is built (component tree, file paths)._
 - Privacy: every probe value rendered through `<SafeValue>`
 
 ## Features on this screen
-- [FE-44 · Status page builder](../features/FE-44-status-page-builder.md) — planned
+- [FE-44 · Status page builder](../features/FE-44-status-page-builder.md) — tests-pending
 
 ## Code
 _None yet._

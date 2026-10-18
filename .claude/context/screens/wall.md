@@ -51,7 +51,7 @@ Header with global status and clock, hero (incident / all operational), also act
 - [FE-25 · Week-over-week overlay](../features/FE-25-week-over-week-overlay.md) — tests-pending
 - [FE-26 · Chart annotations](../features/FE-26-chart-annotations.md) — tests-pending
 - [FE-27 · Zoom and synced crosshair](../features/FE-27-zoom-and-synced-crosshair.md) — tests-pending
-- [FE-40 · Escalation countdown](../features/FE-40-escalation-countdown.md) — planned
+- [FE-40 · Escalation countdown](../features/FE-40-escalation-countdown.md) — tests-pending
 - [FE-45 · Kiosk mode](../features/FE-45-kiosk-mode.md) — planned
 - [FE-46 · Stale data indicator](../features/FE-46-stale-data-indicator.md) — planned
 - [FE-47 · Sound alerts](../features/FE-47-sound-alerts.md) — planned

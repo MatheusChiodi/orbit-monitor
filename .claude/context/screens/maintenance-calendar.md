@@ -22,7 +22,7 @@ _To be filled as the screen is built (component tree, file paths)._
 - Privacy: every probe value rendered through `<SafeValue>`
 
 ## Features on this screen
-- [FE-41 · Maintenance calendar](../features/FE-41-maintenance-calendar.md) — planned
+- [FE-41 · Maintenance calendar](../features/FE-41-maintenance-calendar.md) — tests-pending
 
 ## Code
 _None yet._
