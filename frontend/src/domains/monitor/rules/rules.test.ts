@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Rule } from '@/shared/api/types';
-import { deviationLabel, deviationRatio, headroom, passesRule, ruleText } from './rules';
+import { deviationLabel, deviationRatio, formatReading, headroom, passesRule, ruleText } from './rules';
 
 const below200: Rule = { field: 'QTD', operator: '<', limit: 200 };
 const above99: Rule = { field: 'UPTIME', operator: '>=', limit: 99 };
@@ -71,5 +71,20 @@ describe('headroom (folga até a regra)', () => {
   });
   it('null em regra de igualdade', () => {
     expect(headroom(0, { field: 'ROWS', operator: '==', limit: 0 })).toBeNull();
+  });
+});
+
+describe('formatReading', () => {
+  it('inteiro com unidade', () => {
+    expect(formatReading(349, 'QTD')).toBe('349 QTD');
+  });
+  it('decimal com uma casa', () => {
+    expect(formatReading(1.75, '%')).toBe('1,8%');
+  });
+  it('sem unidade', () => {
+    expect(formatReading(12)).toBe('12');
+  });
+  it('null é "sem resposta"', () => {
+    expect(formatReading(null, 'ms')).toBe('sem resposta');
   });
 });

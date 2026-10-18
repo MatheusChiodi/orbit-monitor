@@ -31,3 +31,16 @@ describe('Panel', () => {
     expect(screen.getByRole('region')).toHaveAttribute('data-tone', 'DOWN');
   });
 });
+
+describe('Panel pulse', () => {
+  it('pisca a barra lateral quando pulse', () => {
+    const { container } = render(
+      <Panel title="Situação" tone="DOWN" pulse>
+        x
+      </Panel>,
+    );
+    const bar = container.querySelector('[data-pulse="true"]');
+    expect(bar).not.toBeNull();
+    expect(bar?.className).toContain('anim-blink');
+  });
+});

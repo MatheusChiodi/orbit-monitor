@@ -1,5 +1,5 @@
 import type { Rule } from '@/shared/api/types';
-import { formatInteger } from '@/shared/format';
+import { formatDecimal, formatInteger } from '@/shared/format';
 
 const numberFormat = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 });
 
@@ -61,4 +61,12 @@ export function headroom(value: number, rule: Rule): number | null {
     case '!=':
       return null;
   }
+}
+
+/** Leitura atual de um monitor: "349 QTD", "1,8%", "sem resposta". */
+export function formatReading(value: number | null, unit?: string): string {
+  if (value === null) return 'sem resposta';
+  const text = Number.isInteger(value) ? formatInteger(value) : formatDecimal(value, 1);
+  if (!unit) return text;
+  return unit === '%' ? `${text}%` : `${text} ${unit}`;
 }
