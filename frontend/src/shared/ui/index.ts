@@ -5,3 +5,4 @@ export * from './Sparkline';
 export * from './StatusPill';
 export * from './ThresholdChart';
 export * from './tones';
+export * from './formStyles';
