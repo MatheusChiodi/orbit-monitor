@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="960" height="540" role="img" aria-labelledby="feature-wall-title feature-wall-desc">
+<title id="feature-wall-title">The wall in TV mode</title>
+<desc id="feature-wall-desc">Mock of the Orbit wall: global status header, hero incident with threshold chart and acknowledge button, also active, near threshold, monitor matrix and timeline.</desc>
+<defs>
+  <marker id="feature-wall-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#8b96a6"/></marker>
+  <marker id="feature-wall-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#3b9eff"/></marker>
+</defs>
+<style>
+  .name { font: 600 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .name-l { font: 700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .name-xl { font: 800 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .body { font: 400 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #8b96a6; }
+  .sub { font: 400 11px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; }
+  .mono { font: 400 12px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .mono-s { font: 400 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; }
+  .eye { font: 600 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #5a6575; letter-spacing: 0.12em; }
+  .lab { font: 600 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; letter-spacing: 0.06em; }
+  .num { font: 700 26px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .num-s { font: 600 15px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .flow { fill: none; stroke: #3b9eff; stroke-width: 2.2; stroke-linecap: round;
+          stroke-dasharray: 3 17; animation: orbit-flow 1.4s linear infinite; }
+  .pulse { animation: orbit-pulse 1.4s ease-in-out infinite; }
+  @keyframes orbit-flow { to { stroke-dashoffset: -40; } }
+  @keyframes orbit-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  @media (prefers-reduced-motion: reduce) {
+    .flow, .anim-only { display: none; }
+    * { animation: none !important; }
+  }
+</style>
+<rect width="960" height="540" rx="12" fill="#07090d"/>
+<rect x="12" y="12" width="936" height="44" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" />
+<circle cx="34" cy="34" r="8" fill="none" stroke="#3b9eff" stroke-width="3"/><circle cx="34" cy="34" r="3" fill="#07090d"/>
+<text x="50" y="39" class="name" text-anchor="start" xml:space="preserve" >Orbit</text>
+<text x="100" y="39" class="sub" text-anchor="start" xml:space="preserve" >Production</text>
+<rect x="196" y="22" width="131" height="24" rx="12" fill="#ff3b4f" fill-opacity="0.14" stroke="#ff3b4f" stroke-opacity="0.6"/><circle cx="209" cy="34" r="4" fill="#ff3b4f" class="pulse"/><text x="220" y="38" class="name" text-anchor="start" xml:space="preserve" fill="#eef2f7" style="font-size:12px">1 monitor down</text>
+<text x="342.8" y="39" class="sub" text-anchor="start" xml:space="preserve" >1 down · 2 warning · 17 ok</text>
+<text x="860" y="39" class="mono-s" text-anchor="end" xml:space="preserve" >updated 2s ago</text>
+<text x="936" y="39" class="num-s" text-anchor="end" xml:space="preserve" style="font-size:13px">17:04:12</text>
+<rect x="12" y="66" width="536" height="290" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" />
+<rect x="24" y="134" width="512" height="1" fill="rgba(255,255,255,0.07)"/>
+<rect x="12" y="66" width="6" height="290" rx="3" fill="#ff3b4f" class="pulse"/>
+<text x="36" y="92" class="eye" text-anchor="start" xml:space="preserve" fill="#ffb3ba" >DOWN · PAYMENTS · SQL</text>
+<text x="532" y="92" class="num-s" text-anchor="end" xml:space="preserve" style="font-size:14px">4min 01s ago</text>
+<text x="36" y="122" class="name-l" text-anchor="start" xml:space="preserve" >Reconciliation queue down</text>
+<text x="36" y="170" class="name-xl" text-anchor="start" xml:space="preserve" fill="#ffb3ba" >349</text>
+<text x="98" y="170" class="sub" text-anchor="start" xml:space="preserve" >QTY</text>
+<text x="136" y="170" class="mono-s" text-anchor="start" xml:space="preserve" >rule QTY &lt; 200</text>
+<rect x="248" y="153" width="153" height="24" rx="12" fill="#ff3b4f" fill-opacity="0.14" stroke="#ff3b4f" stroke-opacity="0.6"/><text x="260" y="169" class="name" text-anchor="start" xml:space="preserve" fill="#eef2f7" style="font-size:12px">+75% over threshold</text>
+<path d="M36,261.3 L36.0,261.3 L76.7,261.3 L117.3,261.3 L158.0,261.3 L198.7,261.3 L239.3,261.3 L280.0,261.3 L320.7,256.5 L361.3,242.2 L402.0,223.0 L442.7,213.4 L483.3,199.1 L524.0,190.0 L524,261.3 Z" fill="#ff3b4f" fill-opacity="0.17"/><line x1="36" y1="261.3" x2="524" y2="261.3" stroke="#ffffff" stroke-opacity="0.45" stroke-dasharray="4 4"/><path d="M36.0,290.0 L76.7,285.2 L117.3,287.6 L158.0,280.4 L198.7,274.7 L239.3,276.6 L280.0,268.5 L320.7,256.5 L361.3,242.2 L402.0,223.0 L442.7,213.4 L483.3,199.1 L524.0,190.0" fill="none" stroke="#ff3b4f" stroke-width="1.8" stroke-linejoin="round"/><circle cx="524.0" cy="190.0" r="3.5" fill="#ff3b4f"/>
+<text x="36" y="306" class="mono-s" text-anchor="start" xml:space="preserve" >-60min</text>
+<text x="524" y="306" class="mono-s" text-anchor="end" xml:space="preserve" >now</text>
+<text x="36" y="336" class="mono-s" text-anchor="start" xml:space="preserve" >Likely impact</text>
+<rect x="124" y="322" width="65" height="20" rx="4" fill="#182029" stroke="rgba(255,255,255,0.13)"/><text x="132" y="336" class="mono-s" text-anchor="start" xml:space="preserve" fill="#8b96a6" >Checkout</text>
+<rect x="196.8" y="322" width="77" height="20" rx="4" fill="#182029" stroke="rgba(255,255,255,0.13)"/><text x="204.8" y="336" class="mono-s" text-anchor="start" xml:space="preserve" fill="#8b96a6" >Settlement</text>
+<text x="308" y="336" class="mono-s" text-anchor="start" xml:space="preserve" >escalates in 08:12</text>
+<rect x="420" y="318" width="112" height="28" rx="6" fill="#ff3b4f"/>
+<text x="476" y="337" class="name" text-anchor="middle" xml:space="preserve" style="font-size:12px">Acknowledge</text>
+<rect x="12" y="366" width="264" height="162" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" /><text x="28" y="390" class="eye" text-anchor="start" xml:space="preserve" >ALSO ACTIVE</text>
+<circle cx="32" cy="406" r="4" fill="#f5a524"/>
+<text x="44" y="410" class="name" text-anchor="start" xml:space="preserve" style="font-size:13px">Card authorizer</text>
+<text x="44" y="426" class="mono-s" text-anchor="start" xml:space="preserve" >p95 910ms</text>
+<circle cx="32" cy="446" r="4" fill="#f5a524"/>
+<text x="44" y="450" class="name" text-anchor="start" xml:space="preserve" style="font-size:13px">Settlement batch</text>
+<text x="44" y="466" class="mono-s" text-anchor="start" xml:space="preserve" >late 14min</text>
+<rect x="284" y="366" width="264" height="162" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" /><text x="300" y="390" class="eye" text-anchor="start" xml:space="preserve" >NEAR THRESHOLD</text>
+<text x="300" y="410" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >Kafka lag</text>
+<text x="532" y="410" class="num-s" text-anchor="end" xml:space="preserve" style="font-size:12px">18%</text>
+<rect x="300" y="418" width="200" height="6" rx="3" fill="#182029" stroke="none" />
+<rect x="300" y="418" width="36" height="6" rx="3" fill="#f5a524" stroke="none" />
+<text x="300" y="446" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >Disk /data</text>
+<text x="532" y="446" class="num-s" text-anchor="end" xml:space="preserve" style="font-size:12px">34%</text>
+<rect x="300" y="454" width="200" height="6" rx="3" fill="#182029" stroke="none" />
+<rect x="300" y="454" width="68" height="6" rx="3" fill="#22c55e" stroke="none" />
+<text x="300" y="482" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >DB sessions</text>
+<text x="532" y="482" class="num-s" text-anchor="end" xml:space="preserve" style="font-size:12px">41%</text>
+<rect x="300" y="490" width="200" height="6" rx="3" fill="#182029" stroke="none" />
+<rect x="300" y="490" width="82" height="6" rx="3" fill="#22c55e" stroke="none" />
+<rect x="558" y="66" width="390" height="290" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" /><text x="574" y="90" class="eye" text-anchor="start" xml:space="preserve" >ALL MONITORS</text>
+<text x="574" y="118" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">Payments</text>
+<text x="574" y="134" class="mono-s" text-anchor="start" xml:space="preserve" >3/4 ok · DOWN</text>
+<rect x="690" y="104" width="76" height="22" rx="4" fill="#ff3b4f" fill-opacity="0.14" stroke="#ff3b4f" stroke-opacity="0.7" class="pulse"/>
+<circle cx="700" cy="115" r="3.5" fill="#ff3b4f"/>
+<text x="710" y="119" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >queue</text>
+<rect x="772" y="104" width="76" height="22" rx="4" fill="#121820" fill-opacity="1" stroke="rgba(255,255,255,0.13)" stroke-opacity="0.7"/>
+<circle cx="782" cy="115" r="3.5" fill="#22c55e"/>
+<text x="792" y="119" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >api</text>
+<rect x="854" y="104" width="76" height="22" rx="4" fill="#121820" fill-opacity="1" stroke="rgba(255,255,255,0.13)" stroke-opacity="0.7"/>
+<circle cx="864" cy="115" r="3.5" fill="#22c55e"/>
+<text x="874" y="119" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >auth</text>
+<rect x="690" y="130" width="76" height="22" rx="4" fill="#121820" fill-opacity="1" stroke="rgba(255,255,255,0.13)" stroke-opacity="0.7"/>
+<circle cx="700" cy="141" r="3.5" fill="#22c55e"/>
+<text x="710" y="145" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >web</text>
+<text x="574" y="178" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">Customer portal</text>
+<text x="574" y="194" class="mono-s" text-anchor="start" xml:space="preserve" >4/4 ok</text>
+<rect x="690" y="164" width="76" height="22" rx="4" fill="#121820" fill-opacity="1" stroke="rgba(255,255,255,0.13)" stroke-opacity="0.7"/>
+<circle cx="700" cy="175" r="3.5" fill="#22c55e"/>
+<text x="710" y="179" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >queue</text>
+<rect x="772" y="164" width="76" height="22" rx="4" fill="#121820" fill-opacity="1" stroke="rgba(255,255,255,0.13)" stroke-opacity="0.7"/>
+<circle cx="782" cy="175" r="3.5" fill="#22c55e"/>
+<text x="792" y="179" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >api</text>
+<rect x="854" y="164" width="76" height="22" rx="4" fill="#121820" fill-opacity="1" stroke="rgba(255,255,255,0.13)" stroke-opacity="0.7"/>
+<circle cx="864" cy="175" r="3.5" fill="#22c55e"/>
+<text x="874" y="179" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >auth</text>
+<rect x="690" y="190" width="76" height="22" rx="4" fill="#121820" fill-opacity="1" stroke="rgba(255,255,255,0.13)" stroke-opacity="0.7"/>
+<circle cx="700" cy="201" r="3.5" fill="#22c55e"/>
+<text x="710" y="205" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >web</text>
+<text x="574" y="238" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">Core banking</text>
+<text x="574" y="254" class="mono-s" text-anchor="start" xml:space="preserve" >2/3 ok · WARN</text>
+<rect x="690" y="224" width="76" height="22" rx="4" fill="#f5a524" fill-opacity="0.14" stroke="#f5a524" stroke-opacity="0.7"/>
+<circle cx="700" cy="235" r="3.5" fill="#f5a524"/>
+<text x="710" y="239" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >queue</text>
+<rect x="772" y="224" width="76" height="22" rx="4" fill="#121820" fill-opacity="1" stroke="rgba(255,255,255,0.13)" stroke-opacity="0.7"/>
+<circle cx="782" cy="235" r="3.5" fill="#22c55e"/>
+<text x="792" y="239" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >api</text>
+<rect x="854" y="224" width="76" height="22" rx="4" fill="#121820" fill-opacity="1" stroke="rgba(255,255,255,0.13)" stroke-opacity="0.7"/>
+<circle cx="864" cy="235" r="3.5" fill="#22c55e"/>
+<text x="874" y="239" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >auth</text>
+<text x="574" y="298" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">Integrations</text>
+<text x="574" y="314" class="mono-s" text-anchor="start" xml:space="preserve" >4/5 ok · WARN</text>
+<rect x="690" y="284" width="76" height="22" rx="4" fill="#f5a524" fill-opacity="0.14" stroke="#f5a524" stroke-opacity="0.7"/>
+<circle cx="700" cy="295" r="3.5" fill="#f5a524"/>
+<text x="710" y="299" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >queue</text>
+<rect x="772" y="284" width="76" height="22" rx="4" fill="#121820" fill-opacity="1" stroke="rgba(255,255,255,0.13)" stroke-opacity="0.7"/>
+<circle cx="782" cy="295" r="3.5" fill="#22c55e"/>
+<text x="792" y="299" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >api</text>
+<rect x="854" y="284" width="76" height="22" rx="4" fill="#121820" fill-opacity="1" stroke="rgba(255,255,255,0.13)" stroke-opacity="0.7"/>
+<circle cx="864" cy="295" r="3.5" fill="#22c55e"/>
+<text x="874" y="299" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >auth</text>
+<rect x="690" y="310" width="76" height="22" rx="4" fill="#121820" fill-opacity="1" stroke="rgba(255,255,255,0.13)" stroke-opacity="0.7"/>
+<circle cx="700" cy="321" r="3.5" fill="#22c55e"/>
+<text x="710" y="325" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >web</text>
+<rect x="772" y="310" width="76" height="22" rx="4" fill="#121820" fill-opacity="1" stroke="rgba(255,255,255,0.13)" stroke-opacity="0.7"/>
+<circle cx="782" cy="321" r="3.5" fill="#22c55e"/>
+<text x="792" y="325" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >batch</text>
+<rect x="558" y="366" width="390" height="162" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" /><text x="574" y="390" class="eye" text-anchor="start" xml:space="preserve" >TIMELINE</text>
+<text x="574" y="410" class="mono-s" text-anchor="start" xml:space="preserve" >17:04:01</text>
+<circle cx="648" cy="406" r="4" fill="#3b9eff"/>
+<text x="660" y="410" class="body" text-anchor="start" xml:space="preserve" fill="#eef2f7" >M. Chiodi acknowledged</text>
+<text x="574" y="438" class="mono-s" text-anchor="start" xml:space="preserve" >17:00:11</text>
+<circle cx="648" cy="434" r="4" fill="#ff3b4f"/>
+<text x="660" y="438" class="body" text-anchor="start" xml:space="preserve" fill="#eef2f7" >Reconciliation queue down</text>
+<text x="574" y="466" class="mono-s" text-anchor="start" xml:space="preserve" >16:58:40</text>
+<circle cx="648" cy="462" r="4" fill="#f5a524"/>
+<text x="660" y="466" class="body" text-anchor="start" xml:space="preserve" fill="#eef2f7" >Card authorizer p95 910ms</text>
+<text x="574" y="494" class="mono-s" text-anchor="start" xml:space="preserve" >16:41:02</text>
+<circle cx="648" cy="490" r="4" fill="#22c55e"/>
+<text x="660" y="494" class="body" text-anchor="start" xml:space="preserve" fill="#eef2f7" >Settlement batch recovered</text>
+</svg>

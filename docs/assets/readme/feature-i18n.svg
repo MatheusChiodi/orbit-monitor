@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 250" width="960" height="250" role="img" aria-labelledby="feature-i18n-title feature-i18n-desc">
+<title id="feature-i18n-title">Internationalization: English and Brazilian Portuguese</title>
+<desc id="feature-i18n-desc">The same interface strings in English and Brazilian Portuguese, including locale-aware currency and relative time.</desc>
+<defs>
+  <marker id="feature-i18n-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#8b96a6"/></marker>
+  <marker id="feature-i18n-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#3b9eff"/></marker>
+</defs>
+<style>
+  .name { font: 600 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .name-l { font: 700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .name-xl { font: 800 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .body { font: 400 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #8b96a6; }
+  .sub { font: 400 11px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; }
+  .mono { font: 400 12px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .mono-s { font: 400 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; }
+  .eye { font: 600 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #5a6575; letter-spacing: 0.12em; }
+  .lab { font: 600 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; letter-spacing: 0.06em; }
+  .num { font: 700 26px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .num-s { font: 600 15px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .flow { fill: none; stroke: #3b9eff; stroke-width: 2.2; stroke-linecap: round;
+          stroke-dasharray: 3 17; animation: orbit-flow 1.4s linear infinite; }
+  .pulse { animation: orbit-pulse 1.4s ease-in-out infinite; }
+  @keyframes orbit-flow { to { stroke-dashoffset: -40; } }
+  @keyframes orbit-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  @media (prefers-reduced-motion: reduce) {
+    .flow, .anim-only { display: none; }
+    * { animation: none !important; }
+  }
+</style>
+<rect width="960" height="250" rx="12" fill="#07090d"/>
+<text x="20" y="34" class="eye" text-anchor="start" xml:space="preserve" >ENGLISH BY DEFAULT · BRAZILIAN PORTUGUESE BUILT IN</text>
+<text x="20" y="58" class="body" text-anchor="start" xml:space="preserve" style="font-size:13px">Every user-facing string goes through i18n; numbers, currency and relative times use Intl for the active locale.</text>
+<rect x="20" y="76" width="440" height="156" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" /><text x="36" y="100" class="eye" text-anchor="start" xml:space="preserve" >EN</text>
+<rect x="36" y="100" width="200" height="28" rx="5" fill="#121820" stroke="rgba(255,255,255,0.07)" />
+<text x="48" y="119" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">1 monitor down</text>
+<rect x="248" y="100" width="200" height="28" rx="5" fill="#121820" stroke="rgba(255,255,255,0.07)" />
+<text x="260" y="119" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">All systems operational</text>
+<rect x="36" y="138" width="200" height="28" rx="5" fill="#121820" stroke="rgba(255,255,255,0.07)" />
+<text x="48" y="157" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">Acknowledge</text>
+<rect x="248" y="138" width="200" height="28" rx="5" fill="#121820" stroke="rgba(255,255,255,0.07)" />
+<text x="260" y="157" class="mono" text-anchor="start" xml:space="preserve" >4min 01s ago</text>
+<rect x="36" y="176" width="200" height="28" rx="5" fill="#121820" stroke="rgba(255,255,255,0.07)" />
+<text x="48" y="195" class="mono" text-anchor="start" xml:space="preserve" >$1,234.50</text>
+<rect x="248" y="176" width="200" height="28" rx="5" fill="#121820" stroke="rgba(255,255,255,0.07)" />
+<text x="260" y="195" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">Near threshold</text>
+<rect x="500" y="76" width="440" height="156" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" /><text x="516" y="100" class="eye" text-anchor="start" xml:space="preserve" >PT-BR</text>
+<rect x="516" y="100" width="200" height="28" rx="5" fill="#121820" stroke="rgba(255,255,255,0.07)" />
+<text x="528" y="119" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">1 monitor fora</text>
+<rect x="728" y="100" width="200" height="28" rx="5" fill="#121820" stroke="rgba(255,255,255,0.07)" />
+<text x="740" y="119" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">Tudo operacional</text>
+<rect x="516" y="138" width="200" height="28" rx="5" fill="#121820" stroke="rgba(255,255,255,0.07)" />
+<text x="528" y="157" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">Reconhecer</text>
+<rect x="728" y="138" width="200" height="28" rx="5" fill="#121820" stroke="rgba(255,255,255,0.07)" />
+<text x="740" y="157" class="mono" text-anchor="start" xml:space="preserve" >há 4min 01s</text>
+<rect x="516" y="176" width="200" height="28" rx="5" fill="#121820" stroke="rgba(255,255,255,0.07)" />
+<text x="528" y="195" class="mono" text-anchor="start" xml:space="preserve" >R$ 1.2,50</text>
+<rect x="728" y="176" width="200" height="28" rx="5" fill="#121820" stroke="rgba(255,255,255,0.07)" />
+<text x="740" y="195" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">Perto do limite</text>
+<rect x="464" y="140" width="32" height="28" rx="6" fill="#182029" stroke="#3b9eff"/>
+<text x="480" y="159" class="name" text-anchor="middle" xml:space="preserve" fill="#3b9eff" >⇄</text>
+<text x="940" y="34" class="mono-s" text-anchor="end" xml:space="preserve" >?lang=pt-BR on the wall</text>
+</svg>

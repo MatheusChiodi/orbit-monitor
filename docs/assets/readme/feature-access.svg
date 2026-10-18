@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300" width="960" height="300" role="img" aria-labelledby="feature-access-title feature-access-desc">
+<title id="feature-access-title">No login: access by network</title>
+<desc id="feature-access-desc">Four devices: the local machine can view, acknowledge and edit; LAN laptop and TV can view and acknowledge; the internet has no access.</desc>
+<defs>
+  <marker id="feature-access-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#8b96a6"/></marker>
+  <marker id="feature-access-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#3b9eff"/></marker>
+</defs>
+<style>
+  .name { font: 600 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .name-l { font: 700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .name-xl { font: 800 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .body { font: 400 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #8b96a6; }
+  .sub { font: 400 11px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; }
+  .mono { font: 400 12px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .mono-s { font: 400 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; }
+  .eye { font: 600 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #5a6575; letter-spacing: 0.12em; }
+  .lab { font: 600 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; letter-spacing: 0.06em; }
+  .num { font: 700 26px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .num-s { font: 600 15px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .flow { fill: none; stroke: #3b9eff; stroke-width: 2.2; stroke-linecap: round;
+          stroke-dasharray: 3 17; animation: orbit-flow 1.4s linear infinite; }
+  .pulse { animation: orbit-pulse 1.4s ease-in-out infinite; }
+  @keyframes orbit-flow { to { stroke-dashoffset: -40; } }
+  @keyframes orbit-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  @media (prefers-reduced-motion: reduce) {
+    .flow, .anim-only { display: none; }
+    * { animation: none !important; }
+  }
+</style>
+<rect width="960" height="300" rx="12" fill="#07090d"/>
+<text x="20" y="34" class="eye" text-anchor="start" xml:space="preserve" >NO LOGIN · ACCESS BY NETWORK</text>
+<text x="20" y="58" class="body" text-anchor="start" xml:space="preserve" style="font-size:13px">No accounts or passwords. Edits come from the machine running Orbit; other devices see a view-only console.</text>
+<rect x="20" y="80" width="220" height="200" rx="8" fill="#0d1117" stroke="#3b9eff" stroke-width="1.6"/>
+<rect x="36" y="96" width="36" height="24" rx="3" fill="none" stroke="#8b96a6"/>
+<line x1="46" y1="126" x2="62" y2="126" stroke="#8b96a6"/>
+<text x="84" y="108" class="name" text-anchor="start" xml:space="preserve" style="font-size:13px">This machine</text>
+<text x="84" y="124" class="mono-s" text-anchor="start" xml:space="preserve" >127.0.0.1 · loopback</text>
+<circle cx="44" cy="164" r="5" fill="#22c55e" fill-opacity="1"/>
+<text x="58" y="168" class="mono" text-anchor="start" xml:space="preserve" fill="#eef2f7" >view</text>
+<text x="224" y="168" class="mono-s" text-anchor="end" xml:space="preserve" >yes</text>
+<circle cx="44" cy="196" r="5" fill="#22c55e" fill-opacity="1"/>
+<text x="58" y="200" class="mono" text-anchor="start" xml:space="preserve" fill="#eef2f7" >acknowledge</text>
+<text x="224" y="200" class="mono-s" text-anchor="end" xml:space="preserve" >yes</text>
+<circle cx="44" cy="228" r="5" fill="#22c55e" fill-opacity="1"/>
+<text x="58" y="232" class="mono" text-anchor="start" xml:space="preserve" fill="#eef2f7" >edit monitors</text>
+<text x="224" y="232" class="mono-s" text-anchor="end" xml:space="preserve" >yes</text>
+<rect x="252" y="80" width="220" height="200" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" stroke-width="1"/>
+<rect x="268" y="96" width="36" height="24" rx="3" fill="none" stroke="#8b96a6"/>
+<line x1="278" y1="126" x2="294" y2="126" stroke="#8b96a6"/>
+<text x="316" y="108" class="name" text-anchor="start" xml:space="preserve" style="font-size:13px">Laptop on the LAN</text>
+<text x="316" y="124" class="mono-s" text-anchor="start" xml:space="preserve" >view-only console</text>
+<circle cx="276" cy="164" r="5" fill="#22c55e" fill-opacity="1"/>
+<text x="290" y="168" class="mono" text-anchor="start" xml:space="preserve" fill="#eef2f7" >view</text>
+<text x="456" y="168" class="mono-s" text-anchor="end" xml:space="preserve" >yes</text>
+<circle cx="276" cy="196" r="5" fill="#22c55e" fill-opacity="1"/>
+<text x="290" y="200" class="mono" text-anchor="start" xml:space="preserve" fill="#eef2f7" >acknowledge</text>
+<text x="456" y="200" class="mono-s" text-anchor="end" xml:space="preserve" >yes</text>
+<circle cx="276" cy="228" r="5" fill="#ff3b4f" fill-opacity="0.85"/>
+<text x="290" y="232" class="mono" text-anchor="start" xml:space="preserve" fill="#5a6575" >edit monitors</text>
+<text x="456" y="232" class="mono-s" text-anchor="end" xml:space="preserve" >no</text>
+<rect x="484" y="80" width="220" height="200" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" stroke-width="1"/>
+<rect x="500" y="96" width="36" height="24" rx="3" fill="none" stroke="#8b96a6"/>
+<line x1="510" y1="126" x2="526" y2="126" stroke="#8b96a6"/>
+<text x="548" y="108" class="name" text-anchor="start" xml:space="preserve" style="font-size:13px">TV on the LAN</text>
+<text x="548" y="124" class="mono-s" text-anchor="start" xml:space="preserve" >wall.html · /wall/noc</text>
+<circle cx="508" cy="164" r="5" fill="#22c55e" fill-opacity="1"/>
+<text x="522" y="168" class="mono" text-anchor="start" xml:space="preserve" fill="#eef2f7" >view</text>
+<text x="688" y="168" class="mono-s" text-anchor="end" xml:space="preserve" >yes</text>
+<circle cx="508" cy="196" r="5" fill="#22c55e" fill-opacity="1"/>
+<text x="522" y="200" class="mono" text-anchor="start" xml:space="preserve" fill="#eef2f7" >acknowledge</text>
+<text x="688" y="200" class="mono-s" text-anchor="end" xml:space="preserve" >yes</text>
+<circle cx="508" cy="228" r="5" fill="#ff3b4f" fill-opacity="0.85"/>
+<text x="522" y="232" class="mono" text-anchor="start" xml:space="preserve" fill="#5a6575" >edit monitors</text>
+<text x="688" y="232" class="mono-s" text-anchor="end" xml:space="preserve" >no</text>
+<rect x="716" y="80" width="220" height="200" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" stroke-width="1"/>
+<rect x="732" y="96" width="36" height="24" rx="3" fill="none" stroke="#8b96a6"/>
+<line x1="742" y1="126" x2="758" y2="126" stroke="#8b96a6"/>
+<text x="780" y="108" class="name" text-anchor="start" xml:space="preserve" style="font-size:13px">Internet</text>
+<text x="780" y="124" class="mono-s" text-anchor="start" xml:space="preserve" >not exposed</text>
+<circle cx="740" cy="164" r="5" fill="#ff3b4f" fill-opacity="0.85"/>
+<text x="754" y="168" class="mono" text-anchor="start" xml:space="preserve" fill="#5a6575" >view</text>
+<text x="920" y="168" class="mono-s" text-anchor="end" xml:space="preserve" >no</text>
+<circle cx="740" cy="196" r="5" fill="#ff3b4f" fill-opacity="0.85"/>
+<text x="754" y="200" class="mono" text-anchor="start" xml:space="preserve" fill="#5a6575" >acknowledge</text>
+<text x="920" y="200" class="mono-s" text-anchor="end" xml:space="preserve" >no</text>
+<circle cx="740" cy="228" r="5" fill="#ff3b4f" fill-opacity="0.85"/>
+<text x="754" y="232" class="mono" text-anchor="start" xml:space="preserve" fill="#5a6575" >edit monitors</text>
+<text x="920" y="232" class="mono-s" text-anchor="end" xml:space="preserve" >no</text>
+</svg>

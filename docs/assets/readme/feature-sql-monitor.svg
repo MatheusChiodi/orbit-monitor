@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 320" width="960" height="320" role="img" aria-labelledby="feature-sql-monitor-title feature-sql-monitor-desc">
+<title id="feature-sql-monitor-title">SQL monitor: paste a SELECT, Orbit does the rest</title>
+<desc id="feature-sql-monitor-desc">A SELECT is validated, previewed with detected column types and turned into a suggested single-value display with a rule.</desc>
+<defs>
+  <marker id="feature-sql-monitor-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#8b96a6"/></marker>
+  <marker id="feature-sql-monitor-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#3b9eff"/></marker>
+</defs>
+<style>
+  .name { font: 600 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .name-l { font: 700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .name-xl { font: 800 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .body { font: 400 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #8b96a6; }
+  .sub { font: 400 11px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; }
+  .mono { font: 400 12px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .mono-s { font: 400 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; }
+  .eye { font: 600 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #5a6575; letter-spacing: 0.12em; }
+  .lab { font: 600 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; letter-spacing: 0.06em; }
+  .num { font: 700 26px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .num-s { font: 600 15px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .flow { fill: none; stroke: #3b9eff; stroke-width: 2.2; stroke-linecap: round;
+          stroke-dasharray: 3 17; animation: orbit-flow 1.4s linear infinite; }
+  .pulse { animation: orbit-pulse 1.4s ease-in-out infinite; }
+  @keyframes orbit-flow { to { stroke-dashoffset: -40; } }
+  @keyframes orbit-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  @media (prefers-reduced-motion: reduce) {
+    .flow, .anim-only { display: none; }
+    * { animation: none !important; }
+  }
+</style>
+<rect width="960" height="320" rx="12" fill="#07090d"/>
+<rect x="20" y="20" width="380" height="280" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" /><text x="36" y="44" class="eye" text-anchor="start" xml:space="preserve" >1 · PASTE A SELECT</text>
+<rect x="36" y="48" width="348" height="120" rx="6" fill="#121820" stroke="rgba(255,255,255,0.07)" />
+<text x="52" y="76" class="mono" text-anchor="start" xml:space="preserve" fill="#a9c8ff" >SELECT COUNT(*) AS PENDING_QTY</text>
+<text x="52" y="96" class="mono" text-anchor="start" xml:space="preserve" >  FROM V_RECONCILIATION_PENDING</text>
+<text x="52" y="116" class="mono" text-anchor="start" xml:space="preserve" > WHERE STATUS = :status</text>
+<text x="52" y="150" class="mono-s" text-anchor="start" xml:space="preserve" >connection · core-oracle (read-only)</text>
+<rect x="36" y="184" width="83" height="20" rx="4" fill="#182029" stroke="rgba(255,255,255,0.13)"/><text x="44" y="198" class="mono-s" text-anchor="start" xml:space="preserve" fill="#8b96a6" >SELECT only</text>
+<rect x="127.1" y="184" width="77" height="20" rx="4" fill="#182029" stroke="rgba(255,255,255,0.13)"/><text x="135.1" y="198" class="mono-s" text-anchor="start" xml:space="preserve" fill="#8b96a6" >Timeout 5s</text>
+<rect x="212.1" y="184" width="89" height="20" rx="4" fill="#182029" stroke="rgba(255,255,255,0.13)"/><text x="220.1" y="198" class="mono-s" text-anchor="start" xml:space="preserve" fill="#8b96a6" >Max 500 rows</text>
+<rect x="36" y="212" width="132" height="20" rx="4" fill="#182029" stroke="rgba(255,255,255,0.13)"/><text x="44" y="226" class="mono-s" text-anchor="start" xml:space="preserve" fill="#8b96a6" >Credential in vault</text>
+<rect x="175.9" y="212" width="108" height="20" rx="4" fill="#182029" stroke="rgba(255,255,255,0.13)"/><text x="183.9" y="226" class="mono-s" text-anchor="start" xml:space="preserve" fill="#8b96a6" >DML/DDL blocked</text>
+<text x="36" y="262" class="body" text-anchor="start" xml:space="preserve" >Validated with JSqlParser and wrapped</text>
+<text x="36" y="280" class="body" text-anchor="start" xml:space="preserve" >with a dialect-specific row limit.</text>
+<path d="M400,160 H432" fill="none" stroke="#8b96a6" stroke-opacity="0.75" stroke-width="1.4" marker-end="url(#feature-sql-monitor-arrow)"/>
+<rect x="436" y="20" width="236" height="280" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" /><text x="452" y="44" class="eye" text-anchor="start" xml:space="preserve" >2 · PREVIEW · 12 ms</text>
+<rect x="452" y="48" width="204" height="70" rx="6" fill="#121820" stroke="rgba(255,255,255,0.07)" />
+<text x="464" y="70" class="lab" text-anchor="start" xml:space="preserve" fill="#eef2f7" >PENDING_QTY</text>
+<text x="644" y="70" class="mono-s" text-anchor="end" xml:space="preserve" fill="#3b9eff" >number</text>
+<line x1="452" y1="80" x2="656" y2="80" stroke="rgba(255,255,255,0.13)"/>
+<text x="464" y="104" class="mono" text-anchor="start" xml:space="preserve" >347</text>
+<text x="452" y="150" class="body" text-anchor="start" xml:space="preserve" >Detected</text>
+<text x="452" y="176" class="mono-s" text-anchor="start" xml:space="preserve" >rows</text>
+<text x="656" y="176" class="mono-s" text-anchor="end" xml:space="preserve" fill="#eef2f7" >1</text>
+<text x="452" y="198" class="mono-s" text-anchor="start" xml:space="preserve" >columns</text>
+<text x="656" y="198" class="mono-s" text-anchor="end" xml:space="preserve" fill="#eef2f7" >1</text>
+<text x="452" y="220" class="mono-s" text-anchor="start" xml:space="preserve" >type</text>
+<text x="656" y="220" class="mono-s" text-anchor="end" xml:space="preserve" fill="#eef2f7" >integer</text>
+<text x="452" y="242" class="mono-s" text-anchor="start" xml:space="preserve" >cost</text>
+<text x="656" y="242" class="mono-s" text-anchor="end" xml:space="preserve" fill="#eef2f7" >low</text>
+<path d="M672,160 H704" fill="none" stroke="#8b96a6" stroke-opacity="0.75" stroke-width="1.4" marker-end="url(#feature-sql-monitor-arrow)"/>
+<rect x="708" y="20" width="232" height="280" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" /><text x="724" y="44" class="eye" text-anchor="start" xml:space="preserve" >3 · SUGGESTED: SINGLE VALUE</text>
+<text x="724" y="92" class="name-xl" text-anchor="start" xml:space="preserve" fill="#ffb3ba" >347</text>
+<text x="790" y="92" class="sub" text-anchor="start" xml:space="preserve" >QTY</text>
+<text x="724" y="116" class="mono-s" text-anchor="start" xml:space="preserve" >rule PENDING_QTY &lt; 200</text>
+<path d="M724,183.3 L724.0,183.3 L746.2,183.3 L768.4,183.3 L790.7,183.3 L812.9,183.3 L835.1,183.3 L857.3,174.1 L879.6,158.7 L901.8,149.4 L924.0,138.0 L924,183.3 Z" fill="#ff3b4f" fill-opacity="0.17"/><line x1="724" y1="183.3" x2="924" y2="183.3" stroke="#ffffff" stroke-opacity="0.45" stroke-dasharray="4 4"/><path d="M724.0,208.0 L746.2,204.3 L768.4,205.5 L790.7,198.7 L812.9,192.6 L835.1,186.4 L857.3,174.1 L879.6,158.7 L901.8,149.4 L924.0,138.0" fill="none" stroke="#ff3b4f" stroke-width="1.8" stroke-linejoin="round"/><circle cx="924.0" cy="138.0" r="3.5" fill="#ff3b4f"/>
+<rect x="724" y="228" width="145" height="24" rx="12" fill="#ff3b4f" fill-opacity="0.14" stroke="#ff3b4f" stroke-opacity="0.6"/><circle cx="737" cy="240" r="4" fill="#ff3b4f" class="pulse"/><text x="748" y="244" class="name" text-anchor="start" xml:space="preserve" fill="#eef2f7" style="font-size:12px">DOWN · +74% over</text>
+<text x="724" y="282" class="mono-s" text-anchor="start" xml:space="preserve" >also: indicators · ranking · table</text>
+</svg>

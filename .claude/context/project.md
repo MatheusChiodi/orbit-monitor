@@ -39,5 +39,6 @@ Monitoring for websites, APIs and databases with a TV wall that changes shape by
 Full-stack `CORE-*` files: each agent edits only its own section (`## Code` / `## Tests` lines for its folder) and appends its own changelog line.
 
 ## Timeline
+- 2026-10-18 — illustrated README: animated architecture and check-flow diagrams plus one SVG per feature area (docs/assets/readme).
 - 2026-10-18 — no login, no Orbit database, per-feature JSON config files, local-first runtime; pre-commit hook.
 - 2026-10-18 — specs written; repo initialized; open-source files (MIT); English + i18n decision; LGPD/PCI spec; 100 extended features; test-first phase started; living context created.

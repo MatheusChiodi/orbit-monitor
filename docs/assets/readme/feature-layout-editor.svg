@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 380" width="960" height="380" role="img" aria-labelledby="feature-layout-editor-title feature-layout-editor-desc">
+<title id="feature-layout-editor-title">Drag-and-drop wall layout editor</title>
+<desc id="feature-layout-editor-desc">A twelve-column grid with hero, matrix, timeline and also-active blocks while a near-threshold block is dragged into an empty slot.</desc>
+<defs>
+  <marker id="feature-layout-editor-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#8b96a6"/></marker>
+  <marker id="feature-layout-editor-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#3b9eff"/></marker>
+</defs>
+<style>
+  .name { font: 600 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .name-l { font: 700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .name-xl { font: 800 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .body { font: 400 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #8b96a6; }
+  .sub { font: 400 11px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; }
+  .mono { font: 400 12px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .mono-s { font: 400 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; }
+  .eye { font: 600 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #5a6575; letter-spacing: 0.12em; }
+  .lab { font: 600 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; letter-spacing: 0.06em; }
+  .num { font: 700 26px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .num-s { font: 600 15px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .flow { fill: none; stroke: #3b9eff; stroke-width: 2.2; stroke-linecap: round;
+          stroke-dasharray: 3 17; animation: orbit-flow 1.4s linear infinite; }
+  .pulse { animation: orbit-pulse 1.4s ease-in-out infinite; }
+  @keyframes orbit-flow { to { stroke-dashoffset: -40; } }
+  @keyframes orbit-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  @media (prefers-reduced-motion: reduce) {
+    .flow, .anim-only { display: none; }
+    * { animation: none !important; }
+  }
+
+  .drag { animation: le-drag 4s ease-in-out infinite; }
+  @keyframes le-drag { 0%, 20% { transform: translate(309px, 0px); } 60%, 92% { transform: translate(0px, 0px); } 100% { transform: translate(309px, 0px); } }
+</style>
+<rect width="960" height="380" rx="12" fill="#07090d"/>
+<text x="20" y="34" class="eye" text-anchor="start" xml:space="preserve" >WALL LAYOUT EDITOR · 12-COLUMN GRID</text>
+<text x="20" y="58" class="body" text-anchor="start" xml:space="preserve" style="font-size:13px">Drag, drop and resize blocks. Keyboard works too: Space to grab, arrows to move, Esc to cancel.</text>
+<rect x="820.3" y="22" width="120" height="20" rx="4" fill="#182029" stroke="rgba(255,255,255,0.13)"/><text x="828.3" y="36" class="mono-s" text-anchor="start" xml:space="preserve" fill="#3b9eff" >Simulate incident</text>
+<rect x="773.9" y="22" width="40" height="20" rx="4" fill="#182029" stroke="rgba(255,255,255,0.13)"/><text x="781.9" y="36" class="mono-s" text-anchor="start" xml:space="preserve" fill="#8b96a6" >Redo</text>
+<rect x="727.5" y="22" width="40" height="20" rx="4" fill="#182029" stroke="rgba(255,255,255,0.13)"/><text x="735.5" y="36" class="mono-s" text-anchor="start" xml:space="preserve" fill="#8b96a6" >Undo</text>
+<rect x="693.3" y="22" width="28" height="20" rx="4" fill="#182029" stroke="rgba(255,255,255,0.13)"/><text x="701.3" y="36" class="mono-s" text-anchor="start" xml:space="preserve" fill="#8b96a6" >4K</text>
+<rect x="640.8" y="22" width="46" height="20" rx="4" fill="#182029" stroke="rgba(255,255,255,0.13)"/><text x="648.8" y="36" class="mono-s" text-anchor="start" xml:space="preserve" fill="#8b96a6" >1080p</text>
+<rect x="20" y="76" width="920" height="284" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" />
+<rect x="20.0" y="76" width="69.3" height="284" fill="#ffffff" fill-opacity="0"/>
+<rect x="97.3" y="76" width="69.3" height="284" fill="#ffffff" fill-opacity="0"/>
+<rect x="174.7" y="76" width="69.3" height="284" fill="#ffffff" fill-opacity="0"/>
+<rect x="252.0" y="76" width="69.3" height="284" fill="#ffffff" fill-opacity="0"/>
+<rect x="329.3" y="76" width="69.3" height="284" fill="#ffffff" fill-opacity="0"/>
+<rect x="406.7" y="76" width="69.3" height="284" fill="#ffffff" fill-opacity="0"/>
+<rect x="484.0" y="76" width="69.3" height="284" fill="#ffffff" fill-opacity="0"/>
+<rect x="561.3" y="76" width="69.3" height="284" fill="#ffffff" fill-opacity="0"/>
+<rect x="638.7" y="76" width="69.3" height="284" fill="#ffffff" fill-opacity="0"/>
+<rect x="716.0" y="76" width="69.3" height="284" fill="#ffffff" fill-opacity="0"/>
+<rect x="793.3" y="76" width="69.3" height="284" fill="#ffffff" fill-opacity="0"/>
+<rect x="870.7" y="76" width="69.3" height="284" fill="#ffffff" fill-opacity="0"/>
+<rect x="20.0" y="88" width="533.3" height="160" rx="6" fill="#182029" stroke="rgba(255,255,255,0.13)" stroke-width="1"/><text x="34.0" y="112" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">Situation (hero)</text><text x="34.0" y="130" class="mono-s" text-anchor="start" xml:space="preserve" >7 cols</text>
+<rect x="561.3" y="88" width="378.7" height="110" rx="6" fill="#182029" stroke="rgba(255,255,255,0.13)" stroke-width="1"/><text x="575.3" y="112" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">All monitors</text><text x="575.3" y="130" class="mono-s" text-anchor="start" xml:space="preserve" >5 cols</text>
+<rect x="561.3" y="206" width="378.7" height="42" rx="6" fill="#182029" stroke="rgba(255,255,255,0.13)" stroke-width="1"/><text x="575.3" y="230" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">Timeline</text>
+<rect x="20.0" y="256" width="224.0" height="92" rx="6" fill="#182029" stroke="rgba(255,255,255,0.13)" stroke-width="1"/><text x="34.0" y="280" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">Also active</text><text x="34.0" y="298" class="mono-s" text-anchor="start" xml:space="preserve" >3 cols</text>
+<rect x="252.0" y="256" width="301.3" height="92" rx="6" fill="none" stroke="#3b9eff" stroke-dasharray="5 4"/>
+<text x="266.0" y="306" class="mono-s" text-anchor="start" xml:space="preserve" fill="#3b9eff" >drop here</text>
+<g class="drag">
+<rect x="252.0" y="256" width="301.3" height="92" rx="6" fill="#182029" stroke="#3b9eff" stroke-width="1.6"/>
+<text x="266.0" y="280" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">Near threshold</text>
+<text x="266.0" y="298" class="mono-s" text-anchor="start" xml:space="preserve" fill="#3b9eff" >4 cols · drag &amp; drop</text>
+</g>
+</svg>

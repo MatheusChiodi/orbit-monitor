@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 250" width="960" height="250" role="img" aria-labelledby="feature-animation-levels-title feature-animation-levels-desc">
+<title id="feature-animation-levels-title">Animation levels</title>
+<desc id="feature-animation-levels-desc">Four animation levels from off to expressive shown on the same down monitor; reduced motion forces off.</desc>
+<defs>
+  <marker id="feature-animation-levels-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#8b96a6"/></marker>
+  <marker id="feature-animation-levels-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#3b9eff"/></marker>
+</defs>
+<style>
+  .name { font: 600 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .name-l { font: 700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .name-xl { font: 800 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .body { font: 400 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #8b96a6; }
+  .sub { font: 400 11px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; }
+  .mono { font: 400 12px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .mono-s { font: 400 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; }
+  .eye { font: 600 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #5a6575; letter-spacing: 0.12em; }
+  .lab { font: 600 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; letter-spacing: 0.06em; }
+  .num { font: 700 26px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .num-s { font: 600 15px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .flow { fill: none; stroke: #3b9eff; stroke-width: 2.2; stroke-linecap: round;
+          stroke-dasharray: 3 17; animation: orbit-flow 1.4s linear infinite; }
+  .pulse { animation: orbit-pulse 1.4s ease-in-out infinite; }
+  @keyframes orbit-flow { to { stroke-dashoffset: -40; } }
+  @keyframes orbit-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  @media (prefers-reduced-motion: reduce) {
+    .flow, .anim-only { display: none; }
+    * { animation: none !important; }
+  }
+
+  .al-fade { animation: al-fade 2.8s ease-in-out infinite; }
+  .al-ring { transform-box: fill-box; transform-origin: center; animation: al-ring 2.6s ease-out infinite; }
+  @keyframes al-fade { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+  @keyframes al-ring { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(1.9); opacity: 0; } }
+</style>
+<rect width="960" height="250" rx="12" fill="#07090d"/>
+<text x="20" y="34" class="eye" text-anchor="start" xml:space="preserve" >ANIMATION LEVEL</text>
+<text x="20" y="58" class="body" text-anchor="start" xml:space="preserve" style="font-size:13px">Choose how much the interface moves. prefers-reduced-motion always forces Off.</text>
+<rect x="20" y="80" width="220" height="150" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" stroke-width="1"/>
+<text x="36" y="106" class="name" text-anchor="start" xml:space="preserve" >Off</text>
+<text x="36" y="124" class="mono-s" text-anchor="start" xml:space="preserve" >no motion at all</text>
+<rect x="36" y="146" width="188" height="64" rx="6" fill="#ff3b4f" fill-opacity="0.12" stroke="#ff3b4f" stroke-opacity="0.6"/>
+<circle cx="60" cy="178" r="6" fill="#ff3b4f"/>
+<text x="78" y="174" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">Queue depth</text>
+<text x="78" y="192" class="mono-s" text-anchor="start" xml:space="preserve" fill="#ffb3ba" >DOWN · 349</text>
+<rect x="252" y="80" width="220" height="150" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" stroke-width="1"/>
+<text x="268" y="106" class="name" text-anchor="start" xml:space="preserve" >Minimal</text>
+<text x="268" y="124" class="mono-s" text-anchor="start" xml:space="preserve" >fades only</text>
+<rect x="268" y="146" width="188" height="64" rx="6" fill="#ff3b4f" fill-opacity="0.12" stroke="#ff3b4f" stroke-opacity="0.6"/>
+<circle cx="292" cy="178" r="6" fill="#ff3b4f" class="al-fade"/>
+<text x="310" y="174" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">Queue depth</text>
+<text x="310" y="192" class="mono-s" text-anchor="start" xml:space="preserve" fill="#ffb3ba" >DOWN · 349</text>
+<rect x="484" y="80" width="220" height="150" rx="8" fill="#0d1117" stroke="#3b9eff" stroke-width="1.6"/>
+<text x="500" y="106" class="name" text-anchor="start" xml:space="preserve" >Standard</text>
+<text x="500" y="124" class="mono-s" text-anchor="start" xml:space="preserve" >pulse on unowned DOWN</text>
+<rect x="500" y="146" width="188" height="64" rx="6" fill="#ff3b4f" fill-opacity="0.12" stroke="#ff3b4f" stroke-opacity="0.6"/>
+<circle cx="524" cy="178" r="6" fill="#ff3b4f" class="pulse"/>
+<text x="542" y="174" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">Queue depth</text>
+<text x="542" y="192" class="mono-s" text-anchor="start" xml:space="preserve" fill="#ffb3ba" >DOWN · 349</text>
+<text x="688" y="106" class="mono-s" text-anchor="end" xml:space="preserve" fill="#3b9eff" >default</text>
+<rect x="716" y="80" width="220" height="150" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" stroke-width="1"/>
+<text x="732" y="106" class="name" text-anchor="start" xml:space="preserve" >Expressive</text>
+<text x="732" y="124" class="mono-s" text-anchor="start" xml:space="preserve" >pulse + hero transitions</text>
+<rect x="732" y="146" width="188" height="64" rx="6" fill="#ff3b4f" fill-opacity="0.12" stroke="#ff3b4f" stroke-opacity="0.6"/>
+<circle class="al-ring anim-only" cx="756" cy="178" r="8" fill="none" stroke="#ff3b4f" stroke-width="2"/>
+<circle cx="756" cy="178" r="6" fill="#ff3b4f" class="pulse"/>
+<text x="774" y="174" class="name" text-anchor="start" xml:space="preserve" style="font-size:12px">Queue depth</text>
+<text x="774" y="192" class="mono-s" text-anchor="start" xml:space="preserve" fill="#ffb3ba" >DOWN · 349</text>
+</svg>

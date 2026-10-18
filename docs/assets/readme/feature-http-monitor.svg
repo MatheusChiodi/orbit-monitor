@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 320" width="960" height="320" role="img" aria-labelledby="feature-http-monitor-title feature-http-monitor-desc">
+<title id="feature-http-monitor-title">HTTP monitor with metric extraction</title>
+<desc id="feature-http-monitor-desc">A request is executed, the JSON body is explored, a JSONPath value becomes a series and Gatus-style conditions are checked.</desc>
+<defs>
+  <marker id="feature-http-monitor-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#8b96a6"/></marker>
+  <marker id="feature-http-monitor-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#3b9eff"/></marker>
+</defs>
+<style>
+  .name { font: 600 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .name-l { font: 700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .name-xl { font: 800 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .body { font: 400 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #8b96a6; }
+  .sub { font: 400 11px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; }
+  .mono { font: 400 12px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .mono-s { font: 400 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; }
+  .eye { font: 600 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #5a6575; letter-spacing: 0.12em; }
+  .lab { font: 600 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; letter-spacing: 0.06em; }
+  .num { font: 700 26px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .num-s { font: 600 15px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .flow { fill: none; stroke: #3b9eff; stroke-width: 2.2; stroke-linecap: round;
+          stroke-dasharray: 3 17; animation: orbit-flow 1.4s linear infinite; }
+  .pulse { animation: orbit-pulse 1.4s ease-in-out infinite; }
+  @keyframes orbit-flow { to { stroke-dashoffset: -40; } }
+  @keyframes orbit-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  @media (prefers-reduced-motion: reduce) {
+    .flow, .anim-only { display: none; }
+    * { animation: none !important; }
+  }
+</style>
+<rect width="960" height="320" rx="12" fill="#07090d"/>
+<rect x="20" y="20" width="300" height="280" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" /><text x="36" y="44" class="eye" text-anchor="start" xml:space="preserve" >REQUEST</text>
+<rect x="36" y="54" width="34" height="20" rx="4" fill="#182029" stroke="rgba(255,255,255,0.13)"/><text x="44" y="68" class="mono-s" text-anchor="start" xml:space="preserve" fill="#3b9eff" >GET</text>
+<text x="84" y="68" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >https://api.example.com/health</text>
+<text x="36" y="100" class="eye" text-anchor="start" xml:space="preserve" >headers</text>
+<text x="36" y="120" class="mono-s" text-anchor="start" xml:space="preserve" >Accept: application/json</text>
+<text x="36" y="138" class="mono-s" text-anchor="start" xml:space="preserve" >Authorization: Bearer ••••  (vault)</text>
+<text x="36" y="176" class="eye" text-anchor="start" xml:space="preserve" >options</text>
+<text x="36" y="196" class="mono-s" text-anchor="start" xml:space="preserve" >follow redirects · timeout 3s</text>
+<text x="36" y="214" class="mono-s" text-anchor="start" xml:space="preserve" >metadata endpoints always blocked</text>
+<text x="36" y="264" class="body" text-anchor="start" xml:space="preserve" >Test now shows status, time,</text>
+<text x="36" y="282" class="body" text-anchor="start" xml:space="preserve" >headers and the formatted body.</text>
+<path d="M320,160 H352" fill="none" stroke="#8b96a6" stroke-opacity="0.75" stroke-width="1.4" marker-end="url(#feature-http-monitor-arrow)"/>
+<rect x="356" y="20" width="300" height="280" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" /><text x="372" y="44" class="eye" text-anchor="start" xml:space="preserve" >RESPONSE · 200 OK · 184 ms</text>
+<text x="372" y="62" class="mono" text-anchor="start" xml:space="preserve" >{</text>
+<text x="372" y="82" class="mono" text-anchor="start" xml:space="preserve" >  &quot;status&quot;: &quot;UP&quot;,</text>
+<text x="372" y="102" class="mono" text-anchor="start" xml:space="preserve" >  &quot;queue&quot;: {</text>
+<text x="372" y="122" class="mono" text-anchor="start" xml:space="preserve" >    &quot;size&quot;: 42,</text>
+<text x="372" y="142" class="mono" text-anchor="start" xml:space="preserve" >    &quot;oldest_s&quot;: 8</text>
+<text x="372" y="162" class="mono" text-anchor="start" xml:space="preserve" >  },</text>
+<text x="372" y="182" class="mono" text-anchor="start" xml:space="preserve" >  &quot;version&quot;: &quot;2.4.1&quot;</text>
+<text x="372" y="202" class="mono" text-anchor="start" xml:space="preserve" >}</text>
+<rect x="398" y="111" width="84" height="18" rx="3" fill="#3b9eff" fill-opacity="0.14" stroke="#3b9eff" stroke-opacity="0.6"/>
+<text x="372" y="240" class="mono-s" text-anchor="start" xml:space="preserve" >click a node → JSONPath field</text>
+<text x="372" y="258" class="mono-s" text-anchor="start" xml:space="preserve" fill="#3b9eff" >$.queue.size</text>
+<path d="M656,160 H688" fill="none" stroke="#3b9eff" stroke-opacity="1" stroke-width="1.4" marker-end="url(#feature-http-monitor-arrow-accent)"/>
+<rect x="692" y="20" width="248" height="280" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" /><text x="708" y="44" class="eye" text-anchor="start" xml:space="preserve" >SERIES · $.queue.size</text>
+<line x1="708" y1="58.0" x2="924" y2="58.0" stroke="#ffffff" stroke-opacity="0.45" stroke-dasharray="4 4"/><path d="M708.0,124.0 L732.0,118.7 L756.0,122.7 L780.0,113.4 L804.0,110.8 L828.0,116.1 L852.0,105.5 L876.0,109.5 L900.0,112.1 L924.0,108.2" fill="none" stroke="#22c55e" stroke-width="1.8" stroke-linejoin="round"/><circle cx="924.0" cy="108.2" r="3.5" fill="#22c55e"/>
+<text x="708" y="142" class="mono-s" text-anchor="start" xml:space="preserve" >threshold 80 · dashed</text>
+<circle cx="714" cy="164" r="4" fill="#22c55e"/>
+<text x="726" y="168" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >[STATUS] == 200</text>
+<text x="924" y="168" class="mono-s" text-anchor="end" xml:space="preserve" >200</text>
+<circle cx="714" cy="194" r="4" fill="#22c55e"/>
+<text x="726" y="198" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >[RESPONSE_TIME] &lt; 800ms</text>
+<text x="924" y="198" class="mono-s" text-anchor="end" xml:space="preserve" >184ms</text>
+<circle cx="714" cy="224" r="4" fill="#22c55e"/>
+<text x="726" y="228" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >[BODY].status == &quot;UP&quot;</text>
+<text x="924" y="228" class="mono-s" text-anchor="end" xml:space="preserve" >UP</text>
+<circle cx="714" cy="254" r="4" fill="#22c55e"/>
+<text x="726" y="258" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >[CERT_DAYS_LEFT] &gt; 14</text>
+<text x="924" y="258" class="mono-s" text-anchor="end" xml:space="preserve" >42</text>
+</svg>

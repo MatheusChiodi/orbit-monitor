@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300" width="960" height="300" role="img" aria-labelledby="check-flow-title check-flow-desc">
+<title id="check-flow-title">How an Orbit check flows</title>
+<desc id="check-flow-desc">Seven steps: scheduler, probe, redactor, conditions with hysteresis, state, alerting and the wall updated over WebSocket.</desc>
+<defs>
+  <marker id="check-flow-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#8b96a6"/></marker>
+  <marker id="check-flow-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#3b9eff"/></marker>
+</defs>
+<style>
+  .name { font: 600 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .name-l { font: 700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .name-xl { font: 800 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .body { font: 400 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #8b96a6; }
+  .sub { font: 400 11px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; }
+  .mono { font: 400 12px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .mono-s { font: 400 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; }
+  .eye { font: 600 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #5a6575; letter-spacing: 0.12em; }
+  .lab { font: 600 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; letter-spacing: 0.06em; }
+  .num { font: 700 26px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .num-s { font: 600 15px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .flow { fill: none; stroke: #3b9eff; stroke-width: 2.2; stroke-linecap: round;
+          stroke-dasharray: 3 17; animation: orbit-flow 1.4s linear infinite; }
+  .pulse { animation: orbit-pulse 1.4s ease-in-out infinite; }
+  @keyframes orbit-flow { to { stroke-dashoffset: -40; } }
+  @keyframes orbit-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  @media (prefers-reduced-motion: reduce) {
+    .flow, .anim-only { display: none; }
+    * { animation: none !important; }
+  }
+
+  .hl { opacity: 0; animation: cf-step 6.3s linear infinite; }
+  @keyframes cf-step { 0% { opacity: 1; } 14.3% { opacity: 1; } 14.4% { opacity: 0; } 100% { opacity: 0; } }
+</style>
+<rect width="960" height="300" rx="12" fill="#07090d"/>
+<text x="20" y="36" class="eye" text-anchor="start" xml:space="preserve" >HOW A CHECK FLOWS</text>
+<text x="20" y="64" class="body" text-anchor="start" xml:space="preserve" style="font-size:13px">From the scheduler to the TV in one pass. Values are masked before anything leaves the probe.</text>
+<path d="M136,148.0 H152" fill="none" stroke="#8b96a6" stroke-opacity="0.75" stroke-width="1.4" marker-end="url(#check-flow-arrow)"/>
+<path d="M270,148.0 H286" fill="none" stroke="#3b9eff" stroke-opacity="1" stroke-width="1.4" marker-end="url(#check-flow-arrow-accent)"/>
+<path d="M404,148.0 H420" fill="none" stroke="#8b96a6" stroke-opacity="0.75" stroke-width="1.4" marker-end="url(#check-flow-arrow)"/>
+<path d="M538,148.0 H554" fill="none" stroke="#8b96a6" stroke-opacity="0.75" stroke-width="1.4" marker-end="url(#check-flow-arrow)"/>
+<path d="M672,148.0 H688" fill="none" stroke="#8b96a6" stroke-opacity="0.75" stroke-width="1.4" marker-end="url(#check-flow-arrow)"/>
+<path d="M806,148.0 H822" fill="none" stroke="#8b96a6" stroke-opacity="0.75" stroke-width="1.4" marker-end="url(#check-flow-arrow)"/>
+<rect x="20" y="96" width="116" height="104" rx="6" fill="#121820" stroke="rgba(255,255,255,0.13)" stroke-width="1"/>
+<text x="32" y="118" class="eye" text-anchor="start" xml:space="preserve" fill="#5a6575" >01</text>
+<text x="32" y="142" class="name" text-anchor="start" xml:space="preserve" >Scheduler</text>
+<text x="32" y="164" class="mono-s" text-anchor="start" xml:space="preserve" >every interval</text>
+<text x="32" y="180" class="mono-s" text-anchor="start" xml:space="preserve" >virtual threads</text>
+<rect class="hl anim-only" aria-hidden="true" x="20" y="96" width="116" height="104" rx="6" fill="#3b9eff" fill-opacity="0.10" stroke="#3b9eff" stroke-width="2" style="animation-delay:0.0s"/>
+<rect x="154" y="96" width="116" height="104" rx="6" fill="#121820" stroke="rgba(255,255,255,0.13)" stroke-width="1"/>
+<text x="166" y="118" class="eye" text-anchor="start" xml:space="preserve" fill="#5a6575" >02</text>
+<text x="166" y="142" class="name" text-anchor="start" xml:space="preserve" >Probe</text>
+<text x="166" y="164" class="mono-s" text-anchor="start" xml:space="preserve" >HTTP · SQL · TCP</text>
+<text x="166" y="180" class="mono-s" text-anchor="start" xml:space="preserve" >timeout · breaker</text>
+<rect class="hl anim-only" aria-hidden="true" x="154" y="96" width="116" height="104" rx="6" fill="#3b9eff" fill-opacity="0.10" stroke="#3b9eff" stroke-width="2" style="animation-delay:0.9s"/>
+<rect x="288" y="96" width="116" height="104" rx="6" fill="#121820" stroke="#3b9eff" stroke-width="1.5"/>
+<text x="300" y="118" class="eye" text-anchor="start" xml:space="preserve" fill="#3b9eff" >03</text>
+<text x="300" y="142" class="name" text-anchor="start" xml:space="preserve" >Redactor</text>
+<text x="300" y="164" class="mono-s" text-anchor="start" xml:space="preserve" >PAN · CVV · CPF</text>
+<text x="300" y="180" class="mono-s" text-anchor="start" xml:space="preserve" >masked here</text>
+<rect class="hl anim-only" aria-hidden="true" x="288" y="96" width="116" height="104" rx="6" fill="#3b9eff" fill-opacity="0.10" stroke="#3b9eff" stroke-width="2" style="animation-delay:1.8s"/>
+<rect x="422" y="96" width="116" height="104" rx="6" fill="#121820" stroke="rgba(255,255,255,0.13)" stroke-width="1"/>
+<text x="434" y="118" class="eye" text-anchor="start" xml:space="preserve" fill="#5a6575" >04</text>
+<text x="434" y="142" class="name" text-anchor="start" xml:space="preserve" >Conditions</text>
+<text x="434" y="164" class="mono-s" text-anchor="start" xml:space="preserve" >[COL].QTY &lt; 200</text>
+<text x="434" y="180" class="mono-s" text-anchor="start" xml:space="preserve" >hysteresis</text>
+<rect class="hl anim-only" aria-hidden="true" x="422" y="96" width="116" height="104" rx="6" fill="#3b9eff" fill-opacity="0.10" stroke="#3b9eff" stroke-width="2" style="animation-delay:2.7s"/>
+<rect x="556" y="96" width="116" height="104" rx="6" fill="#121820" stroke="rgba(255,255,255,0.13)" stroke-width="1"/>
+<text x="568" y="118" class="eye" text-anchor="start" xml:space="preserve" fill="#5a6575" >05</text>
+<text x="568" y="142" class="name" text-anchor="start" xml:space="preserve" >State</text>
+<text x="568" y="164" class="mono-s" text-anchor="start" xml:space="preserve" >OK · WARN</text>
+<text x="568" y="180" class="mono-s" text-anchor="start" xml:space="preserve" >DOWN</text>
+<rect class="hl anim-only" aria-hidden="true" x="556" y="96" width="116" height="104" rx="6" fill="#3b9eff" fill-opacity="0.10" stroke="#3b9eff" stroke-width="2" style="animation-delay:3.6s"/>
+<rect x="690" y="96" width="116" height="104" rx="6" fill="#121820" stroke="rgba(255,255,255,0.13)" stroke-width="1"/>
+<text x="702" y="118" class="eye" text-anchor="start" xml:space="preserve" fill="#5a6575" >06</text>
+<text x="702" y="142" class="name" text-anchor="start" xml:space="preserve" >Alerting</text>
+<text x="702" y="164" class="mono-s" text-anchor="start" xml:space="preserve" >incident</text>
+<text x="702" y="180" class="mono-s" text-anchor="start" xml:space="preserve" >channels</text>
+<rect class="hl anim-only" aria-hidden="true" x="690" y="96" width="116" height="104" rx="6" fill="#3b9eff" fill-opacity="0.10" stroke="#3b9eff" stroke-width="2" style="animation-delay:4.5s"/>
+<rect x="824" y="96" width="116" height="104" rx="6" fill="#121820" stroke="rgba(255,255,255,0.13)" stroke-width="1"/>
+<text x="836" y="118" class="eye" text-anchor="start" xml:space="preserve" fill="#5a6575" >07</text>
+<text x="836" y="142" class="name" text-anchor="start" xml:space="preserve" >Wall</text>
+<text x="836" y="164" class="mono-s" text-anchor="start" xml:space="preserve" >WebSocket push</text>
+<text x="836" y="180" class="mono-s" text-anchor="start" xml:space="preserve" >no polling</text>
+<rect class="hl anim-only" aria-hidden="true" x="824" y="96" width="116" height="104" rx="6" fill="#3b9eff" fill-opacity="0.10" stroke="#3b9eff" stroke-width="2" style="animation-delay:5.4s"/>
+<line x1="24" y1="250" x2="936" y2="250" stroke="rgba(255,255,255,0.07)"/>
+<rect x="28" y="265" width="14" height="14" rx="3" fill="#121820" stroke="#3b9eff"/>
+<text x="50" y="276" class="mono-s" text-anchor="start" xml:space="preserve" >focal: privacy boundary</text>
+<line x1="218.3" y1="272" x2="242.3" y2="272" stroke="#8b96a6" stroke-width="1.6"/>
+<text x="250.3" y="276" class="mono-s" text-anchor="start" xml:space="preserve" >event</text>
+<circle cx="313.8" cy="272" r="5" fill="#22c55e"/>
+<text x="324.8" y="276" class="mono-s" text-anchor="start" xml:space="preserve" >ok</text>
+<circle cx="370" cy="272" r="5" fill="#f5a524"/>
+<text x="381" y="276" class="mono-s" text-anchor="start" xml:space="preserve" >warn</text>
+<circle cx="438.4" cy="272" r="5" fill="#ff3b4f"/>
+<text x="449.4" y="276" class="mono-s" text-anchor="start" xml:space="preserve" >down</text>
+</svg>

@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 330" width="960" height="330" role="img" aria-labelledby="feature-config-files-title feature-config-files-desc">
+<title id="feature-config-files-title">Configuration in per-feature JSON files</title>
+<desc id="feature-config-files-desc">Orbit keeps configuration in one JSON file per feature under ~/.orbit/config with encrypted secrets, and these files are never committed.</desc>
+<defs>
+  <marker id="feature-config-files-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#8b96a6"/></marker>
+  <marker id="feature-config-files-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#3b9eff"/></marker>
+</defs>
+<style>
+  .name { font: 600 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .name-l { font: 700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .name-xl { font: 800 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .body { font: 400 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #8b96a6; }
+  .sub { font: 400 11px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; }
+  .mono { font: 400 12px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .mono-s { font: 400 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; }
+  .eye { font: 600 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #5a6575; letter-spacing: 0.12em; }
+  .lab { font: 600 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; letter-spacing: 0.06em; }
+  .num { font: 700 26px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .num-s { font: 600 15px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .flow { fill: none; stroke: #3b9eff; stroke-width: 2.2; stroke-linecap: round;
+          stroke-dasharray: 3 17; animation: orbit-flow 1.4s linear infinite; }
+  .pulse { animation: orbit-pulse 1.4s ease-in-out infinite; }
+  @keyframes orbit-flow { to { stroke-dashoffset: -40; } }
+  @keyframes orbit-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  @media (prefers-reduced-motion: reduce) {
+    .flow, .anim-only { display: none; }
+    * { animation: none !important; }
+  }
+</style>
+<rect width="960" height="330" rx="12" fill="#07090d"/>
+<text x="20" y="34" class="eye" text-anchor="start" xml:space="preserve" >NO DATABASE · ONE JSON FILE PER FEATURE</text>
+<text x="20" y="58" class="body" text-anchor="start" xml:space="preserve" style="font-size:13px">Created on demand as you register things in the console. Schema-validated, written atomically, backed up as .bak.</text>
+<rect x="20" y="76" width="300" height="236" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" /><text x="36" y="100" class="eye" text-anchor="start" xml:space="preserve" >~/.orbit/config/</text>
+<path d="M36,114 h10 l4,4 v10 h-14 z" fill="none" stroke="#8b96a6"/>
+<text x="58" y="126" class="mono" text-anchor="start" xml:space="preserve" fill="#8b96a6" >orbit.settings.json</text>
+<path d="M36,136 h10 l4,4 v10 h-14 z" fill="none" stroke="#8b96a6"/>
+<text x="58" y="148" class="mono" text-anchor="start" xml:space="preserve" fill="#eef2f7" >orbit.connections.json</text>
+<path d="M36,158 h10 l4,4 v10 h-14 z" fill="none" stroke="#8b96a6"/>
+<text x="58" y="170" class="mono" text-anchor="start" xml:space="preserve" fill="#8b96a6" >orbit.requests.json</text>
+<path d="M36,180 h10 l4,4 v10 h-14 z" fill="none" stroke="#8b96a6"/>
+<text x="58" y="192" class="mono" text-anchor="start" xml:space="preserve" fill="#eef2f7" >orbit.selects.json</text>
+<path d="M36,202 h10 l4,4 v10 h-14 z" fill="none" stroke="#8b96a6"/>
+<text x="58" y="214" class="mono" text-anchor="start" xml:space="preserve" fill="#8b96a6" >orbit.layouts.json</text>
+<path d="M36,224 h10 l4,4 v10 h-14 z" fill="none" stroke="#8b96a6"/>
+<text x="58" y="236" class="mono" text-anchor="start" xml:space="preserve" fill="#8b96a6" >orbit.themes.json</text>
+<path d="M36,246 h10 l4,4 v10 h-14 z" fill="none" stroke="#8b96a6"/>
+<text x="58" y="258" class="mono" text-anchor="start" xml:space="preserve" fill="#8b96a6" >orbit.channels.json</text>
+<path d="M36,268 h10 l4,4 v10 h-14 z" fill="none" stroke="#8b96a6"/>
+<text x="58" y="280" class="mono" text-anchor="start" xml:space="preserve" fill="#8b96a6" >orbit.maintenance.json</text>
+<rect x="336" y="76" width="360" height="236" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" /><text x="352" y="100" class="eye" text-anchor="start" xml:space="preserve" >orbit.connections.json</text>
+<text x="352" y="124" class="mono" text-anchor="start" xml:space="preserve" fill="#eef2f7" >{ &quot;version&quot;: 1,</text>
+<text x="352" y="146" class="mono" text-anchor="start" xml:space="preserve" fill="#eef2f7" >  &quot;items&quot;: [{</text>
+<text x="352" y="168" class="mono" text-anchor="start" xml:space="preserve" fill="#eef2f7" >    &quot;id&quot;: &quot;con_core_oracle&quot;,</text>
+<text x="352" y="190" class="mono" text-anchor="start" xml:space="preserve" fill="#eef2f7" >    &quot;driver&quot;: &quot;oracle&quot;,</text>
+<text x="352" y="212" class="mono" text-anchor="start" xml:space="preserve" fill="#eef2f7" >    &quot;host&quot;: &quot;db.internal&quot;,</text>
+<text x="352" y="234" class="mono" text-anchor="start" xml:space="preserve" fill="#eef2f7" >    &quot;user&quot;: &quot;orbit_ro&quot;,</text>
+<text x="352" y="256" class="mono" text-anchor="start" xml:space="preserve" fill="#3b9eff" >    &quot;password&quot;: { &quot;enc&quot;: &quot;v1:…&quot; }</text>
+<text x="352" y="278" class="mono" text-anchor="start" xml:space="preserve" fill="#eef2f7" >  }] }</text>
+<rect x="662" y="246" width="18" height="14" rx="3" fill="none" stroke="#3b9eff" stroke-width="1.6"/>
+<path d="M666,246 v-4 a5,5 0 0 1 10,0 v4" fill="none" stroke="#3b9eff" stroke-width="1.6"/>
+<rect x="712" y="76" width="228" height="236" rx="8" fill="#0d1117" stroke="rgba(255,255,255,0.13)" /><text x="728" y="100" class="eye" text-anchor="start" xml:space="preserve" >NEVER COMMITTED</text>
+<circle cx="732" cy="112" r="5" fill="#ff3b4f"/>
+<text x="746" y="116" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >git add orbit.*.json</text>
+<text x="746" y="131" class="mono-s" text-anchor="start" xml:space="preserve" >blocked</text>
+<circle cx="732" cy="156" r="5" fill="#ff3b4f"/>
+<text x="746" y="160" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >master.key</text>
+<text x="746" y="175" class="mono-s" text-anchor="start" xml:space="preserve" >outside the folder</text>
+<circle cx="732" cy="200" r="5" fill="#22c55e"/>
+<text x="746" y="204" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >*.example.json</text>
+<text x="746" y="219" class="mono-s" text-anchor="start" xml:space="preserve" >allowed</text>
+<circle cx="732" cy="244" r="5" fill="#22c55e"/>
+<text x="746" y="248" class="mono-s" text-anchor="start" xml:space="preserve" fill="#eef2f7" >*.schema.json</text>
+<text x="746" y="263" class="mono-s" text-anchor="start" xml:space="preserve" >allowed</text>
+<text x="728" y="296" class="mono-s" text-anchor="start" xml:space="preserve" fill="#3b9eff" >.gitignore + pre-commit hook</text>
+</svg>

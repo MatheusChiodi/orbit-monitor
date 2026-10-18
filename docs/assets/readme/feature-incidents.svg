@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 260" width="960" height="260" role="img" aria-labelledby="feature-incidents-title feature-incidents-desc">
+<title id="feature-incidents-title">Incident lifecycle</title>
+<desc id="feature-incidents-desc">Timeline of an incident: opened, notified, acknowledged, escalation stopped and resolved, with time to acknowledge and to resolve.</desc>
+<defs>
+  <marker id="feature-incidents-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#8b96a6"/></marker>
+  <marker id="feature-incidents-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#3b9eff"/></marker>
+</defs>
+<style>
+  .name { font: 600 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .name-l { font: 700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .name-xl { font: 800 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #eef2f7; }
+  .body { font: 400 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; fill: #8b96a6; }
+  .sub { font: 400 11px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; }
+  .mono { font: 400 12px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .mono-s { font: 400 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; }
+  .eye { font: 600 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #5a6575; letter-spacing: 0.12em; }
+  .lab { font: 600 10px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #8b96a6; letter-spacing: 0.06em; }
+  .num { font: 700 26px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .num-s { font: 600 15px ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; fill: #eef2f7; }
+  .flow { fill: none; stroke: #3b9eff; stroke-width: 2.2; stroke-linecap: round;
+          stroke-dasharray: 3 17; animation: orbit-flow 1.4s linear infinite; }
+  .pulse { animation: orbit-pulse 1.4s ease-in-out infinite; }
+  @keyframes orbit-flow { to { stroke-dashoffset: -40; } }
+  @keyframes orbit-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  @media (prefers-reduced-motion: reduce) {
+    .flow, .anim-only { display: none; }
+    * { animation: none !important; }
+  }
+</style>
+<rect width="960" height="260" rx="12" fill="#07090d"/>
+<text x="20" y="34" class="eye" text-anchor="start" xml:space="preserve" >INCIDENT LIFECYCLE</text>
+<text x="20" y="58" class="body" text-anchor="start" xml:space="preserve" style="font-size:13px">Opens on DOWN, notifies, escalates until someone acknowledges, closes by itself on recovery.</text>
+<line x1="80" y1="120" x2="880" y2="120" stroke="rgba(255,255,255,0.13)" stroke-width="2"/>
+<line x1="80" y1="120" x2="880" y2="120" class="flow" style="stroke-dasharray:6 14"/>
+<circle cx="80" cy="120" r="9" fill="#07090d" stroke="#ff3b4f" stroke-width="2.5"/>
+<circle cx="80" cy="120" r="4" fill="#ff3b4f" class="pulse"/>
+<text x="80" y="98" class="mono-s" text-anchor="middle" xml:space="preserve" >17:00:11</text>
+<text x="80" y="154" class="name" text-anchor="middle" xml:space="preserve" >Opened</text>
+<text x="80" y="172" class="mono-s" text-anchor="middle" xml:space="preserve" >QTY = 347 · rule &lt; 200</text>
+<circle cx="280" cy="120" r="9" fill="#07090d" stroke="#8b96a6" stroke-width="2.5"/>
+<circle cx="280" cy="120" r="4" fill="#8b96a6"/>
+<text x="280" y="98" class="mono-s" text-anchor="middle" xml:space="preserve" >17:00:12</text>
+<text x="280" y="154" class="name" text-anchor="middle" xml:space="preserve" >Notified</text>
+<text x="280" y="172" class="mono-s" text-anchor="middle" xml:space="preserve" >Teams · on-call</text>
+<circle cx="480" cy="120" r="9" fill="#07090d" stroke="#3b9eff" stroke-width="2.5"/>
+<circle cx="480" cy="120" r="4" fill="#3b9eff"/>
+<text x="480" y="98" class="mono-s" text-anchor="middle" xml:space="preserve" >17:04:01</text>
+<text x="480" y="154" class="name" text-anchor="middle" xml:space="preserve" >Acknowledged</text>
+<text x="480" y="172" class="mono-s" text-anchor="middle" xml:space="preserve" >M. Chiodi</text>
+<circle cx="680" cy="120" r="9" fill="#07090d" stroke="#8b96a6" stroke-width="2.5"/>
+<circle cx="680" cy="120" r="4" fill="#8b96a6"/>
+<text x="680" y="98" class="mono-s" text-anchor="middle" xml:space="preserve" >17:15:00</text>
+<text x="680" y="154" class="name" text-anchor="middle" xml:space="preserve" >Escalation</text>
+<text x="680" y="172" class="mono-s" text-anchor="middle" xml:space="preserve" >stopped by ack</text>
+<circle cx="880" cy="120" r="9" fill="#07090d" stroke="#22c55e" stroke-width="2.5"/>
+<circle cx="880" cy="120" r="4" fill="#22c55e"/>
+<text x="880" y="98" class="mono-s" text-anchor="middle" xml:space="preserve" >17:21:30</text>
+<text x="880" y="154" class="name" text-anchor="middle" xml:space="preserve" >Resolved</text>
+<text x="880" y="172" class="mono-s" text-anchor="middle" xml:space="preserve" >auto · 21min 19s</text>
+<rect x="20" y="196" width="296" height="44" rx="6" fill="#0d1117" stroke="rgba(255,255,255,0.13)" />
+<text x="34" y="223" class="mono-s" text-anchor="start" xml:space="preserve" >time to acknowledge</text>
+<text x="302" y="224" class="num-s" text-anchor="end" xml:space="preserve" style="font-size:13px">3min 50s</text>
+<rect x="332" y="196" width="296" height="44" rx="6" fill="#0d1117" stroke="rgba(255,255,255,0.13)" />
+<text x="346" y="223" class="mono-s" text-anchor="start" xml:space="preserve" >time to resolve</text>
+<text x="614" y="224" class="num-s" text-anchor="end" xml:space="preserve" style="font-size:13px">21min 19s</text>
+<rect x="644" y="196" width="296" height="44" rx="6" fill="#0d1117" stroke="rgba(255,255,255,0.13)" />
+<text x="658" y="223" class="mono-s" text-anchor="start" xml:space="preserve" >postmortem</text>
+<text x="926" y="224" class="num-s" text-anchor="end" xml:space="preserve" style="font-size:13px">generated</text>
+</svg>
