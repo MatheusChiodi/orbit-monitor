@@ -2,6 +2,9 @@ package io.orbit.telemetry;
 
 import io.orbit.common.MonitorState;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
 
 /** Uptime and nearest-rank percentiles over in-memory heartbeats. */
@@ -35,6 +38,24 @@ public final class Statistics {
 
     public static Long percentileOrNull(List<Long> values, double p) {
         return values.isEmpty() ? null : percentile(values, p);
+    }
+
+    /**
+     * Last primary value per minute for the {@code minutes} minutes ending at {@code now}'s minute,
+     * oldest first; minutes without a value (or only DOWN checks) are null gaps.
+     */
+    public static List<Double> minuteSeries(List<Heartbeat> heartbeats, Instant now, int minutes) {
+        Instant end = now.truncatedTo(ChronoUnit.MINUTES);
+        Instant start = end.minus(minutes - 1L, ChronoUnit.MINUTES);
+        Double[] buckets = new Double[minutes];
+        for (Heartbeat h : heartbeats) {
+            Instant minute = h.at().truncatedTo(ChronoUnit.MINUTES);
+            if (h.value() == null || h.state() == MonitorState.DOWN || minute.isBefore(start) || minute.isAfter(end)) {
+                continue;
+            }
+            buckets[(int) ChronoUnit.MINUTES.between(start, minute)] = h.value();
+        }
+        return Arrays.asList(buckets);
     }
 
     /** Percentiles over checks that answered (DOWN and UNKNOWN are excluded). */
