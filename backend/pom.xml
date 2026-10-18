@@ -18,6 +18,7 @@
     <name>Orbit Monitor - backend</name>
 
     <modules>
+        <module>orbit-common</module>
         <module>orbit-api</module>
     </modules>
 
