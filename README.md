@@ -24,6 +24,7 @@ Monitoring for websites, APIs and databases, with a **TV wall** that changes sha
 | [`docs/02-features.md`](docs/02-features.md) | Features |
 | [`docs/03-design.md`](docs/03-design.md) | Design principles and tokens |
 | [`docs/04-data-protection.md`](docs/04-data-protection.md) | LGPD and PCI DSS controls |
+| [`docs/05-extended-features.md`](docs/05-extended-features.md) | 100 extended features (FE/BE) and pending-test convention |
 
 ## Running locally
 
