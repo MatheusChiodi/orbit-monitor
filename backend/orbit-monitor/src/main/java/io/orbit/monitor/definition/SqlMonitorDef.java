@@ -17,12 +17,14 @@ public record SqlMonitorDef(
         double hysteresis,
         boolean openOnWarn,
         List<ConditionDef> conditions,
+        List<FieldDef> fields,
         boolean paused,
         Instant updatedAt,
         String updatedBy) implements MonitorDef {
 
     public SqlMonitorDef {
         conditions = conditions == null ? List.of() : List.copyOf(conditions);
+        fields = fields == null ? List.of() : List.copyOf(fields);
     }
 
     @Override
@@ -32,6 +34,6 @@ public record SqlMonitorDef(
 
     SqlMonitorDef touchedBy(String operator, Instant at) {
         return new SqlMonitorDef(id, name, groupId, connectionId, sql, intervalSeconds, timeoutMs, maxRows, downAfter,
-                hysteresis, openOnWarn, conditions, paused, at, operator);
+                hysteresis, openOnWarn, conditions, fields, paused, at, operator);
     }
 }

@@ -26,6 +26,7 @@ public record HttpMonitorDef(
         double hysteresis,
         boolean openOnWarn,
         List<ConditionDef> conditions,
+        List<FieldDef> fields,
         boolean paused,
         Instant updatedAt,
         String updatedBy) implements MonitorDef {
@@ -34,6 +35,7 @@ public record HttpMonitorDef(
         headers = headers == null ? Map.of() : Map.copyOf(headers);
         secretHeaders = secretHeaders == null ? Map.of() : Map.copyOf(secretHeaders);
         conditions = conditions == null ? List.of() : List.copyOf(conditions);
+        fields = fields == null ? List.of() : List.copyOf(fields);
     }
 
     @Override
@@ -43,6 +45,6 @@ public record HttpMonitorDef(
 
     HttpMonitorDef touchedBy(String operator, Instant at) {
         return new HttpMonitorDef(id, name, groupId, method, url, headers, secretHeaders, body, intervalSeconds,
-                timeoutMs, followRedirects, downAfter, hysteresis, openOnWarn, conditions, paused, at, operator);
+                timeoutMs, followRedirects, downAfter, hysteresis, openOnWarn, conditions, fields, paused, at, operator);
     }
 }

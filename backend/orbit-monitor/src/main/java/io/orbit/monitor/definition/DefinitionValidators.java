@@ -1,5 +1,7 @@
 package io.orbit.monitor.definition;
 
+import io.orbit.common.privacy.DataClass;
+import io.orbit.common.privacy.SensitiveDataRedactor;
 import io.orbit.monitor.condition.ConditionSyntaxException;
 import io.orbit.monitor.sql.Dialect;
 import io.orbit.monitor.sql.SelectValidator;
@@ -18,6 +20,7 @@ final class DefinitionValidators {
     private static final Pattern ID = Pattern.compile("[a-z][a-z0-9_-]{1,63}");
     private static final Set<String> METHODS = Set.of("GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS");
     private static final SelectValidator SELECTS = new SelectValidator();
+    private static final SensitiveDataRedactor REDACTOR = new SensitiveDataRedactor();
 
     private DefinitionValidators() {
     }
@@ -91,6 +94,12 @@ final class DefinitionValidators {
         }
         if (m.hysteresis() < 0 || m.hysteresis() > 0.5) {
             errors.add(m.id() + ": hysteresis must be between 0 and 0.5");
+        }
+        for (FieldDef f : m.fields()) {
+            DataClass dataClass = REDACTOR.classifyName(f.key());
+            if (f.series() && (dataClass == DataClass.PCI_PAN || dataClass == DataClass.PCI_SAD)) {
+                errors.add(m.id() + ": card field " + f.key() + " cannot be stored as a series");
+            }
         }
         for (ConditionDef c : m.conditions()) {
             try {

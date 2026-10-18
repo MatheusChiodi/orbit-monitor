@@ -31,6 +31,8 @@ public interface MonitorDef extends ConfigItem {
 
     List<ConditionDef> conditions();
 
+    List<FieldDef> fields();
+
     @JsonIgnore
     MonitorKind kind();
 

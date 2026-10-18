@@ -36,7 +36,7 @@ class MonitorDefinitionsTest {
     private static SqlMonitorDef select(String connectionId) {
         return new SqlMonitorDef("sel_queue", "Reconciliation queue", "grp_payments", connectionId,
                 "SELECT COUNT(*) AS PENDING_QTY FROM V_RECONCILIATION_PENDING", 60, 30_000, 500, 2, 0.10, false,
-                List.of(new ConditionDef("[COL].PENDING_QTY < 200", Severity.DOWN)), false, null, null);
+                List.of(new ConditionDef("[COL].PENDING_QTY < 200", Severity.DOWN)), List.of(), false, null, null);
     }
 
     private static HttpMonitorDef request() {
@@ -44,7 +44,7 @@ class MonitorDefinitionsTest {
                 Map.of("Accept", "application/json"), Map.of("Authorization", SecretRef.env("PORTAL_TOKEN")), null,
                 30, 5_000, true, 2, 0.10, false,
                 List.of(new ConditionDef("[STATUS] == 200", Severity.DOWN),
-                        new ConditionDef("[RESPONSE_TIME] < 800ms", Severity.WARN)), false, null, null);
+                        new ConditionDef("[RESPONSE_TIME] < 800ms", Severity.WARN)), List.of(), false, null, null);
     }
 
     @Test
@@ -77,7 +77,7 @@ class MonitorDefinitionsTest {
     void unsafeSqlIsRejected() {
         definitions.saveConnection(connection(), "Ana");
         SqlMonitorDef bad = new SqlMonitorDef("sel_bad", "Bad", null, "con_core", "DELETE FROM t", 60, 30_000, 500, 1,
-                0.1, false, List.of(), false, null, null);
+                0.1, false, List.of(), List.of(), false, null, null);
         assertThatThrownBy(() -> definitions.saveSelect(bad, "Ana")).isInstanceOf(ConfigValidationException.class);
     }
 
@@ -85,7 +85,7 @@ class MonitorDefinitionsTest {
     void invalidConditionIsRejectedWithItsMessage() {
         HttpMonitorDef bad = new HttpMonitorDef("req_bad", "Bad", null, "GET", "https://x.example.com", Map.of(),
                 Map.of(), null, 30, 5_000, true, 1, 0.1, false,
-                List.of(new ConditionDef("[NOPE] == 1", Severity.DOWN)), false, null, null);
+                List.of(new ConditionDef("[NOPE] == 1", Severity.DOWN)), List.of(), false, null, null);
         assertThatThrownBy(() -> definitions.saveRequest(bad, "Ana"))
                 .isInstanceOfSatisfying(ConfigValidationException.class,
                         e -> assertThat(e.errors()).anyMatch(m -> m.contains("Unknown placeholder")));
@@ -94,14 +94,14 @@ class MonitorDefinitionsTest {
     @Test
     void intervalMustBeBetween15SecondsAnd24Hours() {
         HttpMonitorDef fast = new HttpMonitorDef("req_fast", "Fast", null, "GET", "https://x.example.com", Map.of(),
-                Map.of(), null, 5, 5_000, true, 1, 0.1, false, List.of(), false, null, null);
+                Map.of(), null, 5, 5_000, true, 1, 0.1, false, List.of(), List.of(), false, null, null);
         assertThatThrownBy(() -> definitions.saveRequest(fast, "Ana")).isInstanceOf(ConfigValidationException.class);
     }
 
     @Test
     void urlMustBeHttpOrHttps() {
         HttpMonitorDef ftp = new HttpMonitorDef("req_ftp", "Ftp", null, "GET", "ftp://x.example.com", Map.of(),
-                Map.of(), null, 30, 5_000, true, 1, 0.1, false, List.of(), false, null, null);
+                Map.of(), null, 30, 5_000, true, 1, 0.1, false, List.of(), List.of(), false, null, null);
         assertThatThrownBy(() -> definitions.saveRequest(ftp, "Ana")).isInstanceOf(ConfigValidationException.class);
     }
 
@@ -120,8 +120,20 @@ class MonitorDefinitionsTest {
         definitions.saveConnection(connection(), "Ana");
         definitions.saveSelect(select("con_core"), "Ana");
         HttpMonitorDef clash = new HttpMonitorDef("sel_queue", "Clash", null, "GET", "https://x.example.com", Map.of(),
-                Map.of(), null, 30, 5_000, true, 1, 0.1, false, List.of(), false, null, null);
+                Map.of(), null, 30, 5_000, true, 1, 0.1, false, List.of(), List.of(), false, null, null);
         assertThatThrownBy(() -> definitions.saveRequest(clash, "Ana")).isInstanceOf(ConfigValidationException.class);
+    }
+
+    @Test
+    void cardFieldsCannotBeStoredAsSeries() {
+        definitions.saveConnection(connection(), "Ana");
+        SqlMonitorDef cards = new SqlMonitorDef("sel_cards", "Cards", null, "con_core", "SELECT card_number FROM v",
+                60, 30_000, 500, 1, 0.1, false, List.of(),
+                List.of(new FieldDef("CARD_NUMBER", "Card", "text", null, null, true, "table")), false, null, null);
+
+        assertThatThrownBy(() -> definitions.saveSelect(cards, "Ana"))
+                .isInstanceOfSatisfying(ConfigValidationException.class,
+                        e -> assertThat(e.errors()).anyMatch(m -> m.contains("CARD_NUMBER")));
     }
 
     @Test
