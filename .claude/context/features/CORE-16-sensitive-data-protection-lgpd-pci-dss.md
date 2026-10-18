@@ -27,15 +27,21 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `backend/orbit-common/src/main/java/io/orbit/common/privacy/Luhn.java`
 - `backend/orbit-common/src/main/java/io/orbit/common/privacy/BrazilianDocuments.java`
 - `backend/orbit-common/src/main/java/io/orbit/common/privacy/DataClass.java`
+- `backend/orbit-monitor/src/main/java/io/orbit/monitor/privacy/PayloadRedactor.java`
+- `backend/orbit-probe/src/main/java/io/orbit/probe/CheckRunner.java`
 
 ## Tests
 - `backend/orbit-common/src/test/java/io/orbit/common/privacy/SensitiveDataRedactorTest.java`
+- `backend/orbit-monitor/src/test/java/io/orbit/monitor/privacy/PayloadRedactorTest.java`
+- `backend/orbit-probe/src/test/java/io/orbit/probe/CheckRunnerTest.java`
 
 ## Decisions and notes
 - Backend: `SensitiveDataRedactor` classifies by field-name tokens (camelCase, snake_case and adjacent pairs such as `api_key`) and by value: Luhn PAN (13-19 digits, also as numeric values), CPF/CNPJ check digits, e-mail, formatted BR phone, JWT and Bearer tokens.
 - Backend: Masks: PAN `•••• •••• •••• 1234`, SAD `[REDACTED]`, secrets `••••`, CPF `•••.•••.•••-12`, e-mail `j•••@d•••.com`, phone `(••) •••••-1234`, other personal fields first letter + `•••`.
-- Backend: Next: payload redaction at the probe boundary, Jackson serialization guard and Logback masking converter.
+- Backend: Probe boundary: `CheckRunner` evaluates conditions on the raw result in memory, then returns a `CheckResult` with masked payload (SQL rows, JSON body by key/value, sensitive headers), masked condition values/messages and masked error text.
+- Backend: Next: Jackson serialization guard and Logback masking converter.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — backend: redaction core (detectors and masks) in orbit-common.
+- 2026-10-18 — backend: probe-boundary redaction (PayloadRedactor + CheckRunner).
