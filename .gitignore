@@ -1,19 +1,62 @@
-# Node
+# ── Node / frontend ─────────────────────────
 node_modules/
 dist/
+dist-ssr/
 coverage/
+.vite/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 *.log
-# Java
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+
+# ── Java / backend ──────────────────────────
 target/
 *.class
+*.jar
+!**/.mvn/wrapper/maven-wrapper.jar
 .mvn/wrapper/maven-wrapper.jar
-# IDE / OS
+hs_err_pid*
+replay_pid*
+
+# ── IDE / SO ────────────────────────────────
 .idea/
 .vscode/
 *.iml
+*.iws
+*.ipr
+.project
+.classpath
+.settings/
+*.swp
+*~
 .DS_Store
 Thumbs.db
-# Local data
+desktop.ini
+
+# ── Local data and secrets (NEVER publish) ──
+.orbit/
 *.mv.db
 *.trace.db
+*.db
+master.key
+*.key
+*.pem
+*.p12
+*.jks
+*.keystore
 .env
+.env.*
+!.env.example
+application-secret*.yml
+application-secret*.properties
+
+# ── Ferramentas de agentes ──────────────────
+.claude/
+.memory-team
