@@ -12,7 +12,7 @@ updated: 2026-10-18
 # BE-20 · Uptime and SLA
 
 ## Summary
-Excludes maintenance windows; 24h/7d/30d/closed month
+Excludes maintenance windows; computed over the in-memory window and states its coverage
 
 ## Status
 - [ ] Tests written (pending or active)

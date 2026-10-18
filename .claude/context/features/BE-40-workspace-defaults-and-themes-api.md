@@ -1,18 +1,18 @@
 ---
-id: BE-50
-title: "Self-monitoring and backup"
+id: BE-40
+title: "Workspace defaults and themes API"
 area: backend
-group: "Security and platform"
+group: "Workspace and configuration"
 status: planned
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
 ---
 
-# BE-50 · Self-monitoring and backup
+# BE-40 · Workspace defaults and themes API
 
 ## Summary
-Micrometer/Prometheus metrics, Orbit monitors itself; encrypted workspace backup/restore
+Default theme, animation level, density, locale and scale; custom themes with server-side contrast validation
 
 ## Status
 - [ ] Tests written (pending or active)

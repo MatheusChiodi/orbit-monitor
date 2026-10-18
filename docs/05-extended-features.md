@@ -106,7 +106,7 @@ Every mode: state always has a text label, values use tabular mono, all sensitiv
 | FE-47 | **Sound alerts** | Per-severity sounds and volume, muted by default |
 | FE-48 | **Desktop notifications** | Opt-in browser notifications for new incidents |
 | FE-49 | **Mobile on-call view** | Hero, active incidents and a full-width Acknowledge button |
-| FE-50 | **Preference sync** | Theme, animation level, density, language and scale saved per user on the server |
+| FE-50 | **Device preferences** | Theme, animation level, density, language, scale and operator name saved on the device, with workspace defaults from the server and JSON export/import |
 
 ## 2. Backend (BE)
 
@@ -137,8 +137,8 @@ Every mode: state always has a text label, values use tabular mono, all sensitiv
 
 | ID | Feature | Acceptance highlights |
 |---|---|---|
-| BE-19 | **Rollups and retention** | 1m/1h/1d rollups; purge job per retention policy |
-| BE-20 | **Uptime and SLA** | Excludes maintenance windows; 24h/7d/30d/closed month |
+| BE-19 | **In-memory rollups** | 1m/1h rollups in bounded ring buffers; window configurable (24 h default) |
+| BE-20 | **Uptime and SLA** | Excludes maintenance windows; computed over the in-memory window and states its coverage |
 | BE-21 | **Percentiles** | p50/p95/p99 per window |
 | BE-22 | **Anomaly detection** | Deviation vs same-hour baseline of the last week; z-score |
 | BE-23 | **Body metric extraction** | JSONPath values stored as series |
@@ -165,11 +165,11 @@ Every mode: state always has a text label, values use tabular mono, all sensitiv
 
 | ID | Feature | Acceptance highlights |
 |---|---|---|
-| BE-37 | **Monitoring as code** | YAML import/export with dry-run diff |
+| BE-37 | **Config export/import** | Archive of all `orbit.<feature>.json` files (secrets omitted) with dry-run diff |
 | BE-38 | **Realtime protocol** | WebSocket snapshot + deltas with sequence numbers; resume after reconnect |
 | BE-39 | **Workspace variables** | `${var:name}` and `${vault:name}` references |
-| BE-40 | **User preferences and themes API** | Theme, animation level, density, locale, scale; server-side contrast validation |
-| BE-41 | **Wall layouts and tokens** | Versioned layouts; revocable, scoped, expiring wall tokens |
+| BE-40 | **Workspace defaults and themes API** | Default theme, animation level, density, locale and scale; custom themes with server-side contrast validation |
+| BE-41 | **Wall layouts** | Versioned layouts addressed by slug (`/wall/noc`), read-only for view clients |
 | BE-42 | **Status page API** | Public/internal read-only, cached, no personal data |
 | BE-43 | **Uptime Kuma import** | Maps monitors and groups |
 
@@ -177,13 +177,13 @@ Every mode: state always has a text label, values use tabular mono, all sensitiv
 
 | ID | Feature | Acceptance highlights |
 |---|---|---|
-| BE-44 | **TOTP 2FA** | Enrollment, verification, recovery codes |
-| BE-45 | **API keys** | Personal access tokens with scopes and expiry, stored hashed |
+| BE-44 | **Network access policy** | No login; mutations only from loopback by default, `lan` or CIDR allowlist configurable, view-only otherwise; `403` Problem Details |
+| BE-45 | **Operator identity** | Self-declared `X-Orbit-Operator` name recorded on acknowledgements, comments and audit; anonymization endpoint |
 | BE-46 | **Audit query API** | Filters, SELECT change diff, never stores probe results |
-| BE-47 | **Rate limiting and lockout** | Per user/IP; brute-force lockout on login |
+| BE-47 | **Rate limiting** | Per client IP on API and Push endpoints |
 | BE-48 | **Secret rotation** | Rotate connection credentials without recreating monitors |
 | BE-49 | **Problem Details errors** | RFC 9457 responses with stable codes and i18n messages; OpenAPI |
-| BE-50 | **Self-monitoring and backup** | Micrometer/Prometheus metrics, Orbit monitors itself; encrypted workspace backup/restore |
+| BE-50 | **Self-monitoring and config backup** | Micrometer metrics, Orbit monitors itself; `.bak` rotation and encrypted backup of the config directory |
 
 ## 3. Pending tests convention
 

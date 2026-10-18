@@ -22,9 +22,10 @@ _To be filled as the screen is built (component tree, file paths)._
 - Privacy: every probe value rendered through `<SafeValue>`
 
 ## Features on this screen
-- [CORE-01 · Gatus-style conditions](../features/CORE-01-gatus-style-conditions.md) — in-progress
+- [CORE-01 · Gatus-style conditions](../features/CORE-01-gatus-style-conditions.md) — done
 - [CORE-02 · SQL validator and row-limit wrapper](../features/CORE-02-sql-validator-and-row-limit-wrapper.md) — planned
 - [CORE-03 · SQL probe and result payload](../features/CORE-03-sql-probe-and-result-payload.md) — planned
+- [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — planned
 - [CORE-16 · Sensitive data protection (LGPD / PCI DSS)](../features/CORE-16-sensitive-data-protection-lgpd-pci-dss.md) — planned
 - [FE-33 · SQL editor](../features/FE-33-sql-editor.md) — planned
 - [FE-34 · Condition builder](../features/FE-34-condition-builder.md) — planned

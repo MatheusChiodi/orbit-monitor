@@ -4,12 +4,12 @@ Principle: **the operator writes what they want to observe and Orbit figures out
 
 ## 1. Workspace and groups
 
-* **Workspace** per company/environment (`Production`, `Staging`), each with its own wall, users and channels.
+* **Workspace** per company/environment (`Production`, `Staging`), each with its own wall and channels.
 * **Group** = a system or a team (`Payments`, `Customer Portal`, `Core Banking`). It gathers monitors of any type.
 * Fields: name, color, icon, description, owner (person or team), tags, default escalation policy.
 * **Dependencies between groups and monitors** (`Authentication API` → `Web portal`, `Checkout`). Used to show the blast radius and to **suppress cascading alerts**: if the service bus is down, the 12 monitors that depend on it become a single incident.
 * Group state = worst state of its monitors. Scheduled **maintenance** windows silence the group and do not count toward uptime.
-* Import/export a group as YAML (monitoring as code, to version in Git).
+* Import/export configuration as JSON (the same per-feature files Orbit stores locally, secrets omitted).
 
 ## 2. Monitors
 
@@ -34,7 +34,7 @@ Types in the first version: **HTTP**, **SQL**, **Ping/TCP** and **Push** (the sy
 
 This is the differentiator. The user flow:
 
-1. Choose the **connection** (registered by an admin: Oracle, Postgres, SQL Server, MySQL; read-only user; credential in the vault; connection test at registration).
+1. Choose the **connection** (registered in the console: Oracle, Postgres, SQL Server, MySQL; read-only user; credential in the vault; connection test at registration).
 2. Paste the SELECT into the editor (with syntax highlighting and table/column autocomplete read from the database catalog).
 3. Click **Run preview**. Orbit validates it (SELECT only), runs it with a timeout and row limit and shows the result as a table **with the detected type** of each column.
 4. Choose the result's **reading mode**, suggested automatically:
@@ -101,13 +101,13 @@ Full example: a SELECT that returns `ACQUIRER, ERROR_QTY, ERROR_PCT, LAST_ERROR`
 
 The user builds **what appears, where and how**, with no code:
 
-* **Layouts** saved per workspace: `NOC`, `Executive`, `Payments Team`. Each TV opens a layout by URL (`/wall/noc?token=…`).
+* **Layouts** saved per workspace: `NOC`, `Executive`, `Payments Team`. Each TV opens a layout by URL (`/wall/noc`).
 * **Available blocks**: Status (automatic hero), Also active, Near threshold, Monitor matrix, Timeline, Single value, Indicator card, Series chart, Live table, Ranking, Group uptime, Clock/on-call shift, Free text.
 * Drag-and-drop grid editor (12 columns), with 1080p and 4K preview.
 * Per block: data source (monitor/group and **which field**), display mode (inherits the one defined in the monitor or overrides it only in this layout), period, title, size.
 * **Automatic behavior** that can be enabled per layout: "when there is an incident, the hero takes 50% of the screen and lower-priority blocks hide"; "when everything is green, show the business indicators". This is what sets the wall apart from a regular dashboard.
 * Night mode (lower brightness) by schedule; optional alert sound; rotation between layouts every N seconds.
-* Read-only, revocable wall token that exposes nothing beyond what the layout shows. When running locally, the TV points at `http://<your-machine>:8080/wall.html` on the internal network.
+* The wall is read-only and exposes nothing beyond what the layout shows. When running locally, the TV points at `http://<your-machine>:8080/wall.html` on the internal network.
 
 ## 4. Incidents and alerts
 
@@ -127,21 +127,22 @@ The user builds **what appears, where and how**, with no code:
 
 ## 6. Administration
 
-* Users and roles per group (viewer, operator, editor, admin). 2FA mandatory for editor and admin (disabled in the local profile). SSO (Google/Microsoft) in the following version.
-* Database connections and secrets managed by admins only; connection test; password rotation without recreating monitors.
+* **No login and no user accounts.** Editing is allowed from the machine running Orbit (loopback) by default; other devices on the network get a view-only console and the wall, and can acknowledge incidents. The policy is configurable (loopback / LAN / CIDR allowlist).
+* The operator types a display name once per device; it identifies acknowledgements, comments and audit entries (self-declared).
+* Database connections and secrets are managed from the console (edit access required); connection test; password rotation without recreating monitors.
 * Complete, filterable audit trail.
-* Configurable retention: raw heartbeats 7 days, per-minute aggregates 90 days, per-hour 2 years.
-* Workspace backup/export as YAML; import of monitors from Uptime Kuma.
+* No Orbit database: configuration is saved in one JSON file per feature on the local machine (see [06-configuration-files.md](06-configuration-files.md)); history is kept in memory for a configurable window (24 h by default).
+* Workspace backup/export as JSON (secrets omitted); import of monitors from Uptime Kuma.
 
 ## 7. Internationalization
 
 * The whole product (code, identifiers, logs, API contracts, documentation) is written in English.
 * The UI and user-facing backend messages (validation errors, alert/notification texts, incident reports) support **English (default)** and **Brazilian Portuguese (pt-BR)**.
-* The language is selectable per user (profile setting); on the wall it is chosen via the URL parameter `?lang=pt-BR` (default `en`).
+* The language is selectable per device (console preference); on the wall it is chosen via the URL parameter `?lang=pt-BR` (default `en`).
 * Numbers, dates, durations and relative times are formatted via `Intl` / the active locale — never hand-built strings.
 
 ## 8. Suggested roadmap
 
-1. **MVP (6–8 weeks)**: basic Security + 2FA, groups, HTTP and SQL monitors with preview and conditions, Telemetry, incidents with acknowledgement, email/Teams/webhook channels, wall with a fixed layout (the prototype).
+1. **MVP (6–8 weeks)**: access policy and vault, groups, HTTP and SQL monitors with preview and conditions, Telemetry, incidents with acknowledgement, email/Teams/webhook channels, wall with a fixed layout (the prototype).
 2. **v1.1**: wall layout editor, value/table/ranking blocks, dependencies and cascade suppression, escalation, Push and Ping.
-3. **v1.2**: history-based anomaly detection, query catalog, SLA reports, status page, Uptime Kuma import, SSO.
+3. **v1.2**: history-based anomaly detection, query catalog, SLA reports, status page, Uptime Kuma import.

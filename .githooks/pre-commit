@@ -1,0 +1,60 @@
+#!/bin/sh
+# Blocks commits that would publish Orbit configuration, keys or card data.
+# Enable once per clone: git config core.hooksPath .githooks
+
+status=0
+files=$(git diff --cached --name-only --diff-filter=ACMR)
+
+for f in $files; do
+  base=$(basename "$f")
+  case "$base" in
+    *.example.json|*.schema.json) ;;
+    orbit.*.json|*.json.bak|*.json.tmp|master.key|*.pem|*.p12|*.jks|*.keystore|.env|.env.*)
+      case "$base" in .env.example) continue ;; esac
+      echo "pre-commit: refusing to commit '$f' (Orbit config, key or env file)."
+      status=1
+      ;;
+  esac
+  case "$f" in
+    orbit-data/*|*/orbit-data/*|.orbit/*|*/.orbit/*)
+      echo "pre-commit: refusing to commit '$f' (local Orbit data)."
+      status=1
+      ;;
+  esac
+done
+
+# Content checks on staged additions only. Test sources may hold public test
+# card numbers (the well-known Visa test PAN, for example), so they are excluded
+# from the card scan.
+nontest=$(printf '%s\n' "$files" | grep -Ev '(/src/test/|\.test\.[jt]sx?$|\.spec\.[jt]sx?$|Test\.java$|/test/)' )
+added=""
+if [ -n "$nontest" ]; then
+  added=$(printf '%s\n' "$nontest" | tr '\n' '\0' | xargs -0 git diff --cached -U0 -- | grep '^+' | grep -v '^+++')
+fi
+
+if printf '%s\n' "$added" | grep -Eq -- '-----BEGIN ([A-Z]+ )?PRIVATE KEY-----'; then
+  echo "pre-commit: a private key is staged."
+  status=1
+fi
+
+# Card numbers: 13-19 digits (spaces/hyphens allowed) that pass the Luhn check.
+cards=$(printf '%s\n' "$added" | grep -Eo '([0-9][ -]?){12,18}[0-9]' | tr -d ' -' | awk '
+  length($0) >= 13 && length($0) <= 19 {
+    sum = 0; alt = 0
+    for (i = length($0); i >= 1; i--) {
+      d = substr($0, i, 1) + 0
+      if (alt) { d *= 2; if (d > 9) d -= 9 }
+      sum += d; alt = !alt
+    }
+    if (sum % 10 == 0 && $0 !~ /^0+$/) print $0
+  }')
+if [ -n "$cards" ]; then
+  echo "pre-commit: staged content contains values that look like card numbers (Luhn-valid)."
+  echo "            Use clearly fake test data built at runtime, or bypass only after manual review."
+  status=1
+fi
+
+if [ "$status" -ne 0 ]; then
+  echo "pre-commit: commit blocked. See docs/06-configuration-files.md."
+fi
+exit $status

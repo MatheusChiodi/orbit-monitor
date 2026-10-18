@@ -10,7 +10,7 @@ updated: 2026-10-18
 # Database connections
 
 ## Purpose
-Admin-only connection registry, test connection, secret rotation.
+Connection registry (edit access required), test connection, secret rotation; saved to orbit.connections.json.
 
 ## Layout and components
 _To be filled as the screen is built (component tree, file paths)._
@@ -22,7 +22,7 @@ _To be filled as the screen is built (component tree, file paths)._
 - Privacy: every probe value rendered through `<SafeValue>`
 
 ## Features on this screen
-_None mapped yet._
+- [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — planned
 
 ## Code
 _None yet._

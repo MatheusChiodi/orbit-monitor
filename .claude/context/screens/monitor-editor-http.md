@@ -22,8 +22,9 @@ _To be filled as the screen is built (component tree, file paths)._
 - Privacy: every probe value rendered through `<SafeValue>`
 
 ## Features on this screen
-- [CORE-01 · Gatus-style conditions](../features/CORE-01-gatus-style-conditions.md) — in-progress
+- [CORE-01 · Gatus-style conditions](../features/CORE-01-gatus-style-conditions.md) — done
 - [CORE-04 · HTTP probe with SSRF protection](../features/CORE-04-http-probe-with-ssrf-protection.md) — planned
+- [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — planned
 - [CORE-16 · Sensitive data protection (LGPD / PCI DSS)](../features/CORE-16-sensitive-data-protection-lgpd-pci-dss.md) — planned
 - [FE-34 · Condition builder](../features/FE-34-condition-builder.md) — planned
 - [FE-35 · JSON explorer](../features/FE-35-json-explorer.md) — planned

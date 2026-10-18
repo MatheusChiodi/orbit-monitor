@@ -1,6 +1,6 @@
 ---
-id: BE-47
-title: "Rate limiting and lockout"
+id: BE-45
+title: "Operator identity"
 area: backend
 group: "Security and platform"
 status: planned
@@ -9,10 +9,10 @@ spec: docs/05-extended-features.md
 updated: 2026-10-18
 ---
 
-# BE-47 · Rate limiting and lockout
+# BE-45 · Operator identity
 
 ## Summary
-Per user/IP; brute-force lockout on login
+Self-declared `X-Orbit-Operator` name recorded on acknowledgements, comments and audit; anonymization endpoint
 
 ## Status
 - [ ] Tests written (pending or active)

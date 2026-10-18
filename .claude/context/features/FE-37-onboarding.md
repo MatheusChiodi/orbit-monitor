@@ -4,7 +4,7 @@ title: "Onboarding"
 area: frontend
 group: "Console productivity"
 status: planned
-screens: [monitor-list]
+screens: [monitor-list, settings]
 spec: docs/05-extended-features.md
 updated: 2026-10-18
 ---
@@ -20,7 +20,7 @@ Guided first monitor and helpful empty states
 - [ ] All tests green, none pending
 
 ## Screens
-[monitor-list](../screens/monitor-list.md)
+[monitor-list](../screens/monitor-list.md), [settings](../screens/settings.md)
 
 ## Code
 _None yet._

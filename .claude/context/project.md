@@ -8,12 +8,17 @@ updated: 2026-10-18
 ## What it is
 Monitoring for websites, APIs and databases with a TV wall that changes shape by severity. Operators paste a URL or a `SELECT`; Orbit discovers fields, suggests display modes and turns them into conditions and alerts.
 
+## Product shape (decided 2026-10-18)
+- **Local-first**: runs entirely on the operator's machine; the only outbound traffic is the configured checks (HTTP requests, SELECTs, pings) and notifications. Binds to `127.0.0.1` by default.
+- **No login**: no users, passwords, roles or 2FA. Edits only from loopback by default; LAN clients (the TV) are view-only and may acknowledge. Self-declared operator name.
+- **No Orbit database**: the only DB access is SELECTs on monitored databases. Configuration lives in **one JSON file per feature** (`~/.orbit/config/orbit.<feature>.json`), filled as the operator registers data, **never committed**. Runtime history lives in memory (24 h default).
+
 ## Repository
 | Path | Contents |
 |---|---|
 | `backend/` | Java 21, Spring Boot 3, Maven multi-module. Modules today: `orbit-api` (app), `orbit-common`, `orbit-monitor`. Package root `io.orbit` |
 | `frontend/` | React 19, Vite, strict TypeScript, Tailwind CSS v4, Motion, TanStack Query, Zustand, Vitest. Entrypoints `index.html` (console) and `wall.html` (wall) |
-| `docs/` | Specs 01–05 (architecture, features, design, data protection, extended features) |
+| `docs/` | Specs 01–06 (architecture, features, design, data protection, extended features, configuration files) |
 | `.claude/context/` | This living context: one file per screen and feature |
 
 ## Non-negotiable rules
@@ -21,7 +26,8 @@ Monitoring for websites, APIs and databases with a TV wall that changes shape by
 2. **English everywhere** in the repository (code, comments, commits, docs). The product supports **en (default) and pt-BR** via i18n.
 3. **Privacy (LGPD / PCI DSS)**: a full card number is never displayed, logged, serialized or stored. All probe values are redacted at the probe boundary and rendered through `<SafeValue>`.
 4. **Git**: work on `develop` (a hook blocks commits on `main`); Conventional Commits; each agent stages only its own folder plus its context files; never switch branches in the shared working tree.
-5. Files up to ~400 lines; one component per folder on the frontend; no `any`.
+5. **Config files are never committed**: only `*.example.json` / `*.schema.json`. `.gitignore` + tracked pre-commit hook (`git config core.hooksPath .githooks`).
+6. Files up to ~400 lines; one component per folder on the frontend; no `any`.
 
 ## Agents
 | Agent | Owns | Context files it maintains |
@@ -33,4 +39,5 @@ Monitoring for websites, APIs and databases with a TV wall that changes shape by
 Full-stack `CORE-*` files: each agent edits only its own section (`## Code` / `## Tests` lines for its folder) and appends its own changelog line.
 
 ## Timeline
+- 2026-10-18 — no login, no Orbit database, per-feature JSON config files, local-first runtime; pre-commit hook.
 - 2026-10-18 — specs written; repo initialized; open-source files (MIT); English + i18n decision; LGPD/PCI spec; 100 extended features; test-first phase started; living context created.

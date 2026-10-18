@@ -1,18 +1,18 @@
 ---
-id: BE-37
-title: "Monitoring as code"
+id: BE-50
+title: "Self-monitoring and config backup"
 area: backend
-group: "Workspace and configuration"
+group: "Security and platform"
 status: planned
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
 ---
 
-# BE-37 · Monitoring as code
+# BE-50 · Self-monitoring and config backup
 
 ## Summary
-YAML import/export with dry-run diff
+Micrometer metrics, Orbit monitors itself; `.bak` rotation and encrypted backup of the config directory
 
 ## Status
 - [ ] Tests written (pending or active)

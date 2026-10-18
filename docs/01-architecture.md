@@ -1,17 +1,17 @@
 # Orbit Monitor — Architecture
 
-Stack: **Java 21 + Spring Boot 3** on the backend, **React 19 + Vite + TypeScript + Tailwind CSS v4 + Motion** on the frontend, **PostgreSQL** as Orbit's own database, **Redis** for the execution queue and state cache. Monitored databases (Oracle 11g, Postgres, SQL Server, MySQL) are accessed read-only through dedicated connections.
+Stack: **Java 21 + Spring Boot 3** on the backend, **React 19 + Vite + TypeScript + Tailwind CSS v4 + Motion** on the frontend. Orbit is **local-first**: it runs on the operator's machine, has **no database of its own** and **no login**, keeps configuration in per-feature JSON files and runtime data in memory. The only database access is the read-only SELECTs against monitored databases (Oracle 11g, Postgres, SQL Server, MySQL).
 
 ```
-┌──────────────┐   HTTPS/WSS   ┌──────────────────────────────────────────────┐
-│  Wall / Web  │ ───────────▶  │ Gateway                                      │
-│ (React/Vite) │ ◀───────────  │  TLS · rate limit · flag → domain/subdomain  │
+┌──────────────┐   HTTP / WS   ┌──────────────────────────────────────────────┐
+│  Wall / Web  │ ───────────▶  │ Local HTTP/WS server (127.0.0.1:8080)        │
+│ (React/Vite) │ ◀───────────  │  access policy · rate limit · flag → domain  │
 └──────────────┘               └───────────────┬──────────────────────────────┘
                                                ▼
                                ┌──────────────────────────────┐
                                │ Security (main domain)       │
-                               │ HttpClient · AppSecurity     │
-                               │ AppRouter · Vault · Audit    │
+                               │ AccessPolicy · AppRouter     │
+                               │ Vault · Audit · Privacy      │
                                └───────────────┬──────────────┘
                  ┌────────────┬────────────────┼────────────────┬─────────────┐
                  ▼            ▼                ▼                ▼             ▼
@@ -23,31 +23,31 @@ Stack: **Java 21 + Spring Boot 3** on the backend, **React 19 + Vite + TypeScrip
                                                ▼
                                ┌──────────────────────────────┐
                                │ Targets: sites, APIs, DBs    │
-                               │ (read-only user)             │
+                               │ local or online, read-only   │
                                └──────────────────────────────┘
 ```
 
 ## 1. Domains (backend)
 
-Each domain is its own Maven module (`orbit-<domain>`), with an internal API through interfaces and events; no calls between repositories of different domains. Every external request enters through the Gateway with a **flag** (`X-Orbit-Route: monitor.create`) that Security validates and the Router dispatches.
+Each domain is its own Maven module (`orbit-<domain>`), with an internal API through interfaces and events; no calls between repositories of different domains. Every request enters through the local server with a **flag** (`X-Orbit-Route: monitor.create`) that Security validates and the Router dispatches.
 
-| Domain | Subdomains | Responsibility | Main tables |
+| Domain | Subdomains | Responsibility | Config files / runtime |
 |---|---|---|---|
-| **Security** | auth, rbac, vault, audit | Login, 2FA (TOTP), sessions, per-group roles, credential vault (AES-256-GCM, key kept outside the database via env/KMS), audit trail of every mutation | `user`, `role`, `group_member`, `secret`, `audit_log` |
-| **Workspace** | group, tag, layout | Groups, tags, ordering and **wall layout** (what appears, where and how) | `workspace`, `group`, `tag`, `wall_layout` |
-| **Monitor** | http, sql, condition | Definition of each monitor and its health conditions; SELECT validation; column discovery | `monitor`, `monitor_http`, `monitor_sql`, `condition`, `connection` |
-| **Probe** | scheduler, executor, sandbox | Schedules and runs checks with isolation, timeout and a per-target circuit breaker | `probe_run` (short retention) |
-| **Telemetry** | heartbeat, series, rollup | Stores results, computes state with hysteresis, per-minute/hour/day series, uptime and p95 | `heartbeat`, `series_1m`, `series_1h`, `series_1d` |
-| **Alerting** | rule, channel, incident, escalation | Opens/closes incidents, acknowledgement, time-based escalation, delivery via email/Teams/Slack/webhook | `incident`, `incident_event`, `channel`, `escalation_policy` |
+| **Security** | access, vault, audit, privacy | **No login.** Network access policy (who may edit vs. only view), self-declared operator name, credential vault (AES-256-GCM, key in `~/.orbit/master.key`, outside the config directory), audit trail of every mutation, sensitive data redaction | `orbit.settings.json`; audit in memory + JSON log |
+| **Workspace** | group, tag, layout | Groups, tags, ordering and **wall layout** (what appears, where and how) | `orbit.groups.json`, `orbit.dependencies.json`, `orbit.layouts.json`, `orbit.themes.json`, `orbit.variables.json` |
+| **Monitor** | http, sql, condition | Definition of each monitor and its health conditions; SELECT validation; column discovery | `orbit.requests.json`, `orbit.selects.json`, `orbit.checks.json`, `orbit.connections.json`, `orbit.query-catalog.json` |
+| **Probe** | scheduler, executor, sandbox | Schedules and runs checks with isolation, timeout and a per-target circuit breaker | in memory |
+| **Telemetry** | heartbeat, series, rollup | Keeps results in memory, computes state with hysteresis, per-minute/hour/day series, uptime and p95 | in-memory ring buffers (24 h default) |
+| **Alerting** | rule, channel, incident, escalation | Opens/closes incidents, acknowledgement, time-based escalation, delivery via email/Teams/Slack/webhook | `orbit.channels.json`, `orbit.escalation.json`, `orbit.oncall.json`, `orbit.maintenance.json`, `orbit.silences.json`; incidents in memory |
 
 ### Flow of a check
 
-1. `Probe.scheduler` (Quartz or `@Scheduled` with a Redis lock) enqueues `ProbeJob(monitorId)` at the monitor's interval.
+1. `Probe.scheduler` (`@Scheduled` with a local lock) enqueues `ProbeJob(monitorId)` at the monitor's interval.
 2. A `ProbeExecutor` (Java 21 virtual-thread pool) picks up the job and calls `HttpProbe` or `SqlProbe`.
 3. The executor returns `ProbeResult { status, latencyMs, payload, error }`.
-4. `Telemetry` stores the heartbeat, evaluates the **conditions**, applies hysteresis and emits `MonitorStateChanged` if the state changed.
+4. `Telemetry` keeps the heartbeat in memory, evaluates the **conditions**, applies hysteresis and emits `MonitorStateChanged` if the state changed.
 5. `Alerting` reacts to the event: opens an incident, fires channels, starts the escalation clock.
-6. The Gateway publishes the new state over the **WebSocket** `/ws/wall`; the wall updates without polling.
+6. The local server publishes the new state over the **WebSocket** `/ws/wall`; the wall updates without polling.
 
 ### SQL probe (the heart of the product)
 
@@ -62,7 +62,7 @@ Incoming SELECT ──▶ Parser (JSqlParser) ──▶ accepts only SELECT/WITH
 
 * Each **Connection** (target) has its own pool (HikariCP, max 2–3) so the monitor never exhausts the database it observes.
 * Circuit breaker (Resilience4j) per target: 3 consecutive failures = 1-minute pause with a "no response" state.
-* Anti-SSRF in `HttpProbe`: resolves DNS and blocks private ranges and cloud metadata endpoints, unless allowlisted per workspace.
+* Outbound guard in `HttpProbe`: cloud metadata endpoints (`169.254.169.254`, `fd00:ec2::254`, …) are always blocked; private ranges are allowed by default because Orbit runs on the operator's own machine and only loopback can edit monitors (`orbit.http.block-private=true` blocks them).
 
 ### Condition evaluation
 
@@ -86,7 +86,7 @@ Implemented as small `ConditionEvaluator`s registered in a `Map<Operator, Evalua
 src/
   app/            routing, providers, theme
   domains/
-    security/     login, 2FA, route guards
+    security/     operator name, access mode (edit / view-only)
     workspace/    groups, tags, wall layout editor
     monitor/      HTTP and SQL forms, SELECT preview, conditions
     telemetry/    charts, series, uptime
@@ -106,51 +106,54 @@ src/
 
 ## 3. Security (summary)
 
-* Short-lived JWT + refresh in an `HttpOnly` cookie; 2FA mandatory for roles that edit monitors.
-* Per-group RBAC: `viewer`, `operator` (acknowledges incidents), `editor` (creates monitors), `admin`.
+* **Orbit has no login**: no users, passwords, sessions, roles, 2FA or SSO. Access is controlled by the network.
+* **Access policy** (`orbit.access.*`): read endpoints, the wall and acknowledgements are open to allowed clients; **mutations** (monitors, connections, secrets, layouts, themes, settings) are accepted only from **loopback by default**. `orbit.access.edit-from` accepts `loopback` (default), `lan` or a CIDR allowlist; `orbit.access.view-from` defaults to private ranges. Requests outside the policy get `403` with a Problem Details body.
+* **Operator name**: the console asks for a display name once and keeps it on the device; it is sent as `X-Orbit-Operator` and recorded on acknowledgements, comments and the audit trail, flagged as *self-declared* (not authenticated).
+* Bind address defaults to `127.0.0.1`; exposing Orbit to the LAN (for the TV) is an explicit setting. Never expose it to the internet.
 * Secrets never come back from the API; the frontend only sees `•••• (vault)`.
 * Orbit database user on each target: `GRANT SELECT` only on the required views/tables; for heavy queries, creating **one view per query** on the target database is recommended.
-* Auditing: who created/changed each SELECT, with a diff.
-* Wall screen: its own token, read-only, no customer personal data.
+* Auditing: which operator name and client (loopback/LAN) created/changed each SELECT, with a diff.
+* Wall screen: read-only, no customer personal data.
 
-## 4. Local execution (no Docker, no deployment)
+## 4. Local-first execution
 
-For now Orbit runs only on your machine. To make that possible the architecture above runs **without Redis and without Postgres**, replaced by embedded components, without changing the domain code (only the port implementations):
+Orbit is a **local application**: everything runs on the operator's own machine, and the only network traffic it originates is the checks themselves (HTTP requests, SELECTs, pings) towards the systems being monitored, local or online, plus the notifications the operator configured. There is no Orbit server in the cloud, no Orbit database and no account.
 
-| Component | Future production | Local now |
-|---|---|---|
-| Orbit database | PostgreSQL | **File-based H2** (`~/.orbit/orbit.mv.db`) or SQLite via JDBC driver; same Flyway schema |
-| Execution queue | Redis | In-memory `BlockingQueue` + `@Scheduled` with a local lock |
-| State cache | Redis | In-memory Caffeine |
-| Real time | WebSocket via Gateway | WebSocket embedded in the same process (`ws://localhost:8080/ws/wall`) |
-| Frontend | Nginx serving the build | `vite dev` on `localhost:5173` with a proxy to `:8080`; or Spring serving `dist/` from `static/` |
+| Component | Implementation |
+|---|---|
+| Configuration | One JSON file per feature in `~/.orbit/config/` ([06-configuration-files.md](06-configuration-files.md)) |
+| Secrets | Encrypted inside those files with `~/.orbit/master.key`, or `${env:NAME}` references |
+| Runtime data (heartbeats, series, incidents) | In memory (ring buffers / Caffeine), 24 h window by default, lost on restart |
+| Execution queue | In-memory `BlockingQueue` + `@Scheduled` |
+| Real time | WebSocket in the same process (`ws://localhost:8080/ws/wall`) |
+| Frontend | `vite dev` on `localhost:5173` with a proxy to `:8080`, or the jar serving the built `dist/` |
+| Network | Binds to `127.0.0.1`; `orbit.server.lan=true` lets a TV on the internal network open the wall (view-only) |
 
 Repository layout:
 
 ```
-backend/          Maven multi-module build (parent pom.xml + mvnw)
-  orbit-api/      application module (Spring Boot entry point, executable jar)
-frontend/         React + Vite app (index.html = console, wall.html = wall)
-docs/             these specifications
+backend/            Maven multi-module build (parent pom.xml + mvnw)
+  orbit-api/        application module (Spring Boot entry point, executable jar)
+  config-examples/  orbit.<feature>.example.json files (no real secrets)
+frontend/           React + Vite app (index.html = console, wall.html = wall)
+docs/               these specifications
 ```
 
 How to run:
 
 ```bash
 # backend
-cd backend && ./mvnw -pl orbit-api -am spring-boot:run -Dspring-boot.run.profiles=local
+cd backend && ./mvnw -pl orbit-api -am spring-boot:run
 
 # frontend (another terminal)
 cd frontend && npm install && npm run dev
 # console: http://localhost:5173    wall: http://localhost:5173/wall.html
 ```
 
-* `local` profile in `application-local.yml`: H2, vault secrets with a key generated on first run and stored in `~/.orbit/master.key`, 2FA disabled, admin user created on first access.
-* JDBC drivers for the target databases (`ojdbc11` for Oracle 11g, `postgresql`, `mssql-jdbc`) already in the `pom.xml`; each target's connection is registered through the UI.
-* A single executable jar (`cd backend && ./mvnw package` → `java -jar orbit-api/target/orbit-api.jar`) also serves the built frontend, so the TV only needs to point at `http://<your-machine>:8080/wall.html` on the internal network.
-* Migrations with Flyway. OpenAPI generated by springdoc and consumed by the frontend at build time.
+* First run creates `~/.orbit/config/` and `~/.orbit/master.key`; configuration files appear as the operator registers connections, requests, selects, layouts and so on.
+* JDBC drivers for the target databases (`ojdbc11` for Oracle 11g, `postgresql`, `mssql-jdbc`, `mysql-connector-j`) ship in the jar; the only database access is the monitored SELECTs.
+* A single executable jar (`cd backend && ./mvnw package` → `java -jar orbit-api/target/orbit-api.jar`) also serves the built frontend.
+* OpenAPI generated by springdoc and consumed by the frontend at build time.
 * Orbit monitors itself: `/actuator/health` is the first monitor.
-* Tests: JUnit 5 with H2 on the backend (Testcontainers with Oracle XE only when Docker is available); Vitest + Testing Library on the frontend; Playwright on the wall. TDD as a rule.
+* Tests: JUnit 5 on the backend (Testcontainers with real target databases only when Docker is available; H2 may be used **only in tests** as a stand-in target for the SQL probe); Vitest + Testing Library on the frontend; Playwright on the wall. TDD as a rule.
 * Commits follow Conventional Commits.
-
-When it is time to deploy, just enable the `prod` profile (Postgres + Redis) and package; no domain changes.

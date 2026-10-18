@@ -1,18 +1,18 @@
 ---
 id: CORE-08
-title: "Authentication, RBAC, vault and audit"
+title: "Access policy, vault and audit"
 area: full-stack
 group: "Security"
 status: planned
-screens: [login, admin-users, audit-log]
+screens: [settings, audit-log]
 spec: docs/01-architecture.md, docs/02-features.md, docs/04-data-protection.md
 updated: 2026-10-18
 ---
 
-# CORE-08 · Authentication, RBAC, vault and audit
+# CORE-08 · Access policy, vault and audit
 
 ## Summary
-JWT + HttpOnly refresh, roles viewer/operator/editor/admin, AES-256-GCM vault, audit trail.
+No login. Mutations only from loopback by default (configurable LAN/CIDR), view-only otherwise; self-declared operator name; AES-256-GCM secrets inside config files; audit in memory + masked JSON log.
 
 ## Status
 - [ ] Tests written (pending or active)
@@ -20,7 +20,7 @@ JWT + HttpOnly refresh, roles viewer/operator/editor/admin, AES-256-GCM vault, a
 - [ ] All tests green, none pending
 
 ## Screens
-[login](../screens/login.md), [admin-users](../screens/admin-users.md), [audit-log](../screens/audit-log.md)
+[settings](../screens/settings.md), [audit-log](../screens/audit-log.md)
 
 ## Code
 _None yet._

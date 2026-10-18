@@ -22,6 +22,7 @@ _To be filled as the screen is built (component tree, file paths)._
 - Privacy: every probe value rendered through `<SafeValue>`
 
 ## Features on this screen
+- [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — planned
 - [FE-11 · Wall layout editor](../features/FE-11-wall-layout-editor.md) — planned
 - [FE-12 · Keyboard drag and drop](../features/FE-12-keyboard-drag-and-drop.md) — planned
 - [FE-15 · Undo/redo](../features/FE-15-undo-redo.md) — planned

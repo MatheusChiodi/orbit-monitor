@@ -57,6 +57,16 @@ master.key
 application-secret*.yml
 application-secret*.properties
 
+# Orbit configuration (holds connections and secrets) — NEVER commit.
+# Only *.example.json and *.schema.json files are allowed.
+orbit.*.json
+orbit-data/
+*.config.local.json
+*.json.bak
+*.json.tmp
+!**/*.example.json
+!**/*.schema.json
+
 # ── Ferramentas de agentes ──────────────────
 .claude/settings.local.json
 .claude/*.local.*

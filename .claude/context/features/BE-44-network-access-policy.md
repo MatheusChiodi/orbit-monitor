@@ -1,18 +1,18 @@
 ---
-id: BE-40
-title: "User preferences and themes API"
+id: BE-44
+title: "Network access policy"
 area: backend
-group: "Workspace and configuration"
+group: "Security and platform"
 status: planned
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
 ---
 
-# BE-40 · User preferences and themes API
+# BE-44 · Network access policy
 
 ## Summary
-Theme, animation level, density, locale, scale; server-side contrast validation
+No login; mutations only from loopback by default, `lan` or CIDR allowlist configurable, view-only otherwise; `403` Problem Details
 
 ## Status
 - [ ] Tests written (pending or active)

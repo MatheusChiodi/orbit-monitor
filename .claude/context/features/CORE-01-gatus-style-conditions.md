@@ -3,7 +3,7 @@ id: CORE-01
 title: "Gatus-style conditions"
 area: backend
 group: "Monitor"
-status: in-progress
+status: done
 screens: [monitor-editor-http, monitor-editor-sql]
 spec: docs/01-architecture.md, docs/02-features.md, docs/04-data-protection.md
 updated: 2026-10-18
@@ -15,9 +15,9 @@ updated: 2026-10-18
 Parser and evaluators for `[STATUS]`, `[RESPONSE_TIME]`, `[BODY]`, `[ROWS]`, `[COL]`, `[EXEC_TIME]` with `< <= > >= == != between in older than`, WARN/DOWN levels.
 
 ## Status
-- [ ] Tests written (pending or active)
-- [ ] Implemented
-- [ ] All tests green, none pending
+- [x] Tests written (pending or active)
+- [x] Implemented
+- [x] All tests green, none pending
 
 ## Screens
 [monitor-editor-http](../screens/monitor-editor-http.md), [monitor-editor-sql](../screens/monitor-editor-sql.md)
@@ -33,4 +33,4 @@ Parser and evaluators for `[STATUS]`, `[RESPONSE_TIME]`, `[BODY]`, `[ROWS]`, `[C
 _None yet._
 
 ## Changelog
-- 2026-10-18 — context file created (status: in-progress).
+- 2026-10-18 — context file created (status: done).

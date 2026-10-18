@@ -12,7 +12,7 @@ updated: 2026-10-18
 # CORE-05 · State, hysteresis, uptime and p95
 
 ## Summary
-Heartbeats, state with hysteresis (default 10%), uptime and percentiles.
+In-memory heartbeats (24 h window by default, lost on restart), state with hysteresis (default 10%), uptime and percentiles over the available window.
 
 ## Status
 - [ ] Tests written (pending or active)

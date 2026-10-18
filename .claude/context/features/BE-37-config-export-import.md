@@ -1,18 +1,18 @@
 ---
-id: BE-45
-title: "API keys"
+id: BE-37
+title: "Config export/import"
 area: backend
-group: "Security and platform"
+group: "Workspace and configuration"
 status: planned
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
 ---
 
-# BE-45 · API keys
+# BE-37 · Config export/import
 
 ## Summary
-Personal access tokens with scopes and expiry, stored hashed
+Archive of all `orbit.<feature>.json` files (secrets omitted) with dry-run diff
 
 ## Status
 - [ ] Tests written (pending or active)

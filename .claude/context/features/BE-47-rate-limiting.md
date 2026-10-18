@@ -1,18 +1,18 @@
 ---
-id: BE-19
-title: "Rollups and retention"
+id: BE-47
+title: "Rate limiting"
 area: backend
-group: "Telemetry"
+group: "Security and platform"
 status: planned
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
 ---
 
-# BE-19 · Rollups and retention
+# BE-47 · Rate limiting
 
 ## Summary
-1m/1h/1d rollups; purge job per retention policy
+Per client IP on API and Push endpoints
 
 ## Status
 - [ ] Tests written (pending or active)

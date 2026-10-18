@@ -4,7 +4,7 @@ title: "Internationalization (en / pt-BR)"
 area: full-stack
 group: "Platform"
 status: planned
-screens: [preferences, wall]
+screens: [preferences, wall, settings]
 spec: docs/01-architecture.md, docs/02-features.md, docs/04-data-protection.md
 updated: 2026-10-18
 ---
@@ -20,7 +20,7 @@ English default, pt-BR available; i18next on the front, MessageSource + Accept-L
 - [ ] All tests green, none pending
 
 ## Screens
-[preferences](../screens/preferences.md), [wall](../screens/wall.md)
+[preferences](../screens/preferences.md), [wall](../screens/wall.md), [settings](../screens/settings.md)
 
 ## Code
 _None yet._

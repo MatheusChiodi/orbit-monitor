@@ -4,6 +4,7 @@ Thanks for your interest. A few rules keep the project healthy.
 
 ## Workflow
 
+0. Enable the repository hooks: `git config core.hooksPath .githooks`.
 1. Open an issue describing the problem or proposal before large changes.
 2. Fork the repository and create a branch from `main` (`feat/my-feature`, `fix/my-bug`).
 3. Open a small, focused pull request describing what changed and how to test it.
@@ -39,6 +40,6 @@ docs: update README
 
 ## Security
 
-Never commit credentials, keys (`master.key`, `.env`) or local databases (`*.mv.db`). For vulnerabilities, see [SECURITY.md](SECURITY.md).
+Never commit Orbit configuration files (`orbit.*.json`), credentials, keys (`master.key`, `.env`) or real card/personal data; the pre-commit hook blocks the common cases. For vulnerabilities, see [SECURITY.md](SECURITY.md).
 
 By contributing, you agree that your contributions are licensed under the [MIT License](LICENSE) and that you follow the [Code of Conduct](CODE_OF_CONDUCT.md).

@@ -11,21 +11,20 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | Screen | Route | File |
 |---|---|---|
 | Wall (TV mode) | `wall.html` | [screens/wall.md](screens/wall.md) |
-| Login and 2FA | `index.html#/login` | [screens/login.md](screens/login.md) |
 | Monitor list | `index.html#/monitors` | [screens/monitor-list.md](screens/monitor-list.md) |
 | HTTP monitor editor | `index.html#/monitors/new/http` | [screens/monitor-editor-http.md](screens/monitor-editor-http.md) |
 | SQL monitor editor | `index.html#/monitors/new/sql` | [screens/monitor-editor-sql.md](screens/monitor-editor-sql.md) |
 | Data & display step | `index.html#/monitors/:id/display` | [screens/data-and-display.md](screens/data-and-display.md) |
 | Wall layout editor | `index.html#/layouts/:id` | [screens/layout-editor.md](screens/layout-editor.md) |
 | Theme editor | `index.html#/settings/themes` | [screens/theme-editor.md](screens/theme-editor.md) |
-| User preferences | `index.html#/settings/preferences` | [screens/preferences.md](screens/preferences.md) |
+| Device preferences | `index.html#/settings/preferences` | [screens/preferences.md](screens/preferences.md) |
 | Incident list | `index.html#/incidents` | [screens/incidents.md](screens/incidents.md) |
 | Incident detail | `index.html#/incidents/:id` | [screens/incident-detail.md](screens/incident-detail.md) |
 | Maintenance calendar | `index.html#/maintenance` | [screens/maintenance-calendar.md](screens/maintenance-calendar.md) |
 | Dependency graph | `index.html#/dependencies` | [screens/dependency-graph.md](screens/dependency-graph.md) |
 | SLA reports | `index.html#/reports` | [screens/reports-sla.md](screens/reports-sla.md) |
 | Status page builder | `index.html#/status-pages` | [screens/status-page.md](screens/status-page.md) |
-| Users and roles | `index.html#/admin/users` | [screens/admin-users.md](screens/admin-users.md) |
+| Settings and config files | `index.html#/settings` | [screens/settings.md](screens/settings.md) |
 | Database connections | `index.html#/admin/connections` | [screens/admin-connections.md](screens/admin-connections.md) |
 | Audit log | `index.html#/admin/audit` | [screens/audit-log.md](screens/audit-log.md) |
 | Mobile on-call view | `wall.html (narrow)` | [screens/mobile-on-call.md](screens/mobile-on-call.md) |
@@ -36,15 +35,17 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 
 | ID | Feature | Area | Status |
 |---|---|---|---|
-| [CORE-01](features/CORE-01-gatus-style-conditions.md) | Gatus-style conditions | backend | in-progress |
+| [CORE-01](features/CORE-01-gatus-style-conditions.md) | Gatus-style conditions | backend | done |
 | [CORE-02](features/CORE-02-sql-validator-and-row-limit-wrapper.md) | SQL validator and row-limit wrapper | backend | planned |
 | [CORE-03](features/CORE-03-sql-probe-and-result-payload.md) | SQL probe and result payload | backend | planned |
 | [CORE-04](features/CORE-04-http-probe-with-ssrf-protection.md) | HTTP probe with SSRF protection | backend | planned |
 | [CORE-05](features/CORE-05-state-hysteresis-uptime-and-p95.md) | State, hysteresis, uptime and p95 | backend | planned |
 | [CORE-06](features/CORE-06-incidents-and-acknowledgement.md) | Incidents and acknowledgement | full-stack | planned |
 | [CORE-07](features/CORE-07-workspaces-and-groups.md) | Workspaces and groups | full-stack | planned |
-| [CORE-08](features/CORE-08-authentication-rbac-vault-and-audit.md) | Authentication, RBAC, vault and audit | full-stack | planned |
-| [CORE-09](features/CORE-09-realtime-wall-updates.md) | Realtime wall updates | full-stack | planned |
+| [CORE-08](features/CORE-08-access-policy-vault-and-audit.md) | Access policy, vault and audit | full-stack | planned |
+| [CORE-19](features/CORE-19-per-feature-json-configuration-files.md) | Per-feature JSON configuration files | backend | planned |
+| [CORE-20](features/CORE-20-local-first-runtime.md) | Local-first runtime | full-stack | planned |
+| [CORE-09](features/CORE-09-realtime-wall-updates.md) | Realtime wall updates | full-stack | in-progress |
 | [CORE-10](features/CORE-10-data-display-step.md) | Data & display step | frontend | planned |
 | [CORE-11](features/CORE-11-global-status-summary.md) | Global status summary | frontend | done |
 | [CORE-12](features/CORE-12-value-formatting.md) | Value formatting | frontend | in-progress |
@@ -108,7 +109,7 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [FE-47](features/FE-47-sound-alerts.md) | Sound alerts | frontend | planned |
 | [FE-48](features/FE-48-desktop-notifications.md) | Desktop notifications | frontend | planned |
 | [FE-49](features/FE-49-mobile-on-call-view.md) | Mobile on-call view | frontend | planned |
-| [FE-50](features/FE-50-preference-sync.md) | Preference sync | frontend | planned |
+| [FE-50](features/FE-50-device-preferences.md) | Device preferences | frontend | planned |
 
 ### Backend
 
@@ -132,7 +133,7 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [BE-16](features/BE-16-circuit-breaker.md) | Circuit breaker | backend | planned |
 | [BE-17](features/BE-17-execution-windows.md) | Execution windows | backend | planned |
 | [BE-18](features/BE-18-retries-with-backoff.md) | Retries with backoff | backend | planned |
-| [BE-19](features/BE-19-rollups-and-retention.md) | Rollups and retention | backend | planned |
+| [BE-19](features/BE-19-in-memory-rollups.md) | In-memory rollups | backend | planned |
 | [BE-20](features/BE-20-uptime-and-sla.md) | Uptime and SLA | backend | planned |
 | [BE-21](features/BE-21-percentiles.md) | Percentiles | backend | planned |
 | [BE-22](features/BE-22-anomaly-detection.md) | Anomaly detection | backend | planned |
@@ -150,17 +151,17 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [BE-34](features/BE-34-postmortem-report.md) | Postmortem report | backend | planned |
 | [BE-35](features/BE-35-notification-templates.md) | Notification templates | backend | planned |
 | [BE-36](features/BE-36-channel-reliability.md) | Channel reliability | backend | planned |
-| [BE-37](features/BE-37-monitoring-as-code.md) | Monitoring as code | backend | planned |
+| [BE-37](features/BE-37-config-export-import.md) | Config export/import | backend | planned |
 | [BE-38](features/BE-38-realtime-protocol.md) | Realtime protocol | backend | planned |
 | [BE-39](features/BE-39-workspace-variables.md) | Workspace variables | backend | planned |
-| [BE-40](features/BE-40-user-preferences-and-themes-api.md) | User preferences and themes API | backend | planned |
-| [BE-41](features/BE-41-wall-layouts-and-tokens.md) | Wall layouts and tokens | backend | planned |
+| [BE-40](features/BE-40-workspace-defaults-and-themes-api.md) | Workspace defaults and themes API | backend | planned |
+| [BE-41](features/BE-41-wall-layouts.md) | Wall layouts | backend | planned |
 | [BE-42](features/BE-42-status-page-api.md) | Status page API | backend | planned |
 | [BE-43](features/BE-43-uptime-kuma-import.md) | Uptime Kuma import | backend | planned |
-| [BE-44](features/BE-44-totp-2fa.md) | TOTP 2FA | backend | planned |
-| [BE-45](features/BE-45-api-keys.md) | API keys | backend | planned |
+| [BE-44](features/BE-44-network-access-policy.md) | Network access policy | backend | planned |
+| [BE-45](features/BE-45-operator-identity.md) | Operator identity | backend | planned |
 | [BE-46](features/BE-46-audit-query-api.md) | Audit query API | backend | planned |
-| [BE-47](features/BE-47-rate-limiting-and-lockout.md) | Rate limiting and lockout | backend | planned |
+| [BE-47](features/BE-47-rate-limiting.md) | Rate limiting | backend | planned |
 | [BE-48](features/BE-48-secret-rotation.md) | Secret rotation | backend | planned |
 | [BE-49](features/BE-49-problem-details-errors.md) | Problem Details errors | backend | planned |
-| [BE-50](features/BE-50-self-monitoring-and-backup.md) | Self-monitoring and backup | backend | planned |
+| [BE-50](features/BE-50-self-monitoring-and-config-backup.md) | Self-monitoring and config backup | backend | planned |

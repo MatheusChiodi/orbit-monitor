@@ -1,18 +1,18 @@
 ---
 id: FE-50
-title: "Preference sync"
+title: "Device preferences"
 area: frontend
 group: "Wall runtime and preferences"
 status: planned
-screens: [preferences]
+screens: [preferences, settings]
 spec: docs/05-extended-features.md
 updated: 2026-10-18
 ---
 
-# FE-50 · Preference sync
+# FE-50 · Device preferences
 
 ## Summary
-Theme, animation level, density, language and scale saved per user on the server
+Theme, animation level, density, language, scale and operator name saved on the device, with workspace defaults from the server and JSON export/import
 
 ## Status
 - [ ] Tests written (pending or active)
@@ -20,7 +20,7 @@ Theme, animation level, density, language and scale saved per user on the server
 - [ ] All tests green, none pending
 
 ## Screens
-[preferences](../screens/preferences.md)
+[preferences](../screens/preferences.md), [settings](../screens/settings.md)
 
 ## Code
 _None yet._

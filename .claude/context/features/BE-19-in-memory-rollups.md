@@ -1,18 +1,18 @@
 ---
-id: BE-44
-title: "TOTP 2FA"
+id: BE-19
+title: "In-memory rollups"
 area: backend
-group: "Security and platform"
+group: "Telemetry"
 status: planned
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
 ---
 
-# BE-44 · TOTP 2FA
+# BE-19 · In-memory rollups
 
 ## Summary
-Enrollment, verification, recovery codes
+1m/1h rollups in bounded ring buffers; window configurable (24 h default)
 
 ## Status
 - [ ] Tests written (pending or active)
