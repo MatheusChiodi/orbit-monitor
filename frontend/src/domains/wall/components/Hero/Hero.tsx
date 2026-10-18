@@ -53,7 +53,7 @@ export function Hero({ selection, now, onAcknowledge }: HeroProps) {
         series={monitor.series ?? []}
         rule={monitor.rule}
         status={status}
-        className="mt-[0.7rem] min-h-[8rem] flex-1"
+        className="wall-chart mt-[0.7rem] flex-1"
       />
 
       <footer className="mt-[0.7rem] flex flex-wrap items-center gap-[0.6rem]">
