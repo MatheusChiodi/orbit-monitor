@@ -108,6 +108,8 @@ class SensitiveDataRedactorTest {
         assertThat(redactor.redactText("user=core password=hunter2;timeout=5"))
                 .isEqualTo("user=core password=••••;timeout=5");
         assertThat(redactor.redactText("{\"api_key\": \"abc123\"}")).isEqualTo("{\"api_key\": \"••••\"}");
+        assertThat(redactor.redactText("\"password\": \"${env:CORE_DB_PASSWORD}\""))
+                .isEqualTo("\"password\": \"${env:CORE_DB_PASSWORD}\"");
     }
 
     @Test

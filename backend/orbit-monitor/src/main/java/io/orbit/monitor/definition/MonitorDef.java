@@ -1,0 +1,46 @@
+package io.orbit.monitor.definition;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.orbit.config.ConfigItem;
+import io.orbit.monitor.condition.Condition;
+
+import java.time.Duration;
+import java.util.List;
+
+/** Settings shared by every monitor kind. */
+public interface MonitorDef extends ConfigItem {
+
+    String name();
+
+    String groupId();
+
+    int intervalSeconds();
+
+    long timeoutMs();
+
+    /** Consecutive failing checks needed to confirm DOWN. */
+    int downAfter();
+
+    /** Threshold tightening ratio while unhealthy (0.10 = 10%). */
+    double hysteresis();
+
+    /** Open an incident on WARN too, not only on DOWN. */
+    boolean openOnWarn();
+
+    boolean paused();
+
+    List<ConditionDef> conditions();
+
+    @JsonIgnore
+    MonitorKind kind();
+
+    @JsonIgnore
+    default List<Condition> parsedConditions() {
+        return conditions().stream().map(ConditionDef::parse).toList();
+    }
+
+    @JsonIgnore
+    default Duration interval() {
+        return Duration.ofSeconds(intervalSeconds());
+    }
+}

@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "req_customer_portal",
+      "name": "Customer portal health",
+      "groupId": "grp_portal",
+      "method": "GET",
+      "url": "https://portal.example.com/actuator/health",
+      "headers": { "Accept": "application/json" },
+      "secretHeaders": { "Authorization": "${env:PORTAL_HEALTH_TOKEN}" },
+      "intervalSeconds": 30,
+      "timeoutMs": 5000,
+      "followRedirects": true,
+      "downAfter": 2,
+      "hysteresis": 0.1,
+      "openOnWarn": false,
+      "conditions": [
+        { "expression": "[STATUS] == 200", "level": "DOWN" },
+        { "expression": "[BODY].status == \"UP\"", "level": "DOWN" },
+        { "expression": "[RESPONSE_TIME] < 800ms", "level": "WARN" }
+      ],
+      "paused": false,
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    }
+  ]
+}

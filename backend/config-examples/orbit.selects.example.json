@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "sel_reconciliation_queue",
+      "name": "Reconciliation queue",
+      "groupId": "grp_payments",
+      "connectionId": "con_core_oracle",
+      "sql": "SELECT COUNT(*) AS PENDING_QTY FROM V_RECONCILIATION_PENDING",
+      "intervalSeconds": 60,
+      "timeoutMs": 30000,
+      "maxRows": 500,
+      "downAfter": 2,
+      "hysteresis": 0.1,
+      "openOnWarn": false,
+      "conditions": [
+        { "expression": "[COL].PENDING_QTY < 200", "level": "WARN" },
+        { "expression": "[COL].PENDING_QTY < 500", "level": "DOWN" }
+      ],
+      "paused": false,
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    }
+  ]
+}

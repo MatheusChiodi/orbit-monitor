@@ -20,6 +20,14 @@
             <artifactId>orbit-common</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.orbit</groupId>
+            <artifactId>orbit-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.orbit</groupId>
+            <artifactId>orbit-security</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>

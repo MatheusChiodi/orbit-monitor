@@ -36,7 +36,7 @@ public class SensitiveDataRedactor {
     private static final Pattern JWT = Pattern.compile("eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]*");
     private static final Pattern BEARER = Pattern.compile("(?i)(bearer)\\s+[A-Za-z0-9._~+/=-]+");
     private static final Pattern KEY_VALUE_SECRET = Pattern.compile(
-            "(?i)(\\b(?:password|passwd|pwd|senha|secret|token|api[_-]?key)\"?\\s*[=:]\\s*\"?)([^\\s\";,&}]+)");
+            "(?i)(\\b(?:password|passwd|pwd|senha|secret|token|api[_-]?key)\"?\\s*[=:]\\s*\"?)(?!\\$\\{env:)([^\\s\";,&}]+)");
     private static final Pattern CAMEL =Pattern.compile("(?<=[a-z0-9])(?=[A-Z])");
 
     public DataClass classifyName(String fieldName) {

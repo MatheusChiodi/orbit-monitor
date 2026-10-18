@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "con_core_oracle",
+      "name": "Core bank (Oracle, read-only)",
+      "jdbcUrl": "jdbc:oracle:thin:@core-db.example.internal:1521/CORE",
+      "username": "orbit_ro",
+      "password": "${env:CORE_DB_PASSWORD}",
+      "poolSize": 2,
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    }
+  ]
+}
