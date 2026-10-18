@@ -1,0 +1,35 @@
+---
+id: FE-48
+title: "Desktop notifications"
+area: frontend
+group: "Wall runtime and preferences"
+status: planned
+screens: [preferences]
+spec: docs/05-extended-features.md
+updated: 2026-10-18
+---
+
+# FE-48 · Desktop notifications
+
+## Summary
+Opt-in browser notifications for new incidents
+
+## Status
+- [ ] Tests written (pending or active)
+- [ ] Implemented
+- [ ] All tests green, none pending
+
+## Screens
+[preferences](../screens/preferences.md)
+
+## Code
+_None yet._
+
+## Tests
+_None yet._
+
+## Decisions and notes
+_None yet._
+
+## Changelog
+- 2026-10-18 — context file created (status: planned).

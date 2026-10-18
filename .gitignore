@@ -58,5 +58,6 @@ application-secret*.yml
 application-secret*.properties
 
 # ── Ferramentas de agentes ──────────────────
-.claude/
+.claude/settings.local.json
+.claude/*.local.*
 .memory-team
