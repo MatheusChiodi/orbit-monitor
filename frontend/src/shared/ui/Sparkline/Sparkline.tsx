@@ -1,4 +1,7 @@
 import type { Status } from '@/shared/api/types';
+import { MOTION } from '@/shared/motion/tokens';
+import { useAnimationLevel } from '@/shared/motion/animationLevel';
+import { useChangeSignal } from '@/shared/motion/useChangeSignal';
 
 const STROKE: Record<Status | 'INFO', string> = {
   OK: 'var(--ok)',
@@ -45,8 +48,12 @@ const W = 100;
 const H = 28;
 
 export function Sparkline({ values, status = 'INFO', label, className = '' }: SparklineProps) {
+  const level = useAnimationLevel();
+  // A new point is drawn in 200 ms; nothing animates when the level is off.
+  const drawing = useChangeSignal(values.length, level !== 'off', MOTION.sparklineDraw * 1000);
   return (
     <svg
+      data-motion-level={level}
       viewBox={`0 0 ${W} ${H}`}
       preserveAspectRatio="none"
       role={label ? 'img' : undefined}
@@ -55,6 +62,8 @@ export function Sparkline({ values, status = 'INFO', label, className = '' }: Sp
       className={`block h-[1.6rem] w-full overflow-visible ${className}`}
     >
       <path
+        data-draw={drawing ? 'new-point' : undefined}
+        className={drawing ? 'anim-draw' : undefined}
         d={sparklinePath(values, W, H)}
         fill="none"
         stroke={STROKE[status]}

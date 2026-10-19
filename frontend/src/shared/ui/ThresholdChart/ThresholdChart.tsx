@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { Rule, Status } from '@/shared/api/types';
 import { formatDecimal, formatInteger, formatNumber } from '@/shared/format';
 import { currentLocale, type Locale } from '@/shared/i18n/i18n';
+import { useAnimationLevel } from '@/shared/motion/animationLevel';
 import { detectSensitive, safeText } from '@/shared/privacy/redact';
 import { thresholdGeometry, type ChartBox, type ThresholdGeometry } from './geometry';
 
@@ -128,6 +129,7 @@ function draw(ctx: CanvasRenderingContext2D, g: ThresholdGeometry, box: ChartBox
 export function ThresholdChart({ series, rule, status, className = '' }: ThresholdChartProps) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
+  const level = useAnimationLevel();
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [size, setSize] = useState(FALLBACK);
@@ -159,7 +161,12 @@ export function ThresholdChart({ series, rule, status, className = '' }: Thresho
   });
 
   return (
-    <div className={`flex min-h-0 flex-col ${className}`}>
+    <div
+      data-motion-level={level}
+      data-status={status}
+      data-violated={geometry.current?.violated ? 'true' : 'false'}
+      className={`flex min-h-0 flex-col ${level === 'off' ? 'transition-none' : 'transition-opacity duration-[400ms]'} ${className}`}
+    >
       <div ref={wrapRef} className="relative min-h-0 flex-1">
         <canvas
           ref={canvasRef}

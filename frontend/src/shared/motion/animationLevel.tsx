@@ -32,7 +32,8 @@ export function transitionFor(level: AnimationLevel, kind: MotionKind): Transiti
   const preset = motionPreset(level, kind);
   const summary: TransitionSummary = { duration: preset.transition.duration };
   if (preset.transition.ease) summary.ease = preset.transition.ease;
-  if (preset.initial && typeof preset.initial.y === 'number') summary.y = preset.initial.y;
+  const initialY = preset.initial ? preset.initial.y : undefined;
+  if (typeof initialY === 'number') summary.y = initialY;
   return summary;
 }
 

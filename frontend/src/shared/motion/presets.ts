@@ -1,3 +1,4 @@
+import type { TargetAndTransition } from 'motion/react';
 import type { AnimationLevel } from './animationLevel';
 import { MOTION, type CubicBezier } from './tokens';
 
@@ -25,16 +26,11 @@ export interface MotionTransition {
   delay?: number;
 }
 
-/** Exit target; may carry its own (shorter, ease-in) transition. */
-export interface MotionExit {
-  [key: string]: number | string | MotionTransition | undefined;
-  transition?: MotionTransition;
-}
-
 export interface MotionPreset {
-  initial: MotionTarget | false;
-  animate: MotionTarget;
-  exit: MotionExit;
+  initial: TargetAndTransition | false;
+  animate: TargetAndTransition;
+  /** Exit target; may carry its own (shorter, ease-in) transition. */
+  exit: TargetAndTransition;
   transition: MotionTransition;
 }
 

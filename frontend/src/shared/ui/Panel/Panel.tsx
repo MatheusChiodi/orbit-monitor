@@ -1,4 +1,6 @@
 import { useId, type ReactNode } from 'react';
+import { motion } from 'motion/react';
+import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import type { Status } from '@/shared/api/types';
 import { DOT_CLASS } from '../tones';
 
@@ -17,8 +19,16 @@ export interface PanelProps {
 
 export function Panel({ title, actions, tone, pulse = false, live = false, className = '', children }: PanelProps) {
   const titleId = useId();
+  const preset = useMotionPreset('enter');
+  const colors = preset.level === 'off' ? 'transition-none' : 'transition-colors duration-[400ms]';
   return (
-    <section
+    <motion.section
+      initial={preset.initial}
+      animate={preset.animate}
+      exit={preset.exit}
+      transition={preset.transition}
+      data-motion-level={preset.level}
+      data-status={tone}
       aria-labelledby={title ? titleId : undefined}
       aria-live={live ? 'polite' : undefined}
       data-tone={tone}
@@ -28,7 +38,7 @@ export function Panel({ title, actions, tone, pulse = false, live = false, class
         <span
           aria-hidden
           data-pulse={pulse ? 'true' : undefined}
-          className={`absolute inset-y-0 left-0 w-[0.35rem] ${DOT_CLASS[tone]} ${pulse ? 'anim-blink' : ''}`}
+          className={`absolute inset-y-0 left-0 w-[0.35rem] ${DOT_CLASS[tone]} ${colors} ${pulse ? 'anim-blink' : ''}`}
         />
       )}
       {(title || actions) && (
@@ -42,6 +52,6 @@ export function Panel({ title, actions, tone, pulse = false, live = false, class
         </header>
       )}
       {children}
-    </section>
+    </motion.section>
   );
 }
