@@ -26,12 +26,14 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - `frontend/src/shared/fx/fxLevel.ts` — `resolveFx()`: the single decision of which effects run per level
 - `frontend/src/shared/fx/frameMonitor.ts` — EMA frame-time monitor (> 20 ms for 3 s → downgrade)
 - `frontend/src/shared/fx/FxProvider.tsx` — `FxProvider` / `useFxLevel()`, sets `<html data-fx>`
+- `frontend/src/shared/fx/TiltCard/TiltCard.tsx` — glass card with hover tilt (≤ 4°, mouse only) and sheen
 - `frontend/src/shared/fx/fx.css` — glass, tilt sheen, DOWN glow, static backdrop (gated by `html[data-fx]`)
 
 ## Tests
 - `frontend/src/shared/fx/fxLevel.test.ts`
 - `frontend/src/shared/fx/frameMonitor.test.ts`
 - `frontend/src/shared/fx/FxProvider.test.tsx`
+- `frontend/src/shared/fx/TiltCard/TiltCard.test.tsx`
 
 ## Decisions and notes
 - Owned by fx-agent; integration into existing components is coordinated with frontend-agent.
@@ -39,8 +41,10 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - Level source: `FxProvider level` prop, else `?motion=`, else `<html data-animation>` (FE-06), else `standard`. `prefers-reduced-motion` forces `off`. Swap to `useMotionSettings()` once FE-06 lands.
 - Gating: `off`/`minimal` → static backdrop, no 3D, glass or tilt; `standard` → orb, glass, low background, tilt ≤ 2.5°; `expressive` → full background, tilt 4°, Remotion intros. DOWN glow: none / static / pulse.
 - Frame monitor smooths frame time (EMA, α 0.1), ignores gaps > 500 ms (hidden tab) and fires once; `restore()` is the "Try again" path. It only runs while something animates.
+- Tilt writes `transform` directly on the element (no React state per pointer move), mouse pointers only; TiltCard is for navigational/onboarding cards, never around probe values.
 - CSS gating via `html[data-fx]` keeps the components free of level checks for pure styling; the stylesheet is unlayered so it overrides Tailwind utilities only when FX is on.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — FX level, frame monitor and provider with tests; glass/glow stylesheet (status: in-progress).
+- 2026-10-18 — TiltCard glass surface with hover tilt and sheen.
