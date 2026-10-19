@@ -128,15 +128,15 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [BE-03](features/BE-03-push-monitor.md) | Push monitor | backend | tests-pending |
 | [BE-04](features/BE-04-dns-probe.md) | DNS probe | backend | tests-pending |
 | [BE-05](features/BE-05-certificate-and-domain-expiry.md) | Certificate and domain expiry | backend | tests-pending |
-| [BE-06](features/BE-06-http-keyword-regex-match.md) | HTTP keyword/regex match | backend | planned |
+| [BE-06](features/BE-06-http-keyword-regex-match.md) | HTTP keyword/regex match | backend | tests-pending |
 | [BE-07](features/BE-07-multi-step-http.md) | Multi-step HTTP | backend | tests-pending |
 | [BE-08](features/BE-08-oauth2-client-credentials.md) | OAuth2 client credentials | backend | tests-pending |
 | [BE-09](features/BE-09-grpc-health-probe.md) | gRPC health probe | backend | tests-pending |
 | [BE-10](features/BE-10-kafka-consumer-lag-probe.md) | Kafka consumer lag probe | backend | tests-pending |
-| [BE-11](features/BE-11-sql-parameters.md) | SQL parameters | backend | planned |
-| [BE-12](features/BE-12-query-catalog.md) | Query catalog | backend | planned |
-| [BE-13](features/BE-13-catalog-introspection.md) | Catalog introspection | backend | planned |
-| [BE-14](features/BE-14-query-cost-warning.md) | Query cost warning | backend | planned |
+| [BE-11](features/BE-11-sql-parameters.md) | SQL parameters | backend | tests-pending |
+| [BE-12](features/BE-12-query-catalog.md) | Query catalog | backend | tests-pending |
+| [BE-13](features/BE-13-catalog-introspection.md) | Catalog introspection | backend | tests-pending |
+| [BE-14](features/BE-14-query-cost-warning.md) | Query cost warning | backend | tests-pending |
 | [BE-15](features/BE-15-per-target-isolation.md) | Per-target isolation | backend | tests-pending |
 | [BE-16](features/BE-16-circuit-breaker.md) | Circuit breaker | backend | tests-pending |
 | [BE-17](features/BE-17-execution-windows.md) | Execution windows | backend | tests-pending |
@@ -145,7 +145,7 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [BE-20](features/BE-20-uptime-and-sla.md) | Uptime and SLA | backend | in-progress |
 | [BE-21](features/BE-21-percentiles.md) | Percentiles | backend | in-progress |
 | [BE-22](features/BE-22-anomaly-detection.md) | Anomaly detection | backend | planned |
-| [BE-23](features/BE-23-body-metric-extraction.md) | Body metric extraction | backend | planned |
+| [BE-23](features/BE-23-body-metric-extraction.md) | Body metric extraction | backend | tests-pending |
 | [BE-24](features/BE-24-time-to-threshold.md) | Time to threshold | backend | planned |
 | [BE-25](features/BE-25-flapping-detection.md) | Flapping detection | backend | planned |
 | [BE-26](features/BE-26-incident-lifecycle.md) | Incident lifecycle | backend | in-progress |

@@ -72,6 +72,15 @@ public class SqlProbe {
         }
     }
 
+    /**
+     * BE-11: runs a SELECT with named parameters ({@code :days}) bound through
+     * {@code PreparedStatement.setObject}, never concatenated.
+     */
+    public ResultPayload execute(DataSource dataSource, Dialect dialect, String sql, java.util.Map<String, Object> params,
+                                 SqlProbeOptions options) {
+        throw new UnsupportedOperationException("BE-11 SQL parameters are not implemented yet");
+    }
+
     private static List<ResultColumn> columns(ResultSetMetaData meta) throws SQLException {
         List<ResultColumn> columns = new ArrayList<>(meta.getColumnCount());
         for (int i = 1; i <= meta.getColumnCount(); i++) {

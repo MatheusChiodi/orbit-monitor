@@ -3,7 +3,7 @@ id: BE-23
 title: "Body metric extraction"
 area: backend
 group: "Telemetry"
-status: planned
+status: tests-pending
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 JSONPath values stored as series
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -23,13 +23,14 @@ JSONPath values stored as series
 —
 
 ## Code
-_None yet._
+- `backend/orbit-monitor/src/main/java/io/orbit/monitor/http/MetricExtractor.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-monitor/src/test/java/io/orbit/monitor/http/MetricExtractorTest.java`
 
 ## Decisions and notes
-_None yet._
+- JSONPath definite paths only; numbers and numeric strings become series values.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending tests and stubs added (status: tests-pending).

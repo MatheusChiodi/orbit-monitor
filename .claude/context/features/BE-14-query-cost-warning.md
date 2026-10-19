@@ -3,7 +3,7 @@ id: BE-14
 title: "Query cost warning"
 area: backend
 group: "Probes"
-status: planned
+status: tests-pending
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 Preview time and `EXPLAIN` when supported; suggests a longer interval
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -23,13 +23,14 @@ Preview time and `EXPLAIN` when supported; suggests a longer interval
 —
 
 ## Code
-_None yet._
+- `backend/orbit-monitor/src/main/java/io/orbit/monitor/sql/QueryCostAdvisor.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-monitor/src/test/java/io/orbit/monitor/sql/QueryCostAdvisorTest.java`
 
 ## Decisions and notes
-_None yet._
+- NONE < 1 s; WARN suggests interval >= 60x preview time; HEAVY >= 10 s suggests >= 15 min and a view. EXPLAIN is a follow-up.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending tests and stubs added (status: tests-pending).

@@ -3,7 +3,7 @@ id: BE-11
 title: "SQL parameters"
 area: backend
 group: "Probes"
-status: planned
+status: tests-pending
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 `:param` bound from fixed values or workspace variables, never string-concatenated
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -23,13 +23,16 @@ updated: 2026-10-18
 —
 
 ## Code
-_None yet._
+- `backend/orbit-monitor/src/main/java/io/orbit/monitor/sql/SqlParameters.java`
+- `backend/orbit-probe/src/main/java/io/orbit/probe/sql/SqlProbe.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-monitor/src/test/java/io/orbit/monitor/sql/SqlParametersTest.java`
+- `backend/orbit-probe/src/test/java/io/orbit/probe/sql/SqlProbeParametersTest.java`
 
 ## Decisions and notes
-_None yet._
+- `:name` placeholders become `?` bound with setObject; literals, comments and `::` casts are ignored; missing values are rejected.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending tests and stubs added (status: tests-pending).
