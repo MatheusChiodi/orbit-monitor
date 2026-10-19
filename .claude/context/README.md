@@ -120,6 +120,7 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [FE-56](features/FE-56-typography-shape-density.md) | Typography, shape and density settings | frontend | planned |
 | [FE-57](features/FE-57-customization-profiles.md) | Customization profiles | frontend | planned |
 | [FE-58](features/FE-58-history-range-picker.md) | History range picker and coverage | frontend | planned |
+| [FE-59](features/FE-59-living-orb.md) | Living orb (system map) | frontend | planned |
 
 ### Backend
 

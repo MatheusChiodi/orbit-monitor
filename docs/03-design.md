@@ -164,6 +164,26 @@ Orbit should feel striking, not generic: depth, light and slow 3D motion around 
 | **Onboarding, empty states, intro** | Short Remotion compositions (`@remotion/player`, 3D via `@remotion/three`): Orbit "boot" sequence, how a check flows, first-monitor guide |
 | **README / promo** | The same Remotion compositions rendered to MP4/GIF |
 
+#### Living orb (FE-59)
+
+The 3D orb is a **live map of the system**, not decoration. Every visual property encodes real data:
+
+| Element | Encodes |
+|---|---|
+| **Core** | Overall health: color = worst state, brightness = 24 h availability; one soft "breath" per check cycle |
+| **Orbits (rings)** | One ring per group, ordered by priority; ring tint = group state; a ring thickens slightly while a group has a warning |
+| **Satellites** | One per monitor on its group's ring; color = state (OK / WARN / DOWN / UNKNOWN), size = importance, speed ∝ check frequency (slow and calm) |
+| **Heartbeat tick** | A tiny light pulse runs from the satellite to the core each time that monitor is checked |
+| **Near threshold** | Satellites drift slightly towards the core as headroom shrinks (< 25 % → amber halo) |
+| **Down** | The satellite stops, turns red and leaves a short fading trail; the hero then switches to the 2D incident layout (§3) |
+| **Maintenance / paused** | Satellite hollow and dimmed |
+
+Interaction (console and touch walls; never required): hover a satellite → tooltip with name, state, value and rule (through `<SafeValue>`); click → open the monitor; drag → rotate the orb; scroll → zoom; a **legend** toggle explains the encoding. Keyboard: arrow keys cycle satellites, Enter opens. A text summary (`aria-describedby`) mirrors what the orb shows ("20 monitors in 5 groups, all OK, 1 near threshold").
+
+Aesthetics: thin glass orbit lines with depth fade, subtle bloom only on the core, soft depth of field, satellites as small emissive spheres; colors come from the theme tokens; motion follows the animation settings (FE-06): `minimal` → static orb with state colors only, `off` → 2D summary. With more than 60 monitors, satellites aggregate per group (one per state with a count).
+
+A **mini orb** (24–32 px) in the header shows the global state everywhere (core + group rings, no satellites).
+
 **Rules**
 - Data stays flat and legible: numbers, rules and state labels are never rendered in 3D, tilted, blurred or behind particles.
 - Incident state wins: when something is DOWN, background motion pauses and the hero becomes the calm 2D layout of §3.
