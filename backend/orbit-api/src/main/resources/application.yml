@@ -32,6 +32,8 @@ orbit:
   history: 24h
   workers: 4
   environment: Local
+  # Base of the links in notifications (set to the LAN address when the TV and phones should open them).
+  public-url: ${ORBIT_PUBLIC_URL:http://127.0.0.1:8080}
   access:
     mode: LOOPBACK
     lan-acknowledge: true

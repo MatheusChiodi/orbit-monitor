@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "chn_payments_slack",
+      "name": "Payments team (Slack)",
+      "type": "SLACK",
+      "url": "${env:PAYMENTS_SLACK_WEBHOOK_URL}",
+      "groupIds": ["grp_payments"],
+      "minSeverity": "WARN",
+      "enabled": true
+    },
+    {
+      "id": "chn_ticketing",
+      "name": "Ticketing webhook",
+      "type": "WEBHOOK",
+      "url": "${env:TICKETING_WEBHOOK_URL}",
+      "signingSecret": "${env:TICKETING_WEBHOOK_SECRET}",
+      "groupIds": [],
+      "minSeverity": "DOWN",
+      "enabled": true
+    }
+  ]
+}

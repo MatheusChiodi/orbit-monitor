@@ -157,7 +157,7 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [BE-29](features/BE-29-deduplication.md) | Deduplication | backend | done |
 | [BE-30](features/BE-30-cascade-suppression.md) | Cascade suppression | backend | tests-pending |
 | [BE-31](features/BE-31-maintenance-windows.md) | Maintenance windows | backend | in-progress |
-| [BE-32](features/BE-32-silence-snooze.md) | Silence/snooze | backend | in-progress |
+| [BE-32](features/BE-32-silence-snooze.md) | Silence/snooze | backend | done |
 | [BE-33](features/BE-33-on-call-schedules.md) | On-call schedules | backend | tests-pending |
 | [BE-34](features/BE-34-postmortem-report.md) | Postmortem report | backend | tests-pending |
 | [BE-35](features/BE-35-notification-templates.md) | Notification templates | backend | in-progress |

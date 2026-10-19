@@ -15,6 +15,7 @@ import java.util.List;
  * @param history     how long heartbeats, incidents and audit entries stay in memory
  * @param workers     concurrent checks
  * @param environment label shown on the wall
+ * @param publicUrl   base URL used in notification links
  */
 @ConfigurationProperties(prefix = "orbit")
 public record OrbitProperties(
@@ -23,6 +24,7 @@ public record OrbitProperties(
         Duration history,
         int workers,
         String environment,
+        String publicUrl,
         Access access,
         Http http,
         Wall wall) {
@@ -31,6 +33,7 @@ public record OrbitProperties(
         history = history == null ? Duration.ofHours(24) : history;
         workers = workers <= 0 ? 4 : workers;
         environment = environment == null ? "Local" : environment;
+        publicUrl = publicUrl == null ? "http://127.0.0.1:8080" : publicUrl;
         access = access == null ? new Access(AccessMode.LOOPBACK, List.of(), true) : access;
         http = http == null ? new Http(List.of(), false) : http;
         wall = wall == null ? new Wall(List.of("http://localhost:[*]", "http://127.0.0.1:[*]")) : wall;
