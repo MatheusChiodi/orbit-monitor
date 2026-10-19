@@ -1,0 +1,24 @@
+{
+  "label": "Período do histórico",
+  "presets": {
+    "24h": "24 h",
+    "7d": "7 d",
+    "30d": "30 d",
+    "custom": "Personalizado"
+  },
+  "from": "De",
+  "to": "Até",
+  "apply": "Aplicar",
+  "errors": {
+    "order": "O início precisa ser antes do fim",
+    "future": "O início precisa estar no passado",
+    "tooLong": "Escolha no máximo 31 dias"
+  },
+  "coverage": {
+    "available": "Histórico disponível: últimos {{days}} dias",
+    "partial": "Cobre {{percent}}% deste período, desde {{since}}",
+    "none": "Ainda não há histórico para este período",
+    "rawPaused": "Pouco espaço em disco: apenas resumos estão sendo gravados",
+    "meter": "Parte do período com histórico"
+  }
+}

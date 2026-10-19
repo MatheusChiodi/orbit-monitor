@@ -1,0 +1,24 @@
+{
+  "label": "History period",
+  "presets": {
+    "24h": "24 h",
+    "7d": "7 d",
+    "30d": "30 d",
+    "custom": "Custom"
+  },
+  "from": "From",
+  "to": "To",
+  "apply": "Apply",
+  "errors": {
+    "order": "The start must be before the end",
+    "future": "The start must be in the past",
+    "tooLong": "Choose at most 31 days"
+  },
+  "coverage": {
+    "available": "History available: last {{days}} days",
+    "partial": "Covers {{percent}}% of this period, since {{since}}",
+    "none": "No history recorded for this period yet",
+    "rawPaused": "Low disk space: only summaries are being recorded",
+    "meter": "Share of the period with history"
+  }
+}
