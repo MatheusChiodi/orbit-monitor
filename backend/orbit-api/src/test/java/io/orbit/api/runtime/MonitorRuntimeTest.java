@@ -19,6 +19,8 @@ import io.orbit.probe.CheckRunner;
 import io.orbit.probe.http.HostResolver;
 import io.orbit.probe.http.HttpProbe;
 import io.orbit.probe.http.SsrfGuard;
+import io.orbit.probe.resilience.CircuitBreaker;
+import io.orbit.probe.resilience.TargetLimiter;
 import io.orbit.probe.schedule.ProbeScheduler;
 import io.orbit.probe.sql.SqlProbe;
 import io.orbit.security.vault.MasterKey;
@@ -82,7 +84,8 @@ class MonitorRuntimeTest {
                 new PayloadRedactor(new SensitiveDataRedactor()), clock);
         EventBus bus = new EventBus();
         bus.onCheck(published::add);
-        runtime = new MonitorRuntime(definitions, runner, telemetry, pools, secrets, scheduler, bus);
+        runtime = new MonitorRuntime(definitions, runner, telemetry, pools, secrets, scheduler, bus,
+                new CircuitBreaker(clock, 3, Duration.ofMinutes(1)), new TargetLimiter(1));
         definitions.saveConnection(new ConnectionDef("con_h2", "H2", h2Url, "sa", SecretRef.env("H2_PASSWORD"), 1,
                 null, null), "Ana");
     }
@@ -133,6 +136,19 @@ class MonitorRuntimeTest {
 
         assertThat(result.state()).isEqualTo(MonitorState.DOWN);
         assertThat(result.error()).contains("blocked");
+    }
+
+    @Test
+    void threeFailuresPauseTheTargetForAMinute() {
+        definitions.saveSelect(select("sel_broken", "SELECT missing_column FROM queue", false), "Ana");
+        for (int i = 0; i < 3; i++) {
+            assertThat(runtime.runCheck("sel_broken").orElseThrow().error()).contains("Query failed");
+        }
+
+        CheckResult paused = runtime.runCheck("sel_broken").orElseThrow();
+
+        assertThat(paused.state()).isEqualTo(MonitorState.DOWN);
+        assertThat(paused.error()).contains("No response").contains("paused");
     }
 
     @Test

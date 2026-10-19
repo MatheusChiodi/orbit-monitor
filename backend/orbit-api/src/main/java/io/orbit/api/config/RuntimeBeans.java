@@ -5,6 +5,8 @@ import io.orbit.api.runtime.EventBus;
 import io.orbit.api.runtime.MonitorRuntime;
 import io.orbit.monitor.definition.MonitorDefinitions;
 import io.orbit.probe.CheckRunner;
+import io.orbit.probe.resilience.CircuitBreaker;
+import io.orbit.probe.resilience.TargetLimiter;
 import io.orbit.probe.schedule.ProbeScheduler;
 import io.orbit.probe.schedule.ProbeWorkers;
 import io.orbit.security.vault.SecretResolver;
@@ -13,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -38,8 +41,9 @@ public class RuntimeBeans {
     @Bean
     MonitorRuntime monitorRuntime(MonitorDefinitions definitions, CheckRunner runner, TelemetryService telemetry,
                                   ConnectionPools pools, SecretResolver secrets, ProbeScheduler scheduler,
-                                  EventBus bus) {
-        return new MonitorRuntime(definitions, runner, telemetry, pools, secrets, scheduler, bus);
+                                  EventBus bus, Clock clock) {
+        return new MonitorRuntime(definitions, runner, telemetry, pools, secrets, scheduler, bus,
+                new CircuitBreaker(clock, 3, Duration.ofMinutes(1)), new TargetLimiter(1));
     }
 
     @Bean(destroyMethod = "stop")

@@ -1,14 +1,12 @@
 package io.orbit.probe.resilience;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Tag("pending")
 @DisplayName("BE-15 per-target isolation")
 class TargetLimiterTest {
 
@@ -36,5 +34,23 @@ class TargetLimiterTest {
         a.close();
         assertThat(two.tryAcquire("t")).isPresent();
         assertThat(two.tryAcquire("t")).isEmpty();
+    }
+
+    @Test
+    @DisplayName("a caller may wait for the running query to finish")
+    void waitsForRelease() throws Exception {
+        TargetLimiter.Permit running = limiter.tryAcquire("t").orElseThrow();
+        Thread releaser = Thread.ofVirtual().start(() -> {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            running.close();
+        });
+
+        assertThat(limiter.tryAcquire("t", java.time.Duration.ofSeconds(2))).isPresent();
+        releaser.join();
+        assertThat(limiter.tryAcquire("x", java.time.Duration.ofMillis(10))).isPresent();
     }
 }

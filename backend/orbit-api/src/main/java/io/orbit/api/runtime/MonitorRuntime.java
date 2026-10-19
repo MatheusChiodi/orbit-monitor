@@ -10,6 +10,8 @@ import io.orbit.probe.CheckPolicy;
 import io.orbit.probe.CheckResult;
 import io.orbit.probe.CheckRunner;
 import io.orbit.probe.http.HttpProbeRequest;
+import io.orbit.probe.resilience.CircuitBreaker;
+import io.orbit.probe.resilience.TargetLimiter;
 import io.orbit.probe.schedule.ProbeScheduler;
 import io.orbit.probe.sql.SqlProbeOptions;
 import io.orbit.security.vault.SecretResolver;
@@ -39,10 +41,15 @@ public class MonitorRuntime {
     private final SecretResolver secrets;
     private final ProbeScheduler scheduler;
     private final EventBus bus;
+    private final CircuitBreaker breaker;
+    private final TargetLimiter limiter;
     private final Map<String, CheckResult> latest = new ConcurrentHashMap<>();
 
     public MonitorRuntime(MonitorDefinitions definitions, CheckRunner runner, TelemetryService telemetry,
-                          ConnectionPools pools, SecretResolver secrets, ProbeScheduler scheduler, EventBus bus) {
+                          ConnectionPools pools, SecretResolver secrets, ProbeScheduler scheduler, EventBus bus,
+                          CircuitBreaker breaker, TargetLimiter limiter) {
+        this.breaker = breaker;
+        this.limiter = limiter;
         this.definitions = definitions;
         this.runner = runner;
         this.telemetry = telemetry;
@@ -77,23 +84,62 @@ public class MonitorRuntime {
             return Optional.empty();
         }
         MonitorDef def = definition.get();
-        CheckPolicy policy = new CheckPolicy(telemetry.currentState(monitorId), def.hysteresis());
-        CheckResult result;
-        try {
-            result = switch (def) {
-                case HttpMonitorDef http -> runner.runHttp(monitorId, request(http), http.parsedConditions(), policy);
-                case SqlMonitorDef sql -> runSql(sql, policy);
-                default -> runner.failed(monitorId, "Unsupported monitor type");
-            };
-        } catch (VaultException | IllegalArgumentException e) {
-            result = runner.failed(monitorId, e.getMessage());
-        }
+        CheckResult result = guarded(def);
         PrimaryValue primary = PrimaryValue.of(def, result);
         latest.put(monitorId, result);
         telemetry.record(new Heartbeat(monitorId, result.state(), result.latencyMs(), primary.value(),
                 result.checkedAt()), def.downAfter());
         bus.publish(result);
         return Optional.of(result);
+    }
+
+    /**
+     * BE-15/BE-16: one query at a time per target, and a target that failed three times in a row is
+     * paused for a minute ("no response") instead of being hit again.
+     */
+    private CheckResult guarded(MonitorDef def) {
+        String target = targetOf(def);
+        if (!breaker.allow(target)) {
+            return runner.failed(def.id(), "No response: target paused after repeated failures");
+        }
+        Optional<TargetLimiter.Permit> permit = limiter.tryAcquire(target, Duration.ofMillis(def.timeoutMs()));
+        if (permit.isEmpty()) {
+            return runner.failed(def.id(), "No response: another query is still running on this target");
+        }
+        try (TargetLimiter.Permit held = permit.get()) {
+            CheckResult result = execute(def);
+            if (result.error() == null) {
+                breaker.recordSuccess(target);
+            } else {
+                breaker.recordFailure(target);
+            }
+            return result;
+        }
+    }
+
+    private CheckResult execute(MonitorDef def) {
+        CheckPolicy policy = new CheckPolicy(telemetry.currentState(def.id()), def.hysteresis());
+        try {
+            return switch (def) {
+                case HttpMonitorDef http -> runner.runHttp(def.id(), request(http), http.parsedConditions(), policy);
+                case SqlMonitorDef sql -> runSql(sql, policy);
+                default -> runner.failed(def.id(), "Unsupported monitor type");
+            };
+        } catch (VaultException | IllegalArgumentException e) {
+            return runner.failed(def.id(), e.getMessage());
+        }
+    }
+
+    /** SQL monitors share their connection; HTTP monitors share their host. */
+    private static String targetOf(MonitorDef def) {
+        if (def instanceof SqlMonitorDef sql) {
+            return "sql:" + sql.connectionId();
+        }
+        try {
+            return "http:" + URI.create(((HttpMonitorDef) def).url()).getHost();
+        } catch (IllegalArgumentException e) {
+            return "http:" + def.id();
+        }
     }
 
     public Optional<CheckResult> latest(String monitorId) {
