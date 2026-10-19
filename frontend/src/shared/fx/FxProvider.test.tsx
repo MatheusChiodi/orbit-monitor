@@ -1,5 +1,6 @@
 import { act, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { AnimationLevelProvider } from '@/shared/motion/animationLevel';
 import { FxProvider, useFxLevel } from './FxProvider';
 
 function Probe() {
@@ -45,6 +46,30 @@ describe('FE-52 FxProvider / useFxLevel', () => {
     );
     expect(screen.getByTestId('fx')).toHaveAttribute('data-level', 'expressive');
     expect(document.documentElement.dataset.fx).toBe('expressive');
+  });
+
+  it('follows the FE-06 animation level when no level is given', () => {
+    render(
+      <AnimationLevelProvider level="minimal" prefersReducedMotion={false}>
+        <FxProvider monitorFrames={false}>
+          <Probe />
+        </FxProvider>
+      </AnimationLevelProvider>,
+    );
+    expect(screen.getByTestId('fx')).toHaveAttribute('data-level', 'minimal');
+  });
+
+  it('?motion= in the URL overrides the animation level', () => {
+    window.history.replaceState(null, '', '/wall.html?motion=expressive');
+    render(
+      <AnimationLevelProvider level="minimal" prefersReducedMotion={false}>
+        <FxProvider monitorFrames={false}>
+          <Probe />
+        </FxProvider>
+      </AnimationLevelProvider>,
+    );
+    window.history.replaceState(null, '', '/');
+    expect(screen.getByTestId('fx')).toHaveAttribute('data-level', 'expressive');
   });
 
   it('prefers-reduced-motion forces off', () => {

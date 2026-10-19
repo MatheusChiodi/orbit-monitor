@@ -13,11 +13,13 @@ export interface PanelProps {
   pulse?: boolean;
   /** Announces changes to screen readers. */
   live?: boolean;
+  /** `glass` (FE-52) only takes effect from the standard FX level; `solid` opts out. */
+  surface?: 'solid' | 'glass';
   className?: string;
   children: ReactNode;
 }
 
-export function Panel({ title, actions, tone, pulse = false, live = false, className = '', children }: PanelProps) {
+export function Panel({ title, actions, tone, pulse = false, live = false, surface = 'glass', className = '', children }: PanelProps) {
   const titleId = useId();
   const preset = useMotionPreset('enter');
   const colors = preset.level === 'off' ? 'transition-none' : 'transition-colors duration-[400ms]';
@@ -32,7 +34,7 @@ export function Panel({ title, actions, tone, pulse = false, live = false, class
       aria-labelledby={title ? titleId : undefined}
       aria-live={live ? 'polite' : undefined}
       data-tone={tone}
-      className={`relative flex min-h-0 flex-col overflow-hidden rounded-[0.9rem] border border-line bg-s1 p-[0.9rem] ${className}`}
+      className={`relative flex min-h-0 flex-col overflow-hidden rounded-[0.9rem] border border-line bg-s1 p-[0.9rem] ${surface === 'glass' ? 'fx-glass' : ''} ${className}`}
     >
       {tone && (
         <span

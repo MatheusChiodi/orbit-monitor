@@ -33,6 +33,8 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - `frontend/src/shared/fx/HeroOrb/HeroOrb.tsx` — gate (level + WebGL probe + error boundary) that lazy-loads the 3D orb after first paint
 - `frontend/src/shared/fx/HeroOrb/OrbScene.tsx` — R3F scene: transmissive glass sphere, gradient core, Fresnel rim, tilted gradient ring with satellite, pointer parallax
 - `frontend/src/shared/fx/HeroOrb/orbMaterials.ts` — rim/core shaders and the blue→green ring geometry from theme tokens
+- `frontend/src/shared/fx/incident.ts` — `hasUnacknowledgedDown()`: when the wall pauses background motion
+- Integration: `WallApp.tsx` (FxProvider + FxBackground + `.fx-layer`), `HeroCalm.tsx` (2D symbol as the HeroOrb fallback), `Hero.tsx` (`fx-down-glow` when DOWN), `Panel.tsx` (`surface` prop, `glass` by default)
 - `frontend/src/shared/fx/fx.css` — glass, tilt sheen, DOWN glow, static backdrop (gated by `html[data-fx]`)
 
 ## Tests
@@ -43,11 +45,16 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - `frontend/src/shared/fx/OrbitField/orbitGeometry.test.ts`
 - `frontend/src/shared/fx/FxBackground/FxBackground.test.tsx`
 - `frontend/src/shared/fx/HeroOrb/HeroOrb.test.tsx`
+- `frontend/src/shared/fx/incident.test.ts`
+- `frontend/src/domains/wall/WallApp/WallApp.fx.test.tsx`
+- `frontend/src/domains/wall/components/HeroCalm/HeroCalm.fx.test.tsx`
+- `frontend/src/domains/wall/components/Hero/Hero.fx.test.tsx`
+- `frontend/src/shared/ui/Panel/Panel.fx.test.tsx`
 
 ## Decisions and notes
 - Owned by fx-agent; integration into existing components is coordinated with frontend-agent.
 - Remotion is used for compositions (player/video), not for live UI state; live 3D uses React Three Fiber; micro-interactions stay on Motion (FE-51).
-- Level source: `FxProvider level` prop, else `?motion=`, else `<html data-animation>` (FE-06), else `standard`. `prefers-reduced-motion` forces `off`. Swap to `useMotionSettings()` once FE-06 lands.
+- Level source: `FxProvider level` prop, else `?motion=`, else `useAnimationLevel()` (FE-06, default `standard`). `prefers-reduced-motion` forces `off`. Swap to `useMotionSettings()` once FE-06 lands.
 - Gating: `off`/`minimal` → static backdrop, no 3D, glass or tilt; `standard` → orb, glass, low background, tilt ≤ 2.5°; `expressive` → full background, tilt 4°, Remotion intros. DOWN glow: none / static / pulse.
 - Frame monitor smooths frame time (EMA, α 0.1), ignores gaps > 500 ms (hidden tab) and fires once; `restore()` is the "Try again" path. It only runs while something animates.
 - Tilt writes `transform` directly on the element (no React state per pointer move), mouse pointers only; TiltCard is for navigational/onboarding cards, never around probe values.

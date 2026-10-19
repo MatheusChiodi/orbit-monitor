@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useAnimationLevel } from '@/shared/motion/animationLevel';
 import { createFrameMonitor } from './frameMonitor';
 import { parseFxLevel, resolveFx, type FxLevel, type FxState } from './fxLevel';
 import './fx.css';
@@ -31,17 +32,13 @@ function usePrefersReducedMotion(): boolean {
   return reduced;
 }
 
-/** `?motion=` (TV override) wins, then the animation level set on <html data-animation> (FE-06). */
-function defaultLevel(): FxLevel {
-  return (
-    parseFxLevel(new URLSearchParams(window.location.search).get('motion')) ??
-    parseFxLevel(document.documentElement.dataset.animation) ??
-    'standard'
-  );
+/** `?motion=` is the TV override (FE-06 precedence: reduced motion → URL → layout → device). */
+function urlLevel(): FxLevel | null {
+  return parseFxLevel(new URLSearchParams(window.location.search).get('motion'));
 }
 
 export interface FxProviderProps {
-  /** Animation level for this surface; defaults to the URL / document level. */
+  /** Animation level for this surface; defaults to `?motion=`, then the FE-06 animation level. */
   level?: FxLevel;
   /** An unacknowledged DOWN incident is on screen: background motion pauses. */
   incidentActive?: boolean;
@@ -51,8 +48,9 @@ export interface FxProviderProps {
 }
 
 export function FxProvider({ level, incidentActive = false, monitorFrames = true, children }: FxProviderProps) {
-  const [fallbackLevel] = useState(defaultLevel);
-  const requested = level ?? fallbackLevel;
+  const [fromUrl] = useState(urlLevel);
+  const animationLevel = useAnimationLevel();
+  const requested = level ?? fromUrl ?? animationLevel;
   const reducedMotion = usePrefersReducedMotion();
   const [downgraded, setDowngraded] = useState(false);
 

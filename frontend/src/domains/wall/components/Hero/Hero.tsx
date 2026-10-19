@@ -30,7 +30,7 @@ export function Hero({ selection, now, onAcknowledge }: HeroProps) {
       tone={status}
       pulse={status === 'DOWN' && unowned}
       live
-      className="h-full pl-[1.25rem]"
+      className={`h-full pl-[1.25rem] ${status === 'DOWN' ? 'fx-down-glow' : ''}`}
     >
       <div className="flex items-center gap-[0.6rem] text-[0.85rem] text-muted">
         <span className={`font-semibold ${TEXT_CLASS[status]}`}>{t(`status.label.${status}`)}</span>

@@ -4,6 +4,9 @@ import { useLocale } from '@/shared/i18n/useLocale';
 import type { ApiClient } from '@/shared/api/client';
 import type { WallSnapshot } from '@/shared/api/types';
 import { connectWall, wallSocketUrl, type ConnectWallOptions, type WallConnection } from '@/shared/api/wallSocket';
+import { FxBackground } from '@/shared/fx/FxBackground';
+import { FxProvider } from '@/shared/fx/FxProvider';
+import { hasUnacknowledgedDown } from '@/shared/fx/incident';
 import { MotionProvider } from '@/shared/motion';
 import { WallScreen } from '../components/WallScreen';
 import { acknowledge, startWallFeed } from '../feed';
@@ -63,14 +66,19 @@ export function WallApp({ api, connect = connectWall, operator, mock, layout }: 
 
   return (
     <MotionProvider>
-      <WallScreen
-        snapshot={snapshot}
-        now={now}
-        connection={connection}
-        freshEventIds={freshEventIds}
-        onAcknowledge={onAcknowledge}
-        onFullscreen={requestFullscreen}
-      />
+      <FxProvider incidentActive={snapshot ? hasUnacknowledgedDown(snapshot.incidents) : false}>
+        <FxBackground />
+        <div className="fx-layer">
+          <WallScreen
+            snapshot={snapshot}
+            now={now}
+            connection={connection}
+            freshEventIds={freshEventIds}
+            onAcknowledge={onAcknowledge}
+            onFullscreen={requestFullscreen}
+          />
+        </div>
+      </FxProvider>
     </MotionProvider>
   );
 }
