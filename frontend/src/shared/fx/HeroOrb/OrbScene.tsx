@@ -6,10 +6,10 @@ import {
   glassMaterial,
   gradientRing,
   haloMaterial,
-  readOrbPalette,
   rimMaterial,
   type OrbPalette,
 } from './orbMaterials';
+import { useFxPalette } from '../palette';
 
 export interface OrbSceneProps {
   /** 0..1 from the FX level: scales motion speed, parallax and glow. */
@@ -131,7 +131,8 @@ function Orb({ intensity, palette }: OrbSceneProps & { palette: OrbPalette }) {
 
 /** Live 3D orb for the calm hero: glass sphere, glowing core, orbiting satellite ring. */
 export function OrbScene({ intensity }: OrbSceneProps) {
-  const palette = useMemo(readOrbPalette, []);
+  const fx = useFxPalette();
+  const palette = useMemo(() => ({ blue: fx.from, green: fx.to }), [fx.from, fx.to]);
   return (
     <Canvas
       dpr={[1, 1.5]}

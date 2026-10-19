@@ -5,8 +5,9 @@
  */
 
 :root {
-  --fx-blue: var(--info);
-  --fx-green: var(--ok);
+  /* Theme fx tokens (applyTheme writes --fx-from / --fx-to / --fx-glow), falling back to the state colors. */
+  --fx-blue: var(--fx-from, var(--info));
+  --fx-green: var(--fx-to, var(--ok));
   --fx-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 

@@ -24,8 +24,8 @@ export function readPalette(root: HTMLElement = document.documentElement): Palet
     line: read('--line-2', FALLBACK.line),
     text: read('--text', FALLBACK.text),
     muted: read('--muted', FALLBACK.muted),
-    blue: read('--info', FALLBACK.blue),
-    green: read('--ok', FALLBACK.green),
+    blue: read('--fx-from', read('--info', FALLBACK.blue)),
+    green: read('--fx-to', read('--ok', FALLBACK.green)),
     warn: read('--warn', FALLBACK.warn),
     down: read('--down', FALLBACK.down),
   };

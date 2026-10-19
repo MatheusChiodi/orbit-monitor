@@ -7,3 +7,4 @@ export * from './HeroOrb';
 export * from './incident';
 export * from './OrbitIntro';
 export * from './FxDowngradeNotice';
+export * from './palette';

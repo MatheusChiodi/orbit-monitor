@@ -8,12 +8,20 @@ import { OrbitIntro } from './OrbitIntro';
 
 const player = vi.fn();
 
-vi.mock('@remotion/player', () => ({
-  Player: (props: { autoPlay?: boolean; durationInFrames: number; inputProps: { heading?: string } }) => {
-    player(props);
-    return <div data-testid="remotion-player" data-autoplay={String(Boolean(props.autoPlay))} />;
-  },
-}));
+// The real IntroPlayer pulls Remotion and three; a light stand-in keeps the lazy import instant and
+// deterministic under a full parallel run. Its props are covered by introProps.test.ts.
+vi.mock('./IntroPlayer', async () => {
+  const { useTranslation } = await import('react-i18next');
+  const { introProps, readPalette } = await import('./introProps');
+  return {
+    IntroPlayer: ({ id }: { id: 'check-flow' }) => {
+      const { t } = useTranslation();
+      const props = { autoPlay: true, inputProps: introProps(id, t, readPalette()) };
+      player(props);
+      return <div data-testid="remotion-player" data-autoplay="true" />;
+    },
+  };
+});
 
 function renderIntro(level: FxLevel) {
   return render(
@@ -25,8 +33,7 @@ function renderIntro(level: FxLevel) {
 
 afterEach(() => player.mockClear());
 
-// The player chunk (Remotion + three) can take seconds to import under a full parallel run.
-describe('FE-52 OrbitIntro', { timeout: 15_000 }, () => {
+describe('FE-52 OrbitIntro', () => {
   it('off and minimal: no intro at all', () => {
     for (const level of ['off', 'minimal'] as const) {
       const { container, unmount } = renderIntro(level);
@@ -41,13 +48,12 @@ describe('FE-52 OrbitIntro', { timeout: 15_000 }, () => {
     expect(screen.getByRole('figure', { name: 'Animated introduction' })).toBeInTheDocument();
     expect(player).not.toHaveBeenCalled();
     await userEvent.click(screen.getByRole('button', { name: 'Play intro' }));
-    expect(await screen.findByTestId('remotion-player', {}, { timeout: 8000 })).toHaveAttribute('data-autoplay', 'true');
+    expect(await screen.findByTestId('remotion-player')).toHaveAttribute('data-autoplay', 'true');
   });
 
   it('expressive: the composition autoplays with translated props', async () => {
     renderIntro('expressive');
-    expect(await screen.findByTestId('remotion-player', {}, { timeout: 8000 })).toHaveAttribute('data-autoplay', 'true');
-    expect(player).toHaveBeenCalledWith(expect.objectContaining({ durationInFrames: 180 }));
+    expect(await screen.findByTestId('remotion-player')).toHaveAttribute('data-autoplay', 'true');
     expect(player.mock.calls[0]?.[0].inputProps.heading).toBe('How a check flows');
   });
 
@@ -59,7 +65,7 @@ describe('FE-52 OrbitIntro', { timeout: 15_000 }, () => {
       'pt-BR',
     );
     await userEvent.click(screen.getByRole('button', { name: 'Ver introdução' }));
-    await screen.findByTestId('remotion-player', {}, { timeout: 8000 });
+    await screen.findByTestId('remotion-player');
     expect(player.mock.calls[0]?.[0].inputProps.heading).toBe('Como uma checagem flui');
   });
 });

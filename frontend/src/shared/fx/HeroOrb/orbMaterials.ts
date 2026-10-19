@@ -1,17 +1,9 @@
 import { AdditiveBlending, Color, Float32BufferAttribute, ShaderMaterial, TorusGeometry, Vector3 } from 'three';
 
-/** Brand colors for the orb, read from the theme tokens so custom themes recolor it. */
+/** Brand colors for the orb: the theme fx tokens `from` (blue) and `to` (green). */
 export interface OrbPalette {
   blue: string;
   green: string;
-}
-
-export function readOrbPalette(): OrbPalette {
-  const style = getComputedStyle(document.documentElement);
-  return {
-    blue: style.getPropertyValue('--info').trim() || '#3b9eff',
-    green: style.getPropertyValue('--ok').trim() || '#22c55e',
-  };
 }
 
 const VERTEX = /* glsl */ `

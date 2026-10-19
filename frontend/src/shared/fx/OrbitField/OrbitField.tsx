@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { readFxPalette } from '../palette';
 import { createOrbitField, drawOrbitField, parseColor, stepOrbitField, type OrbitColors } from './orbitGeometry';
 
 export interface OrbitFieldProps {
@@ -13,8 +14,8 @@ const FRAME_MS = 1000 / 30;
 const MAX_DPR = 1.5;
 
 function themeColors(): OrbitColors {
-  const style = getComputedStyle(document.documentElement);
-  return { line: parseColor(style.getPropertyValue('--info')), accent: parseColor(style.getPropertyValue('--ok')) };
+  const palette = readFxPalette();
+  return { line: parseColor(palette.from), accent: parseColor(palette.to) };
 }
 
 /** Canvas renderer for the orbit field. Loaded lazily by FxBackground, never on the critical path. */

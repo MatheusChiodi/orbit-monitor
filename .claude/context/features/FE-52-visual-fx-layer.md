@@ -41,6 +41,7 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - `frontend/src/shared/fx/OrbitIntro/` — `OrbitIntro` gate (poster + play at standard, autoplay at expressive), lazy `IntroPlayer` (`@remotion/player`), `introProps` (i18n + live palette)
 - `frontend/src/shared/fx/FxDowngradeNotice/FxDowngradeNotice.tsx` — "Keep simplified" / "Try again" after an automatic downgrade
 - `frontend/src/shared/i18n/locales/{en,pt-BR}.json` — `fx.*` keys
+- `frontend/src/shared/fx/palette.ts` — `readFxPalette()` / `useFxPalette()`: theme fx tokens (`--fx-from/to/glow`) with state-color fallbacks, re-read when the theme rewrites `<html>`
 - `frontend/src/shared/fx/fx.css` — glass, tilt sheen, DOWN glow, static backdrop (gated by `html[data-fx]`)
 
 ## Tests
@@ -52,6 +53,7 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - `frontend/src/shared/fx/FxBackground/FxBackground.test.tsx`
 - `frontend/src/shared/fx/HeroOrb/HeroOrb.test.tsx`
 - `frontend/src/shared/fx/incident.test.ts`
+- `frontend/src/shared/fx/palette.test.tsx`
 - `frontend/src/domains/wall/WallApp/WallApp.fx.test.tsx`
 - `frontend/src/domains/wall/components/HeroCalm/HeroCalm.fx.test.tsx`
 - `frontend/src/domains/wall/components/Hero/Hero.fx.test.tsx`
@@ -74,11 +76,14 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - Player: `moveToBeginningWhenEnded={false}` so an intro rests on its last frame, then a "Replay" button; `numberOfSharedAudioTags={0}` (no audio). Headless Chrome with SwiftShader triggers the frame-time downgrade within seconds (software WebGL), which is the intended behavior on slow devices; visual checks use the GPU (`--use-angle=d3d11`).
 - Budget (2026-10-18, `vite build`): `wall.html` static closure = 167.3 KB gzip (wall 7.6 + shared chunk 145.0 + jsx-runtime 3.3 + vanilla 2.0 + CSS 9.3). FX adds ≈ 3 KB of it (gates + fx.css); the overrun vs. the 150 KB budget comes from react-dom and Motion (FE-51) in the shared chunk. Lazy FX chunks: OrbitField 1.6 KB, OrbScene 1.2 KB, three + orb shaders 242 KB, IntroPlayer (Remotion) 112 KB.
 - Not yet wired: FE-06 per-category switches ("Attention signals" for the DOWN glow, "3D and visual effects", "Animated background", "Intros and guides"); `resolveFx()` is the single place to add them.
+- Theme contract (with orbit-themes): each theme has `fx: { from, to, glow }`, written by `applyTheme()` as `--fx-*` on `<html>`. FX reads the CSS variables (MutationObserver on `<html>` style/class/data-theme) instead of `useTheme()`, so it works with or without the ThemeProvider.
+- The OrbitIntro test mocks `./IntroPlayer` (no Remotion/three import, no real-time waits) so it is deterministic under a full parallel run.
 - CSS gating via `html[data-fx]` keeps the components free of level checks for pure styling; the stylesheet is unlayered so it overrides Tailwind utilities only when FX is on.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — FX level, frame monitor and provider with tests; glass/glow stylesheet (status: done).
+- 2026-10-18 — FX colors from the theme fx tokens; deterministic OrbitIntro test.
 - 2026-10-18 — TiltCard glass surface with hover tilt and sheen.
 - 2026-10-18 — Animated orbit-field background (lazy, luminance-capped, paused on incident).
 - 2026-10-18 — Live 3D hero orb (React Three Fiber) with 2D fallback.
