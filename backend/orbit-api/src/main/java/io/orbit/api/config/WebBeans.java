@@ -13,7 +13,7 @@ import io.orbit.monitor.privacy.PayloadRedactor;
 import io.orbit.probe.http.HttpProbe;
 import io.orbit.probe.sql.SqlProbe;
 import io.orbit.security.vault.SecretResolver;
-import io.orbit.security.access.AccessPolicy;
+import io.orbit.security.settings.SettingsService;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,10 +25,10 @@ import org.springframework.web.servlet.LocaleResolver;
 public class WebBeans {
 
     @Bean
-    FilterRegistrationBean<AccessFilter> accessFilter(AccessPolicy policy, ObjectMapper json, Messages messages,
+    FilterRegistrationBean<AccessFilter> accessFilter(SettingsService settings, ObjectMapper json, Messages messages,
                                                       LocaleResolver localeResolver) {
         FilterRegistrationBean<AccessFilter> registration =
-                new FilterRegistrationBean<>(new AccessFilter(policy, json, messages, localeResolver));
+                new FilterRegistrationBean<>(new AccessFilter(settings::policy, json, messages, localeResolver));
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
         registration.addUrlPatterns("/*");
         return registration;

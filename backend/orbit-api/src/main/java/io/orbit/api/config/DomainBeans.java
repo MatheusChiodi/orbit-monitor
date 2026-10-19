@@ -19,6 +19,8 @@ import io.orbit.probe.http.SsrfGuard;
 import io.orbit.probe.sql.SqlProbe;
 import io.orbit.security.access.AccessPolicy;
 import io.orbit.security.audit.AuditLog;
+import io.orbit.security.settings.OrbitSettings;
+import io.orbit.security.settings.SettingsService;
 import io.orbit.security.vault.MasterKey;
 import io.orbit.security.vault.SecretCipher;
 import io.orbit.security.vault.SecretResolver;
@@ -130,9 +132,12 @@ public class DomainBeans {
                 GroupService.VALIDATOR), clock);
     }
 
+    /** Live access policy: orbit.settings.json when it has an access section, application properties otherwise. */
     @Bean
-    AccessPolicy accessPolicy(OrbitProperties properties) {
+    SettingsService settingsService(OrbitProperties properties, Clock clock) {
         OrbitProperties.Access access = properties.access();
-        return new AccessPolicy(access.mode(), access.cidrs()).withLanAcknowledge(access.lanAcknowledge());
+        AccessPolicy fallback = new AccessPolicy(access.mode(), access.cidrs()).withLanAcknowledge(access.lanAcknowledge());
+        return new SettingsService(new ConfigFile<>(properties.configDir(), "settings", OrbitSettings.class,
+                ConfigMapper.create(), SettingsService.VALIDATOR), fallback, clock);
     }
 }

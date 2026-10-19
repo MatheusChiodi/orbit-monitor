@@ -16,6 +16,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Locale;
+import java.util.function.Supplier;
 import java.util.Set;
 
 /**
@@ -27,12 +28,12 @@ public class AccessFilter extends OncePerRequestFilter {
 
     private static final Set<String> READ_METHODS = Set.of("GET", "HEAD", "OPTIONS");
 
-    private final AccessPolicy policy;
+    private final Supplier<AccessPolicy> policy;
     private final ObjectMapper json;
     private final Messages messages;
     private final LocaleResolver locales;
 
-    public AccessFilter(AccessPolicy policy, ObjectMapper json, Messages messages, LocaleResolver locales) {
+    public AccessFilter(Supplier<AccessPolicy> policy, ObjectMapper json, Messages messages, LocaleResolver locales) {
         this.policy = policy;
         this.json = json;
         this.messages = messages;
@@ -45,7 +46,7 @@ public class AccessFilter extends OncePerRequestFilter {
         securityHeaders(request, response);
         AccessAction action = actionOf(request);
         InetAddress remote = InetAddress.getByName(request.getRemoteAddr());
-        if (!policy.decide(remote, action)) {
+        if (!policy.get().decide(remote, action)) {
             deny(response, locales.resolveLocale(request));
             return;
         }
@@ -65,7 +66,7 @@ public class AccessFilter extends OncePerRequestFilter {
 
     private void deny(HttpServletResponse response, Locale locale) throws IOException {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN,
-                messages.get("problem.access-denied.detail", locale, policy.mode()));
+                messages.get("problem.access-denied.detail", locale, policy.get().mode()));
         problem.setTitle(messages.get("problem.access-denied.title", locale));
         problem.setProperty("code", "access-denied");
         response.setStatus(HttpStatus.FORBIDDEN.value());

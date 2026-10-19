@@ -4,6 +4,7 @@ import io.orbit.api.config.OrbitProperties;
 import io.orbit.monitor.definition.MonitorDefinitions;
 import io.orbit.probe.schedule.ProbeScheduler;
 import io.orbit.probe.schedule.ProbeWorkers;
+import io.orbit.security.settings.SettingsService;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,10 +19,12 @@ public class RuntimeLifecycle {
     private final ProbeScheduler scheduler;
     private final ProbeWorkers workers;
     private final OrbitProperties properties;
+    private final SettingsService settings;
     private volatile boolean started;
 
     public RuntimeLifecycle(MonitorRuntime runtime, MonitorDefinitions definitions, ProbeScheduler scheduler,
-                            ProbeWorkers workers, OrbitProperties properties) {
+                            ProbeWorkers workers, OrbitProperties properties, SettingsService settings) {
+        this.settings = settings;
         this.runtime = runtime;
         this.definitions = definitions;
         this.scheduler = scheduler;
@@ -45,7 +48,11 @@ public class RuntimeLifecycle {
 
     @Scheduled(fixedDelay = 5_000)
     public void reloadEditedFiles() {
-        if (started && definitions.reloadIfChanged()) {
+        if (!started) {
+            return;
+        }
+        settings.reloadIfChanged();
+        if (definitions.reloadIfChanged()) {
             runtime.syncSchedule();
         }
     }
