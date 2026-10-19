@@ -89,8 +89,8 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [FE-25](features/FE-25-week-over-week-overlay.md) | Week-over-week overlay | frontend | done |
 | [FE-26](features/FE-26-chart-annotations.md) | Chart annotations | frontend | done |
 | [FE-27](features/FE-27-zoom-and-synced-crosshair.md) | Zoom and synced crosshair | frontend | done |
-| [FE-28](features/FE-28-command-palette.md) | Command palette | frontend | tests-pending |
-| [FE-29](features/FE-29-keyboard-shortcuts.md) | Keyboard shortcuts | frontend | tests-pending |
+| [FE-28](features/FE-28-command-palette.md) | Command palette | frontend | done |
+| [FE-29](features/FE-29-keyboard-shortcuts.md) | Keyboard shortcuts | frontend | done |
 | [FE-30](features/FE-30-saved-views.md) | Saved views | frontend | tests-pending |
 | [FE-31](features/FE-31-bulk-actions.md) | Bulk actions | frontend | tests-pending |
 | [FE-32](features/FE-32-monitor-templates-and-clone.md) | Monitor templates and clone | frontend | tests-pending |

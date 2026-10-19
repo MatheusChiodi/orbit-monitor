@@ -110,3 +110,34 @@ describe('ConsoleApp (no login)', () => {
     expect(screen.getByRole('link', { name: 'Abrir parede' })).toBeInTheDocument();
   });
 });
+
+describe('FE-28 / FE-29 in the console', () => {
+  it('Ctrl+K opens the palette and choosing a monitor action opens the form', async () => {
+    render(<ConsoleApp api={onlineApi('edit')} operatorStore={namedStore()} />);
+    await screen.findByText('Web portal');
+    await userEvent.keyboard('{Control>}k{/Control}');
+    await userEvent.keyboard('New monitor{Enter}');
+    expect(await screen.findByRole('heading', { name: 'New monitor' })).toBeInTheDocument();
+  });
+
+  it('the palette lists the monitors', async () => {
+    render(<ConsoleApp api={onlineApi('edit')} operatorStore={namedStore()} />);
+    await screen.findByText('Web portal');
+    await userEvent.keyboard('{Control>}k{/Control}');
+    expect(screen.getByRole('option', { name: /Web portal/ })).toBeInTheDocument();
+  });
+
+  it('"N" opens a new monitor (edit mode only)', async () => {
+    render(<ConsoleApp api={onlineApi('edit')} operatorStore={namedStore()} />);
+    await screen.findByText('Web portal');
+    await userEvent.keyboard('n');
+    expect(await screen.findByRole('heading', { name: 'New monitor' })).toBeInTheDocument();
+  });
+
+  it('"N" does nothing in view-only mode', async () => {
+    render(<ConsoleApp api={onlineApi('view-only')} operatorStore={namedStore()} />);
+    await screen.findByText('Web portal');
+    await userEvent.keyboard('n');
+    expect(screen.queryByRole('heading', { name: 'New monitor' })).toBeNull();
+  });
+});

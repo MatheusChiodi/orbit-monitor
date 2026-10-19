@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { renderWithLocale } from '@/test/renderWithLocale';
@@ -45,7 +45,8 @@ describe('FE-28 command palette', () => {
 
   it('Ctrl+K opens a labelled dialog with focus in the search box', async () => {
     setup();
-    expect(screen.queryByRole('dialog')).toBeNull();
+    // The dialog leaves through AnimatePresence (FE-51), so wait for the exit to finish.
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     await userEvent.keyboard('{Control>}k{/Control}');
     expect(screen.getByRole('dialog', { name: 'Command palette' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Search monitors, groups, layouts and actions' })).toHaveFocus();
@@ -76,7 +77,8 @@ describe('FE-28 command palette', () => {
     expect(combobox).toHaveAttribute('aria-activedescendant', active.id);
     await userEvent.keyboard('{Enter}');
     expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ id: items[1]!.id }));
-    expect(screen.queryByRole('dialog')).toBeNull();
+    // The dialog leaves through AnimatePresence (FE-51), so wait for the exit to finish.
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 
   it('Escape closes and returns focus to where it was', async () => {
@@ -85,7 +87,8 @@ describe('FE-28 command palette', () => {
     outside.focus();
     await userEvent.keyboard('{Control>}k{/Control}');
     await userEvent.keyboard('{Escape}');
-    expect(screen.queryByRole('dialog')).toBeNull();
+    // The dialog leaves through AnimatePresence (FE-51), so wait for the exit to finish.
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(outside).toHaveFocus();
   });
 

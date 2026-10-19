@@ -8,6 +8,8 @@ import type { OperatorStore } from '@/domains/security/operator';
 import { OperatorPrompt } from '@/domains/security/OperatorPrompt';
 import { ViewOnlyBanner } from '@/domains/security/ViewOnlyBanner';
 import { GroupList } from '@/domains/workspace/GroupList';
+import { CommandPalette, type PaletteItem } from './CommandPalette';
+import { DEFAULT_SHORTCUTS, ShortcutsHelp, useShortcuts } from './ShortcutsHelp';
 import type { AccessInfo, MonitorDefinition } from '@/shared/api/types';
 import { FxBackground } from '@/shared/fx/FxBackground';
 import { FxDowngradeNotice } from '@/shared/fx/FxDowngradeNotice';
@@ -52,6 +54,31 @@ function Workspace({ api, access, demo, operator, onChangeName }: WorkspaceProps
     enabled: view === 'new' && editable,
   });
 
+  const openNew = () => {
+    if (!editable) return;
+    setNotice(null);
+    setView('new');
+  };
+  useShortcuts({ 'monitor.new': openNew });
+
+  const paletteItems: PaletteItem[] = [
+    ...(monitors.data ?? []).map((m) => ({
+      id: `monitor:${m.id}`,
+      kind: 'monitor' as const,
+      label: m.name,
+      hint: groups.data?.find((g) => g.id === m.groupId)?.name,
+    })),
+    ...(groups.data ?? []).map((g) => ({ id: `group:${g.id}`, kind: 'group' as const, label: g.name })),
+    { id: 'action:new-monitor', kind: 'action', label: t('console.monitors.new'), requiresEdit: true },
+    { id: 'action:open-wall', kind: 'action', label: t('console.openWall') },
+  ];
+
+  function onPaletteSelect(item: PaletteItem) {
+    if (item.id === 'action:new-monitor') openNew();
+    else if (item.id === 'action:open-wall') window.location.assign('/wall.html');
+    else setView('list');
+  }
+
   const create = useMutation({
     mutationFn: source.createMonitor,
     onSuccess: async (_, definition: MonitorDefinition) => {
@@ -79,6 +106,8 @@ function Workspace({ api, access, demo, operator, onChangeName }: WorkspaceProps
         </nav>
       </header>
 
+      <CommandPalette items={paletteItems} mode={access.mode} onSelect={onPaletteSelect} />
+      <ShortcutsHelp shortcuts={DEFAULT_SHORTCUTS} />
       <main className="mx-auto flex max-w-[80rem] flex-col gap-[1rem] p-[1.4rem]">
         <ViewOnlyBanner mode={access.mode} />
         {notice && (

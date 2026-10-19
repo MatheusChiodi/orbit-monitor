@@ -3,7 +3,7 @@ id: FE-28
 title: "Command palette"
 area: frontend
 group: "Console productivity"
-status: tests-pending
+status: done
 screens: [monitor-list]
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -16,21 +16,26 @@ updated: 2026-10-18
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
-- [ ] All tests green, none pending
+- [x] Implemented
+- [x] All tests green, none pending
 
 ## Screens
 [monitor-list](../screens/monitor-list.md)
 
 ## Code
-_None yet._
+- `frontend/src/app/console/CommandPalette/CommandPalette.tsx`
+- `frontend/src/app/console/CommandPalette/palette.ts`
+- `frontend/src/app/console/ConsoleApp.tsx`
 
 ## Tests
-- `frontend/src/app/console/CommandPalette/CommandPalette.pending.test.tsx`
+- `frontend/src/app/console/CommandPalette/CommandPalette.test.tsx`
+- `frontend/src/app/console/ConsoleApp.test.tsx`
 
 ## Decisions and notes
-_None yet._
+- `Ctrl+K` / `⌘K` opens a combobox dialog (`aria-activedescendant`, arrows + Enter, Escape returns focus); accent/case-insensitive search, prefix matches first, results grouped by kind; edit actions hidden in view-only.
+- Console items: monitors (hint = group), groups, "New monitor", "Open wall"; layouts join when FE-11 lands.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
+- 2026-10-18 — command palette in the console (status: done).

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { renderWithLocale } from '@/test/renderWithLocale';
@@ -66,7 +66,8 @@ describe('FE-29 keyboard shortcuts', () => {
     render(<Harness onNewMonitor={vi.fn()} />);
     await userEvent.keyboard('?');
     await userEvent.keyboard('{Escape}');
-    expect(screen.queryByRole('dialog')).toBeNull();
+    // The dialog leaves through AnimatePresence (FE-51), so wait for the exit to finish.
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 
   it('keys are announced with <kbd>', async () => {
