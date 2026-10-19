@@ -3,7 +3,7 @@ id: FE-43
 title: "SLA reports"
 area: frontend
 group: "Console productivity"
-status: tests-pending
+status: in-progress
 screens: [reports-sla]
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -23,14 +23,16 @@ Uptime per group/monitor, CSV/PDF export
 [reports-sla](../screens/reports-sla.md)
 
 ## Code
-_None yet._
+- `frontend/src/domains/telemetry/SlaReports/SlaReports.tsx`
+- `frontend/src/domains/telemetry/SlaReports/sla.ts`
 
 ## Tests
-- `frontend/src/domains/telemetry/SlaReports/SlaReports.pending.test.tsx`
+- `frontend/src/domains/telemetry/SlaReports/SlaReports.test.tsx`
 
 ## Decisions and notes
-_None yet._
+- Uptime excludes maintenance and shows no number without measurements; periods longer than the in-memory window are flagged partial (never shown as complete); the CSV header states the history window and names are redacted.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
+- 2026-10-18 — SLA reports component (status: in-progress).

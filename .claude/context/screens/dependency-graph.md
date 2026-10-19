@@ -22,7 +22,7 @@ _To be filled as the screen is built (component tree, file paths)._
 - Privacy: every probe value rendered through `<SafeValue>`
 
 ## Features on this screen
-- [FE-42 · Dependency graph](../features/FE-42-dependency-graph.md) — tests-pending
+- [FE-42 · Dependency graph](../features/FE-42-dependency-graph.md) — in-progress
 
 ## Code
 _None yet._
