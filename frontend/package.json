@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "test:pending": "vitest run --mode pending"
+    "test:pending": "vitest run --mode pending",
+    "remotion:studio": "remotion studio remotion/index.ts",
+    "remotion:render": "node remotion/render.mjs"
   },
   "dependencies": {
     "@react-three/fiber": "^9.8.2",

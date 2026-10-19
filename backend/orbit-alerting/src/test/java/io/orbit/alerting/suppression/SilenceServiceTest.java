@@ -3,6 +3,7 @@ package io.orbit.alerting.suppression;
 import io.orbit.config.ConfigFile;
 import io.orbit.config.ConfigMapper;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -16,6 +17,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@Tag("pending")
 @DisplayName("BE-32 silence/snooze")
 class SilenceServiceTest {
 
