@@ -94,10 +94,10 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [FE-30](features/FE-30-saved-views.md) | Saved views | frontend | done |
 | [FE-31](features/FE-31-bulk-actions.md) | Bulk actions | frontend | done |
 | [FE-32](features/FE-32-monitor-templates-and-clone.md) | Monitor templates and clone | frontend | done |
-| [FE-33](features/FE-33-sql-editor.md) | SQL editor | frontend | tests-pending |
-| [FE-34](features/FE-34-condition-builder.md) | Condition builder | frontend | tests-pending |
-| [FE-35](features/FE-35-json-explorer.md) | JSON explorer | frontend | tests-pending |
-| [FE-36](features/FE-36-query-history-diff.md) | Query history diff | frontend | tests-pending |
+| [FE-33](features/FE-33-sql-editor.md) | SQL editor | frontend | in-progress |
+| [FE-34](features/FE-34-condition-builder.md) | Condition builder | frontend | in-progress |
+| [FE-35](features/FE-35-json-explorer.md) | JSON explorer | frontend | in-progress |
+| [FE-36](features/FE-36-query-history-diff.md) | Query history diff | frontend | in-progress |
 | [FE-37](features/FE-37-onboarding.md) | Onboarding | frontend | done |
 | [FE-38](features/FE-38-notification-center.md) | Notification center | frontend | in-progress |
 | [FE-39](features/FE-39-incident-page.md) | Incident page | frontend | in-progress |
@@ -166,7 +166,7 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [BE-38](features/BE-38-realtime-protocol.md) | Realtime protocol | backend | in-progress |
 | [BE-39](features/BE-39-workspace-variables.md) | Workspace variables | backend | tests-pending |
 | [BE-40](features/BE-40-workspace-defaults-and-themes-api.md) | Workspace defaults and themes API | backend | tests-pending |
-| [BE-41](features/BE-41-wall-layouts.md) | Wall layouts | backend | tests-pending |
+| [BE-41](features/BE-41-wall-layouts.md) | Wall layouts | backend | done |
 | [BE-42](features/BE-42-status-page-api.md) | Status page API | backend | tests-pending |
 | [BE-43](features/BE-43-uptime-kuma-import.md) | Uptime Kuma import | backend | tests-pending |
 | [BE-44](features/BE-44-network-access-policy.md) | Network access policy | backend | done |

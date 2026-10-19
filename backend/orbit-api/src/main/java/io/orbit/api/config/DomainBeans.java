@@ -29,6 +29,7 @@ import io.orbit.telemetry.StateTracker;
 import io.orbit.telemetry.TelemetryService;
 import io.orbit.workspace.Group;
 import io.orbit.workspace.GroupService;
+import io.orbit.workspace.layout.WallLayoutService;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +38,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.HashSet;
+import java.util.List;
 
 /** Wires the plain-Java domain modules into Spring; domains themselves know nothing about Spring. */
 @Configuration
@@ -130,6 +132,12 @@ public class DomainBeans {
     GroupService groupService(OrbitProperties properties, Clock clock) {
         return new GroupService(new ConfigFile<>(properties.configDir(), "groups", Group.class, ConfigMapper.create(),
                 GroupService.VALIDATOR), clock);
+    }
+
+    @Bean
+    WallLayoutService wallLayoutService(OrbitProperties properties, Clock clock) {
+        return new WallLayoutService(new ConfigFile<>(properties.configDir(), "layouts", WallLayoutService.Layout.class,
+                ConfigMapper.create(), items -> List.of()), clock);
     }
 
     /** Live access policy: orbit.settings.json when it has an access section, application properties otherwise. */
