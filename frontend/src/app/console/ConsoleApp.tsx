@@ -9,6 +9,10 @@ import { OperatorPrompt } from '@/domains/security/OperatorPrompt';
 import { ViewOnlyBanner } from '@/domains/security/ViewOnlyBanner';
 import { GroupList } from '@/domains/workspace/GroupList';
 import type { AccessInfo, MonitorDefinition } from '@/shared/api/types';
+import { FxBackground } from '@/shared/fx/FxBackground';
+import { FxDowngradeNotice } from '@/shared/fx/FxDowngradeNotice';
+import { FxProvider } from '@/shared/fx/FxProvider';
+import { OrbitIntro } from '@/shared/fx/OrbitIntro';
 import { LanguageSelector } from '@/shared/i18n/LanguageSelector';
 import { Button } from '@/shared/ui';
 import { createConsoleSource, type ConsoleApi } from './consoleSource';
@@ -87,7 +91,14 @@ function Workspace({ api, access, demo, operator, onChangeName }: WorkspaceProps
             {groups.isPending || monitors.isPending ? (
               <p className="m-0 text-muted">{t('app.loading')}</p>
             ) : (
-              <GroupList
+              <>
+                {(monitors.data ?? []).length === 0 && (
+                  <div className="grid gap-[1rem] md:grid-cols-2">
+                    <OrbitIntro id="first-monitor" tilt />
+                    <OrbitIntro id="check-flow" tilt />
+                  </div>
+                )}
+                <GroupList
                 groups={groups.data ?? []}
                 monitors={monitors.data ?? []}
                 canEdit={editable}
@@ -96,6 +107,7 @@ function Workspace({ api, access, demo, operator, onChangeName }: WorkspaceProps
                   setView('new');
                 }}
               />
+              </>
             )}
           </>
         ) : (
@@ -126,7 +138,8 @@ function Shell({ api, operatorStore }: Omit<ConsoleAppProps, 'queryClient'>) {
 
   if (!operator || renaming) {
     return (
-      <main className="flex min-h-screen items-center justify-center p-[1.4rem]">
+      <main className="flex min-h-screen flex-col items-center justify-center gap-[1.2rem] p-[1.4rem]">
+        <OrbitIntro id="orbit-boot" tilt className="w-[min(34rem,90vw)]" />
         <OperatorPrompt
           initialName={operator ?? ''}
           onSubmit={(name) => {
@@ -157,7 +170,13 @@ export function ConsoleApp({ api, operatorStore, queryClient }: ConsoleAppProps)
   const [client] = useState(() => queryClient ?? createQueryClient());
   return (
     <QueryClientProvider client={client}>
-      <Shell api={api} operatorStore={operatorStore} />
+      <FxProvider>
+        <FxBackground />
+        <div className="fx-layer">
+          <Shell api={api} operatorStore={operatorStore} />
+        </div>
+        <FxDowngradeNotice />
+      </FxProvider>
     </QueryClientProvider>
   );
 }

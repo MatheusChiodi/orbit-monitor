@@ -34,7 +34,7 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - `frontend/src/shared/fx/HeroOrb/OrbScene.tsx` — R3F scene: shader glass sphere (Fresnel edge, inner rim, specular glint), glowing gradient core with halo, tilted gradient ring with satellite, pointer parallax
 - `frontend/src/shared/fx/HeroOrb/orbMaterials.ts` — glass/rim/core/halo shaders and the blue→green ring geometry from theme tokens
 - `frontend/src/shared/fx/incident.ts` — `hasUnacknowledgedDown()`: when the wall pauses background motion
-- Integration: `WallApp.tsx` (FxProvider + FxBackground + `.fx-layer`), `HeroCalm.tsx` (2D symbol as the HeroOrb fallback), `Hero.tsx` (`fx-down-glow` when DOWN), `Panel.tsx` (`surface` prop, `glass` by default)
+- Integration: `WallApp.tsx` (FxProvider + FxBackground + `.fx-layer`), `HeroCalm.tsx` (2D symbol as the HeroOrb fallback), `Hero.tsx` (`fx-down-glow` when DOWN), `Panel.tsx` (`surface` prop, `glass` by default), `ConsoleApp.tsx` (FxProvider + FxBackground + FxDowngradeNotice; boot intro beside the operator prompt; first-monitor and check-flow guides on the empty monitor list)
 - `frontend/remotion/` — Remotion entry (`index.ts`, `Root.tsx`), `palette.ts`, `compositions/` (`OrbitBoot` with `@remotion/three`, `CheckFlow`, `FirstMonitor`, `RemotionOrb`, `registry.ts`)
 - `frontend/src/shared/fx/OrbitIntro/` — `OrbitIntro` gate (poster + play at standard, autoplay at expressive), lazy `IntroPlayer` (`@remotion/player`), `introProps` (i18n + live palette)
 - `frontend/src/shared/fx/FxDowngradeNotice/FxDowngradeNotice.tsx` — "Keep simplified" / "Try again" after an automatic downgrade
@@ -57,6 +57,7 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - `frontend/src/shared/fx/OrbitIntro/introProps.test.ts`
 - `frontend/src/shared/fx/OrbitIntro/OrbitIntro.test.tsx`
 - `frontend/src/shared/fx/FxDowngradeNotice/FxDowngradeNotice.test.tsx`
+- `frontend/src/app/console/ConsoleApp.fx.test.tsx`
 
 ## Decisions and notes
 - Owned by fx-agent; integration into existing components is coordinated with frontend-agent.
@@ -68,6 +69,7 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - Background: 6 tilted ellipses + particles with short trails on canvas 2D (no WebGL needed). Every mark's alpha is capped so `alpha × L(color) ≤ 0.06` (WCAG relative luminance over the black-ish `--bg`). Particles: ~28 at `standard`, 60 at `expressive`. Paused = one frozen frame at 35% opacity, no rAF loop.
 - Orb: no drei and no `transmission` pass (a transmissive material over a transparent canvas rendered as a flat grey disk and costs an extra pass); glass is an additive Fresnel + specular shader. No scene lights needed; `powerPreference: 'low-power'`, DPR ≤ 1.5. Parallax follows a mouse over the whole window; TVs without a mouse get a slow idle drift. The orb is `aria-hidden` and the hero text stays in the DOM beside it.
 - Remotion: compositions live in `frontend/remotion/` with relative imports only (no `@/` alias, so the Remotion bundler needs no config); every visible word arrives as props built from the product i18n. Inside `<ThreeCanvas>` all motion derives from `useCurrentFrame()` (no `useFrame`). The orb shaders are shared with the live hero (`orbMaterials.ts`). The Player chunk loads only at `expressive` or after "Play" at `standard`. `acknowledgeRemotionLicense` is not set: the owner decides on the Remotion license.
+- Player: `moveToBeginningWhenEnded={false}` so an intro rests on its last frame, then a "Replay" button; `numberOfSharedAudioTags={0}` (no audio). Headless Chrome with SwiftShader triggers the frame-time downgrade within seconds (software WebGL), which is the intended behavior on slow devices; visual checks use the GPU (`--use-angle=d3d11`).
 - CSS gating via `html[data-fx]` keeps the components free of level checks for pure styling; the stylesheet is unlayered so it overrides Tailwind utilities only when FX is on.
 
 ## Changelog

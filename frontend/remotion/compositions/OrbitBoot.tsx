@@ -71,7 +71,7 @@ export function OrbitBoot({ title, tagline, palette }: OrbitBootProps) {
     >
       <OrbitLines progress={t.lines} palette={palette} />
       <div style={{ position: 'absolute', top: height * 0.06, left: 0, opacity: t.orb, transform: `scale(${0.94 + 0.06 * t.orb})` }}>
-        <ThreeCanvas width={width} height={canvasHeight} camera={{ position: [0, 0, 4.6], fov: 36 }} gl={{ alpha: true }}>
+        <ThreeCanvas width={width} height={canvasHeight} camera={{ position: [0, 0, 4.6], fov: 36 }} gl={{ alpha: true, preserveDrawingBuffer: true }}>
           <RemotionOrb time={frame / fps} palette={{ blue: palette.blue, green: palette.green }} ring={t.ring} />
         </ThreeCanvas>
       </div>

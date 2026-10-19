@@ -2,11 +2,14 @@ import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { IntroId } from '../../../../remotion/compositions/registry';
 import { useFxLevel } from '../FxProvider';
+import { TiltCard } from '../TiltCard';
 
 const IntroPlayer = lazy(() => import('./IntroPlayer').then((m) => ({ default: m.IntroPlayer })));
 
 export interface OrbitIntroProps {
   id: IntroId;
+  /** Frame it in a glass TiltCard (onboarding and empty states). */
+  tilt?: boolean;
   className?: string;
 }
 
@@ -23,14 +26,14 @@ function PlayIcon() {
  * `expressive` autoplays; `standard` shows a poster and loads Remotion only on "Play"; `off` and
  * `minimal` render nothing.
  */
-export function OrbitIntro({ id, className = '' }: OrbitIntroProps) {
+export function OrbitIntro({ id, tilt = false, className = '' }: OrbitIntroProps) {
   const { t } = useTranslation();
   const fx = useFxLevel();
   const [requested, setRequested] = useState(false);
   if (fx.level === 'off' || fx.level === 'minimal') return null;
   const playing = fx.intros || requested;
 
-  return (
+  const figure = (
     <figure aria-label={t('fx.intro.label')} className={`m-0 overflow-hidden rounded-[0.7rem] border border-line bg-bg ${className}`}>
       {playing ? (
         <Suspense fallback={<div className="aspect-video w-full bg-bg" />}>
@@ -50,4 +53,5 @@ export function OrbitIntro({ id, className = '' }: OrbitIntroProps) {
       )}
     </figure>
   );
+  return tilt ? <TiltCard className="p-[0.5rem]">{figure}</TiltCard> : figure;
 }
