@@ -1,0 +1,142 @@
+/*
+ * FE-52 visual FX (docs/03-design.md §4.2). Every rule is gated by <html data-fx>, set by FxProvider.
+ * Colors come only from the theme tokens, so custom themes recolor the FX too.
+ * Data is never blurred, tilted or covered: glass blurs what is behind a surface, never its content.
+ */
+
+:root {
+  --fx-blue: var(--info);
+  --fx-green: var(--ok);
+  --fx-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Static backdrop for every level: two very faint pools of brand light (no motion). */
+.fx-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60rem 40rem at 12% -10%, color-mix(in srgb, var(--fx-blue) 7%, transparent), transparent 70%),
+    radial-gradient(50rem 36rem at 105% 110%, color-mix(in srgb, var(--fx-green) 5%, transparent), transparent 70%);
+}
+.fx-backdrop canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 1.2s var(--fx-ease-out);
+}
+.fx-backdrop[data-paused='true'] canvas {
+  opacity: 0.35;
+}
+
+/* Content sits above the backdrop. */
+.fx-layer {
+  position: relative;
+  z-index: 1;
+}
+
+/* Glass surfaces: standard and expressive only. */
+html:is([data-fx='standard'], [data-fx='expressive']) .fx-glass {
+  border-color: transparent;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--text) 3.5%, transparent), transparent 40%),
+    linear-gradient(180deg, color-mix(in srgb, var(--s2) 78%, transparent), color-mix(in srgb, var(--s1) 70%, transparent));
+  -webkit-backdrop-filter: blur(16px) saturate(1.25);
+  backdrop-filter: blur(16px) saturate(1.25);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text) 7%, transparent);
+}
+html:is([data-fx='standard'], [data-fx='expressive']) .fx-glass::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--fx-blue) 45%, transparent),
+    color-mix(in srgb, var(--fx-blue) 12%, transparent) 38%,
+    color-mix(in srgb, var(--fx-green) 10%, transparent) 62%,
+    color-mix(in srgb, var(--fx-green) 32%, transparent)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+/* Surfaces that already carry a state color keep a neutral glass edge. */
+html:is([data-fx='standard'], [data-fx='expressive']) .fx-glass[data-tone='DOWN']::before,
+html:is([data-fx='standard'], [data-fx='expressive']) .fx-glass[data-tone='WARN']::before {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--text) 14%, transparent), transparent 60%);
+}
+
+/* Hover tilt with a light sheen (console only; transform is written by useTilt). */
+.fx-tilt {
+  transform-style: preserve-3d;
+  transition: transform 280ms var(--fx-ease-out);
+  will-change: transform;
+}
+.fx-tilt::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    24rem circle at var(--fx-sheen-x, 50%) var(--fx-sheen-y, 0%),
+    color-mix(in srgb, var(--text) 7%, transparent),
+    transparent 60%
+  );
+  transition: opacity 200ms ease;
+}
+.fx-tilt[data-tilting='true']::after {
+  opacity: 1;
+}
+
+/* DOWN: restrained red glow on the hero edge. Inset only, so the text keeps its contrast. */
+.fx-down-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--down) 55%, transparent),
+    inset 0 0 2.4rem color-mix(in srgb, var(--down) 16%, transparent);
+  opacity: 0;
+}
+html[data-fx='minimal'] .fx-down-glow::after {
+  opacity: 0.7;
+}
+html:is([data-fx='standard'], [data-fx='expressive']) .fx-down-glow::after {
+  animation: fx-down-glow 2.4s ease-in-out infinite;
+}
+@keyframes fx-down-glow {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+
+/* Live 3D orb canvas behind the calm hero symbol. */
+.fx-orb {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.fx-orb canvas {
+  display: block;
+}
+.fx-orb-enter {
+  animation: fx-orb-enter 900ms var(--fx-ease-out) both;
+}
+@keyframes fx-orb-enter {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-tilt { transform: none !important; }
+}

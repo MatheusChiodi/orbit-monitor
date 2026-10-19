@@ -112,7 +112,7 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [FE-49](features/FE-49-mobile-on-call-view.md) | Mobile on-call view | frontend | tests-pending |
 | [FE-50](features/FE-50-device-preferences.md) | Device preferences | frontend | tests-pending |
 | [FE-51](features/FE-51-component-motion-system.md) | Component motion system | frontend | in-progress |
-| [FE-52](features/FE-52-visual-fx-layer.md) | Visual FX layer (3D, glass, Remotion) | frontend | planned |
+| [FE-52](features/FE-52-visual-fx-layer.md) | Visual FX layer (3D, glass, Remotion) | frontend | in-progress |
 | [FE-53](features/FE-53-customize-mode.md) | Customize mode and inspector | frontend | planned |
 | [FE-54](features/FE-54-terminology-editor.md) | Terminology editor | frontend | planned |
 | [FE-55](features/FE-55-card-behavior-settings.md) | Card and component behavior settings | frontend | planned |
