@@ -15,7 +15,7 @@ Test-first workflow: each feature gets its test suite **before** the implementat
 | FE-03 | **Theme presets** | Orbit Dark (default), Light, High contrast, OLED black, Color-blind safe (deuteranopia, protanopia, tritanopia) |
 | FE-04 | **Theme import/export** | JSON schema-validated; share a theme with the workspace |
 | FE-05 | **Per-layout theme** | A wall layout can override the console theme |
-| FE-06 | **Animation level** | `off`, `minimal`, `standard` (default), `expressive`; `prefers-reduced-motion` is a hard ceiling (forces `off`) |
+| FE-06 | **Animation settings** | Configure how much motion Orbit has: preset level, intensity, speed and per-category switches, per device and per wall layout, with live preview (see §1.2) |
 | FE-07 | **Density** | `compact`, `comfortable`, `spacious` in the console |
 | FE-08 | **Viewing distance scale** | Wall font presets for 2 m / 3 m / 5 m on top of the fluid base |
 | FE-09 | **Night mode schedule** | Dim the wall between configurable hours |
@@ -74,6 +74,40 @@ Test-first workflow: each feature gets its test suite **before** the implementat
 | 20 | Hex grid | Many monitors at a glance |
 
 Every mode: state always has a text label, values use tabular mono, all sensitive values go through `<SafeValue>` ([04-data-protection.md](04-data-protection.md)), and the mode respects the animation level.
+
+#### 1.2 Animation settings (FE-06)
+
+A dedicated panel in **Settings → Animation** (and a compact switch in the console header) controls every kind of motion in Orbit.
+
+| Control | Values | Default | Effect |
+|---|---|---|---|
+| **Level (preset)** | `off`, `minimal`, `standard`, `expressive` | `standard` | Sets all controls below at once; editing any control turns the preset into `custom` |
+| **Intensity** | 0–100 % | 60 % (`standard`) | Scales distance, scale change, glow strength, particle density and 3D movement |
+| **Speed** | 0.5× – 1.5× | 1× | Multiplies every duration token (FE-51) |
+| **Component transitions** | on / off | on | Enter, exit, expand, dialogs, toasts, reorder (FE-51) |
+| **Status and value feedback** | on / off | on | Status cross-fade, dot pulse, value flash, threshold fade (FE-51) |
+| **Attention signals** | on / off | on | DOWN-without-owner blink and hero glow; can be turned off for photosensitive viewers |
+| **3D and visual effects** | off / low / high | low | 3D orb, glass tilt, sheen (FE-52) |
+| **Animated background** | on / off | on | Orbital lines / particles (FE-52) |
+| **Intros and guides** | on / off | off | Remotion compositions in onboarding and empty states (FE-52) |
+| **Hover and drag effects** | on / off | on | Hover tilt, press scale, drag lift |
+
+Presets map to these controls:
+
+| Preset | Intensity | Speed | Transitions | Feedback | Attention | 3D / FX | Background | Intros | Hover/drag |
+|---|---|---|---|---|---|---|---|---|---|
+| `off` | 0 % | – | off | off (instant state change) | off | off | off | off | off |
+| `minimal` | 25 % | 1× | opacity only | color only | on (no blink, static red) | off | off | off | off |
+| `standard` | 60 % | 1× | on | on | on | low | on | off | on |
+| `expressive` | 100 % | 1.25× slower | on | on | on | high | on | on | on |
+
+**Behavior**
+- **Live preview**: the panel shows a sample card, a status pill switching OK → WARN → DOWN, a value change and a mini 3D orb, re-rendered with the current settings; a "Simulate incident" button shows the attention signals.
+- **Scope**: saved **per device** (FE-50) by default; the workspace can set **defaults** (`orbit.settings.json`, BE-40); each **wall layout** can override them (`orbit.layouts.json`, BE-41) — e.g. TV `minimal`, console `expressive`. URL override for TVs: `wall.html?motion=off|minimal|standard|expressive`.
+- **Precedence** (highest first): `prefers-reduced-motion` (forces `off`, the panel explains why and how to change it in the OS) → URL `?motion=` → wall layout override → device setting → workspace default.
+- **Automatic downgrade**: if frame time stays above 20 ms for 3 s, 3D/FX and background step down one notch and a quiet notice offers "Keep simplified" or "Try again".
+- **Accessibility**: every control is keyboard-operable with a visible label in en / pt-BR; a one-click "Reduce motion" action sets `minimal`; settings never hide state information (labels and colors always remain).
+- Implemented as a single source of truth (`useMotionSettings()`), consumed by the FE-51 presets and the FE-52 FX layer; no component reads `prefers-reduced-motion` on its own.
 
 ### Console productivity
 
