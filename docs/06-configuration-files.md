@@ -18,7 +18,7 @@ The directory and the master key are created with permissions restricted to the 
 
 | File | Owner domain | Contents |
 |---|---|---|
-| `orbit.settings.json` | Security / Workspace | Access policy, bind/LAN, default locale, theme, animation level, density, in-memory history window |
+| `orbit.settings.json` | Security / Workspace | Access policy, bind/LAN, default locale, theme, animation level, density, history retention (`history.retentionDays`, `history.maxDiskMb`) |
 | `orbit.connections.json` | Monitor | Database connections (driver, host, port, database, user, **encrypted** password, pool size) |
 | `orbit.requests.json` | Monitor | HTTP monitors: method, URL, headers, body, auth (secrets encrypted), conditions, fields and display |
 | `orbit.selects.json` | Monitor | SQL monitors: `connectionId`, SELECT, parameters, conditions, fields and display |
@@ -90,15 +90,9 @@ The API never returns secrets; the console shows `•••• (vault)`. Exports
 - A tracked pre-commit hook (`.githooks/pre-commit`) blocks commits that contain Orbit config files, `master.key`, or values that look like card numbers or private keys. Enable it once per clone: `git config core.hooksPath .githooks`.
 - Example files live in `backend/config-examples/`; a unit test fails if any example contains a real-looking secret, card number or CPF.
 
-## 7. In-memory runtime data
+## 7. Runtime data and history
 
-| Data | Storage | Default window |
-|---|---|---|
-| Heartbeats, series, rollups | Ring buffers in memory | 24 h (configurable, bounded by memory) |
-| Incidents and timeline | Memory | 24 h after resolution |
-| Recent audit entries | Memory + structured JSON log (masked) | 24 h in memory |
-
-Everything in memory is lost on restart. Features that need long history (7 d / 30 d uptime, monthly SLA, week-over-week comparison, anomaly baselines) work only within the available window and say so in the UI ("History available: last 24 h"). Persistent history may come later through a storage port, without changing the domains.
+The last hour of results lives in memory for speed; **up to 30 days** of history (heartbeats, series, rollups, events, audit) is written to compact, compressed, append-only segments under `~/.orbit/data/`, purged automatically. Format, sizing and retention: [08-logs-and-history.md](08-logs-and-history.md).
 
 ## 8. Export and import
 

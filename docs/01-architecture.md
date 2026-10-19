@@ -37,7 +37,7 @@ Each domain is its own Maven module (`orbit-<domain>`), with an internal API thr
 | **Workspace** | group, tag, layout | Groups, tags, ordering and **wall layout** (what appears, where and how) | `orbit.groups.json`, `orbit.dependencies.json`, `orbit.layouts.json`, `orbit.themes.json`, `orbit.variables.json` |
 | **Monitor** | http, sql, condition | Definition of each monitor and its health conditions; SELECT validation; column discovery | `orbit.requests.json`, `orbit.selects.json`, `orbit.checks.json`, `orbit.connections.json`, `orbit.query-catalog.json` |
 | **Probe** | scheduler, executor, sandbox | Schedules and runs checks with isolation, timeout and a per-target circuit breaker | in memory |
-| **Telemetry** | heartbeat, series, rollup | Keeps results in memory, computes state with hysteresis, per-minute/hour/day series, uptime and p95 | in-memory ring buffers (24 h default) |
+| **Telemetry** | heartbeat, series, rollup | Keeps the last hour in memory and the last 30 days on disk, computes state with hysteresis, per-minute/hour/day series, uptime and p95 | in memory + 30-day segmented log in `~/.orbit/data/` ([08-logs-and-history.md](08-logs-and-history.md)) |
 | **Alerting** | rule, channel, incident, escalation | Opens/closes incidents, acknowledgement, time-based escalation, delivery via email/Teams/Slack/webhook | `orbit.channels.json`, `orbit.escalation.json`, `orbit.oncall.json`, `orbit.maintenance.json`, `orbit.silences.json`; incidents in memory |
 
 ### Flow of a check
@@ -45,7 +45,7 @@ Each domain is its own Maven module (`orbit-<domain>`), with an internal API thr
 1. `Probe.scheduler` (`@Scheduled` with a local lock) enqueues `ProbeJob(monitorId)` at the monitor's interval.
 2. A `ProbeExecutor` (Java 21 virtual-thread pool) picks up the job and calls `HttpProbe` or `SqlProbe`.
 3. The executor returns `ProbeResult { status, latencyMs, payload, error }`.
-4. `Telemetry` keeps the heartbeat in memory, evaluates the **conditions**, applies hysteresis and emits `MonitorStateChanged` if the state changed.
+4. `Telemetry` appends the heartbeat to the history log, evaluates the **conditions**, applies hysteresis and emits `MonitorStateChanged` if the state changed.
 5. `Alerting` reacts to the event: opens an incident, fires channels, starts the escalation clock.
 6. The local server publishes the new state over the **WebSocket** `/ws/wall`; the wall updates without polling.
 
@@ -123,7 +123,7 @@ Orbit is a **local application**: everything runs on the operator's own machine,
 |---|---|
 | Configuration | One JSON file per feature in `~/.orbit/config/` ([06-configuration-files.md](06-configuration-files.md)) |
 | Secrets | Encrypted inside those files with `~/.orbit/master.key`, or `${env:NAME}` references |
-| Runtime data (heartbeats, series, incidents) | In memory (ring buffers / Caffeine), 24 h window by default, lost on restart |
+| History (heartbeats, series, events, audit) | Last hour in memory; **30 days on disk** in compact, compressed, append-only segments under `~/.orbit/data/` ([08-logs-and-history.md](08-logs-and-history.md)) |
 | Execution queue | In-memory `BlockingQueue` + `@Scheduled` |
 | Real time | WebSocket in the same process (`ws://localhost:8080/ws/wall`) |
 | Frontend | `vite dev` on `localhost:5173` with a proxy to `:8080`, or the jar serving the built `dist/` |

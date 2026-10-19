@@ -224,8 +224,8 @@ Presets map to these controls:
 
 | ID | Feature | Acceptance highlights |
 |---|---|---|
-| BE-19 | **In-memory rollups** | 1m/1h rollups in bounded ring buffers; window configurable (24 h default) |
-| BE-20 | **Uptime and SLA** | Excludes maintenance windows; computed over the in-memory window and states its coverage |
+| BE-19 | **Rollups** | 1-minute and 1-hour rollups written to the 30-day history log (CORE-22) |
+| BE-20 | **Uptime and SLA** | Excludes maintenance windows; 24 h / 7 d / 30 d from the history log, states its coverage |
 | BE-21 | **Percentiles** | p50/p95/p99 per window |
 | BE-22 | **Anomaly detection** | Deviation vs same-hour baseline of the last week; z-score |
 | BE-23 | **Body metric extraction** | JSONPath values stored as series |

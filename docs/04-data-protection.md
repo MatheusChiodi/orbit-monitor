@@ -20,7 +20,7 @@ Detection runs on both the **value** and the **field name**; either match classi
 ```
 Target DB / API ──▶ SqlProbe / HttpProbe ──▶ SensitiveDataRedactor ──▶ ProbeResult (masked)
                          │                                              │
-                         └─ raw value kept in memory only for           ├─▶ Telemetry (memory only)
+                         └─ raw value kept in memory only for           ├─▶ Telemetry (30-day log)
                             condition evaluation, then discarded         ├─▶ Alerting messages
                                                                          ├─▶ REST / WebSocket (Jackson guard)
                                                                          └─▶ Logs (Logback masking converter)
@@ -58,7 +58,7 @@ Frontend ──▶ <SafeValue> re-applies redaction before anything reaches the 
 | Transparency and accountability | Audit trail, retention policy, documented data map (this file) |
 | Data subject rights (art. 18) | Orbit keeps no user accounts; the only personal data it creates is the self-declared operator name, which can be anonymized across incidents and audit entries through an endpoint |
 
-**Retention**: Orbit has no database. Runtime data lives in memory for a bounded window (24 h by default) and disappears on restart; configuration files store only what the operator configured (never probe results). Structured logs follow the operating system's log rotation.
+**Retention**: Orbit has no database. History (check results, selected series, events and audit) is kept for up to **30 days** in local log files and then purged automatically; it never contains SELECT rows, HTTP bodies or secrets ([08-logs-and-history.md](08-logs-and-history.md)). Configuration files store only what the operator configured. Application logs are rotated after 30 days with a size cap.
 
 **Local-first**: all data stays on the operator's machine; Orbit sends nothing anywhere except the configured checks and notifications. No telemetry, analytics or update pings.
 

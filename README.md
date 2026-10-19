@@ -158,6 +158,7 @@ The whole repository is written in English. The product speaks **English (defaul
 | [`docs/05-extended-features.md`](docs/05-extended-features.md) | 100 extended features (FE/BE) and pending-test convention |
 | [`docs/06-configuration-files.md`](docs/06-configuration-files.md) | Per-feature JSON configuration files (never committed) |
 | [`docs/07-customization.md`](docs/07-customization.md) | Everything is configurable: registry, scopes, Customize mode, terminology |
+| [`docs/08-logs-and-history.md`](docs/08-logs-and-history.md) | 30-day history in compact compressed logs (no database) |
 | [`.claude/context/`](.claude/context/) | Living context: one file per screen and per feature |
 
 ## Running locally

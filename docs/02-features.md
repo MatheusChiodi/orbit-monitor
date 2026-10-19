@@ -131,7 +131,7 @@ The user builds **what appears, where and how**, with no code:
 * The operator types a display name once per device; it identifies acknowledgements, comments and audit entries (self-declared).
 * Database connections and secrets are managed from the console (edit access required); connection test; password rotation without recreating monitors.
 * Complete, filterable audit trail.
-* No Orbit database: configuration is saved in one JSON file per feature on the local machine (see [06-configuration-files.md](06-configuration-files.md)); history is kept in memory for a configurable window (24 h by default).
+* No Orbit database: configuration is saved in one JSON file per feature on the local machine (see [06-configuration-files.md](06-configuration-files.md)); history (checks, series, incidents, audit) is kept for **30 days** in compact local log files ([08-logs-and-history.md](08-logs-and-history.md)).
 * Workspace backup/export as JSON (secrets omitted); import of monitors from Uptime Kuma.
 
 ## 7. Internationalization
