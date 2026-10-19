@@ -10,6 +10,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "test:pending": "vitest run --mode pending",
+    "e2e": "playwright test",
     "remotion:studio": "remotion studio remotion/index.ts",
     "remotion:render": "node remotion/render.mjs"
   },
@@ -29,9 +30,11 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@fontsource/geist-mono": "^5.3.0",
     "@fontsource/inter": "^5.3.0",
     "@fontsource/inter-tight": "^5.3.0",
+    "@playwright/test": "^1.64.1",
     "@remotion/cli": "^4.0.536",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.1",
