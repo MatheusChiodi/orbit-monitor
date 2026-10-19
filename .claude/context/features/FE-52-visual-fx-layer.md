@@ -30,6 +30,9 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - `frontend/src/shared/fx/OrbitField/orbitGeometry.ts` — orbit field geometry, luminance cap, canvas 2D renderer
 - `frontend/src/shared/fx/OrbitField/OrbitField.tsx` — lazy canvas component (30 fps, DPR ≤ 1.5, freezes when paused)
 - `frontend/src/shared/fx/FxBackground/FxBackground.tsx` — fixed backdrop; mounts the orbit field after first paint
+- `frontend/src/shared/fx/HeroOrb/HeroOrb.tsx` — gate (level + WebGL probe + error boundary) that lazy-loads the 3D orb after first paint
+- `frontend/src/shared/fx/HeroOrb/OrbScene.tsx` — R3F scene: transmissive glass sphere, gradient core, Fresnel rim, tilted gradient ring with satellite, pointer parallax
+- `frontend/src/shared/fx/HeroOrb/orbMaterials.ts` — rim/core shaders and the blue→green ring geometry from theme tokens
 - `frontend/src/shared/fx/fx.css` — glass, tilt sheen, DOWN glow, static backdrop (gated by `html[data-fx]`)
 
 ## Tests
@@ -39,6 +42,7 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - `frontend/src/shared/fx/TiltCard/TiltCard.test.tsx`
 - `frontend/src/shared/fx/OrbitField/orbitGeometry.test.ts`
 - `frontend/src/shared/fx/FxBackground/FxBackground.test.tsx`
+- `frontend/src/shared/fx/HeroOrb/HeroOrb.test.tsx`
 
 ## Decisions and notes
 - Owned by fx-agent; integration into existing components is coordinated with frontend-agent.
@@ -48,6 +52,7 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - Frame monitor smooths frame time (EMA, α 0.1), ignores gaps > 500 ms (hidden tab) and fires once; `restore()` is the "Try again" path. It only runs while something animates.
 - Tilt writes `transform` directly on the element (no React state per pointer move), mouse pointers only; TiltCard is for navigational/onboarding cards, never around probe values.
 - Background: 6 tilted ellipses + particles with short trails on canvas 2D (no WebGL needed). Every mark's alpha is capped so `alpha × L(color) ≤ 0.06` (WCAG relative luminance over the black-ish `--bg`). Particles: ~28 at `standard`, 60 at `expressive`. Paused = one frozen frame at 35% opacity, no rAF loop.
+- Orb: no drei (keeps the lazy chunk smaller); `powerPreference: 'low-power'`, DPR ≤ 1.5. Parallax follows a mouse over the whole window; TVs without a mouse get a slow idle drift. The orb is `aria-hidden` and the hero text stays in the DOM beside it.
 - CSS gating via `html[data-fx]` keeps the components free of level checks for pure styling; the stylesheet is unlayered so it overrides Tailwind utilities only when FX is on.
 
 ## Changelog
@@ -55,3 +60,4 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - 2026-10-18 — FX level, frame monitor and provider with tests; glass/glow stylesheet (status: in-progress).
 - 2026-10-18 — TiltCard glass surface with hover tilt and sheen.
 - 2026-10-18 — Animated orbit-field background (lazy, luminance-capped, paused on incident).
+- 2026-10-18 — Live 3D hero orb (React Three Fiber) with 2D fallback.
