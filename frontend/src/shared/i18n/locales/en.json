@@ -179,7 +179,9 @@
       "multiple": "Only one statement per query",
       "forbidden": "Statement not allowed: {{word}}",
       "blocked": "Blocked function: {{name}}"
-    }
+    },
+    "format": "Format",
+    "suggestions": "Suggestions"
   },
   "preview": {
     "label": "Preview result",
@@ -260,8 +262,18 @@
       "unknownField": "Field does not exist in the result",
       "valueRequired": "Enter a value",
       "range": "Use \"min..max\"",
-      "duration": "Use a duration: 10min, 2h, 30s"
-    }
+      "duration": "Use a duration: 10min, 2h, 30s",
+      "syntax": "cannot read this condition"
+    },
+    "modes": {
+      "visual": "Visual",
+      "text": "Text"
+    },
+    "modesLabel": "Condition editor mode",
+    "textLabel": "Conditions as text",
+    "lineError": "Line {{line}}: {{error}}",
+    "failingCount_one": "{{count}} condition would fail now",
+    "failingCount_other": "{{count}} conditions would fail now"
   },
   "nightMode": {
     "label": "Night mode"
@@ -703,6 +715,34 @@
       "notice": "Effects were simplified to keep the screen smooth.",
       "keep": "Keep simplified",
       "retry": "Try again"
+    },
+    "orb": {
+      "label": "System orb",
+      "unknown": "UNKNOWN",
+      "maintenance": "in maintenance",
+      "aggregate": "{{count}} monitors",
+      "monitors_one": "{{count}} monitor",
+      "monitors_other": "{{count}} monitors",
+      "groups_one": "in {{count}} group",
+      "groups_other": "in {{count}} groups",
+      "allOk": "all OK",
+      "down": "{{count}} down",
+      "warn": "{{count}} warning",
+      "unknownCount": "{{count}} unknown",
+      "near": "{{count}} near threshold",
+      "open": "Enter opens the monitor",
+      "keys": "Arrow keys move between monitors",
+      "legend": {
+        "toggle": "Legend",
+        "title": "What the orb shows",
+        "core": "Core: overall health; color is the worst state, brightness is the 24 h availability",
+        "rings": "Rings: one per group, tinted by the group state",
+        "satellites": "Satellites: one per monitor; color is its state, size its importance, speed its check frequency",
+        "pulse": "Pulse: a light runs to the core on every check",
+        "near": "Closer to the core with an amber halo: near its threshold",
+        "down": "Stopped and red with a trail: down",
+        "maintenance": "Hollow: maintenance or paused"
+      }
     }
   }
 }

@@ -26,8 +26,8 @@ Request config left, live preview right (status, time, headers, body), condition
 - [CORE-04 · HTTP probe with SSRF protection](../features/CORE-04-http-probe-with-ssrf-protection.md) — in-progress
 - [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — in-progress
 - [CORE-16 · Sensitive data protection (LGPD / PCI DSS)](../features/CORE-16-sensitive-data-protection-lgpd-pci-dss.md) — in-progress
-- [FE-34 · Condition builder](../features/FE-34-condition-builder.md) — tests-pending
-- [FE-35 · JSON explorer](../features/FE-35-json-explorer.md) — tests-pending
+- [FE-34 · Condition builder](../features/FE-34-condition-builder.md) — in-progress
+- [FE-35 · JSON explorer](../features/FE-35-json-explorer.md) — in-progress
 
 ## Code
 - `frontend/src/domains/monitor/components/MonitorForm/MonitorForm.tsx`

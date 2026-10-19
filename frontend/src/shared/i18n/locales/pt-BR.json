@@ -179,7 +179,9 @@
       "multiple": "Apenas um comando por consulta",
       "forbidden": "Comando não permitido: {{word}}",
       "blocked": "Função bloqueada: {{name}}"
-    }
+    },
+    "format": "Formatar",
+    "suggestions": "Sugestões"
   },
   "preview": {
     "label": "Resultado do preview",
@@ -260,8 +262,18 @@
       "unknownField": "Campo não existe no resultado",
       "valueRequired": "Informe um valor",
       "range": "Use \"mín..máx\"",
-      "duration": "Use uma duração: 10min, 2h, 30s"
-    }
+      "duration": "Use uma duração: 10min, 2h, 30s",
+      "syntax": "não foi possível ler esta condição"
+    },
+    "modes": {
+      "visual": "Visual",
+      "text": "Texto"
+    },
+    "modesLabel": "Modo do editor de condições",
+    "textLabel": "Condições em texto",
+    "lineError": "Linha {{line}}: {{error}}",
+    "failingCount_one": "{{count}} condição falharia agora",
+    "failingCount_other": "{{count}} condições falhariam agora"
   },
   "nightMode": {
     "label": "Modo noturno"
@@ -703,6 +715,34 @@
       "notice": "Os efeitos foram simplificados para manter a tela fluida.",
       "keep": "Manter simplificado",
       "retry": "Tentar de novo"
+    },
+    "orb": {
+      "label": "Orbe do sistema",
+      "unknown": "DESCONHECIDO",
+      "maintenance": "em manutenção",
+      "aggregate": "{{count}} monitores",
+      "monitors_one": "{{count}} monitor",
+      "monitors_other": "{{count}} monitores",
+      "groups_one": "em {{count}} grupo",
+      "groups_other": "em {{count}} grupos",
+      "allOk": "todos OK",
+      "down": "{{count}} fora",
+      "warn": "{{count}} em atenção",
+      "unknownCount": "{{count}} desconhecido(s)",
+      "near": "{{count}} perto do limite",
+      "open": "Enter abre o monitor",
+      "keys": "Setas navegam entre os monitores",
+      "legend": {
+        "toggle": "Legenda",
+        "title": "O que o orbe mostra",
+        "core": "Núcleo: saúde geral; a cor é o pior estado, o brilho é a disponibilidade em 24 h",
+        "rings": "Anéis: um por grupo, na cor do estado do grupo",
+        "satellites": "Satélites: um por monitor; a cor é o estado, o tamanho a importância, a velocidade a frequência de checagem",
+        "pulse": "Pulso: uma luz corre até o núcleo a cada checagem",
+        "near": "Mais perto do núcleo com halo âmbar: perto do limite",
+        "down": "Parado e vermelho com rastro: fora",
+        "maintenance": "Oco: manutenção ou pausado"
+      }
     }
   }
 }

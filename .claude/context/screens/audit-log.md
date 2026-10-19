@@ -23,7 +23,7 @@ _To be filled as the screen is built (component tree, file paths)._
 
 ## Features on this screen
 - [CORE-08 · Access policy, vault and audit](../features/CORE-08-access-policy-vault-and-audit.md) — in-progress
-- [FE-36 · Query history diff](../features/FE-36-query-history-diff.md) — tests-pending
+- [FE-36 · Query history diff](../features/FE-36-query-history-diff.md) — in-progress
 
 ## Code
 _None yet._

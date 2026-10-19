@@ -3,7 +3,7 @@ id: FE-33
 title: "SQL editor"
 area: frontend
 group: "Console productivity"
-status: tests-pending
+status: in-progress
 screens: [monitor-editor-sql]
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -23,14 +23,17 @@ Highlighting, catalog autocomplete, format, visible guard chips
 [monitor-editor-sql](../screens/monitor-editor-sql.md)
 
 ## Code
-_None yet._
+- `frontend/src/domains/monitor/components/SqlCodeEditor/SqlCodeEditor.tsx`
+- `frontend/src/domains/monitor/components/SqlCodeEditor/sqlTokens.ts`
 
 ## Tests
-- `frontend/src/domains/monitor/components/SqlCodeEditor/SqlCodeEditor.pending.test.tsx`
+- `frontend/src/domains/monitor/components/SqlCodeEditor/SqlCodeEditor.test.tsx`
 
 ## Decisions and notes
-_None yet._
+- Highlighting is a token layer under a transparent textarea; Ctrl+Space suggests catalog tables after FROM/JOIN and columns elsewhere; Format uppercases keywords and breaks main clauses; guard chips and safe-mode errors match `SqlEditor`.
+- Pending: replace `SqlEditor` in the monitor form and load the catalog from the API (BE-13).
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
+- 2026-10-18 — SQL code editor component (status: in-progress).

@@ -3,7 +3,7 @@ id: FE-35
 title: "JSON explorer"
 area: frontend
 group: "Console productivity"
-status: tests-pending
+status: in-progress
 screens: [monitor-editor-http]
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -23,14 +23,17 @@ Click a node to create a JSONPath field
 [monitor-editor-http](../screens/monitor-editor-http.md)
 
 ## Code
-_None yet._
+- `frontend/src/domains/monitor/components/JsonExplorer/JsonExplorer.tsx`
+- `frontend/src/domains/monitor/components/JsonExplorer/jsonPath.ts`
 
 ## Tests
-- `frontend/src/domains/monitor/components/JsonExplorer/JsonExplorer.pending.test.tsx`
+- `frontend/src/domains/monitor/components/JsonExplorer/JsonExplorer.test.tsx`
 
 ## Decisions and notes
-_None yet._
+- ARIA tree (arrows move/expand, Enter picks a JSONPath field); arrays of objects expose `[*]`; every value through `SafeValue`, PCI fields get "PCI · masked" and cannot be picked; copy copies the masked text.
+- Pending: HTTP preview integration in the Data & display step.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
+- 2026-10-18 — JSON explorer component (status: in-progress).
