@@ -8,7 +8,9 @@ import { FxBackground } from '@/shared/fx/FxBackground';
 import { FxProvider } from '@/shared/fx/FxProvider';
 import { hasUnacknowledgedDown } from '@/shared/fx/incident';
 import { MotionProvider } from '@/shared/motion';
+import { OnCallView } from '../components/OnCallView';
 import { WallScreen } from '../components/WallScreen';
+import { useMediaQuery } from '@/shared/hooks/useMediaQuery';
 import { acknowledge, startWallFeed } from '../feed';
 import { useNow } from '../hooks';
 import { createWallStore } from '../store';
@@ -60,6 +62,9 @@ export function WallApp({ api, connect = connectWall, operator, mock, layout }: 
     };
   }, [store, api, connect, mock, layout]);
 
+  // FE-49: phones get the on-call view (hero, active incidents, full-width Acknowledge).
+  const phone = useMediaQuery('(max-width: 639px)');
+
   const onAcknowledge = useCallback(
     (incidentId: string) => void acknowledge(store, incidentId, operator, api.acknowledgeIncident, locale),
     [store, operator, api, locale],
@@ -70,6 +75,9 @@ export function WallApp({ api, connect = connectWall, operator, mock, layout }: 
       <FxProvider incidentActive={snapshot ? hasUnacknowledgedDown(snapshot.incidents) : false}>
         <FxBackground />
         <div className="fx-layer">
+          {phone && snapshot ? (
+            <OnCallView snapshot={snapshot} now={now} onAcknowledge={onAcknowledge} />
+          ) : (
           <WallScreen
             snapshot={snapshot}
             now={now}
@@ -79,6 +87,7 @@ export function WallApp({ api, connect = connectWall, operator, mock, layout }: 
             onAcknowledge={onAcknowledge}
             onFullscreen={requestFullscreen}
           />
+          )}
         </div>
       </FxProvider>
     </MotionProvider>

@@ -9,10 +9,12 @@ export interface AcknowledgeButtonProps {
   incident: Incident;
   onAcknowledge: (incidentId: string) => void;
   className?: string;
+  /** Extra classes for the button itself (e.g. larger touch target on phones). */
+  buttonClassName?: string;
 }
 
 /** The only action button on the wall. Once clicked it cross-fades into text. */
-export function AcknowledgeButton({ incident, onAcknowledge, className = '' }: AcknowledgeButtonProps) {
+export function AcknowledgeButton({ incident, onAcknowledge, className = '', buttonClassName = '' }: AcknowledgeButtonProps) {
   const { t } = useTranslation();
   const preset = useMotionPreset('enter');
   const fade = {
@@ -36,7 +38,7 @@ export function AcknowledgeButton({ incident, onAcknowledge, className = '' }: A
           <Button
             variant={incident.severity === 'DOWN' ? 'danger' : 'neutral'}
             onClick={() => onAcknowledge(incident.id)}
-            className="w-full"
+            className={`w-full ${buttonClassName}`}
           >
             {t('wall.ack.button')}
           </Button>

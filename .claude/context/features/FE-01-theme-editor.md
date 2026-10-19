@@ -3,7 +3,7 @@ id: FE-01
 title: "Theme editor"
 area: frontend
 group: "Theming and personalization"
-status: tests-pending
+status: in-progress
 screens: [theme-editor]
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -16,21 +16,27 @@ Create/edit a color theme (`bg`, `s1–s3`, `line`, `text/muted/dim`, `ok/warn/d
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
+- [x] Implemented
 - [ ] All tests green, none pending
 
 ## Screens
 [theme-editor](../screens/theme-editor.md)
 
 ## Code
-_None yet._
+- `frontend/src/domains/settings/appearance/ThemeEditor/ThemeEditor.tsx`
+- `frontend/src/domains/settings/appearance/ColorField/ColorField.tsx`
+- `frontend/src/domains/settings/appearance/WallPreview/WallPreview.tsx`
+- `frontend/src/domains/settings/appearance/ConsolePreview/ConsolePreview.tsx`
 
 ## Tests
-- `frontend/src/domains/workspace/ThemeEditor/ThemeEditor.pending.test.tsx`
+- `frontend/src/domains/settings/appearance/ThemeEditor/ThemeEditor.test.tsx`
 
 ## Decisions and notes
-_None yet._
+- Every one of the 30 token paths is editable (hex text field + native picker; alpha kept from the text field). Invalid hex is flagged with aria-invalid and never reaches the preview.
+- Previews scope the draft through inline CSS variables, so Tailwind classes inside render the draft without touching the page theme. Wall preview shows states with text (DOWN/WARNING/OK).
+- Contrast problems are grouped per token with one "Use suggested value" each plus "Fix all"; Save stays disabled until the guard passes.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
+- 2026-10-18 — editor implemented with live wall/console preview and contrast guard; moved to src/domains/settings/appearance (status: in-progress until wired into Settings → Appearance).

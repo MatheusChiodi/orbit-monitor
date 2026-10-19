@@ -52,3 +52,17 @@ describe('operatorName', () => {
     expect(operatorName('', null)).toBe('Operator');
   });
 });
+
+describe('FE-49 phone layout', () => {
+  it('on a phone the wall shows the on-call view', async () => {
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn((media: string) => ({ matches: media.includes('max-width'), addEventListener: vi.fn(), removeEventListener: vi.fn() })),
+    );
+    const api = { getWallSnapshot: vi.fn().mockRejectedValue(new Error('offline')), acknowledgeIncident: vi.fn() };
+    render(<WallApp api={api} connect={vi.fn()} operator="Ana" mock={() => mockSnapshot('incident', now)} />);
+    expect(await screen.findByRole('region', { name: 'Active incidents' })).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'All monitors' })).toBeNull();
+    vi.unstubAllGlobals();
+  });
+});
