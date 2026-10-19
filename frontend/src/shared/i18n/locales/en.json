@@ -670,7 +670,8 @@
         "overlap": "Bands must not overlap",
         "decimals": "Decimals between 0 and 4",
         "minMax": "Min must be lower than max"
-      }
+      },
+      "removeBand": "Remove band"
     },
     "wow": {
       "legend": "Same period last week",

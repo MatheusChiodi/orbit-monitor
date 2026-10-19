@@ -3,7 +3,7 @@ id: FE-21
 title: "Visualization picker"
 area: frontend
 group: "Visualizations"
-status: tests-pending
+status: done
 screens: [data-and-display, wall]
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -16,17 +16,18 @@ Shows the field's real data rendered in every compatible mode side by side; the 
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
-- [ ] All tests green, none pending
+- [x] Implemented
+- [x] All tests green, none pending
 
 ## Screens
 [data-and-display](../screens/data-and-display.md), [wall](../screens/wall.md)
 
 ## Code
-_None yet._
+- `frontend/src/shared/viz/VisualizationPicker/VisualizationPicker.tsx`
+- `frontend/src/shared/viz/modes.ts (MODE_COMPONENTS registry)`
 
 ## Tests
-- `frontend/src/shared/viz/VisualizationPicker/VisualizationPicker.pending.test.tsx`
+- `frontend/src/shared/viz/VisualizationPicker/VisualizationPicker.test.tsx`
 
 ## Decisions and notes
 - **Rendering library (decided 2026-10-18): hand-rolled SVG + HTML in `frontend/src/shared/viz/`, no chart library.** Compared:
@@ -42,3 +43,4 @@ _None yet._
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
 - 2026-10-18 — pending tests moved to `shared/viz`; rendering decision recorded (own SVG, no chart library).
+- 2026-10-18 — implemented: one native radio group (arrow keys skip disabled modes), every compatible mode renders the real data with `animation="off"` inside `AnimationLevelScope level="off"`, incompatible modes stay visible with their reason, PCI/LGPD reasons stated once; tests active and green (status: done).

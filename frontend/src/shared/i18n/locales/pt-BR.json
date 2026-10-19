@@ -670,7 +670,8 @@
         "overlap": "As faixas não podem se sobrepor",
         "decimals": "Casas decimais entre 0 e 4",
         "minMax": "O mínimo deve ser menor que o máximo"
-      }
+      },
+      "removeBand": "Remover faixa"
     },
     "wow": {
       "legend": "Mesmo período da semana passada",
