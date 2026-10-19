@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes } from 'react';
+import type { ButtonHTMLAttributes, Ref } from 'react';
 import { useAnimationLevel } from '@/shared/motion/animationLevel';
 
 export type ButtonVariant = 'primary' | 'danger' | 'neutral' | 'ghost';
@@ -6,6 +6,8 @@ export type ButtonVariant = 'primary' | 'danger' | 'neutral' | 'ghost';
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   block?: boolean;
+  /** React 19 passes refs as props. */
+  ref?: Ref<HTMLButtonElement>;
 }
 
 const VARIANT_CLASS: Record<ButtonVariant, string> = {

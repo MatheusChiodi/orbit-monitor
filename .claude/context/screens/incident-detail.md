@@ -23,7 +23,7 @@ _To be filled as the screen is built (component tree, file paths)._
 
 ## Features on this screen
 - [CORE-06 · Incidents and acknowledgement](../features/CORE-06-incidents-and-acknowledgement.md) — in-progress
-- [FE-39 · Incident page](../features/FE-39-incident-page.md) — tests-pending
+- [FE-39 · Incident page](../features/FE-39-incident-page.md) — in-progress
 - [FE-40 · Escalation countdown](../features/FE-40-escalation-countdown.md) — in-progress
 
 ## Code

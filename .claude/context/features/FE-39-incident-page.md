@@ -3,7 +3,7 @@ id: FE-39
 title: "Incident page"
 area: frontend
 group: "Console productivity"
-status: tests-pending
+status: in-progress
 screens: [incident-detail]
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -23,14 +23,16 @@ Timeline, comments, acknowledge, ticket link, postmortem
 [incident-detail](../screens/incident-detail.md)
 
 ## Code
-_None yet._
+- `frontend/src/domains/alerting/IncidentPage/IncidentPage.tsx`
 
 ## Tests
-- `frontend/src/domains/alerting/IncidentPage/IncidentPage.pending.test.tsx`
+- `frontend/src/domains/alerting/IncidentPage/IncidentPage.test.tsx`
 
 ## Decisions and notes
-_None yet._
+- Identification, elapsed time, impact chips, escalation countdown, Acknowledge, masked timeline, comments with "(self-declared)" operator names, ticket link (edit mode only) and a postmortem with time to acknowledge / resolve once resolved.
+- Pending: route `#/incidents/:id` and the incident API.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
+- 2026-10-18 — incident page component (status: in-progress).

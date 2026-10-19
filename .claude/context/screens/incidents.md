@@ -23,7 +23,7 @@ _To be filled as the screen is built (component tree, file paths)._
 
 ## Features on this screen
 - [CORE-06 · Incidents and acknowledgement](../features/CORE-06-incidents-and-acknowledgement.md) — in-progress
-- [FE-38 · Notification center](../features/FE-38-notification-center.md) — tests-pending
+- [FE-38 · Notification center](../features/FE-38-notification-center.md) — in-progress
 
 ## Code
 _None yet._

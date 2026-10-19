@@ -99,8 +99,8 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [FE-35](features/FE-35-json-explorer.md) | JSON explorer | frontend | tests-pending |
 | [FE-36](features/FE-36-query-history-diff.md) | Query history diff | frontend | tests-pending |
 | [FE-37](features/FE-37-onboarding.md) | Onboarding | frontend | tests-pending |
-| [FE-38](features/FE-38-notification-center.md) | Notification center | frontend | tests-pending |
-| [FE-39](features/FE-39-incident-page.md) | Incident page | frontend | tests-pending |
+| [FE-38](features/FE-38-notification-center.md) | Notification center | frontend | in-progress |
+| [FE-39](features/FE-39-incident-page.md) | Incident page | frontend | in-progress |
 | [FE-40](features/FE-40-escalation-countdown.md) | Escalation countdown | frontend | in-progress |
 | [FE-41](features/FE-41-maintenance-calendar.md) | Maintenance calendar | frontend | tests-pending |
 | [FE-42](features/FE-42-dependency-graph.md) | Dependency graph | frontend | tests-pending |

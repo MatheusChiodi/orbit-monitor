@@ -3,7 +3,7 @@ id: FE-38
 title: "Notification center"
 area: frontend
 group: "Console productivity"
-status: tests-pending
+status: in-progress
 screens: [incidents]
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -23,14 +23,19 @@ In-app incident feed and toasts
 [incidents](../screens/incidents.md)
 
 ## Code
-_None yet._
+- `frontend/src/domains/alerting/NotificationCenter/NotificationCenter.tsx`
+- `frontend/src/domains/alerting/NotificationCenter/Toaster.tsx`
+- `frontend/src/shared/ui/Button/Button.tsx`
 
 ## Tests
-- `frontend/src/domains/alerting/NotificationCenter/NotificationCenter.pending.test.tsx`
+- `frontend/src/domains/alerting/NotificationCenter/NotificationCenter.test.tsx`
 
 ## Decisions and notes
-_None yet._
+- Bell states the unread count in text; the feed lists newest first with state labels and relative time; Escape returns focus to the bell; titles and details go through `SafeValue`.
+- Toasts live in a polite region, enter/leave with the toast preset (FE-51) and auto-dismiss after 6 s.
+- Pending: wiring to the console header with the backend incident feed.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
+- 2026-10-18 — notification center and toaster components (status: in-progress).
