@@ -16,7 +16,7 @@ Excludes maintenance windows; computed over the in-memory window and states its 
 
 ## Status
 - [x] Tests written (pending or active)
-- [x] Implemented
+- [ ] Implemented
 - [ ] All tests green, none pending
 
 ## Screens
@@ -25,9 +25,11 @@ Excludes maintenance windows; computed over the in-memory window and states its 
 ## Code
 - `backend/orbit-telemetry/src/main/java/io/orbit/telemetry/Statistics.java`
 - `backend/orbit-telemetry/src/main/java/io/orbit/telemetry/UptimeReport.java`
+- `backend/orbit-telemetry/src/main/java/io/orbit/telemetry/TimeRange.java`
 
 ## Tests
 - `backend/orbit-telemetry/src/test/java/io/orbit/telemetry/StatisticsTest.java`
+- `backend/orbit-telemetry/src/test/java/io/orbit/telemetry/UptimeMaintenanceTest.java`
 
 ## Decisions and notes
 - Uptime counts WARN as up and ignores UNKNOWN, over the heartbeats in memory only; `coverageFrom` tells how far back the data goes (7 d / 30 d / monthly SLA are only as long as the window).
@@ -36,3 +38,4 @@ Excludes maintenance windows; computed over the in-memory window and states its 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — uptime over the in-memory window with coverage.
+- 2026-10-18 — pending tests for maintenance exclusion.

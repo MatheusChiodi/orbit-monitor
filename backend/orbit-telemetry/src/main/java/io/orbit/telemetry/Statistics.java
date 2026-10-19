@@ -23,6 +23,11 @@ public final class Statistics {
         return new UptimeReport((double) up / counted.size(), counted.size(), counted.getFirst().at());
     }
 
+    /** BE-20: uptime that leaves out heartbeats inside maintenance windows. */
+    public static UptimeReport uptime(List<Heartbeat> heartbeats, List<TimeRange> excluded) {
+        throw new UnsupportedOperationException("BE-20 maintenance exclusion is not implemented yet");
+    }
+
     /** Nearest-rank percentile, {@code 0 < p <= 100}. */
     public static long percentile(List<Long> values, double p) {
         if (p <= 0 || p > 100) {

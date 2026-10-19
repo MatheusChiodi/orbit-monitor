@@ -16,7 +16,7 @@ updated: 2026-10-18
 
 ## Status
 - [x] Tests written (pending or active)
-- [x] Implemented
+- [ ] Implemented
 - [ ] All tests green, none pending
 
 ## Screens
@@ -25,10 +25,12 @@ updated: 2026-10-18
 ## Code
 - `backend/orbit-telemetry/src/main/java/io/orbit/telemetry/HeartbeatStore.java`
 - `backend/orbit-telemetry/src/main/java/io/orbit/telemetry/Statistics.java`
+- `backend/orbit-telemetry/src/main/java/io/orbit/telemetry/Rollups.java`
 
 ## Tests
 - `backend/orbit-telemetry/src/test/java/io/orbit/telemetry/HeartbeatStoreTest.java`
 - `backend/orbit-telemetry/src/test/java/io/orbit/telemetry/MinuteSeriesTest.java`
+- `backend/orbit-telemetry/src/test/java/io/orbit/telemetry/RollupsTest.java`
 
 ## Decisions and notes
 - Raw heartbeats in per-monitor ring buffers (window `orbit.history`, default 24 h, max 20 000 per monitor); per-minute series computed on demand for the wall.
@@ -37,3 +39,4 @@ updated: 2026-10-18
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — in-memory heartbeats and per-minute series.
+- 2026-10-18 — pending tests for 1m/1h rollups.

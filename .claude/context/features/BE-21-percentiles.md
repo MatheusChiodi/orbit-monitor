@@ -3,7 +3,7 @@ id: BE-21
 title: "Percentiles"
 area: backend
 group: "Telemetry"
-status: in-progress
+status: done
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -17,7 +17,7 @@ p50/p95/p99 per window
 ## Status
 - [x] Tests written (pending or active)
 - [x] Implemented
-- [ ] All tests green, none pending
+- [x] All tests green, none pending
 
 ## Screens
 —
@@ -36,3 +36,4 @@ p50/p95/p99 per window
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — latency percentiles.
+- 2026-10-18 — p50/p95/p99 over any window via history(since) (status: done).

@@ -3,7 +3,7 @@ id: BE-24
 title: "Time to threshold"
 area: backend
 group: "Telemetry"
-status: planned
+status: tests-pending
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 Linear regression forecasts when a series crosses its threshold
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -23,13 +23,14 @@ Linear regression forecasts when a series crosses its threshold
 —
 
 ## Code
-_None yet._
+- `backend/orbit-telemetry/src/main/java/io/orbit/telemetry/ThresholdForecast.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-telemetry/src/test/java/io/orbit/telemetry/ThresholdForecastTest.java`
 
 ## Decisions and notes
-_None yet._
+- Least-squares line over recent points; empty when flat, moving away or fewer than 3 points.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending tests and stubs added (status: tests-pending).

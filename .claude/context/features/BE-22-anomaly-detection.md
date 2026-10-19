@@ -3,7 +3,7 @@ id: BE-22
 title: "Anomaly detection"
 area: backend
 group: "Telemetry"
-status: planned
+status: tests-pending
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 Deviation vs same-hour baseline of the last week; z-score
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -23,13 +23,14 @@ Deviation vs same-hour baseline of the last week; z-score
 —
 
 ## Code
-_None yet._
+- `backend/orbit-telemetry/src/main/java/io/orbit/telemetry/AnomalyDetector.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-telemetry/src/test/java/io/orbit/telemetry/AnomalyDetectorTest.java`
 
 ## Decisions and notes
-_None yet._
+- z-score against same-hour values of previous days within the memory window (a full week only if the window allows); no verdict with too few samples or zero deviation.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending tests and stubs added (status: tests-pending).

@@ -145,11 +145,11 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [BE-18](features/BE-18-retries-with-backoff.md) | Retries with backoff | backend | tests-pending |
 | [BE-19](features/BE-19-in-memory-rollups.md) | In-memory rollups | backend | in-progress |
 | [BE-20](features/BE-20-uptime-and-sla.md) | Uptime and SLA | backend | in-progress |
-| [BE-21](features/BE-21-percentiles.md) | Percentiles | backend | in-progress |
-| [BE-22](features/BE-22-anomaly-detection.md) | Anomaly detection | backend | planned |
+| [BE-21](features/BE-21-percentiles.md) | Percentiles | backend | done |
+| [BE-22](features/BE-22-anomaly-detection.md) | Anomaly detection | backend | tests-pending |
 | [BE-23](features/BE-23-body-metric-extraction.md) | Body metric extraction | backend | tests-pending |
-| [BE-24](features/BE-24-time-to-threshold.md) | Time to threshold | backend | planned |
-| [BE-25](features/BE-25-flapping-detection.md) | Flapping detection | backend | planned |
+| [BE-24](features/BE-24-time-to-threshold.md) | Time to threshold | backend | tests-pending |
+| [BE-25](features/BE-25-flapping-detection.md) | Flapping detection | backend | tests-pending |
 | [BE-26](features/BE-26-incident-lifecycle.md) | Incident lifecycle | backend | in-progress |
 | [BE-27](features/BE-27-escalation-policies.md) | Escalation policies | backend | planned |
 | [BE-28](features/BE-28-channels.md) | Channels | backend | planned |
