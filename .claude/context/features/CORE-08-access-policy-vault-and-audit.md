@@ -23,27 +23,20 @@ No login. Mutations only from loopback by default (configurable LAN/CIDR), view-
 [settings](../screens/settings.md), [audit-log](../screens/audit-log.md)
 
 ## Code
-- `backend/orbit-security/src/main/java/io/orbit/security/access/AccessPolicy.java`
-- `backend/orbit-security/src/main/java/io/orbit/security/vault/MasterKey.java`
-- `backend/orbit-security/src/main/java/io/orbit/security/vault/SecretCipher.java`
-- `backend/orbit-security/src/main/java/io/orbit/security/vault/SecretRef.java`
-- `backend/orbit-security/src/main/java/io/orbit/security/vault/SecretResolver.java`
-- `backend/orbit-security/src/main/java/io/orbit/security/audit/AuditLog.java`
 - `frontend/src/domains/security/operator/operator.ts`
 - `frontend/src/domains/security/OperatorPrompt/OperatorPrompt.tsx`
 - `frontend/src/domains/security/access/access.ts`
 - `frontend/src/domains/security/ViewOnlyBanner/ViewOnlyBanner.tsx`
 - `frontend/src/shared/api/client.ts`
+- `backend/orbit-security/src/main/java/io/orbit/security/access/AccessPolicy.java`
 
 ## Tests
-- `backend/orbit-security/src/test/java/io/orbit/security/access/AccessPolicyTest.java`
-- `backend/orbit-security/src/test/java/io/orbit/security/vault/VaultTest.java`
-- `backend/orbit-security/src/test/java/io/orbit/security/audit/AuditLogTest.java`
 - `frontend/src/domains/security/operator/operator.test.ts`
 - `frontend/src/domains/security/OperatorPrompt/OperatorPrompt.test.tsx`
 - `frontend/src/domains/security/access/access.test.ts`
 - `frontend/src/domains/security/ViewOnlyBanner/ViewOnlyBanner.test.tsx`
 - `frontend/src/shared/api/client.test.ts`
+- `backend/orbit-api/src/test/java/io/orbit/api/web/SettingsFileTest.java`
 
 ## Decisions and notes
 - Backend: Access policy: READ always allowed; MUTATE from loopback only by default, `LAN` adds RFC 1918/ULA/link-local, `CIDR` adds listed ranges; ACKNOWLEDGE allowed for view-only clients unless `lanAcknowledge` is off.
@@ -59,3 +52,4 @@ No login. Mutations only from loopback by default (configurable LAN/CIDR), view-
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — backend: access policy, vault and audit trail domain.
 - 2026-10-18 — frontend: login and session removed; operator name prompt and access mode banner.
+- 2026-10-18 — backend: pending tests for access policy and defaults in orbit.settings.json.

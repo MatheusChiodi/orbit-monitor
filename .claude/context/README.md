@@ -167,14 +167,14 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [BE-40](features/BE-40-workspace-defaults-and-themes-api.md) | Workspace defaults and themes API | backend | tests-pending |
 | [BE-41](features/BE-41-wall-layouts.md) | Wall layouts | backend | tests-pending |
 | [BE-42](features/BE-42-status-page-api.md) | Status page API | backend | tests-pending |
-| [BE-43](features/BE-43-uptime-kuma-import.md) | Uptime Kuma import | backend | planned |
+| [BE-43](features/BE-43-uptime-kuma-import.md) | Uptime Kuma import | backend | tests-pending |
 | [BE-44](features/BE-44-network-access-policy.md) | Network access policy | backend | done |
 | [BE-45](features/BE-45-operator-identity.md) | Operator identity | backend | in-progress |
 | [BE-46](features/BE-46-audit-query-api.md) | Audit query API | backend | in-progress |
-| [BE-47](features/BE-47-rate-limiting.md) | Rate limiting | backend | planned |
-| [BE-48](features/BE-48-secret-rotation.md) | Secret rotation | backend | planned |
-| [BE-49](features/BE-49-problem-details-errors.md) | Problem Details errors | backend | in-progress |
-| [BE-50](features/BE-50-self-monitoring-and-config-backup.md) | Self-monitoring and config backup | backend | planned |
+| [BE-47](features/BE-47-rate-limiting.md) | Rate limiting | backend | tests-pending |
+| [BE-48](features/BE-48-secret-rotation.md) | Secret rotation | backend | done |
+| [BE-49](features/BE-49-problem-details-errors.md) | Problem Details errors | backend | done |
+| [BE-50](features/BE-50-self-monitoring-and-config-backup.md) | Self-monitoring and config backup | backend | tests-pending |
 | [BE-51](features/BE-51-customization-stores.md) | Customization and terminology stores | backend | planned |
 | [BE-52](features/BE-52-history-query-apis.md) | History, events and audit query APIs | backend | planned |
 | [BE-53](features/BE-53-app-log-rotation.md) | Application log rotation | backend | planned |

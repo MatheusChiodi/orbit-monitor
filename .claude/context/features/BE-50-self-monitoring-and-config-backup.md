@@ -3,7 +3,7 @@ id: BE-50
 title: "Self-monitoring and config backup"
 area: backend
 group: "Security and platform"
-status: planned
+status: tests-pending
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 Micrometer metrics, Orbit monitors itself; `.bak` rotation and encrypted backup of the config directory
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -23,13 +23,15 @@ Micrometer metrics, Orbit monitors itself; `.bak` rotation and encrypted backup 
 —
 
 ## Code
-_None yet._
+- `backend/orbit-config/src/main/java/io/orbit/config/ConfigBackup.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-config/src/test/java/io/orbit/config/ConfigBackupTest.java`
+- `backend/orbit-api/src/test/java/io/orbit/api/SelfMonitoringTest.java`
 
 ## Decisions and notes
-_None yet._
+- Micrometer `orbit.checks` and `orbit.queue.size`; built-in `orbit_self` monitor on /actuator/health; encrypted rotating backups `orbit-backup-<ts>.zip.enc`.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending tests and stubs added (status: tests-pending).

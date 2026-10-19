@@ -3,7 +3,7 @@ id: BE-48
 title: "Secret rotation"
 area: backend
 group: "Security and platform"
-status: planned
+status: done
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,21 +15,23 @@ updated: 2026-10-18
 Rotate connection credentials without recreating monitors
 
 ## Status
-- [ ] Tests written (pending or active)
-- [ ] Implemented
-- [ ] All tests green, none pending
+- [x] Tests written (pending or active)
+- [x] Implemented
+- [x] All tests green, none pending
 
 ## Screens
 —
 
 ## Code
-_None yet._
+- `backend/orbit-api/src/main/java/io/orbit/api/web/ConnectionController.java`
+- `backend/orbit-api/src/main/java/io/orbit/api/runtime/ConnectionPools.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-api/src/test/java/io/orbit/api/web/SecretRotationApiTest.java`
 
 ## Decisions and notes
-_None yet._
+- PUT /api/connections/{id} with a new password re-seals the secret and evicts the pool; monitors keep `connectionId`; omitting the password keeps the current one.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — secret rotation covered by an API test (status: done).

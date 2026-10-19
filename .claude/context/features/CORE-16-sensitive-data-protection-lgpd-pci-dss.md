@@ -23,12 +23,6 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 [wall](../screens/wall.md), [monitor-editor-sql](../screens/monitor-editor-sql.md), [monitor-editor-http](../screens/monitor-editor-http.md), [data-and-display](../screens/data-and-display.md)
 
 ## Code
-- `backend/orbit-common/src/main/java/io/orbit/common/privacy/SensitiveDataRedactor.java`
-- `backend/orbit-common/src/main/java/io/orbit/common/privacy/Luhn.java`
-- `backend/orbit-common/src/main/java/io/orbit/common/privacy/BrazilianDocuments.java`
-- `backend/orbit-common/src/main/java/io/orbit/common/privacy/DataClass.java`
-- `backend/orbit-monitor/src/main/java/io/orbit/monitor/privacy/PayloadRedactor.java`
-- `backend/orbit-probe/src/main/java/io/orbit/probe/CheckRunner.java`
 - `frontend/src/shared/privacy/redact.ts`
 - `frontend/src/shared/privacy/SafeValue/SafeValue.tsx`
 - `frontend/src/domains/monitor/components/PreviewTable/PreviewTable.tsx`
@@ -43,11 +37,11 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `frontend/src/domains/monitor/rules/rules.ts`
 - `frontend/src/shared/ui/ThresholdChart/ThresholdChart.tsx`
 - `frontend/src/shared/ui/SecretInput/SecretInput.tsx`
+- `backend/orbit-common/src/main/java/io/orbit/common/privacy/Sensitive.java`
+- `backend/orbit-api/src/main/java/io/orbit/api/privacy/SensitiveDataModule.java`
+- `backend/orbit-api/src/main/java/io/orbit/api/privacy/MaskingConverter.java`
 
 ## Tests
-- `backend/orbit-common/src/test/java/io/orbit/common/privacy/SensitiveDataRedactorTest.java`
-- `backend/orbit-monitor/src/test/java/io/orbit/monitor/privacy/PayloadRedactorTest.java`
-- `backend/orbit-probe/src/test/java/io/orbit/probe/CheckRunnerTest.java`
 - `frontend/src/shared/privacy/redact.test.ts`
 - `frontend/src/shared/privacy/SafeValue/SafeValue.test.tsx`
 - `frontend/src/domains/monitor/components/PreviewTable/PreviewTable.privacy.test.tsx`
@@ -63,6 +57,8 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `frontend/src/app/console/ConsoleApp.privacy.test.tsx`
 - `frontend/src/shared/ui/SecretInput/SecretInput.pending.test.tsx`
 - `frontend/src/shared/ui/SecretInput/SecretInput.test.tsx`
+- `backend/orbit-api/src/test/java/io/orbit/api/privacy/SensitiveDataModuleTest.java`
+- `backend/orbit-api/src/test/java/io/orbit/api/privacy/MaskingConverterTest.java`
 
 ## Decisions and notes
 - Backend: `SensitiveDataRedactor` classifies by field-name tokens (camelCase, snake_case and adjacent pairs such as `api_key`) and by value: Luhn PAN (13-19 digits, also as numeric values), CPF/CNPJ check digits, e-mail, formatted BR phone, JWT and Bearer tokens.
@@ -88,3 +84,4 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - 2026-10-18 — frontend: every existing renderer routed through `<SafeValue>`; the wall hides personal data.
 - 2026-10-18 — frontend: Data & display privacy badges and minimization rules.
 - 2026-10-18 — frontend: frontend: secret input.
+- 2026-10-18 — backend: pending tests for the Jackson serialization guard and the Logback masking converter.
