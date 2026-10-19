@@ -62,11 +62,11 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 
 | ID | Feature | Area | Status |
 |---|---|---|---|
-| [FE-01](features/FE-01-theme-editor.md) | Theme editor | frontend | tests-pending |
-| [FE-02](features/FE-02-contrast-guard.md) | Contrast guard | frontend | tests-pending |
-| [FE-03](features/FE-03-theme-presets.md) | Theme gallery | frontend | tests-pending |
-| [FE-04](features/FE-04-theme-import-export.md) | Theme import/export | frontend | tests-pending |
-| [FE-05](features/FE-05-per-layout-theme.md) | Per-layout theme | frontend | tests-pending |
+| [FE-01](features/FE-01-theme-editor.md) | Theme editor | frontend | in-progress |
+| [FE-02](features/FE-02-contrast-guard.md) | Contrast guard | frontend | done |
+| [FE-03](features/FE-03-theme-presets.md) | Theme gallery | frontend | in-progress |
+| [FE-04](features/FE-04-theme-import-export.md) | Theme import/export | frontend | in-progress |
+| [FE-05](features/FE-05-per-layout-theme.md) | Per-layout theme | frontend | in-progress |
 | [FE-06](features/FE-06-animation-level.md) | Animation settings | frontend | in-progress |
 | [FE-07](features/FE-07-density.md) | Density | frontend | tests-pending |
 | [FE-08](features/FE-08-viewing-distance-scale.md) | Viewing distance scale | frontend | tests-pending |
@@ -156,8 +156,8 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [BE-28](features/BE-28-channels.md) | Channels | backend | in-progress |
 | [BE-29](features/BE-29-deduplication.md) | Deduplication | backend | done |
 | [BE-30](features/BE-30-cascade-suppression.md) | Cascade suppression | backend | tests-pending |
-| [BE-31](features/BE-31-maintenance-windows.md) | Maintenance windows | backend | tests-pending |
-| [BE-32](features/BE-32-silence-snooze.md) | Silence/snooze | backend | tests-pending |
+| [BE-31](features/BE-31-maintenance-windows.md) | Maintenance windows | backend | in-progress |
+| [BE-32](features/BE-32-silence-snooze.md) | Silence/snooze | backend | in-progress |
 | [BE-33](features/BE-33-on-call-schedules.md) | On-call schedules | backend | tests-pending |
 | [BE-34](features/BE-34-postmortem-report.md) | Postmortem report | backend | tests-pending |
 | [BE-35](features/BE-35-notification-templates.md) | Notification templates | backend | in-progress |

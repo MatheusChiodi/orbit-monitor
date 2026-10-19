@@ -3,7 +3,7 @@ id: BE-32
 title: "Silence/snooze"
 area: backend
 group: "Alerting"
-status: tests-pending
+status: in-progress
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -16,7 +16,7 @@ With reason, actor and expiry
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
+- [x] Implemented
 - [ ] All tests green, none pending
 
 ## Screens
@@ -34,3 +34,4 @@ With reason, actor and expiry
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending tests and stubs added (status: tests-pending).
+- 2026-10-18 — silences in orbit.silences.json implemented; REST endpoints pending.
