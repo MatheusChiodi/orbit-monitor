@@ -16,7 +16,7 @@ import java.util.Map;
  * Application log line formatter (BE-53): one JSON object per line with timestamp, level, logger,
  * thread, message, MDC and exception, every text passed through the privacy redactor so card
  * numbers, documents, e-mails and secrets never reach the log file (docs/04).
- * Registered with {@code logging.structured.format.file} in {@code orbit-logging.properties}.
+ * Written by {@link MaskedJsonEncoder}; also usable as a Spring Boot structured log format.
  */
 public class MaskedJsonFormatter implements StructuredLogFormatter<ILoggingEvent> {
 

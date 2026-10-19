@@ -16,23 +16,23 @@ Logback SizeAndTimeBasedRollingPolicy: daily, 50 MB files, gzip, 30 days, total 
 
 ## Status
 - [x] Tests written (pending or active)
-- [x] Implemented (formatter + shipped properties; the app imports them in BE-52 wiring)
+- [x] Implemented (formatter, encoder and appender fragment; included by the app's logback-spring.xml)
 - [x] All tests green, none pending
 
 ## Code
 - `backend/orbit-history/src/main/java/io/orbit/history/applog/MaskedJsonFormatter.java`
-- `backend/orbit-history/src/main/resources/orbit-logging.properties`
+- `backend/orbit-history/src/main/java/io/orbit/history/applog/MaskedJsonEncoder.java`
+- `backend/orbit-history/src/main/resources/io/orbit/history/applog/file-appender.xml`
 
 ## Tests
 - `backend/orbit-history/src/test/java/io/orbit/history/applog/MaskedJsonFormatterTest.java`
-- `backend/orbit-history/src/test/java/io/orbit/history/applog/AppLogRotationTest.java` (boots Spring Boot's `LogbackLoggingSystem` with the shipped properties and checks the rolling policy and a masked line on disk)
+- `backend/orbit-history/src/test/java/io/orbit/history/applog/AppLogRotationTest.java` (configures Logback with the shipped fragment, checks the rolling policy and a masked JSON line on disk)
 
 ## Decisions and notes
-- **Spring Boot 3.4 structured logging with a custom formatter instead of a Logback XML + logstash-logback-encoder.** `logging.structured.format.file` accepts a `StructuredLogFormatter` class, and Boot's programmatic file appender already uses `SizeAndTimeBasedRollingPolicy`, configured through `logging.logback.rollingpolicy.*`. No extra dependency (logstash-logback-encoder would add ~400 KB and its own masking DSL) and no XML to keep in sync. Source: https://docs.spring.io/spring-boot/reference/features/logging.html
-- Settings: `~/.orbit/data/logs/orbit.log` (follows `orbit.data-dir`), rolled daily and at 50 MB to `orbit-YYYY-MM-DD.N.log.gz`, `max-history=30`, `total-size-cap=512MB`, `clean-history-on-start=true`.
-- Each line: `@timestamp`, `level`, `logger`, `thread`, `message`, `mdc`, `exception`; message, MDC values and the stack trace text go through `SensitiveDataRedactor` (PAN, CPF/CNPJ, e-mail, phone, JWT, bearer and key=value secrets).
-- The properties live in the history module and are imported by the app (`spring.config.import=classpath:orbit-logging.properties`), so the test and the runtime read the same file.
-- Open: console output stays Boot's plain pattern (not masked); masking the console needs a Logback conversion rule — to agree with orbit-privacy.
+- **Logback `RollingFileAppender` + `SizeAndTimeBasedRollingPolicy` with an own JSON encoder, shipped as an includable fragment.** The app already owns `logback-spring.xml` (CORE-16 console masking), so Boot's `logging.logback.rollingpolicy.*` properties do not apply; the fragment `io/orbit/history/applog/file-appender.xml` defines `ORBIT_FILE` and the app includes it next to the console appender. Rejected: logstash-logback-encoder (extra ~400 KB dependency and its own masking DSL); Boot's `StructuredLogEncoder` (needs the Spring `Environment` inside Logback, harder to test). Sources: https://logback.qos.ch/manual/appenders.html#SizeAndTimeBasedRollingPolicy · https://docs.spring.io/spring-boot/reference/features/logging.html
+- Settings: `${ORBIT_DATA_DIR}/logs/orbit.log` (`~/.orbit/data` by default), rolled daily and at 50 MB to `orbit-YYYY-MM-DD.N.log.gz`, `maxHistory=30`, `totalSizeCap=512MB`, `cleanHistoryOnStart=true`.
+- Each line: `@timestamp`, `level`, `logger`, `thread`, `message`, `mdc`, `exception`; message, MDC values and stack trace text go through `SensitiveDataRedactor` (PAN, CPF/CNPJ, e-mail, phone, JWT, bearer and key=value secrets). `MaskedJsonFormatter` also implements Boot's `StructuredLogFormatter`, so it can be used as a structured format.
+- App wiring (orbit-api `logback-spring.xml`): `<springProperty name="ORBIT_DATA_DIR" source="orbit.data-dir" defaultValue="${user.home}/.orbit/data"/>`, `<include resource="io/orbit/history/applog/file-appender.xml"/>`, `<appender-ref ref="ORBIT_FILE"/>`.
 
 ## Changelog
 - 2026-10-18 — context file created (status: in-progress).

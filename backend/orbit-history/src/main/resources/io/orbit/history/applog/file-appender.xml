@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Application log file (BE-53, docs/08 section 5): masked JSON lines in ${ORBIT_DATA_DIR}/logs/orbit.log,
+rolled daily and at 50 MB into orbit-YYYY-MM-DD.N.log.gz, kept 30 days and capped at 512 MB in total.
+Include it from logback-spring.xml after defining ORBIT_DATA_DIR, then reference the ORBIT_FILE appender.
+-->
+<included>
+    <appender name="ORBIT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${ORBIT_DATA_DIR}/logs/orbit.log</file>
+        <encoder class="io.orbit.history.applog.MaskedJsonEncoder"/>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${ORBIT_DATA_DIR}/logs/orbit-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>512MB</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+    </appender>
+</included>
