@@ -151,6 +151,26 @@ No springs, no displacement larger than 8 px. Everything off under `prefers-redu
 | `standard` | Everything above (default) |
 | `expressive` | Durations ×1.25, stagger 45 ms, value flash and status pulse slightly stronger; still no springs and no translate above 8 px |
 
+### 4.2 Visual FX layer — 3D and "web3" look (FE-52)
+
+Orbit should feel striking, not generic: depth, light and slow 3D motion around the data, never instead of it.
+
+| Where | Effect |
+|---|---|
+| **Hero "All systems operational"** | Live 3D orb (React Three Fiber): glass sphere with a slowly orbiting satellite ring, soft blue→green light, subtle parallax |
+| **Wall and console background** | Very low-contrast animated field (orbital lines, particles or noise gradient), ≤ 6% luminance change, paused when an incident is unacknowledged |
+| **Panels and cards** | Glass surfaces: `backdrop-filter` blur, 1 px gradient borders (blue→green at 30–45%), inner highlight; hover tilt ≤ 4° with light sheen (console only) |
+| **Status** | DOWN gets a restrained red glow pulse on the hero edge; OK/WARN no glow. Glow never reduces text contrast below the §2 minimums |
+| **Onboarding, empty states, intro** | Short Remotion compositions (`@remotion/player`, 3D via `@remotion/three`): Orbit "boot" sequence, how a check flows, first-monitor guide |
+| **README / promo** | The same Remotion compositions rendered to MP4/GIF |
+
+**Rules**
+- Data stays flat and legible: numbers, rules and state labels are never rendered in 3D, tilted, blurred or behind particles.
+- Incident state wins: when something is DOWN, background motion pauses and the hero becomes the calm 2D layout of §3.
+- Animation level gates everything: `off`/`minimal` → no 3D, no particles, static gradients; `standard` → 3D orb, glass, background at low intensity; `expressive` → full intensity, hover tilt, Remotion intros. `prefers-reduced-motion` forces `off`.
+- Performance: 3D and Remotion code is lazy-loaded (dynamic `import()`), never in the critical path; the wall stays under its 150 KB gzip budget without FX and FX loads after first paint; target 60 fps on a mid-range TV box, auto-downgrade to `minimal` if frame time > 20 ms for 3 s.
+- Colors come from the theme tokens (custom themes recolor the FX too).
+
 **Rules:** animate only `opacity`, `transform` and colors (no layout-thrashing properties except Motion `layout`); never block interaction during an animation; never animate numbers by counting; no infinite animation except the documented state signals (owner-less DOWN blink, "All systems operational" ring).
 
 ## 5. Editing console

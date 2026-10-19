@@ -35,6 +35,7 @@ Monitoring for websites, APIs and databases with a TV wall that changes shape by
 |---|---|---|
 | backend-agent | `backend/` | `features/BE-*`, backend `CORE-*` |
 | frontend-agent | `frontend/` | `features/FE-*`, frontend `CORE-*`, `screens/*` |
+| fx-agent | `frontend/src/shared/fx/`, `frontend/remotion/` | `features/FE-52-*` (integration into components coordinated with frontend-agent) |
 | lead | root files, `docs/`, `.claude/CLAUDE.md`, `context/README.md`, this file | — |
 
 Full-stack `CORE-*` files: each agent edits only its own section (`## Code` / `## Tests` lines for its folder) and appends its own changelog line.
