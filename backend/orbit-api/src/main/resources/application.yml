@@ -29,6 +29,12 @@ orbit:
   # Configuration files (orbit.<feature>.json) and the vault key; never committed.
   config-dir: ${ORBIT_CONFIG_DIR:${user.home}/.orbit/config}
   master-key: ${ORBIT_MASTER_KEY:${user.home}/.orbit/master.key}
+  # 30-day history and application logs (docs/08); outside the repository.
+  data-dir: ${ORBIT_DATA_DIR:${user.home}/.orbit/data}
+  history-store:
+    retention-days: 30
+    max-disk-mb: 1024
+    min-free-disk-mb: 512
   history: 24h
   workers: 4
   environment: Local
