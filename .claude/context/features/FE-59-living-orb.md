@@ -16,7 +16,7 @@ The 3D orb becomes a live map: core = overall health, one ring per group, one sa
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented (wall done; console orb pending)
+- [ ] Implemented (wall and console done; "open the monitor" needs `id="monitor-<id>"` rows in GroupList)
 - [ ] All tests green, none pending
 
 ## Code
@@ -28,7 +28,7 @@ The 3D orb becomes a live map: core = overall health, one ring per group, one sa
 - `frontend/src/shared/fx/LivingOrb/orbShaders.ts` — orbit line shader and the shared glow sprite texture
 - `frontend/src/shared/fx/LivingOrb/LivingOrb.tsx` — level gate, DOM tooltip (SafeValue), keyboard, legend, live region, summary
 - `frontend/src/shared/fx/LivingOrb/MiniOrb.tsx` — header mini orb
-- Integration: `HeroCalm.tsx` (`monitors`/`groups` props → LivingOrb), `WallScreen.tsx` (passes the snapshot), `WallHeader.tsx` (`orb` prop → MiniOrb)
+- Integration: `HeroCalm.tsx` (`monitors`/`groups` props → LivingOrb), `WallScreen.tsx` (passes the snapshot), `WallHeader.tsx` (`orb` prop → MiniOrb), `ConsoleApp.tsx` (interactive orb above the monitor list; open = scroll to `#monitor-<id>`)
 - i18n: `fx.orb.*` in `en.json` / `pt-BR.json`
 
 ## Tests
@@ -38,6 +38,7 @@ The 3D orb becomes a live map: core = overall health, one ring per group, one sa
 - `frontend/src/shared/fx/LivingOrb/MiniOrb.test.tsx`
 - `frontend/src/domains/wall/components/HeroCalm/HeroCalm.fx.test.tsx`
 - `frontend/src/domains/wall/components/WallHeader/WallHeader.fx.test.tsx`
+- `frontend/src/app/console/ConsoleApp.fx.test.tsx` (FE-59 case)
 
 ## Decisions and notes
 - Mapping is pure (`buildOrbModel`) and tested without WebGL; the 3D scene and the SVG read the same model and the same placement formula, so the static and live orbs agree.
@@ -46,8 +47,10 @@ The 3D orb becomes a live map: core = overall health, one ring per group, one sa
 - No drei `OrbitControls` / `Html`: drag-rotate and wheel-zoom are ~20 lines on the wrapper; the tooltip is a DOM element positioned from the projected satellite every frame (data never enters the canvas).
 - Optional per-monitor fields the API does not send yet: `importance`, `intervalSeconds`, `lastCheckAt`, `maintenance`, status `UNKNOWN`. Without them: importance 2, 30 s interval, heartbeat per interval with a stable per-monitor phase.
 - More than 60 monitors → one satellite per group and state, with a count (tooltip shows "N monitors"; Enter/click do not open an aggregate).
+- Tests resolve the lazy 3D chunk once in `beforeAll`, so no assertion depends on dynamic-import speed under a parallel run.
 - On the wall the orb is passive (no mouse dependency); `interactive` is for the console and touch walls.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — orb model, text summary, static SVG, live 3D scene, mini orb; wall integration (status: in-progress).
+- 2026-10-18 — Interactive orb in the console monitor list (tooltip, keyboard, legend, drag, zoom).

@@ -49,4 +49,15 @@ describe('FE-52 console FX', () => {
     expect(await screen.findByText('Web portal')).toBeInTheDocument();
     expect(screen.queryByRole('figure', { name: 'Animated introduction' })).toBeNull();
   });
+
+  it('FE-59: with monitors the list opens with the interactive living orb', async () => {
+    const store = createOperatorStore();
+    store.getState().setName('M. Chiodi');
+    const monitor = { id: 'm', name: 'Web portal', groupId: 'g', type: 'HTTP', status: 'OK', value: 120, unit: 'ms', since: new Date().toISOString() };
+    render(<ConsoleApp api={api([monitor])} operatorStore={store} />);
+    const orb = await screen.findByRole('group', { name: 'System orb' });
+    expect(orb).toHaveAccessibleDescription('1 monitor in 1 group, all OK');
+    expect(orb).toHaveAttribute('tabindex', '0');
+    expect(screen.getByRole('button', { name: 'Legend' })).toBeInTheDocument();
+  });
 });

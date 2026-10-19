@@ -14,6 +14,7 @@ import type { AccessInfo, MonitorDefinition } from '@/shared/api/types';
 import { FxBackground } from '@/shared/fx/FxBackground';
 import { FxDowngradeNotice } from '@/shared/fx/FxDowngradeNotice';
 import { FxProvider } from '@/shared/fx/FxProvider';
+import { LivingOrb } from '@/shared/fx/LivingOrb';
 import { OrbitIntro } from '@/shared/fx/OrbitIntro';
 import { LanguageSelector } from '@/shared/i18n/LanguageSelector';
 import { Button } from '@/shared/ui';
@@ -121,11 +122,19 @@ function Workspace({ api, access, demo, operator, onChangeName }: WorkspaceProps
               <p className="m-0 text-muted">{t('app.loading')}</p>
             ) : (
               <>
-                {(monitors.data ?? []).length === 0 && (
+                {(monitors.data ?? []).length === 0 ? (
                   <div className="grid gap-[1rem] md:grid-cols-2">
                     <OrbitIntro id="first-monitor" tilt />
                     <OrbitIntro id="check-flow" tilt />
                   </div>
+                ) : (
+                  <LivingOrb
+                    interactive
+                    monitors={monitors.data ?? []}
+                    groups={groups.data ?? []}
+                    className="h-[19rem] w-full"
+                    onOpen={(id) => document.getElementById(`monitor-${id}`)?.scrollIntoView({ block: 'center' })}
+                  />
                 )}
                 <GroupList
                 groups={groups.data ?? []}
