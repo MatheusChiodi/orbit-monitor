@@ -31,6 +31,10 @@
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
         <!-- Application log formatter (BE-53); provided by the app at runtime. -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
