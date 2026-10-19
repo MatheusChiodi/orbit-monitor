@@ -36,9 +36,11 @@ Checks WCAG 4.5:1 (body) and 3:1 (large labels) for every text/surface pair; sta
 - Pairs: text on bg/s1/s2/s3 and muted on bg/s1/s2 need 4.5:1; dim, ok/warn/down/info and accent on bg/s1(/s2) need 3:1 (WCAG 1.4.3 large text, 1.4.11 non-text); chart series 3:1 on s1; SQL syntax 4.5:1 on s1 (comment 3:1).
 - Distinguishability: ΔE_OK between status colors ≥ 0.12 (typical vision) and ≥ 0.04 under each simulated dichromacy (Machado, Oliveira & Fernandes 2009, severity 1, applied in linear RGB as the colorspace docs recommend). Orbit Dark's worst CVD pair is 0.046 (ok/warn, protanopia), so 0.04 is the floor; states always add text + icon. Color-blind safe themes must keep ≥ 0.10 for their `cvdTarget`.
 - Fixes: `suggestReadable` moves OKLab lightness with the hue kept (binary search), falling back to mixing with white/black. `fixTheme` never touches surfaces; status clashes are solved by the smallest ΔE move (lightness ±0.3, hue ±32°) of either color of the pair.
+- `dim` is guarded at 3:1 only: it is for large labels and non-text marks (WCAG 1.4.11: dividers, inactive icons, grid lines). Small text (axis labels, hints) must use `muted` (≥ 4.5:1). Raising `dim` to 4.5:1 would change docs/03-design.md (#5a6575) and erase the third text level, so usage was fixed instead (orbit-qa finding, a11y e2e).
 - Issue messages are i18n `Message`s (`theme.contrast.*`), so pure code stays locale-free.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
 - 2026-10-18 — implemented (WCAG ratios, OKLab ΔE, CVD simulation, fixTheme); tests moved to src/shared/theme (status: done).
+- 2026-10-18 — documented that `dim` is not a small-text color (a11y e2e finding).
