@@ -3,7 +3,7 @@ id: FE-32
 title: "Monitor templates and clone"
 area: frontend
 group: "Console productivity"
-status: tests-pending
+status: done
 screens: [monitor-list]
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -16,21 +16,23 @@ updated: 2026-10-18
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
-- [ ] All tests green, none pending
+- [x] Implemented
+- [x] All tests green, none pending
 
 ## Screens
 [monitor-list](../screens/monitor-list.md)
 
 ## Code
-_None yet._
+- `frontend/src/domains/monitor/templates/templates.ts`
+- `frontend/src/domains/monitor/components/TemplatePicker/TemplatePicker.tsx`
 
 ## Tests
-- `frontend/src/domains/monitor/components/TemplatePicker/TemplatePicker.pending.test.tsx`
+- `frontend/src/domains/monitor/components/TemplatePicker/TemplatePicker.test.tsx`
 
 ## Decisions and notes
-_None yet._
+- Templates (Spring Actuator health, Oracle blocking locks) carry no secrets or connection ids; `cloneDefinition` drops the id, names it "Copy of …" and drops vault-backed headers so they are typed again.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
+- 2026-10-18 — monitor templates and clone (status: done).

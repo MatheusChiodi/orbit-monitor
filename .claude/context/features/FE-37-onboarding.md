@@ -3,7 +3,7 @@ id: FE-37
 title: "Onboarding"
 area: frontend
 group: "Console productivity"
-status: tests-pending
+status: done
 screens: [monitor-list, settings]
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -16,21 +16,25 @@ Guided first monitor and helpful empty states
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
-- [ ] All tests green, none pending
+- [x] Implemented
+- [x] All tests green, none pending
 
 ## Screens
 [monitor-list](../screens/monitor-list.md), [settings](../screens/settings.md)
 
 ## Code
-_None yet._
+- `frontend/src/domains/workspace/Onboarding/Onboarding.tsx`
+- `frontend/src/domains/workspace/Onboarding/onboardingSteps.ts`
+- `frontend/src/domains/workspace/EmptyState/EmptyState.tsx`
 
 ## Tests
-- `frontend/src/domains/workspace/Onboarding/Onboarding.pending.test.tsx`
+- `frontend/src/domains/workspace/Onboarding/Onboarding.test.tsx`
 
 ## Decisions and notes
-_None yet._
+- First-steps progress comes from the config resources (missing file = empty list); done steps say "Done" in text; view-only clients get a note instead of start buttons.
+- `EmptyState` is the shared helpful empty state (enters with the FE-51 preset).
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
+- 2026-10-18 — onboarding and empty states (status: done).

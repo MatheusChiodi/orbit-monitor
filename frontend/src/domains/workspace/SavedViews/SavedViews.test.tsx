@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mockSnapshot } from '@/domains/wall/mock';
 import { renderWithLocale } from '@/test/renderWithLocale';
 import { SavedViews } from './SavedViews';
-import { SAVED_VIEWS_KEY, applyView, loadViews, sanitizeView, saveViews, type SavedView } from './savedViews';
+import { SAVED_VIEWS_KEY, applyView, loadViews, sanitizeView, saveViews, type SavedView } from './viewFilters';
 
 const snap = mockSnapshot('incident', new Date(2026, 9, 18, 17, 10, 0));
 const problems: SavedView = { id: 'v1', name: 'Problems', filter: { states: ['DOWN', 'WARN'], groupIds: [], tags: [], query: '' } };
