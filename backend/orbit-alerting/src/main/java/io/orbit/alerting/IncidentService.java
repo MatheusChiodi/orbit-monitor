@@ -84,6 +84,11 @@ public class IncidentService implements StateChangeListener {
                 clock.instant()));
     }
 
+    /** BE-45: replaces a self-declared operator name in acknowledgements and timelines; returns how many changed. */
+    public int anonymize(String operator) {
+        throw new UnsupportedOperationException("BE-45 incident anonymization is not implemented yet");
+    }
+
     public Optional<Incident> openIncident(String monitorId) {
         return repository.findOpenByMonitor(monitorId);
     }

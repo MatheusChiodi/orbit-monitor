@@ -19,5 +19,9 @@
             <groupId>io.orbit</groupId>
             <artifactId>orbit-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.orbit</groupId>
+            <artifactId>orbit-config</artifactId>
+        </dependency>
     </dependencies>
 </project>

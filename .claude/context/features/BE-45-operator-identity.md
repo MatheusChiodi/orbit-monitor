@@ -16,20 +16,20 @@ Self-declared `X-Orbit-Operator` name recorded on acknowledgements, comments and
 
 ## Status
 - [x] Tests written (pending or active)
-- [x] Implemented
+- [ ] Implemented
 - [ ] All tests green, none pending
 
 ## Screens
 —
 
 ## Code
+- `backend/orbit-alerting/src/main/java/io/orbit/alerting/IncidentService.java`
 - `backend/orbit-api/src/main/java/io/orbit/api/web/Operators.java`
 - `backend/orbit-common/src/main/java/io/orbit/common/OperatorName.java`
-- `backend/orbit-api/src/main/java/io/orbit/api/web/AuditController.java`
 
 ## Tests
+- `backend/orbit-alerting/src/test/java/io/orbit/alerting/IncidentAnonymizationTest.java`
 - `backend/orbit-common/src/test/java/io/orbit/common/OperatorNameTest.java`
-- `backend/orbit-api/src/test/java/io/orbit/api/web/AccessAndGroupsApiTest.java`
 
 ## Decisions and notes
 - Every change needs `X-Orbit-Operator` (acknowledgement also accepts `by` in the body); missing name is `400 operator-required`.
@@ -39,3 +39,4 @@ Self-declared `X-Orbit-Operator` name recorded on acknowledgements, comments and
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — operator header and audit anonymization endpoint.
 - 2026-10-18 — X-Orbit-Operator is percent-decoded as UTF-8 (frontend sends encodeURIComponent).
+- 2026-10-18 — pending test for anonymizing the operator name in incidents.

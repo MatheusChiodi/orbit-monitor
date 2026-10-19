@@ -151,16 +151,16 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [BE-24](features/BE-24-time-to-threshold.md) | Time to threshold | backend | tests-pending |
 | [BE-25](features/BE-25-flapping-detection.md) | Flapping detection | backend | tests-pending |
 | [BE-26](features/BE-26-incident-lifecycle.md) | Incident lifecycle | backend | in-progress |
-| [BE-27](features/BE-27-escalation-policies.md) | Escalation policies | backend | planned |
-| [BE-28](features/BE-28-channels.md) | Channels | backend | planned |
-| [BE-29](features/BE-29-deduplication.md) | Deduplication | backend | planned |
-| [BE-30](features/BE-30-cascade-suppression.md) | Cascade suppression | backend | planned |
-| [BE-31](features/BE-31-maintenance-windows.md) | Maintenance windows | backend | planned |
-| [BE-32](features/BE-32-silence-snooze.md) | Silence/snooze | backend | planned |
-| [BE-33](features/BE-33-on-call-schedules.md) | On-call schedules | backend | planned |
-| [BE-34](features/BE-34-postmortem-report.md) | Postmortem report | backend | planned |
-| [BE-35](features/BE-35-notification-templates.md) | Notification templates | backend | planned |
-| [BE-36](features/BE-36-channel-reliability.md) | Channel reliability | backend | planned |
+| [BE-27](features/BE-27-escalation-policies.md) | Escalation policies | backend | tests-pending |
+| [BE-28](features/BE-28-channels.md) | Channels | backend | tests-pending |
+| [BE-29](features/BE-29-deduplication.md) | Deduplication | backend | tests-pending |
+| [BE-30](features/BE-30-cascade-suppression.md) | Cascade suppression | backend | tests-pending |
+| [BE-31](features/BE-31-maintenance-windows.md) | Maintenance windows | backend | tests-pending |
+| [BE-32](features/BE-32-silence-snooze.md) | Silence/snooze | backend | tests-pending |
+| [BE-33](features/BE-33-on-call-schedules.md) | On-call schedules | backend | tests-pending |
+| [BE-34](features/BE-34-postmortem-report.md) | Postmortem report | backend | tests-pending |
+| [BE-35](features/BE-35-notification-templates.md) | Notification templates | backend | tests-pending |
+| [BE-36](features/BE-36-channel-reliability.md) | Channel reliability | backend | tests-pending |
 | [BE-37](features/BE-37-config-export-import.md) | Config export/import | backend | planned |
 | [BE-38](features/BE-38-realtime-protocol.md) | Realtime protocol | backend | in-progress |
 | [BE-39](features/BE-39-workspace-variables.md) | Workspace variables | backend | planned |

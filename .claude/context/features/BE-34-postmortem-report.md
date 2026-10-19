@@ -3,7 +3,7 @@ id: BE-34
 title: "Postmortem report"
 area: backend
 group: "Alerting"
-status: planned
+status: tests-pending
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 Timeline, MTTA, MTTR, who acknowledged
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -23,13 +23,14 @@ Timeline, MTTA, MTTR, who acknowledged
 —
 
 ## Code
-_None yet._
+- `backend/orbit-alerting/src/main/java/io/orbit/alerting/report/PostmortemReport.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-alerting/src/test/java/io/orbit/alerting/report/PostmortemReportTest.java`
 
 ## Decisions and notes
-_None yet._
+- MTTA/MTTR from the incident timeline; summary averages per team.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending tests and stubs added (status: tests-pending).

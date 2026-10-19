@@ -3,7 +3,7 @@ id: BE-32
 title: "Silence/snooze"
 area: backend
 group: "Alerting"
-status: planned
+status: tests-pending
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 With reason, actor and expiry
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -23,13 +23,14 @@ With reason, actor and expiry
 —
 
 ## Code
-_None yet._
+- `backend/orbit-alerting/src/main/java/io/orbit/alerting/suppression/SilenceService.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-alerting/src/test/java/io/orbit/alerting/suppression/SilenceServiceTest.java`
 
 ## Decisions and notes
-_None yet._
+- Reason, operator and future expiry required; expired silences are pruned; stored in orbit.silences.json.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending tests and stubs added (status: tests-pending).

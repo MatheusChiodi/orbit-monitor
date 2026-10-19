@@ -3,7 +3,7 @@ id: BE-33
 title: "On-call schedules"
 area: backend
 group: "Alerting"
-status: planned
+status: tests-pending
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 Rotations; "who is on call now" for escalation and the wall clock block
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -23,13 +23,14 @@ Rotations; "who is on call now" for escalation and the wall clock block
 —
 
 ## Code
-_None yet._
+- `backend/orbit-alerting/src/main/java/io/orbit/alerting/oncall/OnCallSchedule.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-alerting/src/test/java/io/orbit/alerting/oncall/OnCallScheduleTest.java`
 
 ## Decisions and notes
-_None yet._
+- Fixed-length shifts rotating through people from `start`; overrides win; stored in orbit.oncall.json.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending tests and stubs added (status: tests-pending).
