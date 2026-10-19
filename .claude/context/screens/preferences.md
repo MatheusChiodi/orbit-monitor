@@ -23,7 +23,7 @@ _To be filled as the screen is built (component tree, file paths)._
 
 ## Features on this screen
 - [CORE-15 · Internationalization (en / pt-BR)](../features/CORE-15-internationalization-en-pt-br.md) — in-progress
-- [FE-06 · Animation level](../features/FE-06-animation-level.md) — tests-pending
+- [FE-06 · Animation level](../features/FE-06-animation-level.md) — in-progress
 - [FE-07 · Density](../features/FE-07-density.md) — tests-pending
 - [FE-08 · Viewing distance scale](../features/FE-08-viewing-distance-scale.md) — tests-pending
 - [FE-09 · Night mode schedule](../features/FE-09-night-mode-schedule.md) — tests-pending
