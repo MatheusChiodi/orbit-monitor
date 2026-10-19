@@ -1,4 +1,6 @@
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { AnimatePresence } from 'motion/react';
+import { moveItem } from '@/domains/workspace/reorder/reorder';
 import { useTranslation } from 'react-i18next';
 import type { DisplayMode, FieldDisplay } from '@/shared/api/types';
 import type { FieldFormat } from '@/shared/format';
@@ -35,27 +37,69 @@ function PrivacyBadge({ dataClass }: { dataClass: DataClass | null | undefined }
  */
 export function DataDisplayStep({ fields, onChange }: DataDisplayStepProps) {
   const { t } = useTranslation();
+  // FE-14: keyboard reorder (Space grabs/drops, arrows move, Escape cancels) on a local draft.
+  const [draft, setDraft] = useState<FieldDisplay[] | null>(null);
+  const [grabbed, setGrabbed] = useState<string | null>(null);
+  const [announcement, setAnnouncement] = useState('');
+  const root = useRef<HTMLDivElement>(null);
+  const shown = draft ?? fields;
+
+  useEffect(() => {
+    if (!grabbed) return;
+    root.current?.querySelector<HTMLElement>(`[data-reorder-handle="${CSS.escape(grabbed)}"]`)?.focus();
+  });
+
+  function onHandleKey(event: KeyboardEvent<HTMLButtonElement>, key: string) {
+    const index = shown.findIndex((f) => f.field === key);
+    if (event.key === ' ' || event.key === 'Enter') {
+      event.preventDefault();
+      if (!grabbed) {
+        setGrabbed(key);
+        setDraft([...fields]);
+      } else {
+        setGrabbed(null);
+        if (draft) onChange(draft);
+        setDraft(null);
+      }
+    } else if (event.key === 'Escape' && grabbed) {
+      event.preventDefault();
+      setGrabbed(null);
+      setDraft(null);
+      setAnnouncement(t('layout.dnd.cancelled'));
+    } else if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && grabbed === key) {
+      event.preventDefault();
+      const next = moveItem(shown, index, index + (event.key === 'ArrowDown' ? 1 : -1));
+      setDraft(next);
+      setAnnouncement(
+        t('layout.dnd.position', { name: key, position: next.findIndex((f) => f.field === key) + 1, total: next.length }),
+      );
+    }
+  }
 
   function update(index: number, patch: Partial<FieldDisplay>) {
-    const current = fields[index];
+    const key = (draft ?? fields)[index]?.field;
+    const current = fields.find((f) => f.field === key);
     if (!current) return;
     // Card data rules cannot be relaxed from the UI (the API rejects them too).
     if (isPci(current.dataClass) && (patch.storeAsSeries === true || patch.masked === false)) return;
     if (isSensitive(current.dataClass) && patch.showOnWall === true) return;
-    onChange(fields.map((f, i) => (i === index ? { ...f, ...patch } : f)));
+    onChange(fields.map((f) => (f.field === key ? { ...f, ...patch } : f)));
   }
 
   const selected = fields.filter((f) => f.selected).length;
   const hasCardData = fields.some((f) => isPci(f.dataClass));
 
   return (
-    <div className="flex flex-col gap-[0.5rem]">
+    <div ref={root} className="flex flex-col gap-[0.5rem]">
+      <p role="status" aria-live="polite" className="sr-only">
+        {announcement}
+      </p>
       <p className="m-0 text-[0.8rem] text-muted">
         <FlashValue value={selected}>{t('fields.count', { selected, total: fields.length })}</FlashValue>
       </p>
       {hasCardData && <p className="m-0 text-[0.8rem] text-warn-text">{t('privacy.pciNotice')}</p>}
       <AnimatePresence>
-      {fields.map((field, index) => {
+      {shown.map((field, index) => {
         const off = !field.selected;
         const pci = isPci(field.dataClass);
         const sensitive = isSensitive(field.dataClass);
@@ -70,6 +114,17 @@ export function DataDisplayStep({ fields, onChange }: DataDisplayStepProps) {
             aria-label={field.field}
             className={`grid grid-cols-1 items-center gap-[0.4rem] rounded-[0.45rem] border border-line p-[0.55rem] md:grid-cols-[minmax(9rem,1.2fr)_1.2fr_1fr_0.6fr_auto_1fr_auto] ${off ? 'bg-transparent' : 'bg-s1'}`}
           >
+            <span className="flex min-w-0 items-center gap-[0.35rem]">
+            <button
+              type="button"
+              data-reorder-handle={field.field}
+              aria-label={t('layout.dnd.reorder', { name: field.field })}
+              aria-pressed={grabbed === field.field}
+              onKeyDown={(e) => onHandleKey(e, field.field)}
+              className="cursor-grab rounded-[0.3rem] px-[0.2rem] text-muted hover:text-text"
+            >
+              ⋮⋮
+            </button>
             <label className="flex min-w-0 flex-wrap items-center gap-[0.45rem] font-mono text-[0.8rem]">
               <input
                 type="checkbox"
@@ -80,6 +135,7 @@ export function DataDisplayStep({ fields, onChange }: DataDisplayStepProps) {
               <span className="truncate">{field.field}</span>
               <PrivacyBadge dataClass={field.dataClass} />
             </label>
+            </span>
             <input
               aria-label={t('fields.label')}
               className={INPUT_CLASS}

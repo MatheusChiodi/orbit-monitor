@@ -49,7 +49,8 @@ describe('FE-11 layouts API (/api/layouts, mirrors orbit.layouts.json)', () => {
 
   it('never stores layouts in browser storage', async () => {
     const setItem = vi.spyOn(Storage.prototype, 'setItem');
-    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(json({ version: 1, items: [noc] }));
+    // A Response body can be read once, so each call gets a fresh one.
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async () => json({ version: 1, items: [noc] }));
     const api = createLayoutsApi({ fetch: fetchMock });
     await api.list();
     await api.save(noc);

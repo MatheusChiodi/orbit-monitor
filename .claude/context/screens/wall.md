@@ -43,7 +43,7 @@ Header with global status and clock, hero (incident / all operational), also act
 - [FE-08 · Viewing distance scale](../features/FE-08-viewing-distance-scale.md) — tests-pending
 - [FE-09 · Night mode schedule](../features/FE-09-night-mode-schedule.md) — tests-pending
 - [FE-10 · Workspace branding](../features/FE-10-workspace-branding.md) — tests-pending
-- [FE-13 · Reorder monitors and groups](../features/FE-13-reorder-monitors-and-groups.md) — tests-pending
+- [FE-13 · Reorder monitors and groups](../features/FE-13-reorder-monitors-and-groups.md) — in-progress
 - [FE-21 · Visualization picker](../features/FE-21-visualization-picker.md) — done
 - [FE-22 · Compatibility rules](../features/FE-22-compatibility-rules.md) — done
 - [FE-23 · Visualization settings](../features/FE-23-visualization-settings.md) — done

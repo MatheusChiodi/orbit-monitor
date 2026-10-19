@@ -72,6 +72,8 @@ export interface WallSnapshot {
   /** 24 h availability in percentage points (99.97). */
   uptime24h: number;
   lastRecoveryAt: string | null;
+  /** FE-17: produced by the incident simulator, never by the backend. */
+  simulated?: boolean;
 }
 
 export type WallMessage =

@@ -24,7 +24,7 @@ Groups and monitors with state, filters, saved views, bulk actions.
 
 ## Features on this screen
 - [CORE-07 · Workspaces and groups](../features/CORE-07-workspaces-and-groups.md) — in-progress
-- [FE-13 · Reorder monitors and groups](../features/FE-13-reorder-monitors-and-groups.md) — tests-pending
+- [FE-13 · Reorder monitors and groups](../features/FE-13-reorder-monitors-and-groups.md) — in-progress
 - [FE-28 · Command palette](../features/FE-28-command-palette.md) — done
 - [FE-29 · Keyboard shortcuts](../features/FE-29-keyboard-shortcuts.md) — done
 - [FE-30 · Saved views](../features/FE-30-saved-views.md) — done

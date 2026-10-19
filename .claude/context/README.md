@@ -72,16 +72,16 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [FE-08](features/FE-08-viewing-distance-scale.md) | Viewing distance scale | frontend | tests-pending |
 | [FE-09](features/FE-09-night-mode-schedule.md) | Night mode schedule | frontend | tests-pending |
 | [FE-10](features/FE-10-workspace-branding.md) | Workspace branding | frontend | tests-pending |
-| [FE-11](features/FE-11-wall-layout-editor.md) | Wall layout editor | frontend | tests-pending |
-| [FE-12](features/FE-12-keyboard-drag-and-drop.md) | Keyboard drag and drop | frontend | tests-pending |
-| [FE-13](features/FE-13-reorder-monitors-and-groups.md) | Reorder monitors and groups | frontend | tests-pending |
-| [FE-14](features/FE-14-reorder-fields-and-columns.md) | Reorder fields and columns | frontend | tests-pending |
-| [FE-15](features/FE-15-undo-redo.md) | Undo/redo | frontend | tests-pending |
-| [FE-16](features/FE-16-layout-templates.md) | Layout templates | frontend | tests-pending |
-| [FE-17](features/FE-17-incident-simulator.md) | Incident simulator | frontend | tests-pending |
-| [FE-18](features/FE-18-screen-previews.md) | Screen previews | frontend | tests-pending |
-| [FE-19](features/FE-19-layout-playlist.md) | Layout playlist | frontend | tests-pending |
-| [FE-20](features/FE-20-video-wall-tiling.md) | Video wall tiling | frontend | tests-pending |
+| [FE-11](features/FE-11-wall-layout-editor.md) | Wall layout editor | frontend | in-progress |
+| [FE-12](features/FE-12-keyboard-drag-and-drop.md) | Keyboard drag and drop | frontend | done |
+| [FE-13](features/FE-13-reorder-monitors-and-groups.md) | Reorder monitors and groups | frontend | in-progress |
+| [FE-14](features/FE-14-reorder-fields-and-columns.md) | Reorder fields and columns | frontend | done |
+| [FE-15](features/FE-15-undo-redo.md) | Undo/redo | frontend | done |
+| [FE-16](features/FE-16-layout-templates.md) | Layout templates | frontend | done |
+| [FE-17](features/FE-17-incident-simulator.md) | Incident simulator | frontend | done |
+| [FE-18](features/FE-18-screen-previews.md) | Screen previews | frontend | done |
+| [FE-19](features/FE-19-layout-playlist.md) | Layout playlist | frontend | in-progress |
+| [FE-20](features/FE-20-video-wall-tiling.md) | Video wall tiling | frontend | in-progress |
 | [FE-21](features/FE-21-visualization-picker.md) | Visualization picker | frontend | done |
 | [FE-22](features/FE-22-compatibility-rules.md) | Compatibility rules | frontend | done |
 | [FE-23](features/FE-23-visualization-settings.md) | Visualization settings | frontend | done |

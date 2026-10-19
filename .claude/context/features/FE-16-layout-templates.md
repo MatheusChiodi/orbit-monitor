@@ -3,7 +3,7 @@ id: FE-16
 title: "Layout templates"
 area: frontend
 group: "Drag and drop and layout"
-status: tests-pending
+status: done
 screens: [layout-editor]
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -16,22 +16,22 @@ NOC, Executive, Team, Single incident
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
-- [ ] All tests green, none pending
+- [x] Implemented
+- [x] All tests green, none pending
 
 ## Screens
 [layout-editor](../screens/layout-editor.md)
 
 ## Code
-_None yet._
+- `frontend/src/domains/workspace/layout/templates.ts`
 
 ## Tests
-- `frontend/src/domains/workspace/LayoutEditor/LayoutEditor.pending.test.tsx`
-- `frontend/src/domains/workspace/layout/templates.pending.test.ts`
+- `frontend/src/domains/workspace/layout/templates.test.ts`
 
 ## Decisions and notes
-_None yet._
+- NOC, Executive, Team and Single incident templates fit the 12 columns without overlap; `templateById` returns a copy; no template block shows personal data.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
+- 2026-10-18 — layout templates (status: done).
