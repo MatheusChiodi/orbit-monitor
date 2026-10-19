@@ -49,6 +49,7 @@ Default Orbit Dark or 30 built-in editor-inspired themes (Dracula, Nord, Tokyo N
 - Built-ins are loaded with `import.meta.glob` (eager JSON). Gotcha: Vitest 5's persistent module cache (`node_modules/.vitest-cache`) does not notice new files under a glob; delete the cache entry if a new theme does not show up in tests.
 - Device choice and favorites live in localStorage (`orbit.theme`, versioned, try/catch) per FE-50; the provider exposes preview(id) for hover/focus previews on the real screen and applies a 280 ms cross-fade unless the animation level is off (FE-06).
 - Gallery: card grid (auto-fill, min 15 rem) whose thumbnail is a live mini wall (hero + 18-cell matrix + two chart series) rendered with the card's own CSS variables. Previews re-declare Tailwind's `--color-*` aliases inline, because `@theme` aliases resolve at `:root` and would otherwise ignore a scoped `--bg`. Filters All/Dark/Light/Accessible/Favorites/Custom (aria-pressed), accent- and case-insensitive search over name and "inspired by", Restore default, Follow system light/dark, Make workspace default.
+- Charts: every theme has `chart[8]` in a fixed categorical order (blue, orange, teal, yellow, purple, green, accent, red), written as both `--chart-1..8` and `--viz-1..8` for shared/viz (orbit-dataviz). Orbit Dark and OLED Black use the dataviz palette (#3987e5 … #e66767) as is; every series passes 3:1 on s1 and ΔE_OK ≥ 0.06.
 - Remaining: mount `<ThemeProvider>` at the console/wall entries and `AppearanceSettings` on the Settings → Appearance route (frontend-agent), with `useCustomThemes` for `orbit.themes.json`.
 
 ## Changelog
@@ -57,3 +58,4 @@ Default Orbit Dark or 30 built-in editor-inspired themes (Dracula, Nord, Tokyo N
 - 2026-10-18 — scope expanded (30 built-in themes + accessibility, VS Code import).
 - 2026-10-18 — 37 built-in theme JSONs (researched palettes + licenses), registry, ThemeProvider with device choice, favorites and hover preview; gallery UI next (status: in-progress).
 - 2026-10-18 — gallery (Settings → Appearance) with live mini walls, filters, search, favorites, hover preview, duplicate & edit, import/export implemented; waiting for the route mount.
+- 2026-10-18 — chart palette extended to 8 series exposed as --viz-1..8.

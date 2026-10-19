@@ -27,7 +27,7 @@ Notes on sources:
 | `text`, `muted`, `dim` | `editor.foreground`, `descriptionForeground`, comment / line number color |
 | `ok`, `warn`, `down`, `info` | the theme's green, yellow, red and blue (terminal ANSI colors when defined) |
 | `accent` | `focusBorder` / button color |
-| `chart[6]` | six mutually distinct accents of the palette (ΔE_OK ≥ 0.065) |
+| `chart[8]` (also `--viz-1..8`) | eight mutually distinct accents in a fixed order (blue, orange, teal, yellow, purple, green, accent, red when available), ΔE_OK ≥ 0.065, each ≥ 3:1 on `s1` |
 | `syntax.*` | `tokenColors` for keyword, string, number, comment, function, operator, variable |
 | `fx.from`, `fx.to`, `fx.glow` | accent → purple; glow = accent |
 

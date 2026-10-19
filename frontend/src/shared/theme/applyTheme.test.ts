@@ -19,7 +19,9 @@ describe('FE-05 applyTheme', () => {
     expect(el.style.getPropertyValue('--line-2')).toBe(oled.colors.line2);
     expect(el.style.getPropertyValue('--accent')).toBe(oled.colors.accent);
     expect(el.style.getPropertyValue('--chart-1')).toBe(oled.chart[0]);
-    expect(el.style.getPropertyValue('--chart-6')).toBe(oled.chart[5]);
+    expect(el.style.getPropertyValue('--chart-8')).toBe(oled.chart[7]);
+    // shared/viz reads the same categorical palette as --viz-1..8.
+    for (let i = 0; i < 8; i++) expect(el.style.getPropertyValue(`--viz-${i + 1}`)).toBe(oled.chart[i]);
     expect(el.style.getPropertyValue('--syntax-keyword')).toBe(oled.syntax.keyword);
     expect(el.style.getPropertyValue('--fx-from')).toBe(oled.fx.from);
     expect(el.style.getPropertyValue('--fx-glow')).toBe(oled.fx.glow);

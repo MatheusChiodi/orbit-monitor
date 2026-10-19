@@ -29,8 +29,9 @@ export const FX_TOKENS = ['from', 'to', 'glow'] as const;
 export type FxToken = (typeof FX_TOKENS)[number];
 export type ThemeFx = Record<FxToken, string>;
 
-export const CHART_SIZE = 6;
-export type ThemeChart = readonly [string, string, string, string, string, string];
+/** Categorical series palette; also exposed as `--viz-1..8` for shared/viz (fixed order, never cycled). */
+export const CHART_SIZE = 8;
+export type ThemeChart = readonly [string, string, string, string, string, string, string, string];
 
 export const THEME_MODES = ['dark', 'light'] as const;
 export type ThemeMode = (typeof THEME_MODES)[number];

@@ -3,9 +3,9 @@ import { THEME_PATHS, tokenValue, withToken } from './paths';
 import { ORBIT_DARK } from './registry';
 
 describe('theme token paths', () => {
-  it('lists 14 colors, 6 chart series, 7 syntax and 3 FX colors', () => {
-    expect(THEME_PATHS).toHaveLength(30);
-    expect(THEME_PATHS).toContain('chart.5');
+  it('lists 14 colors, 8 chart series, 7 syntax and 3 FX colors', () => {
+    expect(THEME_PATHS).toHaveLength(32);
+    expect(THEME_PATHS).toContain('chart.7');
     expect(THEME_PATHS).toContain('syntax.comment');
     expect(THEME_PATHS).toContain('fx.glow');
   });

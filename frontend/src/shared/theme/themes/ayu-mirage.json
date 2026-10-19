@@ -20,12 +20,14 @@
     "accent": "#ffcc66"
   },
   "chart": [
-    "#ffcc66",
     "#6acdff",
-    "#ddbbff",
-    "#93e2c8",
     "#ffa659",
-    "#87d96c"
+    "#93e2c8",
+    "#ddbbff",
+    "#87d96c",
+    "#ffcc66",
+    "#f28273",
+    "#d5ff80"
   ],
   "syntax": {
     "keyword": "#ffa659",

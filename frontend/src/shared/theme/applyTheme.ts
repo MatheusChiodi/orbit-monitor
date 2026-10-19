@@ -19,6 +19,7 @@ export function themeVariables(theme: OrbitTheme): Record<string, string> {
   }
   theme.chart.forEach((color, i) => {
     vars[`--chart-${i + 1}`] = color;
+    vars[`--viz-${i + 1}`] = color;
   });
   for (const token of SYNTAX_TOKENS) vars[`--syntax-${token}`] = theme.syntax[token];
   for (const token of FX_TOKENS) vars[`--fx-${token}`] = theme.fx[token];

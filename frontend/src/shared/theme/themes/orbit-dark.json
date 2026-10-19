@@ -19,7 +19,16 @@
     "info": "#3b9eff",
     "accent": "#3b9eff"
   },
-  "chart": ["#3b9eff", "#22d3ee", "#a78bfa", "#fb923c", "#f472b6", "#a3e635"],
+  "chart": [
+    "#3987e5",
+    "#d95926",
+    "#199e70",
+    "#c98500",
+    "#d55181",
+    "#008300",
+    "#9085e9",
+    "#e66767"
+  ],
   "syntax": {
     "keyword": "#7cb7ff",
     "string": "#a9f0c3",
@@ -29,7 +38,11 @@
     "operator": "#8b96a6",
     "identifier": "#eef2f7"
   },
-  "fx": { "from": "#3b9eff", "to": "#22c55e", "glow": "#3b9eff" },
+  "fx": {
+    "from": "#3b9eff",
+    "to": "#22c55e",
+    "glow": "#3b9eff"
+  },
   "author": "Orbit Monitor",
   "license": "MIT",
   "url": "https://github.com/MatheusChiodi/orbit-monitor"

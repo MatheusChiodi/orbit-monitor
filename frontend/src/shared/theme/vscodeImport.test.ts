@@ -61,8 +61,8 @@ describe('FE-04 VS Code theme import', () => {
     expect(theme.colors.line).toBe('#2c313a');
     expect(theme.syntax).toMatchObject({ keyword: '#c678dd', string: '#98c379', number: '#d19a66', function: '#61afef' });
     expect(theme.syntax.operator).toBe('#56b6c2');
-    expect(theme.chart).toHaveLength(6);
-    expect(new Set(theme.chart).size).toBe(6);
+    expect(theme.chart).toHaveLength(8);
+    expect(new Set(theme.chart).size).toBe(8);
   });
 
   it('runs the contrast guard and reports every fix it applied', () => {

@@ -52,6 +52,11 @@ describe('FE-03 built-in themes', () => {
     },
   );
 
+  it.each(BUILT_IN_THEMES.map((t) => [t.id, t] as const))('%s defines 8 distinct categorical series (--viz-1..8)', (_, theme) => {
+    expect(theme.chart).toHaveLength(8);
+    expect(new Set(theme.chart).size).toBe(8);
+  });
+
   it('color-blind safe themes declare the deficiency they are tuned for', () => {
     expect(builtInTheme('colorblind-deuteranopia')?.cvdTarget).toBe('deuteranopia');
     expect(builtInTheme('colorblind-protanopia')?.cvdTarget).toBe('protanopia');

@@ -29,7 +29,9 @@
     "#a6a6ff",
     "#ff9ecb",
     "#e0e0e0",
-    "#ffb000"
+    "#ffb000",
+    "#c0c0ff",
+    "#7fd4c1"
   ],
   "syntax": {
     "keyword": "#7cb7ff",

@@ -151,14 +151,16 @@ export function importVsCodeTheme(text: string): VsCodeImportResult {
   }
 
   const purple = get('terminal.ansiMagenta', 'charts.purple') ?? FALLBACK.purple;
+  // Same order as the shared/viz categorical palette: blue, orange, teal, yellow, purple, green, accent, red.
   const pool = [
-    colors.accent,
     get('charts.blue') ?? colors.info,
-    purple,
-    get('terminal.ansiCyan') ?? FALLBACK.cyan,
     get('charts.orange') ?? syntax.number,
-    colors.ok,
-    colors.warn,
+    get('terminal.ansiCyan') ?? FALLBACK.cyan,
+    get('charts.yellow') ?? colors.warn,
+    purple,
+    get('charts.green') ?? colors.ok,
+    colors.accent,
+    get('charts.red') ?? colors.down,
     syntax.keyword,
     syntax.string,
     syntax.function,

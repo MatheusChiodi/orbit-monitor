@@ -17,7 +17,7 @@ describe('FE-01 theme editor', () => {
   it('has one labelled color input per token, chart series, syntax and FX color', () => {
     setup();
     for (const token of COLOR_TOKENS) expect(screen.getByLabelText(new RegExp(`^${token}$`, 'i'))).toBeInTheDocument();
-    for (let i = 1; i <= 6; i++) expect(screen.getByLabelText(`chart ${i}`)).toBeInTheDocument();
+    for (let i = 1; i <= 8; i++) expect(screen.getByLabelText(`chart ${i}`)).toBeInTheDocument();
     for (const token of SYNTAX_TOKENS) expect(screen.getByLabelText(`syntax ${token}`)).toBeInTheDocument();
     for (const token of ['from', 'to', 'glow']) expect(screen.getByLabelText(`fx ${token}`)).toBeInTheDocument();
   });
