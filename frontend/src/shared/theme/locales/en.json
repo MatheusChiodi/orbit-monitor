@@ -62,7 +62,11 @@
       "default": "Orbit default"
     },
     "workspaceDefault": "Make workspace default",
-    "readOnly": "View only: theme changes on this screen apply to this device only"
+    "readOnly": "View only: theme changes on this screen apply to this device only",
+    "mode": {
+      "dark": "Dark theme",
+      "light": "Light theme"
+    }
   },
   "import": {
     "title": "Review imported theme",

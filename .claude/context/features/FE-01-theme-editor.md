@@ -27,9 +27,11 @@ Create/edit a color theme (`bg`, `s1–s3`, `line`, `text/muted/dim`, `ok/warn/d
 - `frontend/src/domains/settings/appearance/ColorField/ColorField.tsx`
 - `frontend/src/domains/settings/appearance/WallPreview/WallPreview.tsx`
 - `frontend/src/domains/settings/appearance/ConsolePreview/ConsolePreview.tsx`
+- `frontend/src/domains/settings/appearance/AppearanceSettings/AppearanceSettings.tsx`
 
 ## Tests
 - `frontend/src/domains/settings/appearance/ThemeEditor/ThemeEditor.test.tsx`
+- `frontend/src/domains/settings/appearance/AppearanceSettings/AppearanceSettings.test.tsx`
 
 ## Decisions and notes
 - Every one of the 30 token paths is editable (hex text field + native picker; alpha kept from the text field). Invalid hex is flagged with aria-invalid and never reaches the preview.
@@ -40,3 +42,4 @@ Create/edit a color theme (`bg`, `s1–s3`, `line`, `text/muted/dim`, `ok/warn/d
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
 - 2026-10-18 — editor implemented with live wall/console preview and contrast guard; moved to src/domains/settings/appearance (status: in-progress until wired into Settings → Appearance).
+- 2026-10-18 — editor reachable from the gallery (Duplicate & edit, Edit); saving applies the new theme on the device.

@@ -62,7 +62,11 @@
       "default": "Padrão do Orbit"
     },
     "workspaceDefault": "Tornar padrão do workspace",
-    "readOnly": "Somente leitura: mudanças de tema nesta tela valem só para este dispositivo"
+    "readOnly": "Somente leitura: mudanças de tema nesta tela valem só para este dispositivo",
+    "mode": {
+      "dark": "Tema escuro",
+      "light": "Tema claro"
+    }
   },
   "import": {
     "title": "Revisar tema importado",

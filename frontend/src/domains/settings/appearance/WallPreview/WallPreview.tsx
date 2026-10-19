@@ -2,9 +2,15 @@ import type { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { themeVariables, type OrbitTheme } from '@/shared/theme';
 
-/** Inline CSS variables so everything inside renders with `theme`, independent of the page theme. */
+/**
+ * Inline CSS variables so everything inside renders with `theme`, independent of the page theme.
+ * Tailwind's `--color-*` aliases are resolved where they are declared (`:root`), so they are re-declared here too.
+ */
 export function themeStyle(theme: OrbitTheme): CSSProperties {
-  return themeVariables(theme) as CSSProperties;
+  const vars = themeVariables(theme);
+  const style: Record<string, string> = { ...vars };
+  for (const [name, value] of Object.entries(vars)) style[`--color-${name.slice(2)}`] = value;
+  return style as CSSProperties;
 }
 
 // Fixed sample: 18 monitors, one DOWN and two WARN, like a calm-but-not-quiet wall.

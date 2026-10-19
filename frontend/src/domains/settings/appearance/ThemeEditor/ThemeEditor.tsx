@@ -101,6 +101,7 @@ export function ThemeEditor({ theme, onSave, onCancel, readOnly = false }: Theme
       className="grid gap-6 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]"
     >
       <div className="flex flex-col gap-5">
+        <h2 className="font-display text-[1.5rem] font-bold text-text">{t('theme.editor.title')}</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           <label htmlFor={nameId} className={LABEL_CLASS}>
             {t('theme.editor.name')}

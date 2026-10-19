@@ -10,3 +10,4 @@ export * from './ThemeProvider';
 export * from './types';
 export * from './vscodeImport';
 export * from './paths';
+export * from './customThemes';
