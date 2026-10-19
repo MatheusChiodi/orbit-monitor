@@ -157,6 +157,7 @@ The whole repository is written in English. The product speaks **English (defaul
 | [`docs/04-data-protection.md`](docs/04-data-protection.md) | LGPD and PCI DSS controls |
 | [`docs/05-extended-features.md`](docs/05-extended-features.md) | 100 extended features (FE/BE) and pending-test convention |
 | [`docs/06-configuration-files.md`](docs/06-configuration-files.md) | Per-feature JSON configuration files (never committed) |
+| [`docs/07-customization.md`](docs/07-customization.md) | Everything is configurable: registry, scopes, Customize mode, terminology |
 | [`.claude/context/`](.claude/context/) | Living context: one file per screen and per feature |
 
 ## Running locally

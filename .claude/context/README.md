@@ -45,6 +45,7 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [CORE-08](features/CORE-08-access-policy-vault-and-audit.md) | Access policy, vault and audit | full-stack | in-progress |
 | [CORE-19](features/CORE-19-per-feature-json-configuration-files.md) | Per-feature JSON configuration files | backend | in-progress |
 | [CORE-20](features/CORE-20-local-first-runtime.md) | Local-first runtime | full-stack | in-progress |
+| [CORE-21](features/CORE-21-customization-registry.md) | Customization registry | full-stack | planned |
 | [CORE-09](features/CORE-09-realtime-wall-updates.md) | Realtime wall updates | full-stack | in-progress |
 | [CORE-10](features/CORE-10-data-display-step.md) | Data & display step | frontend | in-progress |
 | [CORE-11](features/CORE-11-global-status-summary.md) | Global status summary | frontend | done |
@@ -112,6 +113,11 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [FE-50](features/FE-50-device-preferences.md) | Device preferences | frontend | tests-pending |
 | [FE-51](features/FE-51-component-motion-system.md) | Component motion system | frontend | in-progress |
 | [FE-52](features/FE-52-visual-fx-layer.md) | Visual FX layer (3D, glass, Remotion) | frontend | planned |
+| [FE-53](features/FE-53-customize-mode.md) | Customize mode and inspector | frontend | planned |
+| [FE-54](features/FE-54-terminology-editor.md) | Terminology editor | frontend | planned |
+| [FE-55](features/FE-55-card-behavior-settings.md) | Card and component behavior settings | frontend | planned |
+| [FE-56](features/FE-56-typography-shape-density.md) | Typography, shape and density settings | frontend | planned |
+| [FE-57](features/FE-57-customization-profiles.md) | Customization profiles | frontend | planned |
 
 ### Backend
 
@@ -167,3 +173,4 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [BE-48](features/BE-48-secret-rotation.md) | Secret rotation | backend | planned |
 | [BE-49](features/BE-49-problem-details-errors.md) | Problem Details errors | backend | in-progress |
 | [BE-50](features/BE-50-self-monitoring-and-config-backup.md) | Self-monitoring and config backup | backend | planned |
+| [BE-51](features/BE-51-customization-stores.md) | Customization and terminology stores | backend | planned |
