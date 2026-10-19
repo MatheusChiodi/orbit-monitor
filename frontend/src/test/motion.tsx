@@ -37,13 +37,19 @@ function styleOf(el: Element): string {
   return el.getAttribute('style') ?? '';
 }
 
-/** Motion wrote the enter `initial` state (opacity 0) on mount. */
+/** Opacity below 1 written inline by Motion (0 at mount, then rising while the enter runs). */
+function fadingOpacity(style: string): boolean {
+  const match = /opacity:\s*([\d.]+)/.exec(style);
+  return match ? Number(match[1]) < 1 : false;
+}
+
+/** Motion wrote (or is still running) the enter state: transparent start. */
 export function entersAnimated(el: Element): boolean {
-  return /opacity:\s*0(?![.\d])/.test(styleOf(el));
+  return fadingOpacity(styleOf(el));
 }
 
 /** Nothing animates: no transparent start and no translate. */
 export function isStatic(el: Element): boolean {
   const style = styleOf(el);
-  return !/opacity:\s*0(?![.\d])/.test(style) && !/translate/.test(style);
+  return !fadingOpacity(style) && !/translate/.test(style);
 }

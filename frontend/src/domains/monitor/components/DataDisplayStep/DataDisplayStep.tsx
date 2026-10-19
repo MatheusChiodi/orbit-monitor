@@ -1,8 +1,9 @@
+import { AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import type { DisplayMode, FieldDisplay } from '@/shared/api/types';
 import type { FieldFormat } from '@/shared/format';
 import { safeText, type DataClass } from '@/shared/privacy/redact';
-import { Badge, INPUT_CLASS, SELECT_CLASS } from '@/shared/ui';
+import { AnimatedItem, Badge, FlashValue, INPUT_CLASS, SELECT_CLASS } from '@/shared/ui';
 
 export interface DataDisplayStepProps {
   fields: readonly FieldDisplay[];
@@ -49,16 +50,22 @@ export function DataDisplayStep({ fields, onChange }: DataDisplayStepProps) {
 
   return (
     <div className="flex flex-col gap-[0.5rem]">
-      <p className="m-0 text-[0.8rem] text-muted">{t('fields.count', { selected, total: fields.length })}</p>
+      <p className="m-0 text-[0.8rem] text-muted">
+        <FlashValue value={selected}>{t('fields.count', { selected, total: fields.length })}</FlashValue>
+      </p>
       {hasCardData && <p className="m-0 text-[0.8rem] text-warn-text">{t('privacy.pciNotice')}</p>}
+      <AnimatePresence>
       {fields.map((field, index) => {
         const off = !field.selected;
         const pci = isPci(field.dataClass);
         const sensitive = isSensitive(field.dataClass);
         const masked = pci || Boolean(field.masked);
         return (
-          <div
+          <AnimatedItem
+            as="div"
             key={field.field}
+            index={index}
+            count={fields.length}
             role="group"
             aria-label={field.field}
             className={`grid grid-cols-1 items-center gap-[0.4rem] rounded-[0.45rem] border border-line p-[0.55rem] md:grid-cols-[minmax(9rem,1.2fr)_1.2fr_1fr_0.6fr_auto_1fr_auto] ${off ? 'bg-transparent' : 'bg-s1'}`}
@@ -146,9 +153,10 @@ export function DataDisplayStep({ fields, onChange }: DataDisplayStepProps) {
                 {t('privacy.showOnWall')}
               </label>
             </span>
-          </div>
+          </AnimatedItem>
         );
       })}
+      </AnimatePresence>
     </div>
   );
 }

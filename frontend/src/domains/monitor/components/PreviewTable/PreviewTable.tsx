@@ -1,4 +1,7 @@
+import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
+import { useMotionPreset } from '@/shared/motion/useMotionPreset';
+import { AnimatedItem } from '@/shared/ui';
 import type { PreviewResult } from '@/shared/api/types';
 import { formatDuration } from '@/shared/format';
 import { detectSensitive } from '@/shared/privacy/redact';
@@ -13,6 +16,7 @@ export interface PreviewTableProps {
 /** Preview result as a table, with the detected type of each column. */
 export function PreviewTable({ preview, maxRows = 50 }: PreviewTableProps) {
   const { t } = useTranslation();
+  const enter = useMotionPreset('enter');
   const { columns, rows } = preview;
   const summary = `${t('preview.rows', { count: rows.length })} · ${formatDuration(preview.elapsedMs)}`;
   const mode = t(`readMode.${suggestReadMode(preview)}`);
@@ -23,7 +27,14 @@ export function PreviewTable({ preview, maxRows = 50 }: PreviewTableProps) {
     }),
   );
   return (
-    <div className="flex min-w-0 flex-col gap-[0.5rem]">
+    <motion.div
+      initial={enter.initial}
+      animate={enter.animate}
+      exit={enter.exit}
+      transition={enter.transition}
+      data-motion-level={enter.level}
+      className="flex min-w-0 flex-col gap-[0.5rem]"
+    >
       <div className="flex flex-wrap items-center gap-[0.8rem] text-[0.8rem] text-muted">
         {preview.status !== undefined && (
           <span className="font-mono text-text">{t('preview.httpStatus', { status: preview.status })}</span>
@@ -52,8 +63,9 @@ export function PreviewTable({ preview, maxRows = 50 }: PreviewTableProps) {
               </tr>
             </thead>
             <tbody>
+              <AnimatePresence>
               {rows.slice(0, maxRows).map((row, i) => (
-                <tr key={i} className="border-t border-line">
+                <AnimatedItem as="tr" key={`${i}:${JSON.stringify(row)}`} className="border-t border-line">
                   {columns.map((col) => {
                     const value = row[col.name];
                     return (
@@ -66,12 +78,13 @@ export function PreviewTable({ preview, maxRows = 50 }: PreviewTableProps) {
                       </td>
                     );
                   })}
-                </tr>
+                </AnimatedItem>
               ))}
+              </AnimatePresence>
             </tbody>
           </table>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

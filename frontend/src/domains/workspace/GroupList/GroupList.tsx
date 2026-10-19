@@ -1,11 +1,13 @@
 import { useId, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import { useTranslation } from 'react-i18next';
 import { formatReading, ruleText } from '@/domains/monitor/rules';
 import { groupSummary, sortExceptionsFirst } from '@/domains/monitor/status';
 import type { Group, MonitorView } from '@/shared/api/types';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { SafeValue } from '@/shared/privacy/SafeValue';
-import { Button, StatusDot, TEXT_CLASS } from '@/shared/ui';
+import { AnimatedItem, Button, StatusDot, TEXT_CLASS } from '@/shared/ui';
 
 export interface GroupListProps {
   groups: readonly Group[];
@@ -22,10 +24,19 @@ function GroupSection({ group, monitors }: { group: Group; monitors: MonitorView
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
   const titleId = useId();
+  const enter = useMotionPreset('enter');
   const { ok, total, status } = groupSummary(monitors);
   const summary = t('status.groupSummary', { ok, total });
   return (
-    <section aria-labelledby={titleId} className="rounded-[0.9rem] border border-line bg-s1">
+    <motion.section
+      initial={enter.initial}
+      animate={enter.animate}
+      exit={enter.exit}
+      transition={enter.transition}
+      data-motion-level={enter.level}
+      aria-labelledby={titleId}
+      className="rounded-[0.9rem] border border-line bg-s1"
+    >
       <header className="flex items-center justify-between border-b border-line px-[0.9rem] py-[0.6rem]">
         <h2 id={titleId} className="m-0 text-[1rem] font-semibold">
           <SafeValue value={group.name} />
@@ -45,8 +56,15 @@ function GroupSection({ group, monitors }: { group: Group; monitors: MonitorView
           </tr>
         </thead>
         <tbody>
+          <AnimatePresence>
           {sortExceptionsFirst(monitors).map((m) => (
-            <tr key={m.id} className="border-b border-line last:border-0">
+            <AnimatedItem
+              as="tr"
+              key={m.id}
+              motionKind="reorder"
+              data-status={m.status}
+              className="border-b border-line last:border-0"
+            >
               <td className="w-[7rem] px-[0.9rem] py-[0.5rem]">
                 <span className="inline-flex items-center gap-[0.4rem]">
                   <StatusDot status={m.status} />
@@ -59,11 +77,12 @@ function GroupSection({ group, monitors }: { group: Group; monitors: MonitorView
               <td className="py-[0.5rem] font-mono text-[0.8rem] text-muted">{m.type}</td>
               <td className="py-[0.5rem] font-mono text-[0.8rem] text-muted">{m.rule ? ruleText(m.rule, locale) : '—'}</td>
               <td className="px-[0.9rem] py-[0.5rem] text-right font-mono">{formatReading(m.value, m.unit, locale)}</td>
-            </tr>
+            </AnimatedItem>
           ))}
+          </AnimatePresence>
         </tbody>
       </table>
-    </section>
+    </motion.section>
   );
 }
 
@@ -97,7 +116,11 @@ export function GroupList({ groups, monitors, onNewMonitor, canEdit = true }: Gr
       {sections.length === 0 ? (
         <p className="text-muted">{t('console.monitors.empty')}</p>
       ) : (
-        sections.map((s) => <GroupSection key={s.group.id} group={s.group} monitors={s.monitors} />)
+        <AnimatePresence>
+          {sections.map((s) => (
+            <GroupSection key={s.group.id} group={s.group} monitors={s.monitors} />
+          ))}
+        </AnimatePresence>
       )}
     </div>
   );

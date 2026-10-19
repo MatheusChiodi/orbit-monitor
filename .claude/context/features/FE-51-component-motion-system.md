@@ -39,6 +39,8 @@ All screens (see frontmatter).
 - `frontend/src/shared/ui/FlashValue/FlashValue.tsx`
 - `frontend/src/shared/ui/AnimatedItem/AnimatedItem.tsx`
 - `frontend/src/domains/wall/components/`
+- `frontend/src/domains/workspace/GroupList/GroupList.tsx`
+- `frontend/src/domains/monitor/components/`
 
 ## Tests
 - `frontend/src/shared/motion/tokens.test.ts`
@@ -73,6 +75,8 @@ All screens (see frontmatter).
 - `frontend/src/domains/monitor/components/PreviewTable/PreviewTable.motion.pending.test.tsx`
 - `frontend/src/domains/monitor/components/SqlEditor/SqlEditor.motion.pending.test.tsx`
 - `frontend/src/domains/workspace/GroupList/GroupList.motion.pending.test.tsx`
+- `frontend/src/domains/workspace/GroupList/GroupList.motion.test.tsx`
+- `frontend/src/domains/monitor/components/*/*.motion.test.tsx`
 
 ## Decisions and notes
 - Only `opacity`, `transform` and colors are animated; no springs; translate ≤ 8 px; numbers never count.
@@ -84,6 +88,9 @@ All screens (see frontmatter).
 - `FlashValue` swaps numbers in place with a 600 ms up/down tint (`anim-flash-up/down`); `AnimatedItem` is the shared `<li>` with the list preset, 30 ms stagger and an ease-in-out `layout` transition for reorderable lists.
 - Hero swap: the old and new hero are stacked in the same grid cell and cross-fade (sync `AnimatePresence`), replacing the earlier wait-mode `layoutId` swap.
 - The "All systems operational" ring and the timeline highlight need the standard level or above; the owner-less DOWN blink stays at every level as a state signal.
+- `AnimatedItem` renders `li`, `tr` or `div`; console rows (group list, preview, conditions, fields) enter, leave and reorder through it.
+- The preview shows a shimmering skeleton (`role=status`, `aria-busy`) while it runs; the Data & display section expands into view; condition verdicts cross-fade.
+- `entersAnimated` accepts any opacity below 1 so tests do not race Motion's progress in jsdom.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -93,3 +100,4 @@ All screens (see frontmatter).
 - 2026-10-18 — shared UI components animated (Button, Panel, Badge, StatusPill/StatusDot, Sparkline, ThresholdChart).
 - 2026-10-18 — shared UI components animated (Button, Panel, Badge, StatusPill/StatusDot, Sparkline, ThresholdChart).
 - 2026-10-18 — wall components animated (hero, calm hero, matrix, timeline, also active, near threshold, acknowledge, header, wall screen loading skeleton).
+- 2026-10-18 — console components animated (group list, monitor form, preview table, conditions, data step, SQL editor) (status: in-progress).

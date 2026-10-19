@@ -2,7 +2,11 @@ import { motion, type HTMLMotionProps } from 'motion/react';
 import { motionPreset, staggerDelay } from '@/shared/motion/presets';
 import { useAnimationLevel } from '@/shared/motion/animationLevel';
 
-export interface AnimatedItemProps extends Omit<HTMLMotionProps<'li'>, 'initial' | 'animate' | 'exit' | 'transition'> {
+const ELEMENTS = { li: motion.li, tr: motion.tr, div: motion.div } as const;
+
+export interface AnimatedItemProps extends Omit<HTMLMotionProps<'div'>, 'initial' | 'animate' | 'exit' | 'transition'> {
+  /** Element to render: list item (default), table row or block. */
+  as?: keyof typeof ELEMENTS;
   /** `reorder` items also animate their position (exceptions first, drag and drop). */
   motionKind?: 'listItem' | 'reorder';
   index?: number;
@@ -10,16 +14,17 @@ export interface AnimatedItemProps extends Omit<HTMLMotionProps<'li'>, 'initial'
 }
 
 /**
- * List item with the FE-51 list preset: enters with a small fade/translate (staggered for short lists),
+ * Item with the FE-51 list preset: enters with a small fade/translate (staggered for short lists),
  * leaves through the parent's `AnimatePresence`, and reorders with an ease-in-out layout transition.
  */
-export function AnimatedItem({ motionKind = 'listItem', index = 0, count = 0, children, ...rest }: AnimatedItemProps) {
+export function AnimatedItem({ as = 'li', motionKind = 'listItem', index = 0, count = 0, children, ...rest }: AnimatedItemProps) {
   const level = useAnimationLevel();
   const item = motionPreset(level, 'listItem');
   const reorder = motionPreset(level, 'reorder');
   const delay = staggerDelay(level, index, count);
+  const Element = ELEMENTS[as] as typeof motion.div;
   return (
-    <motion.li
+    <Element
       {...rest}
       layout={motionKind === 'reorder' && level !== 'off' ? 'position' : false}
       data-motion={motionKind}
@@ -30,6 +35,6 @@ export function AnimatedItem({ motionKind = 'listItem', index = 0, count = 0, ch
       transition={{ ...item.transition, delay, layout: reorder.transition }}
     >
       {children}
-    </motion.li>
+    </Element>
   );
 }

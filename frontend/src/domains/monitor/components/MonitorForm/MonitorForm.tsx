@@ -1,5 +1,7 @@
 import { useId, useState, type ReactNode } from 'react';
+import { motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
+import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { translate } from '@/shared/i18n/message';
 import type { Connection, Group, MonitorDefinition, PreviewRequest, PreviewResult } from '@/shared/api/types';
@@ -19,15 +21,32 @@ export interface MonitorFormProps {
   onCancel: () => void;
 }
 
-function Section({ title, children, className = '' }: { title: string; children: ReactNode; className?: string }) {
+interface SectionProps {
+  title: string;
+  children: ReactNode;
+  className?: string;
+  /** `expand`: the section grows into view (height + opacity). */
+  motionKind?: 'expand';
+}
+
+function Section({ title, children, className = '', motionKind }: SectionProps) {
   const id = useId();
+  const expand = useMotionPreset('expand');
+  const motionProps = motionKind
+    ? { initial: expand.initial, animate: expand.animate, exit: expand.exit, transition: expand.transition }
+    : { initial: false as const };
   return (
-    <section aria-labelledby={id} className={`flex min-w-0 flex-col gap-[0.8rem] rounded-[0.9rem] border border-line bg-s1 p-[1rem] ${className}`}>
+    <motion.section
+      {...motionProps}
+      data-motion={motionKind}
+      data-motion-level={expand.level}
+      aria-labelledby={id}
+      className={`flex min-w-0 flex-col gap-[0.8rem] rounded-[0.9rem] border border-line bg-s1 p-[1rem] ${className}`}>
       <h2 id={id} className="section-label m-0">
         {title}
       </h2>
       {children}
-    </section>
+    </motion.section>
   );
 }
 
@@ -46,6 +65,7 @@ function ErrorList({ errors }: { errors: readonly string[] }) {
 export function MonitorForm({ groups, connections, onPreview, onSave, onCancel }: MonitorFormProps) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
+  const skeletonShimmer = useMotionPreset('enter').level === 'off' ? '' : 'anim-shimmer';
   const [state, setState] = useState<MonitorFormState>(initialFormState);
   const [preview, setPreview] = useState<PreviewResult | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
@@ -164,7 +184,16 @@ export function MonitorForm({ groups, connections, onPreview, onSave, onCancel }
               {previewError}
             </p>
           )}
-          {running && <p className="m-0 text-muted">{t('form.running')}</p>}
+          {running && (
+            <p
+              role="status"
+              aria-busy="true"
+              data-skeleton
+              className={`m-0 rounded-[0.45rem] p-[0.6rem] text-muted ${skeletonShimmer}`}
+            >
+              {t('form.running')}
+            </p>
+          )}
           {preview ? (
             <PreviewTable preview={preview} />
           ) : (
@@ -174,7 +203,7 @@ export function MonitorForm({ groups, connections, onPreview, onSave, onCancel }
       </div>
 
       {preview && (
-        <Section title={t('form.dataDisplay')}>
+        <Section title={t('form.dataDisplay')} motionKind="expand">
           <DataDisplayStep fields={state.fields} onChange={(fields) => patch({ fields })} />
         </Section>
       )}

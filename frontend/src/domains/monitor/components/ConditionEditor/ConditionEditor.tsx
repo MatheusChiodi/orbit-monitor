@@ -1,7 +1,10 @@
+import type { ReactNode } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
+import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import type { Condition, ConditionOperator, Severity } from '@/shared/api/types';
 import { translate } from '@/shared/i18n/message';
-import { Button, INPUT_CLASS, SELECT_CLASS } from '@/shared/ui';
+import { AnimatedItem, Button, INPUT_CLASS, SELECT_CLASS } from '@/shared/ui';
 import { evaluateCondition, validateCondition, type EvaluationContext } from '../../conditions';
 
 export interface ConditionEditorProps {
@@ -16,6 +19,27 @@ export interface ConditionEditorProps {
 const SYMBOL_OPERATORS: ConditionOperator[] = ['<', '<=', '>', '>=', '==', '!=', 'between', 'in'];
 const LEVELS: Severity[] = ['WARN', 'DOWN'];
 
+/** The verdict text cross-fades when it changes ("would fail" ↔ "passes"). */
+function Verdict({ id, children }: { id: string; children: ReactNode }) {
+  const fade = useMotionPreset('status');
+  return (
+    <span className="inline-grid">
+      <AnimatePresence initial={false}>
+        <motion.span
+          key={id}
+          className="[grid-area:1/1]"
+          initial={fade.level === 'off' ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={fade.transition}
+        >
+          {children}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+}
+
 function LiveResult({
   condition,
   fields,
@@ -27,18 +51,24 @@ function LiveResult({
 }) {
   const { t } = useTranslation();
   const error = validateCondition(condition, fields);
-  if (error) return <span className="text-down-text">{translate(t, error)}</span>;
+  if (error) return <Verdict id="error"><span className="text-down-text">{translate(t, error)}</span></Verdict>;
   if (!context) return null;
   const result = evaluateCondition(condition, context);
-  if (result === 'invalid') return <span className="text-muted">{t('conditions.cannotEvaluate')}</span>;
+  if (result === 'invalid') return <Verdict id="invalid"><span className="text-muted">{t('conditions.cannotEvaluate')}</span></Verdict>;
   if (result === 'fail') {
     return (
-      <span className={condition.level === 'DOWN' ? 'text-down-text' : 'text-warn-text'}>
-        {t('conditions.wouldFail', { level: t(`status.label.${condition.level}`) })}
-      </span>
+      <Verdict id={`fail-${condition.level}`}>
+        <span className={condition.level === 'DOWN' ? 'text-down-text' : 'text-warn-text'}>
+          {t('conditions.wouldFail', { level: t(`status.label.${condition.level}`) })}
+        </span>
+      </Verdict>
     );
   }
-  return <span className="text-ok-text">{t('conditions.passes')}</span>;
+  return (
+    <Verdict id="pass">
+      <span className="text-ok-text">{t('conditions.passes')}</span>
+    </Verdict>
+  );
 }
 
 /** Conditions as `field · operator · value · level` rows, validated against the preview. */
@@ -55,8 +85,10 @@ export function ConditionEditor({ conditions, fields, context, onChange }: Condi
 
   return (
     <div className="flex flex-col gap-[0.6rem]">
+      <AnimatePresence>
       {conditions.map((condition, index) => (
-        <div
+        <AnimatedItem
+          as="div"
           key={index}
           role="group"
           aria-label={t('conditions.group', { n: index + 1 })}
@@ -119,8 +151,9 @@ export function ConditionEditor({ conditions, fields, context, onChange }: Condi
           <p className="m-0 text-[0.78rem]" aria-live="polite">
             <LiveResult condition={condition} fields={fields} context={context} />
           </p>
-        </div>
+        </AnimatedItem>
       ))}
+      </AnimatePresence>
       <div>
         <Button variant="neutral" onClick={add} disabled={fields.length === 0}>
           {t('conditions.add')}

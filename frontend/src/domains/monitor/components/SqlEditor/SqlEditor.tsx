@@ -1,5 +1,7 @@
 import { useId } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
+import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import { translate } from '@/shared/i18n/message';
 import { Badge } from '@/shared/ui';
 import { checkSelect } from '../../sql';
@@ -15,6 +17,7 @@ const GUARDS = ['sql.guard.selectOnly', 'sql.guard.timeout', 'sql.guard.maxRows'
 export function SqlEditor({ value, onChange }: SqlEditorProps) {
   const { t } = useTranslation();
   const errorId = useId();
+  const enter = useMotionPreset('enter');
   const error = value.trim() === '' ? null : checkSelect(value);
   return (
     <div className="flex flex-col gap-[0.5rem]">
@@ -35,11 +38,23 @@ export function SqlEditor({ value, onChange }: SqlEditorProps) {
           </li>
         ))}
       </ul>
+      <AnimatePresence>
       {error && (
-        <p id={errorId} role="alert" className="m-0 text-[0.85rem] text-down-text">
+        <motion.p
+          key="error"
+          initial={enter.initial}
+          animate={enter.animate}
+          exit={enter.exit}
+          transition={enter.transition}
+          data-motion-level={enter.level}
+          id={errorId}
+          role="alert"
+          className="m-0 text-[0.85rem] text-down-text"
+        >
           {translate(t, error)}
-        </p>
+        </motion.p>
       )}
+      </AnimatePresence>
     </div>
   );
 }
