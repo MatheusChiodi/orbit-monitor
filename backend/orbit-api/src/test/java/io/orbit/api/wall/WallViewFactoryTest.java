@@ -113,6 +113,16 @@ class WallViewFactoryTest {
     }
 
     @Test
+    void incidentCarriesTheEscalationCountdown() {
+        checked(MonitorState.DOWN, 347, NOW.minusSeconds(20));
+        incidents.onStateChanged(new MonitorStateChanged("sel_queue", MonitorState.OK, MonitorState.DOWN,
+                NOW.minusSeconds(20), NOW.minusSeconds(20)));
+        factory.setEscalatesAt(incident -> Optional.of(NOW.plusSeconds(840)));
+
+        assertThat(factory.snapshot().incidents().getFirst().escalatesAt()).isEqualTo(NOW.plusSeconds(840));
+    }
+
+    @Test
     void uptimeIsFullWithoutData() {
         when(runtime.latest("sel_queue")).thenReturn(Optional.empty());
         assertThat(factory.snapshot().uptime24h()).isEqualTo(100.0);

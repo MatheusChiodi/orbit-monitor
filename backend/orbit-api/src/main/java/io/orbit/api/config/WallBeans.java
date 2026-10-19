@@ -2,6 +2,7 @@ package io.orbit.api.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.orbit.alerting.IncidentService;
+import io.orbit.alerting.escalation.EscalationRunner;
 import io.orbit.api.runtime.EventBus;
 import io.orbit.api.runtime.MonitorRuntime;
 import io.orbit.api.wall.WallPublisher;
@@ -36,9 +37,11 @@ public class WallBeans {
     @Bean
     WallViewFactory wallViewFactory(MonitorDefinitions definitions, TelemetryService telemetry,
                                     MonitorRuntime runtime, GroupService groups, IncidentService incidents,
-                                    WallTimeline timeline, Clock clock) {
-        return new WallViewFactory(definitions, telemetry, runtime, groups, incidents, timeline, clock,
-                properties.environment());
+                                    WallTimeline timeline, Clock clock, EscalationRunner escalation) {
+        WallViewFactory factory = new WallViewFactory(definitions, telemetry, runtime, groups, incidents, timeline,
+                clock, properties.environment());
+        factory.setEscalatesAt(escalation::escalatesAt);
+        return factory;
     }
 
     @Bean

@@ -100,6 +100,18 @@ class AlertingApiTest {
     }
 
     @Test
+    @DisplayName("escalation policies are saved per group")
+    void escalationPolicies() throws Exception {
+        send(put("/api/escalation/esc_pay"), "{\"name\":\"Payments\",\"groupIds\":[\"grp_pay\"],"
+                + "\"steps\":[{\"afterMinutes\":0,\"channelIds\":[\"chn_team\"]},"
+                + "{\"afterMinutes\":15,\"channelIds\":[\"chn_manager\"]}]}").andExpect(status().isOk());
+        mvc.perform(get("/api/escalation")).andExpect(jsonPath("$[0].groupIds[0]").value("grp_pay"))
+                .andExpect(jsonPath("$[0].steps[1].channelIds[0]").value("chn_manager"));
+        send(put("/api/escalation/esc_empty"), "{\"name\":\"Empty\",\"steps\":[]}")
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
     @DisplayName("a silenced monitor opens the incident but sends nothing")
     void silenced() throws Exception {
         send(put("/api/channels/chn_hook2"), "{\"name\":\"Hook\",\"type\":\"WEBHOOK\",\"url\":\"" + hookUrl

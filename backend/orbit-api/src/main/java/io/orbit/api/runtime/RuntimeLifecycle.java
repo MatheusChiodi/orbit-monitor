@@ -1,5 +1,6 @@
 package io.orbit.api.runtime;
 
+import io.orbit.alerting.escalation.EscalationRunner;
 import io.orbit.api.config.OrbitProperties;
 import io.orbit.monitor.definition.MonitorDefinitions;
 import io.orbit.probe.schedule.ProbeScheduler;
@@ -20,11 +21,14 @@ public class RuntimeLifecycle {
     private final ProbeWorkers workers;
     private final OrbitProperties properties;
     private final SettingsService settings;
+    private final EscalationRunner escalation;
     private volatile boolean started;
 
     public RuntimeLifecycle(MonitorRuntime runtime, MonitorDefinitions definitions, ProbeScheduler scheduler,
-                            ProbeWorkers workers, OrbitProperties properties, SettingsService settings) {
+                            ProbeWorkers workers, OrbitProperties properties, SettingsService settings,
+                            EscalationRunner escalation) {
         this.settings = settings;
+        this.escalation = escalation;
         this.runtime = runtime;
         this.definitions = definitions;
         this.scheduler = scheduler;
@@ -43,6 +47,14 @@ public class RuntimeLifecycle {
     public void tick() {
         if (started) {
             scheduler.tick();
+        }
+    }
+
+    /** BE-27: sends due escalation steps of open, unacknowledged incidents. */
+    @Scheduled(fixedDelay = 15_000)
+    public void escalate() {
+        if (started) {
+            escalation.tick();
         }
     }
 

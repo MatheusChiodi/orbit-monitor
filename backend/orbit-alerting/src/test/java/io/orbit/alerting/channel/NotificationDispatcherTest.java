@@ -129,4 +129,19 @@ class NotificationDispatcherTest {
         ChannelDef c = channels.getFirst();
         assertThat(c.toString()).doesNotContain("hooks.slack").doesNotContain("v1:");
     }
+
+    @Test
+    @DisplayName("an escalation step goes only to its channels, with an escalation title")
+    void escalation() {
+        down("sel_cards");
+        posts.clear();
+        Incident incident = incidents.openIncident("sel_cards").orElseThrow();
+
+        dispatcher.escalate(incident, List.of("chn_hook"));
+
+        assertThat(posts).singleElement().satisfies(p -> {
+            assertThat(p.uri().getHost()).isEqualTo("tickets.example.com");
+            assertThat(p.body()).contains("Escalation", "Card queue");
+        });
+    }
 }

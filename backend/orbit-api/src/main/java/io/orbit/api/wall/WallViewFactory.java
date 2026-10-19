@@ -14,10 +14,12 @@ import io.orbit.workspace.Group;
 import io.orbit.workspace.GroupService;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /** Builds the wall views from configuration, telemetry, latest results and incidents. */
@@ -33,6 +35,7 @@ public class WallViewFactory {
     private final WallTimeline timeline;
     private final Clock clock;
     private final String environment;
+    private Function<Incident, Optional<Instant>> escalatesAt = incident -> Optional.empty();
 
     public WallViewFactory(MonitorDefinitions definitions, TelemetryService telemetry, MonitorRuntime runtime,
                            GroupService groups, IncidentService incidents, WallTimeline timeline, Clock clock,
@@ -45,6 +48,11 @@ public class WallViewFactory {
         this.timeline = timeline;
         this.clock = clock;
         this.environment = environment;
+    }
+
+    /** BE-27: source of the escalation countdown shown on the wall. */
+    public void setEscalatesAt(Function<Incident, Optional<Instant>> escalatesAt) {
+        this.escalatesAt = escalatesAt;
     }
 
     public WallViews.MonitorView monitorView(MonitorDef def) {
@@ -77,7 +85,8 @@ public class WallViewFactory {
         List<String> impact = definitions.monitor(incident.monitorId()).map(MonitorDef::groupId)
                 .map(groupNames::get).filter(Objects::nonNull).map(List::of).orElse(List.of());
         return new WallViews.IncidentView(incident.id(), incident.monitorId(), incident.severity().name(),
-                incident.openedAt(), incident.acknowledgedBy(), incident.acknowledgedAt(), impact, null);
+                incident.openedAt(), incident.acknowledgedBy(), incident.acknowledgedAt(), impact,
+                escalatesAt.apply(incident).orElse(null));
     }
 
     public WallViews.WallSnapshot snapshot() {

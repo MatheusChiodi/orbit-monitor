@@ -91,14 +91,14 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [FE-27](features/FE-27-zoom-and-synced-crosshair.md) | Zoom and synced crosshair | frontend | done |
 | [FE-28](features/FE-28-command-palette.md) | Command palette | frontend | done |
 | [FE-29](features/FE-29-keyboard-shortcuts.md) | Keyboard shortcuts | frontend | done |
-| [FE-30](features/FE-30-saved-views.md) | Saved views | frontend | tests-pending |
-| [FE-31](features/FE-31-bulk-actions.md) | Bulk actions | frontend | tests-pending |
-| [FE-32](features/FE-32-monitor-templates-and-clone.md) | Monitor templates and clone | frontend | tests-pending |
+| [FE-30](features/FE-30-saved-views.md) | Saved views | frontend | done |
+| [FE-31](features/FE-31-bulk-actions.md) | Bulk actions | frontend | done |
+| [FE-32](features/FE-32-monitor-templates-and-clone.md) | Monitor templates and clone | frontend | done |
 | [FE-33](features/FE-33-sql-editor.md) | SQL editor | frontend | tests-pending |
 | [FE-34](features/FE-34-condition-builder.md) | Condition builder | frontend | tests-pending |
 | [FE-35](features/FE-35-json-explorer.md) | JSON explorer | frontend | tests-pending |
 | [FE-36](features/FE-36-query-history-diff.md) | Query history diff | frontend | tests-pending |
-| [FE-37](features/FE-37-onboarding.md) | Onboarding | frontend | tests-pending |
+| [FE-37](features/FE-37-onboarding.md) | Onboarding | frontend | done |
 | [FE-38](features/FE-38-notification-center.md) | Notification center | frontend | in-progress |
 | [FE-39](features/FE-39-incident-page.md) | Incident page | frontend | in-progress |
 | [FE-40](features/FE-40-escalation-countdown.md) | Escalation countdown | frontend | in-progress |
@@ -152,7 +152,7 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [BE-24](features/BE-24-time-to-threshold.md) | Time to threshold | backend | tests-pending |
 | [BE-25](features/BE-25-flapping-detection.md) | Flapping detection | backend | tests-pending |
 | [BE-26](features/BE-26-incident-lifecycle.md) | Incident lifecycle | backend | in-progress |
-| [BE-27](features/BE-27-escalation-policies.md) | Escalation policies | backend | in-progress |
+| [BE-27](features/BE-27-escalation-policies.md) | Escalation policies | backend | done |
 | [BE-28](features/BE-28-channels.md) | Channels | backend | in-progress |
 | [BE-29](features/BE-29-deduplication.md) | Deduplication | backend | done |
 | [BE-30](features/BE-30-cascade-suppression.md) | Cascade suppression | backend | tests-pending |

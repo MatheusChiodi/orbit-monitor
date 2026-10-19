@@ -11,9 +11,10 @@ import java.util.Optional;
 
 /**
  * BE-27: timed escalation steps per group (0 min team channel, 15 min manager, 30 min directors),
- * stored in orbit.escalation.json. Escalation stops as soon as the incident is acknowledged or resolved.
+ * stored in orbit.escalation.json and bound to groups by {@code groupIds}. Escalation stops as soon as
+ * the incident is acknowledged or resolved.
  */
-public record EscalationPolicy(String id, String name, List<Step> steps) implements ConfigItem {
+public record EscalationPolicy(String id, String name, List<Step> steps, List<String> groupIds) implements ConfigItem {
 
     /** @param channelIds channels notified when the step is reached */
     public record Step(Duration after, List<String> channelIds) {
@@ -21,6 +22,12 @@ public record EscalationPolicy(String id, String name, List<Step> steps) impleme
 
     public EscalationPolicy {
         steps = steps == null ? List.of() : List.copyOf(steps);
+        groupIds = groupIds == null ? List.of() : List.copyOf(groupIds);
+    }
+
+    /** A policy not yet bound to groups. */
+    public EscalationPolicy(String id, String name, List<Step> steps) {
+        this(id, name, steps, List.of());
     }
 
     /** Steps whose time has come and that were not sent yet ({@code alreadySent} = indexes). */

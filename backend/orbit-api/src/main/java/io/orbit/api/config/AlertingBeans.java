@@ -1,7 +1,10 @@
 package io.orbit.api.config;
 
+import io.orbit.alerting.IncidentService;
 import io.orbit.alerting.channel.ChannelDef;
 import io.orbit.alerting.channel.NotificationDispatcher;
+import io.orbit.alerting.escalation.EscalationPolicy;
+import io.orbit.alerting.escalation.EscalationRunner;
 import io.orbit.alerting.suppression.AlertDeduplicator;
 import io.orbit.alerting.suppression.MaintenanceWindow;
 import io.orbit.alerting.suppression.SilenceService;
@@ -90,6 +93,20 @@ public class AlertingBeans {
                 properties.publicUrl(), clock);
         bus.onIncident(dispatcher);
         return dispatcher;
+    }
+
+    @Bean
+    ConfigFile<EscalationPolicy> escalationFile(OrbitProperties properties) {
+        return new ConfigFile<>(properties.configDir(), "escalation", EscalationPolicy.class, ConfigMapper.create(),
+                items -> items.stream().filter(p -> p.steps().isEmpty()).map(p -> p.id() + ": at least one step")
+                        .toList());
+    }
+
+    @Bean
+    EscalationRunner escalationRunner(ConfigFile<EscalationPolicy> escalationFile, IncidentService incidents,
+                                      MonitorDefinitions definitions, NotificationDispatcher dispatcher, Clock clock) {
+        return new EscalationRunner(escalationFile::items, incidents,
+                monitorId -> definitions.monitor(monitorId).map(MonitorDef::groupId), dispatcher::escalate, clock);
     }
 
     /** Silenced or in maintenance, by monitor id or by its group. */
