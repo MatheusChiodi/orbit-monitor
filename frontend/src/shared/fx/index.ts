@@ -5,3 +5,5 @@ export * from './TiltCard';
 export * from './FxBackground';
 export * from './HeroOrb';
 export * from './incident';
+export * from './OrbitIntro';
+export * from './FxDowngradeNotice';

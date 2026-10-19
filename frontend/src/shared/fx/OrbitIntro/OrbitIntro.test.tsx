@@ -1,0 +1,64 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { renderWithLocale } from '@/test/renderWithLocale';
+import { FxProvider } from '../FxProvider';
+import type { FxLevel } from '../fxLevel';
+import { OrbitIntro } from './OrbitIntro';
+
+const player = vi.fn();
+
+vi.mock('@remotion/player', () => ({
+  Player: (props: { autoPlay?: boolean; durationInFrames: number; inputProps: { heading?: string } }) => {
+    player(props);
+    return <div data-testid="remotion-player" data-autoplay={String(Boolean(props.autoPlay))} />;
+  },
+}));
+
+function renderIntro(level: FxLevel) {
+  return render(
+    <FxProvider level={level} monitorFrames={false}>
+      <OrbitIntro id="check-flow" />
+    </FxProvider>,
+  );
+}
+
+afterEach(() => player.mockClear());
+
+describe('FE-52 OrbitIntro', () => {
+  it('off and minimal: no intro at all', () => {
+    for (const level of ['off', 'minimal'] as const) {
+      const { container, unmount } = renderIntro(level);
+      expect(container).toBeEmptyDOMElement();
+      unmount();
+    }
+    expect(player).not.toHaveBeenCalled();
+  });
+
+  it('standard: a poster with a play button; Remotion loads only after the click', async () => {
+    renderIntro('standard');
+    expect(screen.getByRole('figure', { name: 'Animated introduction' })).toBeInTheDocument();
+    expect(player).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: 'Play intro' }));
+    expect(await screen.findByTestId('remotion-player')).toHaveAttribute('data-autoplay', 'true');
+  });
+
+  it('expressive: the composition autoplays with translated props', async () => {
+    renderIntro('expressive');
+    expect(await screen.findByTestId('remotion-player')).toHaveAttribute('data-autoplay', 'true');
+    expect(player).toHaveBeenCalledWith(expect.objectContaining({ durationInFrames: 180 }));
+    expect(player.mock.calls[0]?.[0].inputProps.heading).toBe('How a check flows');
+  });
+
+  it('pt-BR: the play button and the composition text are translated', async () => {
+    renderWithLocale(
+      <FxProvider level="standard" monitorFrames={false}>
+        <OrbitIntro id="check-flow" />
+      </FxProvider>,
+      'pt-BR',
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Ver introdução' }));
+    await screen.findByTestId('remotion-player');
+    expect(player.mock.calls[0]?.[0].inputProps.heading).toBe('Como uma checagem flui');
+  });
+});

@@ -701,5 +701,38 @@
       "lanes": "Estados: {{lanes}}"
     },
     "legend": "Legenda"
+  },
+  "fx": {
+    "intro": {
+      "label": "Introdução animada",
+      "play": "Ver introdução",
+      "replay": "Ver de novo"
+    },
+    "boot": {
+      "tagline": "Sites, APIs e bancos de dados, acompanhados em uma só parede."
+    },
+    "checkFlow": {
+      "heading": "Como uma checagem flui",
+      "probe": "Sonda",
+      "probeDetail": "SELECT · a cada 30 s",
+      "reading": "Leitura",
+      "rule": "Regra",
+      "state": "Estado",
+      "wall": "Parede",
+      "wallDetail": "Destaque + alerta"
+    },
+    "firstMonitor": {
+      "heading": "Seu primeiro monitor",
+      "paste": "Cole uma URL ou um SELECT",
+      "fields": "O Orbit encontra os campos",
+      "rule": "Transforme um campo em regra",
+      "wall": "Ele aparece na parede",
+      "example": "Fila de conciliação"
+    },
+    "downgrade": {
+      "notice": "Os efeitos foram simplificados para manter a tela fluida.",
+      "keep": "Manter simplificado",
+      "retry": "Tentar de novo"
+    }
   }
 }

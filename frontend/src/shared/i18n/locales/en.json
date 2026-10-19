@@ -701,5 +701,38 @@
       "lanes": "States: {{lanes}}"
     },
     "legend": "Legend"
+  },
+  "fx": {
+    "intro": {
+      "label": "Animated introduction",
+      "play": "Play intro",
+      "replay": "Replay"
+    },
+    "boot": {
+      "tagline": "Websites, APIs and databases, watched from one wall."
+    },
+    "checkFlow": {
+      "heading": "How a check flows",
+      "probe": "Probe",
+      "probeDetail": "SELECT · every 30 s",
+      "reading": "Reading",
+      "rule": "Rule",
+      "state": "State",
+      "wall": "Wall",
+      "wallDetail": "Hero + alert"
+    },
+    "firstMonitor": {
+      "heading": "Your first monitor",
+      "paste": "Paste a URL or a SELECT",
+      "fields": "Orbit finds the fields",
+      "rule": "Turn a field into a rule",
+      "wall": "It shows up on the wall",
+      "example": "Reconciliation queue"
+    },
+    "downgrade": {
+      "notice": "Effects were simplified to keep the screen smooth.",
+      "keep": "Keep simplified",
+      "retry": "Try again"
+    }
   }
 }
