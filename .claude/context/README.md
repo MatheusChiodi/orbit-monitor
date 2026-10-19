@@ -161,7 +161,7 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [BE-34](features/BE-34-postmortem-report.md) | Postmortem report | backend | tests-pending |
 | [BE-35](features/BE-35-notification-templates.md) | Notification templates | backend | tests-pending |
 | [BE-36](features/BE-36-channel-reliability.md) | Channel reliability | backend | tests-pending |
-| [BE-37](features/BE-37-config-export-import.md) | Config export/import | backend | planned |
+| [BE-37](features/BE-37-config-export-import.md) | Config export/import | backend | tests-pending |
 | [BE-38](features/BE-38-realtime-protocol.md) | Realtime protocol | backend | in-progress |
 | [BE-39](features/BE-39-workspace-variables.md) | Workspace variables | backend | planned |
 | [BE-40](features/BE-40-workspace-defaults-and-themes-api.md) | Workspace defaults and themes API | backend | planned |

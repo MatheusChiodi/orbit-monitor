@@ -23,21 +23,20 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 [settings](../screens/settings.md), [monitor-editor-http](../screens/monitor-editor-http.md), [monitor-editor-sql](../screens/monitor-editor-sql.md), [admin-connections](../screens/admin-connections.md), [layout-editor](../screens/layout-editor.md), [theme-editor](../screens/theme-editor.md)
 
 ## Code
-- `backend/orbit-config/src/main/java/io/orbit/config/ConfigFile.java`
-- `backend/orbit-config/src/main/java/io/orbit/config/ConfigMapper.java`
-- `backend/orbit-config/src/main/java/io/orbit/config/ConfigItem.java`
-- `backend/orbit-config/src/main/java/io/orbit/config/ConfigValidator.java`
-- `backend/config-examples/orbit.groups.example.json`
 - `frontend/src/shared/api/configResources.ts`
 - `frontend/src/app/settings/configTransfer.ts`
+- `backend/orbit-config/src/main/java/io/orbit/config/ConfigFile.java`
+- `backend/orbit-config/src/main/java/io/orbit/config/ConfigSchemas.java`
+- `backend/config-examples/orbit.groups.example.json`
 
 ## Tests
-- `backend/orbit-config/src/test/java/io/orbit/config/ConfigFileTest.java`
-- `backend/orbit-config/src/test/java/io/orbit/config/ConfigExamplesTest.java`
 - `frontend/src/shared/api/configResources.test.ts`
 - `frontend/src/app/settings/configTransfer.pending.test.ts`
 - `frontend/src/app/settings/configTransfer.test.ts`
 - `frontend/src/app/settings/SettingsScreen/SettingsScreen.pending.test.tsx`
+- `backend/orbit-config/src/test/java/io/orbit/config/ConfigFileTest.java`
+- `backend/orbit-config/src/test/java/io/orbit/config/ConfigExamplesTest.java`
+- `backend/orbit-config/src/test/java/io/orbit/config/ConfigSchemasTest.java`
 
 ## Decisions and notes
 - `ConfigFile<T>` handles one `orbit.<feature>.json`: `{"version":1,"items":[...]}`, ids required and unique, feature validator on read and write.
@@ -56,3 +55,4 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 - 2026-10-18 — frontend: pending test suite written.
 - 2026-10-18 — frontend: typed config resource client.
 - 2026-10-18 — frontend: frontend: config export/import helpers.
+- 2026-10-18 — pending tests for JSON Schema per file.
