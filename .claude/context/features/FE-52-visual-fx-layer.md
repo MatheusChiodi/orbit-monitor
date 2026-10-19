@@ -3,7 +3,7 @@ id: FE-52
 title: "Visual FX layer (3D, glass, Remotion)"
 area: frontend
 group: "Theming and personalization"
-status: in-progress
+status: done
 screens: [wall, monitor-list, settings, preferences, data-and-display, layout-editor]
 spec: docs/03-design.md §4.2
 updated: 2026-10-18
@@ -16,8 +16,8 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
-- [ ] All tests green, none pending
+- [x] Implemented
+- [x] All tests green, none pending
 
 ## Screens
 [wall](../screens/wall.md), [monitor-list](../screens/monitor-list.md), [settings](../screens/settings.md), [preferences](../screens/preferences.md)
@@ -72,11 +72,13 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - Orb: no drei and no `transmission` pass (a transmissive material over a transparent canvas rendered as a flat grey disk and costs an extra pass); glass is an additive Fresnel + specular shader. No scene lights needed; `powerPreference: 'low-power'`, DPR ≤ 1.5. Parallax follows a mouse over the whole window; TVs without a mouse get a slow idle drift. The orb is `aria-hidden` and the hero text stays in the DOM beside it.
 - Remotion: compositions live in `frontend/remotion/` with relative imports only (no `@/` alias, so the Remotion bundler needs no config); every visible word arrives as props built from the product i18n. Inside `<ThreeCanvas>` all motion derives from `useCurrentFrame()` (no `useFrame`). The orb shaders are shared with the live hero (`orbMaterials.ts`). The Player chunk loads only at `expressive` or after "Play" at `standard`. `acknowledgeRemotionLicense` is not set: the owner decides on the Remotion license.
 - Player: `moveToBeginningWhenEnded={false}` so an intro rests on its last frame, then a "Replay" button; `numberOfSharedAudioTags={0}` (no audio). Headless Chrome with SwiftShader triggers the frame-time downgrade within seconds (software WebGL), which is the intended behavior on slow devices; visual checks use the GPU (`--use-angle=d3d11`).
+- Budget (2026-10-18, `vite build`): `wall.html` static closure = 167.3 KB gzip (wall 7.6 + shared chunk 145.0 + jsx-runtime 3.3 + vanilla 2.0 + CSS 9.3). FX adds ≈ 3 KB of it (gates + fx.css); the overrun vs. the 150 KB budget comes from react-dom and Motion (FE-51) in the shared chunk. Lazy FX chunks: OrbitField 1.6 KB, OrbScene 1.2 KB, three + orb shaders 242 KB, IntroPlayer (Remotion) 112 KB.
+- Not yet wired: FE-06 per-category switches ("Attention signals" for the DOWN glow, "3D and visual effects", "Animated background", "Intros and guides"); `resolveFx()` is the single place to add them.
 - CSS gating via `html[data-fx]` keeps the components free of level checks for pure styling; the stylesheet is unlayered so it overrides Tailwind utilities only when FX is on.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
-- 2026-10-18 — FX level, frame monitor and provider with tests; glass/glow stylesheet (status: in-progress).
+- 2026-10-18 — FX level, frame monitor and provider with tests; glass/glow stylesheet (status: done).
 - 2026-10-18 — TiltCard glass surface with hover tilt and sheen.
 - 2026-10-18 — Animated orbit-field background (lazy, luminance-capped, paused on incident).
 - 2026-10-18 — Live 3D hero orb (React Three Fiber) with 2D fallback.

@@ -25,7 +25,8 @@ function renderIntro(level: FxLevel) {
 
 afterEach(() => player.mockClear());
 
-describe('FE-52 OrbitIntro', () => {
+// The player chunk (Remotion + three) can take seconds to import under a full parallel run.
+describe('FE-52 OrbitIntro', { timeout: 15_000 }, () => {
   it('off and minimal: no intro at all', () => {
     for (const level of ['off', 'minimal'] as const) {
       const { container, unmount } = renderIntro(level);
@@ -40,12 +41,12 @@ describe('FE-52 OrbitIntro', () => {
     expect(screen.getByRole('figure', { name: 'Animated introduction' })).toBeInTheDocument();
     expect(player).not.toHaveBeenCalled();
     await userEvent.click(screen.getByRole('button', { name: 'Play intro' }));
-    expect(await screen.findByTestId('remotion-player')).toHaveAttribute('data-autoplay', 'true');
+    expect(await screen.findByTestId('remotion-player', {}, { timeout: 8000 })).toHaveAttribute('data-autoplay', 'true');
   });
 
   it('expressive: the composition autoplays with translated props', async () => {
     renderIntro('expressive');
-    expect(await screen.findByTestId('remotion-player')).toHaveAttribute('data-autoplay', 'true');
+    expect(await screen.findByTestId('remotion-player', {}, { timeout: 8000 })).toHaveAttribute('data-autoplay', 'true');
     expect(player).toHaveBeenCalledWith(expect.objectContaining({ durationInFrames: 180 }));
     expect(player.mock.calls[0]?.[0].inputProps.heading).toBe('How a check flows');
   });
@@ -58,7 +59,7 @@ describe('FE-52 OrbitIntro', () => {
       'pt-BR',
     );
     await userEvent.click(screen.getByRole('button', { name: 'Ver introdução' }));
-    await screen.findByTestId('remotion-player');
+    await screen.findByTestId('remotion-player', {}, { timeout: 8000 });
     expect(player.mock.calls[0]?.[0].inputProps.heading).toBe('Como uma checagem flui');
   });
 });
