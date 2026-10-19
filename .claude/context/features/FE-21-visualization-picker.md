@@ -44,3 +44,4 @@ Shows the field's real data rendered in every compatible mode side by side; the 
 - 2026-10-18 — pending test suite written (status: tests-pending).
 - 2026-10-18 — pending tests moved to `shared/viz`; rendering decision recorded (own SVG, no chart library).
 - 2026-10-18 — implemented: one native radio group (arrow keys skip disabled modes), every compatible mode renders the real data with `animation="off"` inside `AnimationLevelScope level="off"`, incompatible modes stay visible with their reason, PCI/LGPD reasons stated once; tests active and green (status: done).
+- 2026-10-18 — visual check: compatible previews first in a large grid, incompatible modes below as a compact disabled list (same radio group).

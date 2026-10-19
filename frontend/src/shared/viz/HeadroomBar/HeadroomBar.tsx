@@ -32,11 +32,11 @@ export function HeadroomBar({ data, animation, className }: ModeProps) {
     <VizFrame mode="headroom-bar" level={level} label={data.label} status={data.status} empty={value === null} className={className}>
       <div className="flex items-center gap-[0.75rem]">
         <div className="min-w-0 flex-1">
-          <div className="flex items-baseline gap-[0.5rem] font-mono text-[0.85rem] tabular-nums">
-            <FlashValue value={typeof value === 'number' ? value : null}>
+          <div className="flex flex-wrap items-baseline gap-x-[0.5rem] font-mono text-[0.85rem] tabular-nums">
+            <FlashValue value={typeof value === 'number' ? value : null} className="whitespace-nowrap">
               <SafeValue value={value} format={(v) => (typeof v === 'number' ? withUnit(formatNumber(v, locale), data.unit) : String(v))} />
             </FlashValue>
-            {data.rule && <span className="truncate text-muted">{t('rule.text', { rule: ruleText(data.rule, locale) })}</span>}
+            {data.rule && <span className="whitespace-nowrap text-muted">{t('rule.text', { rule: ruleText(data.rule, locale) })}</span>}
           </div>
           <div
             role="meter"

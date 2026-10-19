@@ -27,6 +27,7 @@ See §1.1
 - `frontend/src/shared/viz/types.ts`
 - `frontend/src/shared/viz/core/ (VizFrame, TimeSeriesChart, HeatGrid, series geometry, palette, format, useVizLevel)`
 - `frontend/src/shared/viz/<Mode>/<Mode>.tsx for the 20 modes: BigNumber, RadialGauge, BulletChart, HeadroomBar, KpiCard, LineChart, AreaChart, StepLine, BarRanking, StackedBar, Donut, WeekdayHourHeatmap, CalendarHeatmap, UptimeRibbon, TrafficLight, TextStatus, LiveTable, SmallMultiples, Histogram, HexGrid`
+- `frontend/src/shared/viz/VizGallery/` (dev-only gallery: `gallery.html`, served by `vite` at `/src/shared/viz/VizGallery/gallery.html`, not a build input)
 
 ## Tests
 - `frontend/src/shared/viz/<Mode>/<Mode>.test.tsx (20 suites)`
@@ -44,3 +45,4 @@ See §1.1
 - 2026-10-18 — pending test suite written (status: tests-pending).
 - 2026-10-18 — modes 1–8 implemented in `shared/viz` with shared frame and time-series renderer; tests for 1–8 active (status: in-progress).
 - 2026-10-18 — modes 9–20 implemented (heatmaps as ARIA grids with hatched no-data cells, donut folds to 5 + Other, hex grid problems first, live table flags rows in text); all 20 suites active and green (status: done).
+- 2026-10-18 — visual check in headless Chrome (en, pt-BR): bullet bands made neutral (value bar alone carries state), calendar cells capped and dates numeric, headroom value/rule wrap instead of truncating; dev gallery added.

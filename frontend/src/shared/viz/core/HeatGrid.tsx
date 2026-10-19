@@ -23,19 +23,22 @@ export interface HeatGridProps {
   /** Optional column captions (decorative; each cell carries its full name). */
   columns?: { index: number; text: string }[];
   columnCount: number;
+  /** Largest cell width, so few columns (calendar) do not grow into big tiles. */
+  maxCell?: string;
 }
 
 /**
  * Sequential heatmap as an ARIA grid: one hue, light → strong by magnitude; missing cells are hatched,
  * never drawn as zero.
  */
-export function HeatGrid({ label, rows, level, columns = [], columnCount }: HeatGridProps) {
+export function HeatGrid({ label, rows, level, columns = [], columnCount, maxCell = '1fr' }: HeatGridProps) {
+  const template = `2.6rem repeat(${columnCount}, minmax(0, ${maxCell}))`;
   const max = Math.max(0, ...rows.flatMap((r) => r.cells.map((c) => c.value ?? 0)));
   return (
     <div className="flex flex-col gap-[0.2rem]">
       <div role="grid" aria-label={safeText(label)} aria-readonly="true" className="flex flex-col gap-[2px]">
         {rows.map((row) => (
-          <div key={row.key} role="row" className="grid items-center gap-[2px]" style={{ gridTemplateColumns: `2.2rem repeat(${columnCount}, minmax(0, 1fr))` }}>
+          <div key={row.key} role="row" className="grid items-center gap-[2px]" style={{ gridTemplateColumns: template }}>
             <span aria-hidden className="truncate text-[0.62rem] text-dim">
               {row.label}
             </span>
@@ -54,7 +57,7 @@ export function HeatGrid({ label, rows, level, columns = [], columnCount }: Heat
         ))}
       </div>
       {columns.length > 0 && (
-        <div aria-hidden className="grid gap-[2px] font-mono text-[0.62rem] text-dim" style={{ gridTemplateColumns: `2.2rem repeat(${columnCount}, minmax(0, 1fr))` }}>
+        <div aria-hidden className="grid gap-[2px] font-mono text-[0.62rem] text-dim" style={{ gridTemplateColumns: template }}>
           <span />
           {Array.from({ length: columnCount }, (_, i) => (
             <span key={i}>{columns.find((c) => c.index === i)?.text ?? ''}</span>

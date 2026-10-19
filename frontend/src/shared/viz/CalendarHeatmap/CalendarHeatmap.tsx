@@ -48,7 +48,7 @@ export function CalendarHeatmap({ data, animation, className }: ModeProps) {
   const lastMonday = new Date(latest.getTime() - ((latest.getDay() + 6) % 7) * DAY_MS);
   const firstMonday = new Date(lastMonday.getTime() - (WEEKS - 1) * 7 * DAY_MS);
   const names = weekdayNames(locale);
-  const dayFormat = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' });
+  const dayFormat = new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit' });
   const rows: HeatRow[] = Array.from({ length: WEEKS }, (_, week) => {
     const monday = new Date(firstMonday.getTime() + week * 7 * DAY_MS);
     return {
@@ -79,7 +79,7 @@ export function CalendarHeatmap({ data, animation, className }: ModeProps) {
           <span className="font-mono text-[0.72rem] text-muted tabular-nums">{dayFormat.format(latest)}</span>
         </p>
       )}
-      <HeatGrid label={data.label} rows={rows} level={level} columnCount={7} columns={names.map((text, index) => ({ index, text }))} />
+      <HeatGrid label={data.label} rows={rows} level={level} columnCount={7} maxCell="1.6rem" columns={names.map((text, index) => ({ index, text }))} />
     </VizFrame>
   );
 }

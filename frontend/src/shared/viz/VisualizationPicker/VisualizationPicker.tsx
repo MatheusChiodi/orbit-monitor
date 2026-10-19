@@ -48,6 +48,50 @@ export function VisualizationPicker({ field, data, selected, onSelect, surface =
     );
   }
 
+  const reasons = new Map(DISPLAY_MODES.map((mode) => [mode, incompatibilityReason(mode, shape, { surface })]));
+  const enabled = DISPLAY_MODES.filter((mode) => reasons.get(mode) === null);
+  const disabledModes = DISPLAY_MODES.filter((mode) => reasons.get(mode) !== null);
+  const option = (mode: DisplayModeId) => {
+    const reason = reasons.get(mode) ?? null;
+    const disabled = reason !== null;
+    const Preview = MODE_COMPONENTS[mode];
+    const id = `${name}-${mode}`;
+    return (
+      <div
+        key={mode}
+        data-mode={mode}
+        data-selected={selected === mode ? 'true' : undefined}
+        onClick={disabled ? undefined : () => onSelect(mode)}
+        className={`flex flex-col gap-[0.5rem] rounded-[0.9rem] border ${disabled ? 'px-[0.6rem] py-[0.45rem]' : 'p-[0.5rem]'} transition-colors duration-[120ms] ${
+          selected === mode ? 'border-info bg-info/8' : 'border-line'
+        } ${disabled ? 'opacity-55' : 'hover:border-line-2'}`}
+      >
+        <label htmlFor={id} className={`flex items-center gap-[0.5rem] text-[0.82rem] ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+          <input
+            id={id}
+            type="radio"
+            name={name}
+            value={mode}
+            checked={selected === mode}
+            disabled={disabled}
+            onChange={() => onSelect(mode)}
+            className="accent-[var(--info)]"
+          />
+          <span className="font-semibold">{t(`viz.modes.${mode}`)}</span>
+          {suggested === mode && (
+            <span className="ml-auto rounded-full bg-info/15 px-[0.5rem] py-[0.1rem] text-[0.68rem] font-semibold text-info">{t('viz.picker.suggested')}</span>
+          )}
+        </label>
+        {disabled ? (
+          // Shape-wide privacy reasons are stated once above the grid.
+          !blocked && <p className="m-0 text-[0.75rem] text-muted">{translate(t, reason)}</p>
+        ) : (
+          <Preview data={data} animation="off" />
+        )}
+      </div>
+    );
+  };
+
   return (
     <AnimationLevelScope level="off">
       <div className="flex flex-col gap-[0.8rem]">
@@ -56,47 +100,12 @@ export function VisualizationPicker({ field, data, selected, onSelect, surface =
             {translate(t, blocked ?? { key: 'viz.reasons.pci' })}
           </p>
         )}
-        <div role="radiogroup" aria-label={title} className="grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-[0.8rem]">
-          {DISPLAY_MODES.map((mode) => {
-            const reason = incompatibilityReason(mode, shape, { surface });
-            const disabled = reason !== null;
-            const Preview = MODE_COMPONENTS[mode];
-            const id = `${name}-${mode}`;
-            return (
-              <div
-                key={mode}
-                data-mode={mode}
-                data-selected={selected === mode ? 'true' : undefined}
-                onClick={disabled ? undefined : () => onSelect(mode)}
-                className={`flex flex-col gap-[0.5rem] rounded-[0.9rem] border p-[0.5rem] transition-colors duration-[120ms] ${
-                  selected === mode ? 'border-info bg-info/8' : 'border-line'
-                } ${disabled ? 'opacity-55' : 'hover:border-line-2'}`}
-              >
-                <label htmlFor={id} className={`flex items-center gap-[0.5rem] text-[0.82rem] ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
-                  <input
-                    id={id}
-                    type="radio"
-                    name={name}
-                    value={mode}
-                    checked={selected === mode}
-                    disabled={disabled}
-                    onChange={() => onSelect(mode)}
-                    className="accent-[var(--info)]"
-                  />
-                  <span className="font-semibold">{t(`viz.modes.${mode}`)}</span>
-                  {suggested === mode && (
-                    <span className="ml-auto rounded-full bg-info/15 px-[0.5rem] py-[0.1rem] text-[0.68rem] font-semibold text-info">{t('viz.picker.suggested')}</span>
-                  )}
-                </label>
-                {disabled ? (
-                  // Shape-wide privacy reasons are stated once above the grid.
-                  !blocked && <p className="m-0 text-[0.75rem] text-muted">{translate(t, reason)}</p>
-                ) : (
-                  <Preview data={data} animation="off" />
-                )}
-              </div>
-            );
-          })}
+        <div role="radiogroup" aria-label={title} className="flex flex-col gap-[0.8rem]">
+          {/* Compatible modes first, as large previews; the rest stay listed, disabled, with their reason. */}
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] items-start gap-[0.8rem]">{enabled.map(option)}</div>
+          {disabledModes.length > 0 && (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(12rem,1fr))] items-start gap-[0.5rem]">{disabledModes.map(option)}</div>
+          )}
         </div>
       </div>
     </AnimationLevelScope>

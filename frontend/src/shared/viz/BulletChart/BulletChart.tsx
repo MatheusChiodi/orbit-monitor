@@ -6,10 +6,10 @@ import { FlashValue } from '@/shared/ui/FlashValue';
 import { STATUS_COLOR } from '../core/palette';
 import { VizFrame } from '../core/VizFrame';
 import { markTransition, useVizLevel } from '../core/useVizLevel';
-import { isStatus, toStatus, type ModeProps } from '../types';
+import { toStatus, type ModeProps } from '../types';
 
-/** Qualitative bands fade from strong (worst) to light; a state color is used only when the band names one. */
-const NEUTRAL_OPACITY = [0.32, 0.22, 0.14, 0.08];
+/** Qualitative bands are neutral steps, strongest first; the value bar alone carries the state color. */
+const BAND_OPACITY = [0.3, 0.2, 0.12, 0.07];
 
 /** Mode 3: bullet chart (value vs target over qualitative bands). */
 export function BulletChart({ data, animation, className }: ModeProps) {
@@ -47,14 +47,13 @@ export function BulletChart({ data, animation, className }: ModeProps) {
         {bands.map((band, i) => {
           const start = i === 0 ? 0 : (bands[i - 1]!.to ?? 0);
           const end = band.to ?? scaleMax;
-          const color = isStatus(band.status) ? STATUS_COLOR[band.status] : 'var(--muted)';
           return (
             <span
               key={`${start}-${end}`}
               data-testid="bullet-band"
               data-status={band.status ?? 'neutral'}
               className="absolute inset-y-0"
-              style={{ left: pct(start), width: pct(end - start), background: color, opacity: isStatus(band.status) ? 0.18 : NEUTRAL_OPACITY[i] ?? 0.08 }}
+              style={{ left: pct(start), width: pct(end - start), background: 'var(--muted)', opacity: BAND_OPACITY[i] ?? 0.07 }}
             />
           );
         })}
