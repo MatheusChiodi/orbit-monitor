@@ -50,7 +50,8 @@ html:is([data-fx='standard'], [data-fx='expressive']) .fx-glass {
 html:is([data-fx='standard'], [data-fx='expressive']) .fx-glass::before {
   content: '';
   position: absolute;
-  inset: -1px;
+  /* inset 0, not -1px: panels clip overflow at the padding box, which would hide the border area. */
+  inset: 0;
   z-index: 0;
   border-radius: inherit;
   padding: 1px;

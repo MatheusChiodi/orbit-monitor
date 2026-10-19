@@ -1,7 +1,15 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import type { Group, Mesh } from 'three';
-import { coreMaterial, gradientRing, readOrbPalette, rimMaterial, type OrbPalette } from './orbMaterials';
+import { BackSide, type Group } from 'three';
+import {
+  coreMaterial,
+  glassMaterial,
+  gradientRing,
+  haloMaterial,
+  readOrbPalette,
+  rimMaterial,
+  type OrbPalette,
+} from './orbMaterials';
 
 export interface OrbSceneProps {
   /** 0..1 from the FX level: scales motion speed, parallax and glow. */
@@ -32,11 +40,19 @@ function usePointer() {
 function Orb({ intensity, palette }: OrbSceneProps & { palette: OrbPalette }) {
   const root = useRef<Group>(null);
   const ring = useRef<Group>(null);
-  const satellite = useRef<Mesh>(null);
+  const satellite = useRef<Group>(null);
   const pointer = usePointer();
 
   const rim = useMemo(() => rimMaterial(palette, 0.9 + intensity * 0.5), [palette, intensity]);
   const core = useMemo(() => coreMaterial(palette), [palette]);
+  const glass = useMemo(() => glassMaterial(palette), [palette]);
+  const coreHalo = useMemo(() => haloMaterial(palette.green, 0.5 + intensity * 0.3), [palette, intensity]);
+  const innerRim = useMemo(() => {
+    const material = rimMaterial(palette, 0.35);
+    material.side = BackSide;
+    return material;
+  }, [palette]);
+  const glint = useMemo(() => haloMaterial('#dff0ff', 0.9), []);
   const ringGeometry = useMemo(() => gradientRing(palette, RING_RADIUS, 0.012), [palette]);
   const outerRing = useMemo(() => gradientRing(palette, RING_RADIUS * 1.32, 0.005), [palette]);
 
@@ -44,10 +60,14 @@ function Orb({ intensity, palette }: OrbSceneProps & { palette: OrbPalette }) {
     () => () => {
       rim.dispose();
       core.dispose();
+      glass.dispose();
+      innerRim.dispose();
+      coreHalo.dispose();
+      glint.dispose();
       ringGeometry.dispose();
       outerRing.dispose();
     },
-    [rim, core, ringGeometry, outerRing],
+    [rim, core, glass, innerRim, coreHalo, glint, ringGeometry, outerRing],
   );
 
   useFrame((state, delta) => {
@@ -71,25 +91,17 @@ function Orb({ intensity, palette }: OrbSceneProps & { palette: OrbPalette }) {
 
   return (
     <group ref={root}>
-      <mesh material={core}>
-        <sphereGeometry args={[0.38, 48, 48]} />
+      <mesh material={innerRim} scale={0.97}>
+        <sphereGeometry args={[1, 64, 64]} />
       </mesh>
-      <pointLight color={palette.green} intensity={6} distance={4} />
-      <mesh>
+      <mesh material={core}>
+        <sphereGeometry args={[0.3, 48, 48]} />
+      </mesh>
+      <mesh material={coreHalo} position={[0, 0, 0.32]}>
+        <planeGeometry args={[1.5, 1.5]} />
+      </mesh>
+      <mesh material={glass}>
         <sphereGeometry args={[1, 96, 96]} />
-        <meshPhysicalMaterial
-          color="#dbe9ff"
-          transmission={1}
-          thickness={0.7}
-          roughness={0.12}
-          ior={1.28}
-          clearcoat={1}
-          clearcoatRoughness={0.1}
-          attenuationColor={palette.blue}
-          attenuationDistance={2.4}
-          transparent
-          opacity={0.9}
-        />
       </mesh>
       <mesh material={rim} scale={1.015}>
         <sphereGeometry args={[1, 64, 64]} />
@@ -99,10 +111,15 @@ function Orb({ intensity, palette }: OrbSceneProps & { palette: OrbPalette }) {
           <mesh geometry={ringGeometry}>
             <meshBasicMaterial vertexColors transparent opacity={0.9} toneMapped={false} />
           </mesh>
-          <mesh ref={satellite}>
-            <sphereGeometry args={[0.055, 24, 24]} />
-            <meshBasicMaterial color="#f2f7ff" toneMapped={false} />
-          </mesh>
+          <group ref={satellite}>
+            <mesh>
+              <sphereGeometry args={[0.05, 24, 24]} />
+              <meshBasicMaterial color="#f2f7ff" toneMapped={false} />
+            </mesh>
+            <mesh material={glint} rotation={[-RING_TILT[0], 0, 0]}>
+              <planeGeometry args={[0.42, 0.42]} />
+            </mesh>
+          </group>
         </group>
         <mesh geometry={outerRing} rotation={[0.12, -0.2, 0]}>
           <meshBasicMaterial vertexColors transparent opacity={0.28} toneMapped={false} />
@@ -123,9 +140,6 @@ export function OrbScene({ intensity }: OrbSceneProps) {
       aria-hidden="true"
       data-testid="fx-orb-canvas"
     >
-      <ambientLight intensity={0.35} />
-      <directionalLight position={[-3, 4, 5]} intensity={2.2} color={palette.blue} />
-      <directionalLight position={[3, -2, 2]} intensity={1.1} color={palette.green} />
       <Orb intensity={intensity} palette={palette} />
     </Canvas>
   );

@@ -23,7 +23,7 @@ export function HeroCalm({ uptime24h, lastRecoveryAt, nearLimitCount, now }: Her
     <Panel title={t('wall.hero.title')} tone="OK" live className="h-full pl-[1.25rem]">
       <div className="flex flex-1 flex-col items-center justify-center gap-[1.2rem] py-[1.5rem] text-center">
         <HeroOrb
-          className="h-[11rem] w-[19rem] max-w-full"
+          className="h-[14rem] w-[26rem] max-w-full"
           fallback={
             <span
               aria-hidden

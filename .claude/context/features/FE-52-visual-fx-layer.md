@@ -31,8 +31,8 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - `frontend/src/shared/fx/OrbitField/OrbitField.tsx` — lazy canvas component (30 fps, DPR ≤ 1.5, freezes when paused)
 - `frontend/src/shared/fx/FxBackground/FxBackground.tsx` — fixed backdrop; mounts the orbit field after first paint
 - `frontend/src/shared/fx/HeroOrb/HeroOrb.tsx` — gate (level + WebGL probe + error boundary) that lazy-loads the 3D orb after first paint
-- `frontend/src/shared/fx/HeroOrb/OrbScene.tsx` — R3F scene: transmissive glass sphere, gradient core, Fresnel rim, tilted gradient ring with satellite, pointer parallax
-- `frontend/src/shared/fx/HeroOrb/orbMaterials.ts` — rim/core shaders and the blue→green ring geometry from theme tokens
+- `frontend/src/shared/fx/HeroOrb/OrbScene.tsx` — R3F scene: shader glass sphere (Fresnel edge, inner rim, specular glint), glowing gradient core with halo, tilted gradient ring with satellite, pointer parallax
+- `frontend/src/shared/fx/HeroOrb/orbMaterials.ts` — glass/rim/core/halo shaders and the blue→green ring geometry from theme tokens
 - `frontend/src/shared/fx/incident.ts` — `hasUnacknowledgedDown()`: when the wall pauses background motion
 - Integration: `WallApp.tsx` (FxProvider + FxBackground + `.fx-layer`), `HeroCalm.tsx` (2D symbol as the HeroOrb fallback), `Hero.tsx` (`fx-down-glow` when DOWN), `Panel.tsx` (`surface` prop, `glass` by default)
 - `frontend/src/shared/fx/fx.css` — glass, tilt sheen, DOWN glow, static backdrop (gated by `html[data-fx]`)
@@ -59,7 +59,7 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - Frame monitor smooths frame time (EMA, α 0.1), ignores gaps > 500 ms (hidden tab) and fires once; `restore()` is the "Try again" path. It only runs while something animates.
 - Tilt writes `transform` directly on the element (no React state per pointer move), mouse pointers only; TiltCard is for navigational/onboarding cards, never around probe values.
 - Background: 6 tilted ellipses + particles with short trails on canvas 2D (no WebGL needed). Every mark's alpha is capped so `alpha × L(color) ≤ 0.06` (WCAG relative luminance over the black-ish `--bg`). Particles: ~28 at `standard`, 60 at `expressive`. Paused = one frozen frame at 35% opacity, no rAF loop.
-- Orb: no drei (keeps the lazy chunk smaller); `powerPreference: 'low-power'`, DPR ≤ 1.5. Parallax follows a mouse over the whole window; TVs without a mouse get a slow idle drift. The orb is `aria-hidden` and the hero text stays in the DOM beside it.
+- Orb: no drei and no `transmission` pass (a transmissive material over a transparent canvas rendered as a flat grey disk and costs an extra pass); glass is an additive Fresnel + specular shader. No scene lights needed; `powerPreference: 'low-power'`, DPR ≤ 1.5. Parallax follows a mouse over the whole window; TVs without a mouse get a slow idle drift. The orb is `aria-hidden` and the hero text stays in the DOM beside it.
 - CSS gating via `html[data-fx]` keeps the components free of level checks for pure styling; the stylesheet is unlayered so it overrides Tailwind utilities only when FX is on.
 
 ## Changelog
