@@ -3,7 +3,7 @@ id: BE-36
 title: "Channel reliability"
 area: backend
 group: "Alerting"
-status: tests-pending
+status: done
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -16,8 +16,8 @@ Rate limit per channel, retry with backoff, dead-letter queue
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
-- [ ] All tests green, none pending
+- [x] Implemented
+- [x] All tests green, none pending
 
 ## Screens
 —
@@ -34,3 +34,4 @@ Rate limit per channel, retry with backoff, dead-letter queue
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending tests and stubs added (status: tests-pending).
+- 2026-10-18 — per-channel rate limit, retries with backoff and dead-letter queue implemented (status: done).
