@@ -28,6 +28,7 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 - `backend/orbit-config/src/main/java/io/orbit/config/ConfigFile.java`
 - `backend/orbit-config/src/main/java/io/orbit/config/ConfigSchemas.java`
 - `backend/config-examples/orbit.groups.example.json`
+- `frontend/src/app/settings/SettingsScreen/SettingsScreen.tsx`
 
 ## Tests
 - `frontend/src/shared/api/configResources.test.ts`
@@ -37,6 +38,7 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 - `backend/orbit-config/src/test/java/io/orbit/config/ConfigFileTest.java`
 - `backend/orbit-config/src/test/java/io/orbit/config/ConfigExamplesTest.java`
 - `backend/orbit-config/src/test/java/io/orbit/config/ConfigSchemasTest.java`
+- `frontend/src/app/settings/SettingsScreen/SettingsScreen.test.tsx`
 
 ## Decisions and notes
 - `ConfigFile<T>` handles one `orbit.<feature>.json`: `{"version":1,"items":[...]}`, ids required and unique, feature validator on read and write.
@@ -47,6 +49,7 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 - Frontend: One typed client for every per-feature resource (`/api/<resource>` ↔ `orbit.<resource>.json`), payload `{ version, items }`; a 404 (file not created yet) is an empty list.
 - Frontend: Encrypted secrets (`{ enc }`) are replaced by `{ vault: true }` before reaching components; nothing is stored in the browser.
 - Frontend: Frontend: export strips encrypted values, `${env:…}` references and vault markers; import shows a dry-run diff (added / changed / removed ids per file) before applying.
+- Frontend: Frontend: Settings screen shows the access mode, the operator name (device only), workspace defaults from `orbit.settings.json`, the health of every config file (`missing` = not created yet, not an error) and Export / Import with a dry-run diff; view-only clients cannot change defaults or import.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -56,3 +59,6 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 - 2026-10-18 — frontend: typed config resource client.
 - 2026-10-18 — frontend: frontend: config export/import helpers.
 - 2026-10-18 — pending tests for JSON Schema per file.
+- 2026-10-18 — frontend: frontend: settings screen.
+- 2026-10-18 — frontend: frontend: settings screen.
+- 2026-10-18 — frontend: frontend: settings screen.

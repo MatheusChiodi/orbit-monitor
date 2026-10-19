@@ -45,12 +45,12 @@ Header with global status and clock, hero (incident / all operational), also act
 - [FE-10 · Workspace branding](../features/FE-10-workspace-branding.md) — tests-pending
 - [FE-13 · Reorder monitors and groups](../features/FE-13-reorder-monitors-and-groups.md) — tests-pending
 - [FE-21 · Visualization picker](../features/FE-21-visualization-picker.md) — tests-pending
-- [FE-22 · Compatibility rules](../features/FE-22-compatibility-rules.md) — tests-pending
-- [FE-23 · Visualization settings](../features/FE-23-visualization-settings.md) — tests-pending
-- [FE-24 · 20 display modes](../features/FE-24-20-display-modes.md) — tests-pending
-- [FE-25 · Week-over-week overlay](../features/FE-25-week-over-week-overlay.md) — tests-pending
-- [FE-26 · Chart annotations](../features/FE-26-chart-annotations.md) — tests-pending
-- [FE-27 · Zoom and synced crosshair](../features/FE-27-zoom-and-synced-crosshair.md) — tests-pending
+- [FE-22 · Compatibility rules](../features/FE-22-compatibility-rules.md) — done
+- [FE-23 · Visualization settings](../features/FE-23-visualization-settings.md) — in-progress
+- [FE-24 · 20 display modes](../features/FE-24-20-display-modes.md) — in-progress
+- [FE-25 · Week-over-week overlay](../features/FE-25-week-over-week-overlay.md) — done
+- [FE-26 · Chart annotations](../features/FE-26-chart-annotations.md) — done
+- [FE-27 · Zoom and synced crosshair](../features/FE-27-zoom-and-synced-crosshair.md) — done
 - [FE-40 · Escalation countdown](../features/FE-40-escalation-countdown.md) — tests-pending
 - [FE-45 · Kiosk mode](../features/FE-45-kiosk-mode.md) — tests-pending
 - [FE-46 · Stale data indicator](../features/FE-46-stale-data-indicator.md) — tests-pending
