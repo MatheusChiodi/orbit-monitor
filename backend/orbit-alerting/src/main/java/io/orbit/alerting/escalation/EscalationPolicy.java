@@ -5,12 +5,13 @@ import io.orbit.config.ConfigItem;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 /**
  * BE-27: timed escalation steps per group (0 min team channel, 15 min manager, 30 min directors),
- * stored in orbit.escalation.json. Escalation stops as soon as the incident is acknowledged.
+ * stored in orbit.escalation.json. Escalation stops as soon as the incident is acknowledged or resolved.
  */
 public record EscalationPolicy(String id, String name, List<Step> steps) implements ConfigItem {
 
@@ -18,13 +19,39 @@ public record EscalationPolicy(String id, String name, List<Step> steps) impleme
     public record Step(Duration after, List<String> channelIds) {
     }
 
+    public EscalationPolicy {
+        steps = steps == null ? List.of() : List.copyOf(steps);
+    }
+
     /** Steps whose time has come and that were not sent yet ({@code alreadySent} = indexes). */
     public List<Step> due(Incident incident, Instant now, List<Integer> alreadySent) {
-        throw new UnsupportedOperationException("BE-27 escalation policies are not implemented yet");
+        if (stopped(incident)) {
+            return List.of();
+        }
+        List<Step> due = new ArrayList<>();
+        for (int i = 0; i < steps.size(); i++) {
+            Step step = steps.get(i);
+            if (!alreadySent.contains(i) && !now.isBefore(incident.openedAt().plus(step.after()))) {
+                due.add(step);
+            }
+        }
+        return due;
     }
 
     /** When the next step fires (shown as a countdown on the wall); empty when acknowledged or done. */
     public Optional<Instant> nextEscalationAt(Incident incident, List<Integer> alreadySent) {
-        throw new UnsupportedOperationException("BE-27 escalation policies are not implemented yet");
+        if (stopped(incident)) {
+            return Optional.empty();
+        }
+        for (int i = 0; i < steps.size(); i++) {
+            if (!alreadySent.contains(i)) {
+                return Optional.of(incident.openedAt().plus(steps.get(i).after()));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static boolean stopped(Incident incident) {
+        return !incident.isOpen() || incident.acknowledgedAt() != null;
     }
 }

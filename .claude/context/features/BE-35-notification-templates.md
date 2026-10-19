@@ -3,7 +3,7 @@ id: BE-35
 title: "Notification templates"
 area: backend
 group: "Alerting"
-status: tests-pending
+status: in-progress
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -16,7 +16,7 @@ Variables and i18n (en/pt-BR); values redacted
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
+- [x] Implemented
 - [ ] All tests green, none pending
 
 ## Screens
@@ -34,3 +34,4 @@ Variables and i18n (en/pt-BR); values redacted
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending tests and stubs added (status: tests-pending).
+- 2026-10-18 — template rendering (en/pt-BR, redacted values) implemented; orbit.notification-templates.json pending.

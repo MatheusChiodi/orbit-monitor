@@ -2,7 +2,6 @@ package io.orbit.alerting.template;
 
 import io.orbit.common.privacy.SensitiveDataRedactor;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
@@ -10,7 +9,6 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Tag("pending")
 @DisplayName("BE-35 notification templates")
 class NotificationTemplatesTest {
 
