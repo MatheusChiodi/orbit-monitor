@@ -1,0 +1,51 @@
+{
+  "id": "catppuccin-frappe",
+  "name": "Catppuccin Frappé",
+  "mode": "dark",
+  "category": "editor",
+  "colors": {
+    "bg": "#232634",
+    "s1": "#303446",
+    "s2": "#383c4e",
+    "s3": "#3f4456",
+    "line": "#c6d0f512",
+    "line2": "#c6d0f521",
+    "text": "#c6d0f5",
+    "muted": "#a5adce",
+    "dim": "#949cbb",
+    "ok": "#8dc584",
+    "warn": "#e5c890",
+    "down": "#e78284",
+    "info": "#8caaee",
+    "accent": "#ca9ee6"
+  },
+  "chart": [
+    "#ca9ee6",
+    "#99d1db",
+    "#ef9f76",
+    "#a6d189",
+    "#ad82c8",
+    "#ffd1ff"
+  ],
+  "syntax": {
+    "keyword": "#ca9ee6",
+    "string": "#a6d189",
+    "number": "#ef9f76",
+    "comment": "#949cbb",
+    "function": "#8caaee",
+    "operator": "#99d1db",
+    "identifier": "#c6d0f5"
+  },
+  "fx": {
+    "from": "#ca9ee6",
+    "to": "#ca9ee6",
+    "glow": "#ca9ee6"
+  },
+  "inspiredBy": "Catppuccin",
+  "author": "Catppuccin",
+  "license": "MIT",
+  "url": "https://github.com/catppuccin/palette",
+  "adjusted": [
+    "ok"
+  ]
+}

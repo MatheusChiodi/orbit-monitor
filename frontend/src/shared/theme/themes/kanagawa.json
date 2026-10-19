@@ -1,0 +1,52 @@
+{
+  "id": "kanagawa",
+  "name": "Kanagawa",
+  "mode": "dark",
+  "category": "editor",
+  "colors": {
+    "bg": "#16161d",
+    "s1": "#1f1f28",
+    "s2": "#26262f",
+    "s3": "#2e2e37",
+    "line": "#dcd7ba12",
+    "line2": "#dcd7ba21",
+    "text": "#dcd7ba",
+    "muted": "#c8c093",
+    "dim": "#727169",
+    "ok": "#6f9570",
+    "warn": "#c0a36e",
+    "down": "#c54244",
+    "info": "#7e9cd8",
+    "accent": "#7e9cd8"
+  },
+  "chart": [
+    "#7e9cd8",
+    "#6a9589",
+    "#ffa066",
+    "#c0a36e",
+    "#d27e99",
+    "#c34043"
+  ],
+  "syntax": {
+    "keyword": "#957fb8",
+    "string": "#98bb6c",
+    "number": "#d27e99",
+    "comment": "#727169",
+    "function": "#7e9cd8",
+    "operator": "#c0a36e",
+    "identifier": "#dcd7ba"
+  },
+  "fx": {
+    "from": "#7e9cd8",
+    "to": "#957fb8",
+    "glow": "#7e9cd8"
+  },
+  "inspiredBy": "Kanagawa",
+  "author": "Tommaso Laurenzi",
+  "license": "MIT",
+  "url": "https://github.com/rebelot/kanagawa.nvim",
+  "adjusted": [
+    "ok",
+    "down"
+  ]
+}

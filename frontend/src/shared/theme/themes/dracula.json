@@ -1,0 +1,51 @@
+{
+  "id": "dracula",
+  "name": "Dracula",
+  "mode": "dark",
+  "category": "editor",
+  "colors": {
+    "bg": "#21222c",
+    "s1": "#282a36",
+    "s2": "#2f313e",
+    "s3": "#373946",
+    "line": "#f8f8f212",
+    "line2": "#f8f8f221",
+    "text": "#f8f8f2",
+    "muted": "#bababa",
+    "dim": "#6272a4",
+    "ok": "#49f576",
+    "warn": "#f1fa8c",
+    "down": "#ff5555",
+    "info": "#8be9fd",
+    "accent": "#ff79c6"
+  },
+  "chart": [
+    "#ff79c6",
+    "#bd93f9",
+    "#8be9fd",
+    "#ffb86c",
+    "#50fa7b",
+    "#f1fa8c"
+  ],
+  "syntax": {
+    "keyword": "#ff79c6",
+    "string": "#f1fa8c",
+    "number": "#bd93f9",
+    "comment": "#6272a4",
+    "function": "#50fa7b",
+    "operator": "#ff79c6",
+    "identifier": "#f8f8f2"
+  },
+  "fx": {
+    "from": "#ff79c6",
+    "to": "#bd93f9",
+    "glow": "#ff79c6"
+  },
+  "inspiredBy": "Dracula",
+  "author": "Dracula Theme",
+  "license": "MIT",
+  "url": "https://github.com/dracula/visual-studio-code",
+  "adjusted": [
+    "ok"
+  ]
+}

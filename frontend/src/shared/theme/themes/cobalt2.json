@@ -1,0 +1,52 @@
+{
+  "id": "cobalt2",
+  "name": "Cobalt2",
+  "mode": "dark",
+  "category": "editor",
+  "colors": {
+    "bg": "#15232d",
+    "s1": "#193549",
+    "s2": "#213d51",
+    "s3": "#29455a",
+    "line": "#ffffff12",
+    "line2": "#ffffff21",
+    "text": "#ffffff",
+    "muted": "#aaaaaa",
+    "dim": "#0088ff",
+    "ok": "#3ad900",
+    "warn": "#ffd52d",
+    "down": "#ff628c",
+    "info": "#0088ff",
+    "accent": "#ffc600"
+  },
+  "chart": [
+    "#ffc600",
+    "#0088ff",
+    "#fb94ff",
+    "#80fcff",
+    "#ff9d00",
+    "#3ad900"
+  ],
+  "syntax": {
+    "keyword": "#ff9d00",
+    "string": "#a5ff90",
+    "number": "#ff648d",
+    "comment": "#0088ff",
+    "function": "#ff9d00",
+    "operator": "#ffffff",
+    "identifier": "#e1efff"
+  },
+  "fx": {
+    "from": "#ffc600",
+    "to": "#fb94ff",
+    "glow": "#ffc600"
+  },
+  "inspiredBy": "Cobalt2",
+  "author": "Wes Bos, Roberto Achar",
+  "license": "MIT",
+  "url": "https://github.com/wesbos/cobalt2-vscode",
+  "adjusted": [
+    "warn",
+    "syntax.number"
+  ]
+}

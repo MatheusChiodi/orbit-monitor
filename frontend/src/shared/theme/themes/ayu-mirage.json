@@ -1,0 +1,52 @@
+{
+  "id": "ayu-mirage",
+  "name": "Ayu Mirage",
+  "mode": "dark",
+  "category": "editor",
+  "colors": {
+    "bg": "#1f2430",
+    "s1": "#242936",
+    "s2": "#2b303e",
+    "s3": "#333846",
+    "line": "#cccac212",
+    "line2": "#cccac221",
+    "text": "#cccac2",
+    "muted": "#8d98ab",
+    "dim": "#6e7c8f",
+    "ok": "#87d96c",
+    "warn": "#fbbb59",
+    "down": "#f28273",
+    "info": "#6acdff",
+    "accent": "#ffcc66"
+  },
+  "chart": [
+    "#ffcc66",
+    "#6acdff",
+    "#ddbbff",
+    "#93e2c8",
+    "#ffa659",
+    "#87d96c"
+  ],
+  "syntax": {
+    "keyword": "#ffa659",
+    "string": "#d5ff80",
+    "number": "#dfbfff",
+    "comment": "#6e7c8f",
+    "function": "#ffcd66",
+    "operator": "#f29e74",
+    "identifier": "#cccac2"
+  },
+  "fx": {
+    "from": "#ffcc66",
+    "to": "#ddbbff",
+    "glow": "#ffcc66"
+  },
+  "inspiredBy": "Ayu",
+  "author": "Ike Kurghinyan",
+  "license": "MIT",
+  "url": "https://github.com/ayu-theme/vscode-ayu",
+  "adjusted": [
+    "muted",
+    "warn"
+  ]
+}

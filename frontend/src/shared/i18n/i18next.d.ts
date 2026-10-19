@@ -1,9 +1,9 @@
 import 'i18next';
-import type en from './locales/en.json';
+import type { Messages } from './i18n';
 
 declare module 'i18next' {
   interface CustomTypeOptions {
     defaultNS: 'translation';
-    resources: { translation: typeof en };
+    resources: { translation: Messages };
   }
 }

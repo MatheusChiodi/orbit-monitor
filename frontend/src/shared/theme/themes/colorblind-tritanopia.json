@@ -1,0 +1,48 @@
+{
+  "id": "colorblind-tritanopia",
+  "name": "Color-blind safe: tritanopia",
+  "mode": "dark",
+  "category": "accessible",
+  "author": "Orbit Monitor",
+  "license": "MIT",
+  "url": "https://github.com/MatheusChiodi/orbit-monitor",
+  "cvdTarget": "tritanopia",
+  "colors": {
+    "bg": "#07090d",
+    "s1": "#0d1117",
+    "s2": "#121820",
+    "s3": "#182029",
+    "line": "#ffffff12",
+    "line2": "#ffffff21",
+    "text": "#eef2f7",
+    "muted": "#8b96a6",
+    "dim": "#5a6575",
+    "accent": "#ff9ecb",
+    "ok": "#3ddc84",
+    "warn": "#ff9ecb",
+    "down": "#ff4d4d",
+    "info": "#a6a6ff"
+  },
+  "chart": [
+    "#ff4d4d",
+    "#3ddc84",
+    "#a6a6ff",
+    "#ff9ecb",
+    "#e0e0e0",
+    "#ffb000"
+  ],
+  "syntax": {
+    "keyword": "#7cb7ff",
+    "string": "#a9f0c3",
+    "number": "#ffd48a",
+    "comment": "#6b7686",
+    "function": "#c4b5fd",
+    "operator": "#8b96a6",
+    "identifier": "#eef2f7"
+  },
+  "fx": {
+    "from": "#ff4d4d",
+    "to": "#3ddc84",
+    "glow": "#ff9ecb"
+  }
+}

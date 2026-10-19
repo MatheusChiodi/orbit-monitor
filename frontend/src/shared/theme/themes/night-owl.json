@@ -1,0 +1,51 @@
+{
+  "id": "night-owl",
+  "name": "Night Owl",
+  "mode": "dark",
+  "category": "editor",
+  "colors": {
+    "bg": "#000e1e",
+    "s1": "#011627",
+    "s2": "#061d2f",
+    "s3": "#0d2436",
+    "line": "#d6deeb12",
+    "line2": "#d6deeb21",
+    "text": "#d6deeb",
+    "muted": "#96a2b0",
+    "dim": "#637777",
+    "ok": "#22da6e",
+    "warn": "#c5e478",
+    "down": "#ef5350",
+    "info": "#82aaff",
+    "accent": "#6d53ac"
+  },
+  "chart": [
+    "#6d53ac",
+    "#82aaff",
+    "#c792ea",
+    "#21c7a8",
+    "#f78c6c",
+    "#22da6e"
+  ],
+  "syntax": {
+    "keyword": "#c792ea",
+    "string": "#ecc48d",
+    "number": "#f78c6c",
+    "comment": "#637777",
+    "function": "#c792ea",
+    "operator": "#7fdbca",
+    "identifier": "#c5e478"
+  },
+  "fx": {
+    "from": "#654aa3",
+    "to": "#c792ea",
+    "glow": "#654aa3"
+  },
+  "inspiredBy": "Night Owl",
+  "author": "Sarah Drasner",
+  "license": "MIT",
+  "url": "https://github.com/sdras/night-owl-vscode-theme",
+  "adjusted": [
+    "accent"
+  ]
+}

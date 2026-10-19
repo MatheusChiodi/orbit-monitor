@@ -263,37 +263,6 @@
       "duration": "Use uma duração: 10min, 2h, 30s"
     }
   },
-  "theme": {
-    "editor": {
-      "name": "Nome do tema",
-      "startFrom": "Começar de um preset",
-      "wallPreview": "Pré-visualização da parede",
-      "consolePreview": "Pré-visualização do console",
-      "save": "Salvar tema",
-      "cancel": "Cancelar",
-      "useSuggested": "Usar valor sugerido"
-    },
-    "presets": {
-      "orbit-dark": "Orbit Dark",
-      "light": "Claro",
-      "high-contrast": "Alto contraste",
-      "oled-black": "Preto OLED",
-      "deuteranopia": "Seguro para daltonismo (deuteranopia)",
-      "protanopia": "Seguro para daltonismo (protanopia)",
-      "tritanopia": "Seguro para daltonismo (tritanopia)"
-    },
-    "contrast": {
-      "body": "{{foreground}} sobre {{background}} tem contraste {{ratio}}:1; texto corrido precisa de 4,5:1",
-      "large": "{{foreground}} sobre {{background}} tem contraste {{ratio}}:1; rótulos grandes precisam de 3:1",
-      "indistinguishable": "{{foreground}} e {{background}} são parecidas demais para distinguir os estados"
-    },
-    "file": {
-      "invalidJson": "Este arquivo não é um JSON válido",
-      "missingToken": "O tema não tem valor para {{token}}",
-      "invalidColor": "{{token}} não é uma cor hexadecimal",
-      "unsupportedVersion": "A versão {{version}} do arquivo de tema não é suportada"
-    }
-  },
   "nightMode": {
     "label": "Modo noturno"
   },

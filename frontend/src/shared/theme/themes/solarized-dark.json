@@ -1,0 +1,58 @@
+{
+  "id": "solarized-dark",
+  "name": "Solarized Dark",
+  "mode": "dark",
+  "category": "editor",
+  "colors": {
+    "bg": "#00222d",
+    "s1": "#002b36",
+    "s2": "#08333e",
+    "s3": "#123a46",
+    "line": "#83949612",
+    "line2": "#83949621",
+    "text": "#8fa1a3",
+    "muted": "#809a9e",
+    "dim": "#5d747b",
+    "ok": "#71af48",
+    "warn": "#b58900",
+    "down": "#df3532",
+    "info": "#268bd2",
+    "accent": "#268bd2"
+  },
+  "chart": [
+    "#268bd2",
+    "#2aa198",
+    "#cb4b16",
+    "#859900",
+    "#60beff",
+    "#868ce2"
+  ],
+  "syntax": {
+    "keyword": "#859900",
+    "string": "#2aa198",
+    "number": "#2aa198",
+    "comment": "#5d747b",
+    "function": "#3193db",
+    "operator": "#859900",
+    "identifier": "#3193db"
+  },
+  "fx": {
+    "from": "#268bd2",
+    "to": "#6c71c4",
+    "glow": "#268bd2"
+  },
+  "inspiredBy": "Solarized",
+  "author": "Ethan Schoonover",
+  "license": "MIT",
+  "url": "https://github.com/altercation/solarized",
+  "adjusted": [
+    "text",
+    "muted",
+    "dim",
+    "ok",
+    "down",
+    "syntax.comment",
+    "syntax.function",
+    "syntax.identifier"
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "id": "gruvbox-dark",
+  "name": "Gruvbox Dark",
+  "mode": "dark",
+  "category": "editor",
+  "colors": {
+    "bg": "#202020",
+    "s1": "#282828",
+    "s2": "#2f2f2f",
+    "s3": "#373737",
+    "line": "#ebdbb212",
+    "line2": "#ebdbb221",
+    "text": "#ebdbb2",
+    "muted": "#b1a589",
+    "dim": "#928374",
+    "ok": "#a4bb32",
+    "warn": "#fabd2f",
+    "down": "#fb4934",
+    "info": "#83a598",
+    "accent": "#83a598"
+  },
+  "chart": [
+    "#83a598",
+    "#d3869b",
+    "#8ec07c",
+    "#fe8019",
+    "#fabd2f",
+    "#fb4934"
+  ],
+  "syntax": {
+    "keyword": "#ff503a",
+    "string": "#b8bb26",
+    "number": "#d3869b",
+    "comment": "#928374",
+    "function": "#b8bb26",
+    "operator": "#ebdbb2",
+    "identifier": "#83a598"
+  },
+  "fx": {
+    "from": "#83a598",
+    "to": "#d3869b",
+    "glow": "#83a598"
+  },
+  "inspiredBy": "Gruvbox",
+  "author": "morhetz (Pavel Pertsev)",
+  "license": "MIT",
+  "url": "https://github.com/morhetz/gruvbox",
+  "adjusted": [
+    "ok",
+    "syntax.keyword"
+  ]
+}

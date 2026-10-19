@@ -1,0 +1,51 @@
+{
+  "id": "synthwave-84",
+  "name": "Synthwave '84",
+  "mode": "dark",
+  "category": "editor",
+  "colors": {
+    "bg": "#171520",
+    "s1": "#262335",
+    "s2": "#2d2a3d",
+    "s3": "#353245",
+    "line": "#ffffff12",
+    "line2": "#ffffff21",
+    "text": "#ffffff",
+    "muted": "#bebdc2",
+    "dim": "#848bbd",
+    "ok": "#8efab3",
+    "warn": "#f3e70f",
+    "down": "#fe4450",
+    "info": "#03edf9",
+    "accent": "#f97e72"
+  },
+  "chart": [
+    "#f97e72",
+    "#03edf9",
+    "#ff7edb",
+    "#72f1b8",
+    "#f3e70f",
+    "#fe4450"
+  ],
+  "syntax": {
+    "keyword": "#fede5d",
+    "string": "#ff8b39",
+    "number": "#f97e72",
+    "comment": "#848bbd",
+    "function": "#36f9f6",
+    "operator": "#fede5d",
+    "identifier": "#ff7edb"
+  },
+  "fx": {
+    "from": "#f97e72",
+    "to": "#ff7edb",
+    "glow": "#f97e72"
+  },
+  "inspiredBy": "SynthWave '84",
+  "author": "Robb Owen",
+  "license": "MIT",
+  "url": "https://github.com/robb0wen/synthwave-vscode",
+  "adjusted": [
+    "ok"
+  ]
+}

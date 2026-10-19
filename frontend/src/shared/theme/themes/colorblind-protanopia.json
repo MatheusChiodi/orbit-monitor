@@ -1,0 +1,51 @@
+{
+  "id": "colorblind-protanopia",
+  "name": "Color-blind safe: protanopia",
+  "mode": "dark",
+  "category": "accessible",
+  "author": "Orbit Monitor",
+  "license": "MIT",
+  "url": "https://github.com/MatheusChiodi/orbit-monitor",
+  "cvdTarget": "protanopia",
+  "colors": {
+    "bg": "#07090d",
+    "s1": "#0d1117",
+    "s2": "#121820",
+    "s3": "#182029",
+    "line": "#ffffff12",
+    "line2": "#ffffff21",
+    "text": "#eef2f7",
+    "muted": "#8b96a6",
+    "dim": "#5a6575",
+    "accent": "#56b4e9",
+    "ok": "#00abb8",
+    "warn": "#f0e442",
+    "down": "#ff9a5c",
+    "info": "#d4a5ff"
+  },
+  "chart": [
+    "#56b4e9",
+    "#e69f00",
+    "#cc79a7",
+    "#f0e442",
+    "#2fc9a0",
+    "#d0d0d0"
+  ],
+  "syntax": {
+    "keyword": "#7cb7ff",
+    "string": "#a9f0c3",
+    "number": "#ffd48a",
+    "comment": "#6b7686",
+    "function": "#c4b5fd",
+    "operator": "#8b96a6",
+    "identifier": "#eef2f7"
+  },
+  "fx": {
+    "from": "#56b4e9",
+    "to": "#e69f00",
+    "glow": "#56b4e9"
+  },
+  "adjusted": [
+    "ok"
+  ]
+}

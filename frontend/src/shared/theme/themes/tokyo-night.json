@@ -1,0 +1,54 @@
+{
+  "id": "tokyo-night",
+  "name": "Tokyo Night",
+  "mode": "dark",
+  "category": "editor",
+  "colors": {
+    "bg": "#16161e",
+    "s1": "#1a1b26",
+    "s2": "#21222d",
+    "s3": "#282935",
+    "line": "#787c9912",
+    "line2": "#787c9921",
+    "text": "#a9b1d6",
+    "muted": "#8388a5",
+    "dim": "#5d668a",
+    "ok": "#73daca",
+    "warn": "#e0af68",
+    "down": "#f7768e",
+    "info": "#7aa2f7",
+    "accent": "#4765ae"
+  },
+  "chart": [
+    "#4765ae",
+    "#7aa2f7",
+    "#7dcfff",
+    "#ff9e64",
+    "#73daca",
+    "#9ece6a"
+  ],
+  "syntax": {
+    "keyword": "#bb9af7",
+    "string": "#9ece6a",
+    "number": "#ff9e64",
+    "comment": "#5d668a",
+    "function": "#7aa2f7",
+    "operator": "#89ddff",
+    "identifier": "#c0caf5"
+  },
+  "fx": {
+    "from": "#3d59a1",
+    "to": "#bb9af7",
+    "glow": "#3d59a1"
+  },
+  "inspiredBy": "Tokyo Night",
+  "author": "Enkia",
+  "license": "MIT",
+  "url": "https://github.com/enkia/tokyo-night-vscode-theme",
+  "adjusted": [
+    "muted",
+    "dim",
+    "accent",
+    "syntax.comment"
+  ]
+}

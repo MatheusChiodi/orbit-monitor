@@ -1,0 +1,113 @@
+{
+  "editor": {
+    "title": "Editor de tema",
+    "name": "Nome do tema",
+    "startFrom": "Começar de um preset",
+    "wallPreview": "Pré-visualização da parede",
+    "consolePreview": "Pré-visualização do console",
+    "save": "Salvar tema",
+    "cancel": "Cancelar",
+    "useSuggested": "Usar valor sugerido",
+    "groups": {
+      "surfaces": "Superfícies",
+      "text": "Texto",
+      "status": "Status",
+      "chart": "Séries do gráfico",
+      "syntax": "Sintaxe SQL",
+      "fx": "Efeitos visuais"
+    },
+    "issues": "Problemas de contraste",
+    "issueCount_one": "{{count}} problema de contraste: corrija para salvar",
+    "issueCount_other": "{{count}} problemas de contraste: corrija para salvar",
+    "allGood": "Todas as cores de texto e status passam no verificador de contraste",
+    "fixAll": "Corrigir tudo",
+    "pick": "Escolher {{token}}"
+  },
+  "gallery": {
+    "title": "Aparência",
+    "intro": "Escolha um tema para este dispositivo. Ele muda as cores da parede, do console, dos gráficos e do editor SQL.",
+    "search": "Buscar temas",
+    "filters": "Filtrar temas",
+    "filter": {
+      "all": "Todos",
+      "dark": "Escuros",
+      "light": "Claros",
+      "accessible": "Acessíveis",
+      "favorites": "Favoritos",
+      "custom": "Personalizados"
+    },
+    "current": "Em uso",
+    "apply": "Usar {{name}}",
+    "favorite": "Adicionar {{name}} aos favoritos",
+    "unfavorite": "Remover {{name}} dos favoritos",
+    "duplicate": "Duplicar e editar",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "export": "Exportar",
+    "restoreDefault": "Restaurar padrão",
+    "import": "Importar tema",
+    "importHint": "Tema do Orbit ou tema de cores do VS Code (.json)",
+    "empty": "Nenhum tema corresponde a \"{{query}}\"",
+    "emptyFavorites": "Ainda não há favoritos. Use a estrela de um tema para mantê-lo aqui.",
+    "count_one": "{{count}} tema",
+    "count_other": "{{count}} temas",
+    "inspiredBy": "Inspirado em {{name}}",
+    "adjusted": "Tons de status ou texto ajustados para contraste",
+    "followSystem": "Seguir o modo claro/escuro do sistema",
+    "scope": {
+      "url": "Definido pelo endereço da página (?theme=)",
+      "layout": "Definido por este layout da parede",
+      "device": "Salvo neste dispositivo",
+      "workspace": "Padrão do workspace",
+      "default": "Padrão do Orbit"
+    },
+    "workspaceDefault": "Tornar padrão do workspace",
+    "readOnly": "Somente leitura: mudanças de tema nesta tela valem só para este dispositivo"
+  },
+  "import": {
+    "title": "Revisar tema importado",
+    "fixes_one": "O Orbit alterou {{count}} cor para manter texto e estados legíveis:",
+    "fixes_other": "O Orbit alterou {{count}} cores para manter texto e estados legíveis:",
+    "noFixes": "Todas as cores passaram no verificador de contraste sem alteração.",
+    "fromVsCode": "Convertido de um tema de cores do VS Code",
+    "save": "Salvar tema importado",
+    "cancel": "Descartar"
+  },
+  "mini": {
+    "label": "Pré-visualização de {{name}}",
+    "hero": "API de checkout",
+    "matrix": "Monitores",
+    "chart": "Latência"
+  },
+  "presets": {
+    "orbit-dark": "Orbit Dark",
+    "high-contrast-dark": "Alto contraste escuro",
+    "high-contrast-light": "Alto contraste claro",
+    "oled-black": "Preto OLED",
+    "colorblind-deuteranopia": "Seguro para daltonismo (deuteranopia)",
+    "colorblind-protanopia": "Seguro para daltonismo (protanopia)",
+    "colorblind-tritanopia": "Seguro para daltonismo (tritanopia)"
+  },
+  "contrast": {
+    "body": "{{foreground}} sobre {{background}} tem contraste {{ratio}}:1; texto corrido precisa de 4,5:1",
+    "large": "{{foreground}} sobre {{background}} tem contraste {{ratio}}:1; rótulos grandes precisam de 3:1",
+    "indistinguishable": "{{foreground}} e {{background}} são parecidas demais para distinguir os estados",
+    "indistinguishableCvd": "{{foreground}} e {{background}} ficam parecidas com {{cvd}}",
+    "cvd": {
+      "protanopia": "protanopia",
+      "deuteranopia": "deuteranopia",
+      "tritanopia": "tritanopia"
+    }
+  },
+  "file": {
+    "invalidJson": "Este arquivo não é um JSON válido",
+    "invalidTheme": "Este arquivo não contém um tema",
+    "invalidId": "O id do tema deve usar letras minúsculas, números e hífens",
+    "invalidName": "O tema precisa de um nome",
+    "missingToken": "O tema não tem valor para {{token}}",
+    "invalidColor": "{{token}} não é uma cor hexadecimal",
+    "unsupportedVersion": "A versão {{version}} do arquivo de tema não é suportada",
+    "tooLarge": "Este arquivo é grande demais para ser um tema",
+    "notVsCode": "Este arquivo do VS Code não tem cor de fundo do editor"
+  }
+}

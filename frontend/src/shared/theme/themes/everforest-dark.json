@@ -1,0 +1,53 @@
+{
+  "id": "everforest-dark",
+  "name": "Everforest Dark",
+  "mode": "dark",
+  "category": "editor",
+  "colors": {
+    "bg": "#242c32",
+    "s1": "#2d353b",
+    "s2": "#353d43",
+    "s3": "#3c454b",
+    "line": "#d3c6aa12",
+    "line2": "#d3c6aa21",
+    "text": "#d3c6aa",
+    "muted": "#9ca9a0",
+    "dim": "#859289",
+    "ok": "#a7c080",
+    "warn": "#f9c296",
+    "down": "#e67e80",
+    "info": "#52aa95",
+    "accent": "#a7c080"
+  },
+  "chart": [
+    "#a7c080",
+    "#d699b6",
+    "#e69875",
+    "#daf4b2",
+    "#9bd8d0",
+    "#639f97"
+  ],
+  "syntax": {
+    "keyword": "#e67e80",
+    "string": "#dbbc7f",
+    "number": "#d699b6",
+    "comment": "#859289",
+    "function": "#a7c080",
+    "operator": "#e69875",
+    "identifier": "#d3c6aa"
+  },
+  "fx": {
+    "from": "#a7c080",
+    "to": "#d699b6",
+    "glow": "#a7c080"
+  },
+  "inspiredBy": "Everforest",
+  "author": "sainnhe",
+  "license": "MIT",
+  "url": "https://github.com/sainnhe/everforest-vscode",
+  "adjusted": [
+    "muted",
+    "warn",
+    "info"
+  ]
+}

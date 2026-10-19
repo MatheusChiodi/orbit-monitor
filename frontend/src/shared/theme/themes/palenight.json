@@ -1,0 +1,54 @@
+{
+  "id": "palenight",
+  "name": "Palenight",
+  "mode": "dark",
+  "category": "editor",
+  "colors": {
+    "bg": "#212435",
+    "s1": "#292d3e",
+    "s2": "#303546",
+    "s3": "#383c4e",
+    "line": "#bfc7d512",
+    "line2": "#bfc7d521",
+    "text": "#bfc7d5",
+    "muted": "#969ead",
+    "dim": "#6d759d",
+    "ok": "#a9c77d",
+    "warn": "#ffcb6b",
+    "down": "#ff5572",
+    "info": "#82aaff",
+    "accent": "#8862ce"
+  },
+  "chart": [
+    "#8862ce",
+    "#82aaff",
+    "#c792ea",
+    "#89ddff",
+    "#f78c6c",
+    "#a9c77d"
+  ],
+  "syntax": {
+    "keyword": "#c792ea",
+    "string": "#c3e88d",
+    "number": "#f78c6c",
+    "comment": "#6d759d",
+    "function": "#82aaff",
+    "operator": "#89ddff",
+    "identifier": "#ffcb6b"
+  },
+  "fx": {
+    "from": "#7e57c2",
+    "to": "#c792ea",
+    "glow": "#7e57c2"
+  },
+  "inspiredBy": "Material Palenight",
+  "author": "Olaolu Olawuyi",
+  "license": "MIT",
+  "url": "https://github.com/whizkydee/vscode-palenight-theme",
+  "adjusted": [
+    "muted",
+    "dim",
+    "accent",
+    "syntax.comment"
+  ]
+}

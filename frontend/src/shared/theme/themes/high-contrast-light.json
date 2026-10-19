@@ -1,0 +1,50 @@
+{
+  "id": "high-contrast-light",
+  "name": "High Contrast Light",
+  "mode": "light",
+  "category": "accessible",
+  "author": "Orbit Monitor",
+  "license": "MIT",
+  "url": "https://github.com/MatheusChiodi/orbit-monitor",
+  "colors": {
+    "bg": "#ffffff",
+    "s1": "#ffffff",
+    "s2": "#f2f2f2",
+    "s3": "#e6e6e6",
+    "line": "#00000040",
+    "line2": "#00000080",
+    "text": "#000000",
+    "muted": "#1f1f1f",
+    "dim": "#4d4d4d",
+    "ok": "#00701f",
+    "warn": "#8a5300",
+    "down": "#cb1a21",
+    "info": "#0050c8",
+    "accent": "#0050c8"
+  },
+  "chart": [
+    "#0050c8",
+    "#b34700",
+    "#6b21a8",
+    "#00756a",
+    "#a3005a",
+    "#333333"
+  ],
+  "syntax": {
+    "keyword": "#0040a0",
+    "string": "#00701f",
+    "number": "#8a3b00",
+    "comment": "#4d4d4d",
+    "function": "#6b21a8",
+    "operator": "#000000",
+    "identifier": "#000000"
+  },
+  "fx": {
+    "from": "#0050c8",
+    "to": "#6b21a8",
+    "glow": "#0050c8"
+  },
+  "adjusted": [
+    "down"
+  ]
+}

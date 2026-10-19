@@ -263,37 +263,6 @@
       "duration": "Use a duration: 10min, 2h, 30s"
     }
   },
-  "theme": {
-    "editor": {
-      "name": "Theme name",
-      "startFrom": "Start from preset",
-      "wallPreview": "Wall preview",
-      "consolePreview": "Console preview",
-      "save": "Save theme",
-      "cancel": "Cancel",
-      "useSuggested": "Use suggested value"
-    },
-    "presets": {
-      "orbit-dark": "Orbit Dark",
-      "light": "Light",
-      "high-contrast": "High contrast",
-      "oled-black": "OLED black",
-      "deuteranopia": "Color-blind safe (deuteranopia)",
-      "protanopia": "Color-blind safe (protanopia)",
-      "tritanopia": "Color-blind safe (tritanopia)"
-    },
-    "contrast": {
-      "body": "{{foreground}} on {{background}} has contrast {{ratio}}:1; body text needs 4.5:1",
-      "large": "{{foreground}} on {{background}} has contrast {{ratio}}:1; large labels need 3:1",
-      "indistinguishable": "{{foreground}} and {{background}} are too similar to tell states apart"
-    },
-    "file": {
-      "invalidJson": "This file is not valid JSON",
-      "missingToken": "The theme has no value for {{token}}",
-      "invalidColor": "{{token}} is not a hex color",
-      "unsupportedVersion": "Theme file version {{version}} is not supported"
-    }
-  },
   "nightMode": {
     "label": "Night mode"
   },

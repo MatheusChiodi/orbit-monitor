@@ -1,0 +1,53 @@
+{
+  "id": "shades-of-purple",
+  "name": "Shades of Purple",
+  "mode": "dark",
+  "category": "editor",
+  "colors": {
+    "bg": "#1e1e3f",
+    "s1": "#2d2b55",
+    "s2": "#34335e",
+    "s3": "#3c3b66",
+    "line": "#ffffff12",
+    "line2": "#ffffff21",
+    "text": "#ffffff",
+    "muted": "#a599e9",
+    "dim": "#b362ff",
+    "ok": "#33d400",
+    "warn": "#fad000",
+    "down": "#ef3d39",
+    "info": "#8567ff",
+    "accent": "#fad000"
+  },
+  "chart": [
+    "#fad000",
+    "#7c5bff",
+    "#ff2c70",
+    "#80fcff",
+    "#ff9d00",
+    "#3ad900"
+  ],
+  "syntax": {
+    "keyword": "#ff9d00",
+    "string": "#a5ff90",
+    "number": "#ff628c",
+    "comment": "#b362ff",
+    "function": "#ff9d00",
+    "operator": "#ff9d00",
+    "identifier": "#e1efff"
+  },
+  "fx": {
+    "from": "#fad000",
+    "to": "#ff2c70",
+    "glow": "#fad000"
+  },
+  "inspiredBy": "Shades of Purple",
+  "author": "Ahmad Awais",
+  "license": "MIT",
+  "url": "https://github.com/ahmadawais/shades-of-purple-vscode",
+  "adjusted": [
+    "ok",
+    "down",
+    "info"
+  ]
+}

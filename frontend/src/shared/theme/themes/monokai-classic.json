@@ -1,0 +1,54 @@
+{
+  "id": "monokai-classic",
+  "name": "Monokai Classic",
+  "mode": "dark",
+  "category": "editor",
+  "colors": {
+    "bg": "#1e1f1c",
+    "s1": "#272822",
+    "s2": "#2e2f29",
+    "s3": "#363731",
+    "line": "#f8f8f212",
+    "line2": "#f8f8f221",
+    "text": "#f8f8f2",
+    "muted": "#b9bab4",
+    "dim": "#88846f",
+    "ok": "#86b42b",
+    "warn": "#dbb82e",
+    "down": "#d63b6d",
+    "info": "#6a7ec8",
+    "accent": "#f92672"
+  },
+  "chart": [
+    "#f92672",
+    "#6a7ec8",
+    "#ae81ff",
+    "#66d9ef",
+    "#fd971f",
+    "#86b42b"
+  ],
+  "syntax": {
+    "keyword": "#ff4384",
+    "string": "#e6db74",
+    "number": "#ae81ff",
+    "comment": "#88846f",
+    "function": "#a6e22e",
+    "operator": "#ff4384",
+    "identifier": "#f8f8f2"
+  },
+  "fx": {
+    "from": "#f92672",
+    "to": "#ae81ff",
+    "glow": "#f92672"
+  },
+  "inspiredBy": "Monokai (TextMate)",
+  "author": "Microsoft Corporation",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/vscode/tree/main/extensions/theme-monokai",
+  "adjusted": [
+    "warn",
+    "down",
+    "syntax.keyword",
+    "syntax.operator"
+  ]
+}

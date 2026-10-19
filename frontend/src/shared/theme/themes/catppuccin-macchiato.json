@@ -1,0 +1,51 @@
+{
+  "id": "catppuccin-macchiato",
+  "name": "Catppuccin Macchiato",
+  "mode": "dark",
+  "category": "editor",
+  "colors": {
+    "bg": "#181926",
+    "s1": "#24273a",
+    "s2": "#2b2e42",
+    "s3": "#33364a",
+    "line": "#cad3f512",
+    "line2": "#cad3f521",
+    "text": "#cad3f5",
+    "muted": "#a5adcb",
+    "dim": "#939ab7",
+    "ok": "#a6da95",
+    "warn": "#ffd4b4",
+    "down": "#ed8796",
+    "info": "#8aadf4",
+    "accent": "#c6a0f6"
+  },
+  "chart": [
+    "#c6a0f6",
+    "#91d7e3",
+    "#f5a97f",
+    "#a6da95",
+    "#eed49f",
+    "#ed8796"
+  ],
+  "syntax": {
+    "keyword": "#c6a0f6",
+    "string": "#a6da95",
+    "number": "#f5a97f",
+    "comment": "#939ab7",
+    "function": "#8aadf4",
+    "operator": "#91d7e3",
+    "identifier": "#cad3f5"
+  },
+  "fx": {
+    "from": "#c6a0f6",
+    "to": "#c6a0f6",
+    "glow": "#c6a0f6"
+  },
+  "inspiredBy": "Catppuccin",
+  "author": "Catppuccin",
+  "license": "MIT",
+  "url": "https://github.com/catppuccin/palette",
+  "adjusted": [
+    "warn"
+  ]
+}

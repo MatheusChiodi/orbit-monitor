@@ -1,0 +1,55 @@
+{
+  "id": "nord",
+  "name": "Nord",
+  "mode": "dark",
+  "category": "editor",
+  "colors": {
+    "bg": "#252b37",
+    "s1": "#2e3440",
+    "s2": "#363c48",
+    "s3": "#3d4450",
+    "line": "#d8dee912",
+    "line2": "#d8dee921",
+    "text": "#d8dee9",
+    "muted": "#a5abb6",
+    "dim": "#707e98",
+    "ok": "#a3be8c",
+    "warn": "#f0d090",
+    "down": "#c96972",
+    "info": "#81a1c1",
+    "accent": "#88c0d0"
+  },
+  "chart": [
+    "#88c0d0",
+    "#b48ead",
+    "#d08770",
+    "#a3be8c",
+    "#ebcb8b",
+    "#bf616a"
+  ],
+  "syntax": {
+    "keyword": "#81a1c1",
+    "string": "#a3be8c",
+    "number": "#b790af",
+    "comment": "#707e98",
+    "function": "#88c0d0",
+    "operator": "#81a1c1",
+    "identifier": "#d8dee9"
+  },
+  "fx": {
+    "from": "#88c0d0",
+    "to": "#b48ead",
+    "glow": "#88c0d0"
+  },
+  "inspiredBy": "Nord",
+  "author": "Sven Greb",
+  "license": "MIT",
+  "url": "https://github.com/nordtheme/visual-studio-code",
+  "adjusted": [
+    "dim",
+    "warn",
+    "down",
+    "syntax.number",
+    "syntax.comment"
+  ]
+}

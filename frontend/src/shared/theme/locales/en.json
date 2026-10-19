@@ -1,0 +1,113 @@
+{
+  "editor": {
+    "title": "Theme editor",
+    "name": "Theme name",
+    "startFrom": "Start from preset",
+    "wallPreview": "Wall preview",
+    "consolePreview": "Console preview",
+    "save": "Save theme",
+    "cancel": "Cancel",
+    "useSuggested": "Use suggested value",
+    "groups": {
+      "surfaces": "Surfaces",
+      "text": "Text",
+      "status": "Status",
+      "chart": "Chart series",
+      "syntax": "SQL syntax",
+      "fx": "Visual effects"
+    },
+    "issues": "Contrast problems",
+    "issueCount_one": "{{count}} contrast problem: fix it to save",
+    "issueCount_other": "{{count}} contrast problems: fix them to save",
+    "allGood": "Every text and status color passes the contrast guard",
+    "fixAll": "Fix all",
+    "pick": "Pick {{token}}"
+  },
+  "gallery": {
+    "title": "Appearance",
+    "intro": "Pick a theme for this device. It recolors the wall, the console, charts and the SQL editor.",
+    "search": "Search themes",
+    "filters": "Filter themes",
+    "filter": {
+      "all": "All",
+      "dark": "Dark",
+      "light": "Light",
+      "accessible": "Accessible",
+      "favorites": "Favorites",
+      "custom": "Custom"
+    },
+    "current": "In use",
+    "apply": "Use {{name}}",
+    "favorite": "Add {{name}} to favorites",
+    "unfavorite": "Remove {{name}} from favorites",
+    "duplicate": "Duplicate & edit",
+    "edit": "Edit",
+    "delete": "Delete",
+    "export": "Export",
+    "restoreDefault": "Restore default",
+    "import": "Import theme",
+    "importHint": "Orbit theme or VS Code color theme (.json)",
+    "empty": "No theme matches \"{{query}}\"",
+    "emptyFavorites": "No favorites yet. Use the star on a theme card to keep it here.",
+    "count_one": "{{count}} theme",
+    "count_other": "{{count}} themes",
+    "inspiredBy": "Inspired by {{name}}",
+    "adjusted": "Status or text shades adjusted for contrast",
+    "followSystem": "Follow the system light/dark setting",
+    "scope": {
+      "url": "Set by the page address (?theme=)",
+      "layout": "Set by this wall layout",
+      "device": "Saved on this device",
+      "workspace": "Workspace default",
+      "default": "Orbit default"
+    },
+    "workspaceDefault": "Make workspace default",
+    "readOnly": "View only: theme changes on this screen apply to this device only"
+  },
+  "import": {
+    "title": "Review imported theme",
+    "fixes_one": "Orbit changed {{count}} color so text and states stay readable:",
+    "fixes_other": "Orbit changed {{count}} colors so text and states stay readable:",
+    "noFixes": "Every color passed the contrast guard as is.",
+    "fromVsCode": "Converted from a VS Code color theme",
+    "save": "Save imported theme",
+    "cancel": "Discard"
+  },
+  "mini": {
+    "label": "Preview of {{name}}",
+    "hero": "Checkout API",
+    "matrix": "Monitors",
+    "chart": "Latency"
+  },
+  "presets": {
+    "orbit-dark": "Orbit Dark",
+    "high-contrast-dark": "High Contrast Dark",
+    "high-contrast-light": "High Contrast Light",
+    "oled-black": "OLED Black",
+    "colorblind-deuteranopia": "Color-blind safe (deuteranopia)",
+    "colorblind-protanopia": "Color-blind safe (protanopia)",
+    "colorblind-tritanopia": "Color-blind safe (tritanopia)"
+  },
+  "contrast": {
+    "body": "{{foreground}} on {{background}} has contrast {{ratio}}:1; body text needs 4.5:1",
+    "large": "{{foreground}} on {{background}} has contrast {{ratio}}:1; large labels need 3:1",
+    "indistinguishable": "{{foreground}} and {{background}} are too similar to tell states apart",
+    "indistinguishableCvd": "{{foreground}} and {{background}} look alike with {{cvd}}",
+    "cvd": {
+      "protanopia": "protanopia",
+      "deuteranopia": "deuteranopia",
+      "tritanopia": "tritanopia"
+    }
+  },
+  "file": {
+    "invalidJson": "This file is not valid JSON",
+    "invalidTheme": "This file does not contain a theme",
+    "invalidId": "The theme id must use lowercase letters, numbers and dashes",
+    "invalidName": "The theme needs a name",
+    "missingToken": "The theme has no value for {{token}}",
+    "invalidColor": "{{token}} is not a hex color",
+    "unsupportedVersion": "Theme file version {{version}} is not supported",
+    "tooLarge": "This file is too large to be a theme",
+    "notVsCode": "This VS Code file has no editor background color"
+  }
+}

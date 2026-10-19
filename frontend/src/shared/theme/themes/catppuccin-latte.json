@@ -1,0 +1,59 @@
+{
+  "id": "catppuccin-latte",
+  "name": "Catppuccin Latte",
+  "mode": "light",
+  "category": "editor",
+  "colors": {
+    "bg": "#dce0e8",
+    "s1": "#eff1f5",
+    "s2": "#e7e9ed",
+    "s3": "#dfe0e4",
+    "line": "#4c4f691f",
+    "line2": "#4c4f6933",
+    "text": "#4c4f69",
+    "muted": "#5f6278",
+    "dim": "#7b7e92",
+    "ok": "#309218",
+    "warn": "#ba6c00",
+    "down": "#c70030",
+    "info": "#1e66f5",
+    "accent": "#8839ef"
+  },
+  "chart": [
+    "#8839ef",
+    "#1e66f5",
+    "#0093d2",
+    "#f15800",
+    "#3e9e29",
+    "#c87800"
+  ],
+  "syntax": {
+    "keyword": "#8839ef",
+    "string": "#187f00",
+    "number": "#cd3400",
+    "comment": "#7c7f93",
+    "function": "#1b63f1",
+    "operator": "#0073b1",
+    "identifier": "#4c4f69"
+  },
+  "fx": {
+    "from": "#8839ef",
+    "to": "#8839ef",
+    "glow": "#8839ef"
+  },
+  "inspiredBy": "Catppuccin",
+  "author": "Catppuccin",
+  "license": "MIT",
+  "url": "https://github.com/catppuccin/palette",
+  "adjusted": [
+    "muted",
+    "dim",
+    "ok",
+    "warn",
+    "down",
+    "syntax.string",
+    "syntax.number",
+    "syntax.function",
+    "syntax.operator"
+  ]
+}

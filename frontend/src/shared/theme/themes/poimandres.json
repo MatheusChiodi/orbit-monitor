@@ -1,0 +1,52 @@
+{
+  "id": "poimandres",
+  "name": "Poimandres",
+  "mode": "dark",
+  "category": "editor",
+  "colors": {
+    "bg": "#131620",
+    "s1": "#1b1e28",
+    "s2": "#22252f",
+    "s3": "#292d37",
+    "line": "#e4f0fb12",
+    "line2": "#e4f0fb21",
+    "text": "#e4f0fb",
+    "muted": "#a6accdb3",
+    "dim": "#767c9db0",
+    "ok": "#5de4c7",
+    "warn": "#fffac2",
+    "down": "#d0679d",
+    "info": "#9cd0ff",
+    "accent": "#add7ff"
+  },
+  "chart": [
+    "#add7ff",
+    "#f087bd",
+    "#5de4c7",
+    "#fffac2",
+    "#a6accd",
+    "#d0679d"
+  ],
+  "syntax": {
+    "keyword": "#a6accd",
+    "string": "#5de4c7",
+    "number": "#5de4c7",
+    "comment": "#626882",
+    "function": "#add7ff",
+    "operator": "#91b4d5",
+    "identifier": "#e4f0fb"
+  },
+  "fx": {
+    "from": "#add7ff",
+    "to": "#f087bd",
+    "glow": "#add7ff"
+  },
+  "inspiredBy": "Poimandres",
+  "author": "drcmda",
+  "license": "MIT",
+  "url": "https://github.com/drcmda/poimandres-theme",
+  "adjusted": [
+    "info",
+    "syntax.comment"
+  ]
+}

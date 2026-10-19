@@ -1,0 +1,59 @@
+{
+  "id": "rose-pine-dawn",
+  "name": "Rosé Pine Dawn",
+  "mode": "light",
+  "category": "editor",
+  "colors": {
+    "bg": "#f0eae3",
+    "s1": "#faf4ed",
+    "s2": "#f2ece5",
+    "s3": "#e9e3dd",
+    "line": "#5752791f",
+    "line2": "#57527933",
+    "text": "#575279",
+    "muted": "#6b6684",
+    "dim": "#898496",
+    "ok": "#286983",
+    "warn": "#c07500",
+    "down": "#b4637a",
+    "info": "#52909b",
+    "accent": "#c26f6c"
+  },
+  "chart": [
+    "#ca7673",
+    "#56949f",
+    "#907aa9",
+    "#286983",
+    "#c77d00",
+    "#ac5b59"
+  ],
+  "syntax": {
+    "keyword": "#286983",
+    "string": "#a75e00",
+    "number": "#a95956",
+    "comment": "#908b9d",
+    "function": "#a95956",
+    "operator": "#286983",
+    "identifier": "#575279"
+  },
+  "fx": {
+    "from": "#d7827e",
+    "to": "#907aa9",
+    "glow": "#d7827e"
+  },
+  "inspiredBy": "Rosé Pine",
+  "author": "Rosé Pine",
+  "license": "MIT",
+  "url": "https://github.com/rose-pine/vscode",
+  "adjusted": [
+    "muted",
+    "dim",
+    "warn",
+    "info",
+    "accent",
+    "syntax.string",
+    "syntax.number",
+    "syntax.comment",
+    "syntax.function"
+  ]
+}

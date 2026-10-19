@@ -1,0 +1,54 @@
+{
+  "id": "one-dark",
+  "name": "One Dark",
+  "mode": "dark",
+  "category": "editor",
+  "colors": {
+    "bg": "#21252b",
+    "s1": "#282c34",
+    "s2": "#2f343c",
+    "s3": "#373b44",
+    "line": "#abb2bf12",
+    "line2": "#abb2bf21",
+    "text": "#abb2bf",
+    "muted": "#9da5b499",
+    "dim": "#6e7583",
+    "ok": "#98c379",
+    "warn": "#efca84",
+    "down": "#e06c75",
+    "info": "#61afef",
+    "accent": "#528bff"
+  },
+  "chart": [
+    "#528bff",
+    "#61afef",
+    "#c678dd",
+    "#d19a66",
+    "#98c379",
+    "#e5c07b"
+  ],
+  "syntax": {
+    "keyword": "#c678dd",
+    "string": "#98c379",
+    "number": "#d19a66",
+    "comment": "#6e7583",
+    "function": "#61afef",
+    "operator": "#c678dd",
+    "identifier": "#e36f77"
+  },
+  "fx": {
+    "from": "#528bff",
+    "to": "#c678dd",
+    "glow": "#528bff"
+  },
+  "inspiredBy": "Atom One Dark",
+  "author": "GitHub Inc.",
+  "license": "MIT",
+  "url": "https://github.com/atom/atom/tree/master/packages/one-dark-syntax",
+  "adjusted": [
+    "dim",
+    "warn",
+    "syntax.comment",
+    "syntax.identifier"
+  ]
+}

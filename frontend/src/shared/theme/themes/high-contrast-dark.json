@@ -1,0 +1,47 @@
+{
+  "id": "high-contrast-dark",
+  "name": "High Contrast Dark",
+  "mode": "dark",
+  "category": "accessible",
+  "author": "Orbit Monitor",
+  "license": "MIT",
+  "url": "https://github.com/MatheusChiodi/orbit-monitor",
+  "colors": {
+    "bg": "#000000",
+    "s1": "#0a0a0a",
+    "s2": "#141414",
+    "s3": "#1f1f1f",
+    "line": "#ffffff40",
+    "line2": "#ffffff73",
+    "text": "#ffffff",
+    "muted": "#e6e6e6",
+    "dim": "#b8b8b8",
+    "ok": "#4ade80",
+    "warn": "#ffd60a",
+    "down": "#ff6b6b",
+    "info": "#5cb8ff",
+    "accent": "#ffd60a"
+  },
+  "chart": [
+    "#5cb8ff",
+    "#ff9f43",
+    "#c084fc",
+    "#2dd4bf",
+    "#f472b6",
+    "#e5e5e5"
+  ],
+  "syntax": {
+    "keyword": "#82c4ff",
+    "string": "#7dffa8",
+    "number": "#ffd60a",
+    "comment": "#b8b8b8",
+    "function": "#d8b4fe",
+    "operator": "#ffffff",
+    "identifier": "#ffffff"
+  },
+  "fx": {
+    "from": "#5cb8ff",
+    "to": "#c084fc",
+    "glow": "#ffffff"
+  }
+}

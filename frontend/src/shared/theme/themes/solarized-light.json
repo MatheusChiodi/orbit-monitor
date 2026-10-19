@@ -1,0 +1,63 @@
+{
+  "id": "solarized-light",
+  "name": "Solarized Light",
+  "mode": "light",
+  "category": "editor",
+  "colors": {
+    "bg": "#f3ecd9",
+    "s1": "#fdf6e3",
+    "s2": "#f5eedb",
+    "s3": "#ece5d3",
+    "line": "#657b831f",
+    "line2": "#657b8333",
+    "text": "#556a72",
+    "muted": "#616d6e",
+    "dim": "#7d8a8b",
+    "ok": "#7d9000",
+    "warn": "#a76600",
+    "down": "#dc2f48",
+    "info": "#268bd2",
+    "accent": "#268bd2"
+  },
+  "chart": [
+    "#268bd2",
+    "#269e96",
+    "#cb4b16",
+    "#849700",
+    "#5356a7",
+    "#6a7b00"
+  ],
+  "syntax": {
+    "keyword": "#677800",
+    "string": "#007f77",
+    "number": "#007f77",
+    "comment": "#849192",
+    "function": "#0075bb",
+    "operator": "#677800",
+    "identifier": "#0075bb"
+  },
+  "fx": {
+    "from": "#268bd2",
+    "to": "#6c71c4",
+    "glow": "#268bd2"
+  },
+  "inspiredBy": "Solarized",
+  "author": "Ethan Schoonover",
+  "license": "MIT",
+  "url": "https://github.com/altercation/solarized",
+  "adjusted": [
+    "text",
+    "muted",
+    "dim",
+    "ok",
+    "warn",
+    "down",
+    "syntax.keyword",
+    "syntax.string",
+    "syntax.number",
+    "syntax.comment",
+    "syntax.function",
+    "syntax.operator",
+    "syntax.identifier"
+  ]
+}

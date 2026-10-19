@@ -1,0 +1,47 @@
+{
+  "id": "oled-black",
+  "name": "OLED Black",
+  "mode": "dark",
+  "category": "accessible",
+  "author": "Orbit Monitor",
+  "license": "MIT",
+  "url": "https://github.com/MatheusChiodi/orbit-monitor",
+  "colors": {
+    "bg": "#000000",
+    "s1": "#050505",
+    "s2": "#0c0c0c",
+    "s3": "#141414",
+    "line": "#ffffff1a",
+    "line2": "#ffffff2e",
+    "text": "#eef2f7",
+    "muted": "#9aa4b2",
+    "dim": "#6b7686",
+    "ok": "#22c55e",
+    "warn": "#f5a524",
+    "down": "#ff3b4f",
+    "info": "#3b9eff",
+    "accent": "#3b9eff"
+  },
+  "chart": [
+    "#3b9eff",
+    "#22d3ee",
+    "#a78bfa",
+    "#fb923c",
+    "#f472b6",
+    "#a3e635"
+  ],
+  "syntax": {
+    "keyword": "#7cb7ff",
+    "string": "#a9f0c3",
+    "number": "#ffd48a",
+    "comment": "#6b7686",
+    "function": "#c4b5fd",
+    "operator": "#8b96a6",
+    "identifier": "#eef2f7"
+  },
+  "fx": {
+    "from": "#3b9eff",
+    "to": "#22c55e",
+    "glow": "#3b9eff"
+  }
+}

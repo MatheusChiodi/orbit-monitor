@@ -1,0 +1,36 @@
+{
+  "id": "orbit-dark",
+  "name": "Orbit Dark",
+  "mode": "dark",
+  "category": "default",
+  "colors": {
+    "bg": "#07090d",
+    "s1": "#0d1117",
+    "s2": "#121820",
+    "s3": "#182029",
+    "line": "#ffffff12",
+    "line2": "#ffffff21",
+    "text": "#eef2f7",
+    "muted": "#8b96a6",
+    "dim": "#5a6575",
+    "ok": "#22c55e",
+    "warn": "#f5a524",
+    "down": "#ff3b4f",
+    "info": "#3b9eff",
+    "accent": "#3b9eff"
+  },
+  "chart": ["#3b9eff", "#22d3ee", "#a78bfa", "#fb923c", "#f472b6", "#a3e635"],
+  "syntax": {
+    "keyword": "#7cb7ff",
+    "string": "#a9f0c3",
+    "number": "#ffd48a",
+    "comment": "#6b7686",
+    "function": "#c4b5fd",
+    "operator": "#8b96a6",
+    "identifier": "#eef2f7"
+  },
+  "fx": { "from": "#3b9eff", "to": "#22c55e", "glow": "#3b9eff" },
+  "author": "Orbit Monitor",
+  "license": "MIT",
+  "url": "https://github.com/MatheusChiodi/orbit-monitor"
+}

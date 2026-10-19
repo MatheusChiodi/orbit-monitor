@@ -2,15 +2,21 @@ import i18next, { type i18n as I18n } from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import en from './locales/en.json';
 import ptBR from './locales/pt-BR.json';
+import themeEn from '@/shared/theme/locales/en.json';
+import themePtBR from '@/shared/theme/locales/pt-BR.json';
 
 export const SUPPORTED_LOCALES = ['en', 'pt-BR'] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = 'en';
 export const LOCALE_STORAGE_KEY = 'orbit.locale';
 
-export type Messages = typeof en;
+/** Theme messages live with the theme system (`@/shared/theme/locales`). */
+export type Messages = typeof en & { theme: typeof themeEn };
 
-const RESOURCES: Record<Locale, Messages> = { en, 'pt-BR': ptBR };
+const RESOURCES: Record<Locale, Messages> = {
+  en: { ...en, theme: themeEn },
+  'pt-BR': { ...ptBR, theme: themePtBR },
+};
 
 export function isLocale(value: unknown): value is Locale {
   return typeof value === 'string' && (SUPPORTED_LOCALES as readonly string[]).includes(value);
@@ -77,7 +83,7 @@ export function createI18n(locale: Locale, options: CreateI18nOptions = {}): I18
     lng: locale,
     fallbackLng: DEFAULT_LOCALE,
     supportedLngs: [...SUPPORTED_LOCALES],
-    resources: { en: { translation: en }, 'pt-BR': { translation: ptBR } },
+    resources: { en: { translation: RESOURCES.en }, 'pt-BR': { translation: RESOURCES['pt-BR'] } },
     interpolation: { escapeValue: false },
     initAsync: false,
   });

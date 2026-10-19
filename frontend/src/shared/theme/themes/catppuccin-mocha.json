@@ -1,0 +1,51 @@
+{
+  "id": "catppuccin-mocha",
+  "name": "Catppuccin Mocha",
+  "mode": "dark",
+  "category": "editor",
+  "colors": {
+    "bg": "#11111b",
+    "s1": "#1e1e2e",
+    "s2": "#252536",
+    "s3": "#2c2d3d",
+    "line": "#cdd6f412",
+    "line2": "#cdd6f421",
+    "text": "#cdd6f4",
+    "muted": "#a6adc8",
+    "dim": "#9399b2",
+    "ok": "#a6e3a1",
+    "warn": "#ffe7bb",
+    "down": "#f38ba8",
+    "info": "#89b4fa",
+    "accent": "#cba6f7"
+  },
+  "chart": [
+    "#cba6f7",
+    "#89b4fa",
+    "#89dceb",
+    "#fab387",
+    "#a6e3a1",
+    "#f9e2af"
+  ],
+  "syntax": {
+    "keyword": "#cba6f7",
+    "string": "#a6e3a1",
+    "number": "#fab387",
+    "comment": "#9399b2",
+    "function": "#89b4fa",
+    "operator": "#89dceb",
+    "identifier": "#cdd6f4"
+  },
+  "fx": {
+    "from": "#cba6f7",
+    "to": "#cba6f7",
+    "glow": "#cba6f7"
+  },
+  "inspiredBy": "Catppuccin",
+  "author": "Catppuccin",
+  "license": "MIT",
+  "url": "https://github.com/catppuccin/palette",
+  "adjusted": [
+    "warn"
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "id": "github-dark",
+  "name": "GitHub Dark",
+  "mode": "dark",
+  "category": "editor",
+  "colors": {
+    "bg": "#010409",
+    "s1": "#0d1117",
+    "s2": "#14181e",
+    "s3": "#1a1f25",
+    "line": "#e6edf312",
+    "line2": "#e6edf321",
+    "text": "#e6edf3",
+    "muted": "#7d8590",
+    "dim": "#8b949e",
+    "ok": "#3fb950",
+    "warn": "#d29922",
+    "down": "#ff7b72",
+    "info": "#58a6ff",
+    "accent": "#1f6feb"
+  },
+  "chart": [
+    "#1f6feb",
+    "#58a6ff",
+    "#bc8cff",
+    "#39c5cf",
+    "#ffa657",
+    "#3fb950"
+  ],
+  "syntax": {
+    "keyword": "#ff7b72",
+    "string": "#a5d6ff",
+    "number": "#79c0ff",
+    "comment": "#8b949e",
+    "function": "#d2a8ff",
+    "operator": "#e6edf3",
+    "identifier": "#ffa657"
+  },
+  "fx": {
+    "from": "#1f6feb",
+    "to": "#bc8cff",
+    "glow": "#1f6feb"
+  },
+  "inspiredBy": "GitHub themes",
+  "author": "Primer",
+  "license": "MIT",
+  "url": "https://github.com/primer/github-vscode-theme"
+}
