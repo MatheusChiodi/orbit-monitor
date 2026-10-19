@@ -23,3 +23,9 @@ Read [`context/project.md`](context/project.md) and [`context/README.md`](contex
 - The repository owner is the **sole author** of every commit. Use the local `git config user.name` / `user.email` as-is; never change them.
 - **Never** add `Co-Authored-By`, `Claude-Session`, "Generated with Claude Code" or any other AI/assistant attribution to commit messages, PR descriptions, code comments or docs.
 - Commit messages contain only the Conventional Commit subject and, when useful, a plain body.
+
+## Shared working tree (mandatory)
+Several agents work in this checkout at the same time. Commit only with an explicit pathspec (`git add <paths> && git commit -m "..." -- <paths>`); never `git add .`, `git add -A` or a bare `git commit`, so nobody sweeps in another agent's staged files.
+
+## Specialist agents
+Project specialists live in `.claude/agents/` (orbit-backend, orbit-frontend, orbit-fx, orbit-history, orbit-themes, orbit-customization, orbit-dataviz, orbit-privacy, orbit-qa, orbit-docs). Each loads its best skills, researches current best practices before coding and records the decision in the feature's context file.
