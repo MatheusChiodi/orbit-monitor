@@ -163,10 +163,10 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [BE-36](features/BE-36-channel-reliability.md) | Channel reliability | backend | tests-pending |
 | [BE-37](features/BE-37-config-export-import.md) | Config export/import | backend | tests-pending |
 | [BE-38](features/BE-38-realtime-protocol.md) | Realtime protocol | backend | in-progress |
-| [BE-39](features/BE-39-workspace-variables.md) | Workspace variables | backend | planned |
-| [BE-40](features/BE-40-workspace-defaults-and-themes-api.md) | Workspace defaults and themes API | backend | planned |
-| [BE-41](features/BE-41-wall-layouts.md) | Wall layouts | backend | planned |
-| [BE-42](features/BE-42-status-page-api.md) | Status page API | backend | planned |
+| [BE-39](features/BE-39-workspace-variables.md) | Workspace variables | backend | tests-pending |
+| [BE-40](features/BE-40-workspace-defaults-and-themes-api.md) | Workspace defaults and themes API | backend | tests-pending |
+| [BE-41](features/BE-41-wall-layouts.md) | Wall layouts | backend | tests-pending |
+| [BE-42](features/BE-42-status-page-api.md) | Status page API | backend | tests-pending |
 | [BE-43](features/BE-43-uptime-kuma-import.md) | Uptime Kuma import | backend | planned |
 | [BE-44](features/BE-44-network-access-policy.md) | Network access policy | backend | done |
 | [BE-45](features/BE-45-operator-identity.md) | Operator identity | backend | in-progress |

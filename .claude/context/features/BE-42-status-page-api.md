@@ -3,7 +3,7 @@ id: BE-42
 title: "Status page API"
 area: backend
 group: "Workspace and configuration"
-status: planned
+status: tests-pending
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 Public/internal read-only, cached, no personal data
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -23,13 +23,14 @@ Public/internal read-only, cached, no personal data
 —
 
 ## Code
-_None yet._
+- `backend/orbit-workspace/src/main/java/io/orbit/workspace/status/StatusPageBuilder.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-workspace/src/test/java/io/orbit/workspace/status/StatusPageBuilderTest.java`
 
 ## Decisions and notes
-_None yet._
+- Only group name, state and uptime; overall = worst state; no values, errors or names.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending tests and stubs added (status: tests-pending).

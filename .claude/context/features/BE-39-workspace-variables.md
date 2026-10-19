@@ -3,7 +3,7 @@ id: BE-39
 title: "Workspace variables"
 area: backend
 group: "Workspace and configuration"
-status: planned
+status: tests-pending
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 `${var:name}` and `${vault:name}` references
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -23,13 +23,14 @@ updated: 2026-10-18
 —
 
 ## Code
-_None yet._
+- `backend/orbit-workspace/src/main/java/io/orbit/workspace/variable/VariableResolver.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-workspace/src/test/java/io/orbit/workspace/variable/VariableResolverTest.java`
 
 ## Decisions and notes
-_None yet._
+- `${var:name}` from orbit.variables.json, `${vault:name}` decrypted only at use time; masked variant for previews/logs; unknown names fail.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending tests and stubs added (status: tests-pending).

@@ -23,5 +23,9 @@
             <groupId>io.orbit</groupId>
             <artifactId>orbit-config</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.orbit</groupId>
+            <artifactId>orbit-security</artifactId>
+        </dependency>
     </dependencies>
 </project>

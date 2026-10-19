@@ -1,0 +1,45 @@
+package io.orbit.workspace;
+
+import io.orbit.common.MonitorState;
+import io.orbit.config.ConfigFile;
+import io.orbit.config.ConfigMapper;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@Tag("pending")
+@DisplayName("CORE-07 workspaces and maintenance-aware group state")
+class WorkspaceServiceTest {
+
+    @TempDir
+    Path dir;
+
+    @Test
+    @DisplayName("workspaces group the groups (Production, Staging)")
+    void workspaces() {
+        WorkspaceService service = new WorkspaceService(new ConfigFile<>(dir, "workspaces", WorkspaceService.Workspace.class,
+                ConfigMapper.create(), items -> List.of()));
+        service.save(new WorkspaceService.Workspace("wks_prod", "Production", List.of("grp_pay", "grp_portal")), "Ana");
+
+        assertThat(service.list()).extracting(WorkspaceService.Workspace::name).containsExactly("Production");
+        assertThat(service.workspaceOf("grp_pay")).map(WorkspaceService.Workspace::id).contains("wks_prod");
+    }
+
+    @Test
+    @DisplayName("monitors in maintenance do not drive the group state")
+    void maintenanceIgnored() {
+        Map<String, MonitorState> states = Map.of("m1", MonitorState.OK, "m2", MonitorState.DOWN);
+        assertThat(WorkspaceService.groupState(List.of("m1", "m2"), states::get, Set.of("m2")))
+                .isEqualTo(MonitorState.OK);
+        assertThat(WorkspaceService.groupState(List.of("m1", "m2"), states::get, Set.of()))
+                .isEqualTo(MonitorState.DOWN);
+    }
+}

@@ -26,6 +26,7 @@
         <module>orbit-telemetry</module>
         <module>orbit-alerting</module>
         <module>orbit-workspace</module>
+        <module>orbit-history</module>
         <module>orbit-api</module>
     </modules>
 
@@ -34,8 +35,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jsqlparser.version>5.1</jsqlparser.version>
         <springdoc.version>2.8.6</springdoc.version>
+        <zstd-jni.version>1.5.7-24</zstd-jni.version>
         <!-- Tests tagged "pending" cover features not implemented yet (docs/05 section 3). -->
-        <surefire.excludedGroups>pending</surefire.excludedGroups>
+        <surefire.excludedGroups>pending,bench</surefire.excludedGroups>
         <surefire.groups></surefire.groups>
     </properties>
 
@@ -82,6 +84,16 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>io.orbit</groupId>
+                <artifactId>orbit-history</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.luben</groupId>
+                <artifactId>zstd-jni</artifactId>
+                <version>${zstd-jni.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.github.jsqlparser</groupId>
                 <artifactId>jsqlparser</artifactId>
                 <version>${jsqlparser.version}</version>
@@ -115,6 +127,14 @@
             <properties>
                 <surefire.excludedGroups></surefire.excludedGroups>
                 <surefire.groups>pending</surefire.groups>
+            </properties>
+        </profile>
+        <profile>
+            <!-- Size/speed benchmarks (docs/08 section 8): ./mvnw -Pbench verify -->
+            <id>bench</id>
+            <properties>
+                <surefire.excludedGroups>pending</surefire.excludedGroups>
+                <surefire.groups>bench</surefire.groups>
             </properties>
         </profile>
     </profiles>

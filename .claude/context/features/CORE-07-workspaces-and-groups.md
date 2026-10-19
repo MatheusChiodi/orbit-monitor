@@ -23,14 +23,15 @@ Group state = worst monitor state; color, icon, owner, tags.
 [monitor-list](../screens/monitor-list.md), [wall](../screens/wall.md)
 
 ## Code
+- `frontend/src/domains/workspace/groups/groups.ts`
 - `backend/orbit-workspace/src/main/java/io/orbit/workspace/Group.java`
 - `backend/orbit-workspace/src/main/java/io/orbit/workspace/GroupService.java`
-- `backend/config-examples/orbit.groups.example.json`
-- `frontend/src/domains/workspace/groups/groups.ts`
+- `backend/orbit-workspace/src/main/java/io/orbit/workspace/WorkspaceService.java`
 
 ## Tests
-- `backend/orbit-workspace/src/test/java/io/orbit/workspace/GroupServiceTest.java`
 - `frontend/src/domains/workspace/groups/groups.test.ts`
+- `backend/orbit-workspace/src/test/java/io/orbit/workspace/GroupServiceTest.java`
+- `backend/orbit-workspace/src/test/java/io/orbit/workspace/WorkspaceServiceTest.java`
 
 ## Decisions and notes
 - Backend: Groups live in `orbit.groups.json` (id, name, color `#rrggbb`, icon, description, owner, tags, order, updatedAt, updatedBy).
@@ -44,3 +45,4 @@ Group state = worst monitor state; color, icon, owner, tags.
 - 2026-10-18 — backend: groups stored in orbit.groups.json and worst-state rule.
 - 2026-10-18 — frontend: pending test suite written.
 - 2026-10-18 — frontend: groups loader and group state rule.
+- 2026-10-18 — backend: pending tests for workspaces and maintenance-aware group state.
