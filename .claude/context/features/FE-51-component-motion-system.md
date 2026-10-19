@@ -36,6 +36,9 @@ All screens (see frontmatter).
 - `frontend/src/shared/ui/Sparkline/Sparkline.tsx`
 - `frontend/src/shared/ui/ThresholdChart/ThresholdChart.tsx`
 - `frontend/src/app/theme.css`
+- `frontend/src/shared/ui/FlashValue/FlashValue.tsx`
+- `frontend/src/shared/ui/AnimatedItem/AnimatedItem.tsx`
+- `frontend/src/domains/wall/components/`
 
 ## Tests
 - `frontend/src/shared/motion/tokens.test.ts`
@@ -53,11 +56,6 @@ All screens (see frontmatter).
 - `frontend/src/shared/ui/StatusPill/StatusPill.motion.test.tsx`
 - `frontend/src/shared/ui/Sparkline/Sparkline.motion.test.tsx`
 - `frontend/src/shared/ui/ThresholdChart/ThresholdChart.motion.test.tsx`
-- `frontend/src/domains/monitor/components/ConditionEditor/ConditionEditor.motion.pending.test.tsx`
-- `frontend/src/domains/monitor/components/DataDisplayStep/DataDisplayStep.motion.pending.test.tsx`
-- `frontend/src/domains/monitor/components/MonitorForm/MonitorForm.motion.pending.test.tsx`
-- `frontend/src/domains/monitor/components/PreviewTable/PreviewTable.motion.pending.test.tsx`
-- `frontend/src/domains/monitor/components/SqlEditor/SqlEditor.motion.pending.test.tsx`
 - `frontend/src/domains/wall/components/AcknowledgeButton/AcknowledgeButton.motion.pending.test.tsx`
 - `frontend/src/domains/wall/components/AlsoActive/AlsoActive.motion.pending.test.tsx`
 - `frontend/src/domains/wall/components/Hero/Hero.motion.pending.test.tsx`
@@ -67,6 +65,13 @@ All screens (see frontmatter).
 - `frontend/src/domains/wall/components/Timeline/Timeline.motion.pending.test.tsx`
 - `frontend/src/domains/wall/components/WallHeader/WallHeader.motion.pending.test.tsx`
 - `frontend/src/domains/wall/components/WallScreen/WallScreen.motion.pending.test.tsx`
+- `frontend/src/shared/ui/FlashValue/FlashValue.test.tsx`
+- `frontend/src/domains/wall/components/*/*.motion.test.tsx`
+- `frontend/src/domains/monitor/components/ConditionEditor/ConditionEditor.motion.pending.test.tsx`
+- `frontend/src/domains/monitor/components/DataDisplayStep/DataDisplayStep.motion.pending.test.tsx`
+- `frontend/src/domains/monitor/components/MonitorForm/MonitorForm.motion.pending.test.tsx`
+- `frontend/src/domains/monitor/components/PreviewTable/PreviewTable.motion.pending.test.tsx`
+- `frontend/src/domains/monitor/components/SqlEditor/SqlEditor.motion.pending.test.tsx`
 - `frontend/src/domains/workspace/GroupList/GroupList.motion.pending.test.tsx`
 
 ## Decisions and notes
@@ -76,6 +81,9 @@ All screens (see frontmatter).
 - Helpers for tests live in `@/test/motion` (`renderWithMotion`, `flushMotion`, `entersAnimated`, `isStatic`).
 - Tailwind needs literal classes, so `duration-[120ms]` / `duration-[400ms]` mirror `MOTION.duration.instant` / `slow`; `transition-none` when the level is off.
 - One-shot signals (dot pulse, sparkline new-point draw) come from `useChangeSignal`; keyframes `anim-pulse-once`, `anim-draw`, `anim-shimmer` live in `theme.css` and are disabled by `prefers-reduced-motion`.
+- `FlashValue` swaps numbers in place with a 600 ms up/down tint (`anim-flash-up/down`); `AnimatedItem` is the shared `<li>` with the list preset, 30 ms stagger and an ease-in-out `layout` transition for reorderable lists.
+- Hero swap: the old and new hero are stacked in the same grid cell and cross-fade (sync `AnimatePresence`), replacing the earlier wait-mode `layoutId` swap.
+- The "All systems operational" ring and the timeline highlight need the standard level or above; the owner-less DOWN blink stays at every level as a state signal.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -84,3 +92,4 @@ All screens (see frontmatter).
 - 2026-10-18 — motion tokens, presets per level, `useMotionPreset` and `useValueFlash` (status: in-progress).
 - 2026-10-18 — shared UI components animated (Button, Panel, Badge, StatusPill/StatusDot, Sparkline, ThresholdChart).
 - 2026-10-18 — shared UI components animated (Button, Panel, Badge, StatusPill/StatusDot, Sparkline, ThresholdChart).
+- 2026-10-18 — wall components animated (hero, calm hero, matrix, timeline, also active, near threshold, acknowledge, header, wall screen loading skeleton).

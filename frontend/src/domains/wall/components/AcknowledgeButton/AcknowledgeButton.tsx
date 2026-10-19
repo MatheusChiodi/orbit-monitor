@@ -1,6 +1,8 @@
+import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import type { Incident } from '@/shared/api/types';
 import { formatTime } from '@/shared/format';
+import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import { Button } from '@/shared/ui';
 
 export interface AcknowledgeButtonProps {
@@ -9,22 +11,37 @@ export interface AcknowledgeButtonProps {
   className?: string;
 }
 
-/** The only action button on the wall. Once clicked it becomes text. */
+/** The only action button on the wall. Once clicked it cross-fades into text. */
 export function AcknowledgeButton({ incident, onAcknowledge, className = '' }: AcknowledgeButtonProps) {
   const { t } = useTranslation();
-  if (incident.acknowledgedBy) {
-    const text = incident.acknowledgedAt
-      ? t('wall.ack.doneAt', { name: incident.acknowledgedBy, time: formatTime(incident.acknowledgedAt) })
-      : t('wall.ack.done', { name: incident.acknowledgedBy });
-    return <p className={`m-0 text-[0.85rem] text-info ${className}`}>{text}</p>;
-  }
+  const preset = useMotionPreset('enter');
+  const fade = {
+    initial: preset.level === 'off' ? false : ({ opacity: 0 } as const),
+    animate: { opacity: 1 },
+    exit: preset.level === 'off' ? {} : { opacity: 0, transition: preset.exit.transition },
+    transition: preset.transition,
+  };
+  const text = incident.acknowledgedAt
+    ? t('wall.ack.doneAt', { name: incident.acknowledgedBy ?? '', time: formatTime(incident.acknowledgedAt) })
+    : t('wall.ack.done', { name: incident.acknowledgedBy ?? '' });
+
   return (
-    <Button
-      variant={incident.severity === 'DOWN' ? 'danger' : 'neutral'}
-      onClick={() => onAcknowledge(incident.id)}
-      className={className}
-    >
-      {t('wall.ack.button')}
-    </Button>
+    <AnimatePresence initial={false}>
+      {incident.acknowledgedBy ? (
+        <motion.p key="acknowledged" {...fade} className={`m-0 text-[0.85rem] text-info ${className}`}>
+          {text}
+        </motion.p>
+      ) : (
+        <motion.span key="button" {...fade} className={`inline-flex ${className}`}>
+          <Button
+            variant={incident.severity === 'DOWN' ? 'danger' : 'neutral'}
+            onClick={() => onAcknowledge(incident.id)}
+            className="w-full"
+          >
+            {t('wall.ack.button')}
+          </Button>
+        </motion.span>
+      )}
+    </AnimatePresence>
   );
 }

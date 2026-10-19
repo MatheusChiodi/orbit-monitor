@@ -1,8 +1,10 @@
+import { AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import type { TimelineEvent, TimelineKind } from '@/shared/api/types';
 import { formatClock } from '@/shared/format';
 import { SafeValue } from '@/shared/privacy/SafeValue';
-import { Panel } from '@/shared/ui';
+import { useAnimationLevel } from '@/shared/motion/animationLevel';
+import { AnimatedItem, Panel } from '@/shared/ui';
 
 export interface TimelineProps {
   events: readonly TimelineEvent[];
@@ -20,17 +22,22 @@ const DOT: Record<TimelineKind, string> = {
 
 export function Timeline({ events, freshIds }: TimelineProps) {
   const { t } = useTranslation();
+  const animated = useAnimationLevel() !== 'off';
   return (
     <Panel title={t('wall.timeline.title')} className="h-full">
       {events.length === 0 ? (
         <p className="m-0 text-[0.85rem] text-muted">{t('wall.timeline.empty')}</p>
       ) : (
         <ol className="m-0 flex min-h-0 list-none flex-col gap-[0.2rem] overflow-hidden p-0">
-          {events.map((event) => (
-            <li
+          <AnimatePresence>
+          {events.map((event, index) => (
+            <AnimatedItem
               key={event.id}
+              motionKind="reorder"
+              index={index}
+              count={events.length}
               data-kind={event.kind}
-              className={`grid grid-cols-[auto_auto_1fr] items-start gap-x-[0.6rem] rounded-[0.4rem] px-[0.4rem] py-[0.35rem] ${freshIds.has(event.id) ? 'anim-flash' : ''}`}
+              className={`grid grid-cols-[auto_auto_1fr] items-start gap-x-[0.6rem] rounded-[0.4rem] px-[0.4rem] py-[0.35rem] ${animated && freshIds.has(event.id) ? 'anim-flash' : ''}`}
             >
               <time dateTime={event.at} className="font-mono text-[0.78rem] text-muted">
                 {formatClock(event.at)}
@@ -47,8 +54,9 @@ export function Timeline({ events, freshIds }: TimelineProps) {
                   <SafeValue value={event.detail} surface="wall" className="block font-mono text-[0.72rem] text-muted" />
                 )}
               </span>
-            </li>
+            </AnimatedItem>
           ))}
+          </AnimatePresence>
         </ol>
       )}
     </Panel>

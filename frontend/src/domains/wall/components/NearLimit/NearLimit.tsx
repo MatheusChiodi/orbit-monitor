@@ -1,10 +1,11 @@
+import { AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { formatReading, ruleText } from '@/domains/monitor/rules';
 import type { NearLimitItem } from '@/domains/monitor/status';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { safeText } from '@/shared/privacy/redact';
 import { SafeValue } from '@/shared/privacy/SafeValue';
-import { Panel } from '@/shared/ui';
+import { AnimatedItem, FlashValue, Panel } from '@/shared/ui';
 
 export interface NearLimitProps {
   items: readonly NearLimitItem[];
@@ -22,18 +23,25 @@ export function NearLimit({ items }: NearLimitProps) {
         <p className="m-0 text-[0.85rem] text-muted">{t('wall.nearLimit.empty')}</p>
       ) : (
         <ul className="m-0 flex list-none flex-col gap-[0.6rem] p-0">
-          {items.map(({ monitor, headroom }) => {
+          <AnimatePresence>
+          {items.map(({ monitor, headroom }, index) => {
             const pct = Math.max(0, Math.min(100, Math.round(headroom * 100)));
             const tone = headroom < LOW_HEADROOM ? 'WARN' : 'OK';
             const rule = monitor.rule ? t('rule.text', { rule: ruleText(monitor.rule, locale) }) : '';
             return (
-              <li key={monitor.id} className="grid grid-cols-[1fr_auto] items-center gap-x-[0.8rem] gap-y-[0.2rem]">
+              <AnimatedItem
+                key={monitor.id}
+                motionKind="reorder"
+                index={index}
+                count={items.length}
+                className="grid grid-cols-[1fr_auto] items-center gap-x-[0.8rem] gap-y-[0.2rem]">
                 <SafeValue value={monitor.name} surface="wall" className="truncate text-[0.88rem] font-semibold" />
-                <span
+                <FlashValue
+                  value={pct}
                   className={`row-span-2 font-mono text-[1.25rem] ${tone === 'WARN' ? 'text-warn-text' : 'text-ok-text'}`}
                 >
                   {`${pct}%`}
-                </span>
+                </FlashValue>
                 <span className="flex flex-col gap-[0.25rem]">
                   <span
                     role="meter"
@@ -53,9 +61,10 @@ export function NearLimit({ items }: NearLimitProps) {
                     {`${formatReading(monitor.value, monitor.unit, locale)} · ${rule}`}
                   </span>
                 </span>
-              </li>
+              </AnimatedItem>
             );
           })}
+          </AnimatePresence>
         </ul>
       )}
     </Panel>

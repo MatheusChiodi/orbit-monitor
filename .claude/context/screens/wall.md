@@ -64,6 +64,8 @@ Header with global status and clock, hero (incident / all operational), also act
 - `frontend/src/domains/wall/feed/wallFeed.ts`
 - `frontend/src/domains/wall/mock/mockSnapshot.ts`
 - `frontend/src/app/wall-main.tsx`
+- `frontend/src/shared/ui/FlashValue/FlashValue.tsx`
+- `frontend/src/shared/ui/AnimatedItem/AnimatedItem.tsx`
 
 ## Tests
 - `frontend/src/domains/wall/WallApp/WallApp.test.tsx`
@@ -71,7 +73,10 @@ Header with global status and clock, hero (incident / all operational), also act
 - `frontend/src/domains/wall/selectors/selectors.test.ts`
 - `frontend/src/domains/wall/store/wallStore.test.ts`
 - `frontend/src/domains/wall/feed/wallFeed.test.ts`
+- `frontend/src/domains/wall/components/*/*.motion.test.tsx`
+- `frontend/src/domains/wall/components/*/*.privacy.test.tsx`
 
 ## Changelog
 - 2026-10-18 — context file created.
 - 2026-10-18 — wall built: header, hero/calm hero, also active, near threshold, matrix, timeline, acknowledge; en/pt-BR.
+- 2026-10-18 — FE-51 motion on every wall component; probe values through SafeValue.

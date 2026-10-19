@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { formatPercent, formatRelative } from '@/shared/format';
 import { currentLocale } from '@/shared/i18n/i18n';
+import { useAnimationLevel } from '@/shared/motion/animationLevel';
 import { Panel } from '@/shared/ui';
 
 export interface HeroCalmProps {
@@ -14,12 +15,15 @@ export interface HeroCalmProps {
 export function HeroCalm({ uptime24h, lastRecoveryAt, nearLimitCount, now }: HeroCalmProps) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
+  const level = useAnimationLevel();
+  // The slow green ring is a documented state signal; it needs at least the standard level.
+  const ring = level === 'standard' || level === 'expressive';
   return (
     <Panel title={t('wall.hero.title')} tone="OK" live className="h-full pl-[1.25rem]">
       <div className="flex flex-1 flex-col items-center justify-center gap-[1.2rem] py-[1.5rem] text-center">
         <span aria-hidden className="relative inline-flex size-[4.5rem] items-center justify-center">
-          <span className="anim-ring absolute inset-0 rounded-full border-2 border-ok/60" />
-          <span className="anim-ring absolute inset-0 rounded-full border-2 border-ok/60 [animation-delay:1.3s]" />
+          {ring && <span className="anim-ring absolute inset-0 rounded-full border-2 border-ok/60" />}
+          {ring && <span className="anim-ring absolute inset-0 rounded-full border-2 border-ok/60 [animation-delay:1.3s]" />}
           <span className="size-[2.6rem] rounded-full bg-ok/90" />
         </span>
         <h3 className="m-0 font-display text-[2.4rem] font-bold tracking-tight">{t('status.phrase.ok')}</h3>

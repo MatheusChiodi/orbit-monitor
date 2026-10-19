@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { countByStatus, nearLimit } from '@/domains/monitor/status';
 import type { WallSnapshot } from '@/shared/api/types';
-import { heroTransition, heroVariants } from '@/shared/motion';
+import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import type { WallConnectionState } from '../../store';
 import { alsoActive, groupRows, pickHero } from '../../selectors';
 import { AlsoActive } from '../AlsoActive';
@@ -28,9 +28,15 @@ export interface WallScreenProps {
  */
 export function WallScreen({ snapshot, now, connection, freshEventIds, onAcknowledge, onFullscreen }: WallScreenProps) {
   const { t } = useTranslation();
+  const heroMotion = useMotionPreset('hero');
   if (!snapshot) {
     return (
-      <main className="flex min-h-screen items-center justify-center text-muted" aria-busy="true">
+      <main
+        role="status"
+        aria-busy="true"
+        data-skeleton
+        className={`flex min-h-screen items-center justify-center text-muted ${heroMotion.level === 'off' ? '' : 'anim-shimmer'}`}
+      >
         {t('wall.loading')}
       </main>
     );
@@ -54,16 +60,15 @@ export function WallScreen({ snapshot, now, connection, freshEventIds, onAcknowl
       <main className="wall-layout">
         <div className="wall-col wall-col--action">
           <div className="wall-hero">
-            <AnimatePresence mode="wait" initial={false}>
+            {/* Hero swap: the old hero fades out while the new one fades in, stacked in the same cell. */}
+            <AnimatePresence initial={false}>
               <motion.div
                 key={hero ? hero.monitor.id : 'calm'}
-                layoutId="wall-hero"
-                variants={heroVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={heroTransition}
-                className="h-full"
+                initial={heroMotion.initial}
+                animate={heroMotion.animate}
+                exit={heroMotion.exit}
+                transition={heroMotion.transition}
+                className="h-full [grid-area:1/1]"
               >
                 {hero ? (
                   <Hero selection={hero} now={now} onAcknowledge={onAcknowledge} />

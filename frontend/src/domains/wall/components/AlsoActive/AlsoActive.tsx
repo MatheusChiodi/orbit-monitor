@@ -1,10 +1,11 @@
+import { AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { formatReading } from '@/domains/monitor/rules';
 import type { Group, MonitorView } from '@/shared/api/types';
 import { formatElapsed } from '@/shared/format';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { SafeValue } from '@/shared/privacy/SafeValue';
-import { Panel, StatusDot, TEXT_CLASS } from '@/shared/ui';
+import { AnimatedItem, FlashValue, Panel, StatusDot, TEXT_CLASS } from '@/shared/ui';
 
 export interface AlsoActiveProps {
   monitors: readonly MonitorView[];
@@ -23,8 +24,9 @@ export function AlsoActive({ monitors, groups, now }: AlsoActiveProps) {
         <p className="m-0 text-[0.85rem] text-muted">{t('wall.alsoActive.empty')}</p>
       ) : (
         <ul className="m-0 flex list-none flex-col gap-[0.45rem] p-0">
-          {monitors.slice(0, 5).map((m) => (
-            <li key={m.id} className="flex items-center gap-[0.55rem] rounded-[0.45rem] bg-s2 px-[0.6rem] py-[0.45rem]">
+          <AnimatePresence>
+          {monitors.slice(0, 5).map((m, index, shown) => (
+            <AnimatedItem key={m.id} index={index} count={shown.length} className="flex items-center gap-[0.55rem] rounded-[0.45rem] bg-s2 px-[0.6rem] py-[0.45rem]">
               <StatusDot status={m.status} />
               <span className={`text-[0.68rem] font-semibold ${TEXT_CLASS[m.status]}`}>{t(`status.label.${m.status}`)}</span>
               <span className="min-w-0 flex-1">
@@ -32,11 +34,14 @@ export function AlsoActive({ monitors, groups, now }: AlsoActiveProps) {
                 <SafeValue value={groupName.get(m.groupId)} surface="wall" className="block truncate text-[0.72rem] text-muted" />
               </span>
               <span className="text-right">
-                <span className="block font-mono text-[0.85rem]">{formatReading(m.value, m.unit, locale)}</span>
+                <FlashValue value={m.value} className="block font-mono text-[0.85rem]">
+                  {formatReading(m.value, m.unit, locale)}
+                </FlashValue>
                 <span className="block font-mono text-[0.68rem] text-dim">{formatElapsed(m.since, now, locale)}</span>
               </span>
-            </li>
+            </AnimatedItem>
           ))}
+          </AnimatePresence>
         </ul>
       )}
     </Panel>

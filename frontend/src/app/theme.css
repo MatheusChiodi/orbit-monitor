@@ -127,6 +127,18 @@ html.console {
   100% { background-position: 200% 0; }
 }
 
+@keyframes orbit-flash-up {
+  from { background-color: color-mix(in srgb, var(--ok) 22%, transparent); }
+  to { background-color: transparent; }
+}
+
+@keyframes orbit-flash-down {
+  from { background-color: color-mix(in srgb, var(--down) 22%, transparent); }
+  to { background-color: transparent; }
+}
+
+.anim-flash-up { border-radius: 0.3rem; animation: orbit-flash-up 0.6s ease-out 1; }
+.anim-flash-down { border-radius: 0.3rem; animation: orbit-flash-down 0.6s ease-out 1; }
 .anim-blink { animation: orbit-blink 1.4s ease-in-out infinite; }
 .anim-pulse-once { animation: orbit-pulse-once 0.8s cubic-bezier(.2, .8, .2, 1) 1; }
 .anim-draw { stroke-dasharray: 1000; animation: orbit-draw 0.2s cubic-bezier(.2, .8, .2, 1) 1; }
@@ -158,6 +170,9 @@ html.console {
   flex-direction: column;
   gap: 0.8rem;
   min-height: 0;
+}
+.wall-hero {
+  display: grid;
 }
 .wall-chart {
   min-height: 12rem;

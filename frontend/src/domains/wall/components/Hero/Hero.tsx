@@ -4,7 +4,7 @@ import { formatDuration, formatElapsed } from '@/shared/format';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { translate } from '@/shared/i18n/message';
 import { SafeValue } from '@/shared/privacy/SafeValue';
-import { Badge, Panel, TEXT_CLASS, ThresholdChart } from '@/shared/ui';
+import { Badge, FlashValue, Panel, TEXT_CLASS, ThresholdChart } from '@/shared/ui';
 import type { HeroSelection } from '../../selectors';
 import { AcknowledgeButton } from '../AcknowledgeButton';
 
@@ -48,9 +48,9 @@ export function Hero({ selection, now, onAcknowledge }: HeroProps) {
       </h3>
 
       <div className="mt-[0.35rem] flex flex-wrap items-baseline gap-x-[0.9rem] gap-y-[0.3rem]">
-        <span className={`font-mono text-[1.5rem] font-semibold ${TEXT_CLASS[status]}`}>
+        <FlashValue value={monitor.value} className={`font-mono text-[1.5rem] font-semibold ${TEXT_CLASS[status]}`}>
           {formatReading(monitor.value, monitor.unit, locale)}
-        </span>
+        </FlashValue>
         {monitor.rule && (
           <span className="font-mono text-[0.85rem] text-muted">{t('rule.text', { rule: ruleText(monitor.rule, locale) })}</span>
         )}
