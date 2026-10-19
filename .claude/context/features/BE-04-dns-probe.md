@@ -3,7 +3,7 @@ id: BE-04
 title: "DNS probe"
 area: backend
 group: "Probes"
-status: planned
+status: tests-pending
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 Record type, expected value, resolution time
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -23,13 +23,14 @@ Record type, expected value, resolution time
 —
 
 ## Code
-_None yet._
+- `backend/orbit-probe/src/main/java/io/orbit/probe/dns/DnsProbe.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-probe/src/test/java/io/orbit/probe/dns/DnsProbeTest.java`
 
 ## Decisions and notes
-_None yet._
+- Resolver port (JNDI DNS); expected value among answers; failures reported in the result.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending tests and stubs added (status: tests-pending).

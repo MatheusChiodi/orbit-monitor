@@ -3,7 +3,7 @@ id: BE-07
 title: "Multi-step HTTP"
 area: backend
 group: "Probes"
-status: planned
+status: tests-pending
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 Ordered steps with extracted variables (login → call API)
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -23,13 +23,14 @@ Ordered steps with extracted variables (login → call API)
 —
 
 ## Code
-_None yet._
+- `backend/orbit-probe/src/main/java/io/orbit/probe/multistep/MultiStepHttpProbe.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-probe/src/test/java/io/orbit/probe/multistep/MultiStepHttpProbeTest.java`
 
 ## Decisions and notes
-_None yet._
+- Steps extract JSONPath variables used as `${step.var}`; stops at the first failing step; unknown variables fail the step.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending tests and stubs added (status: tests-pending).

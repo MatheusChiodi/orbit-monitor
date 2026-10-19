@@ -3,7 +3,7 @@ id: BE-01
 title: "TCP probe"
 area: backend
 group: "Probes"
-status: planned
+status: tests-pending
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 Connect time, timeout, refused vs timeout distinction
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -23,13 +23,14 @@ Connect time, timeout, refused vs timeout distinction
 —
 
 ## Code
-_None yet._
+- `backend/orbit-probe/src/main/java/io/orbit/probe/tcp/TcpProbe.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-probe/src/test/java/io/orbit/probe/tcp/TcpProbeTest.java`
 
 ## Decisions and notes
-_None yet._
+- Connect with a timeout; REFUSED vs TIMEOUT vs UNRESOLVED.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending tests and stubs added (status: tests-pending).

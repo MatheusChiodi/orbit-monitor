@@ -3,7 +3,7 @@ id: BE-08
 title: "OAuth2 client credentials"
 area: backend
 group: "Probes"
-status: planned
+status: tests-pending
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 Token cached and refreshed before expiry
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -23,13 +23,14 @@ Token cached and refreshed before expiry
 —
 
 ## Code
-_None yet._
+- `backend/orbit-probe/src/main/java/io/orbit/probe/oauth/OAuth2TokenProvider.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-probe/src/test/java/io/orbit/probe/oauth/OAuth2TokenProviderTest.java`
 
 ## Decisions and notes
-_None yet._
+- Token endpoint port; cached until `expiresIn - refreshMargin`; credentials never print the secret.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending tests and stubs added (status: tests-pending).

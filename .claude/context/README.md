@@ -117,24 +117,24 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 
 | ID | Feature | Area | Status |
 |---|---|---|---|
-| [BE-01](features/BE-01-tcp-probe.md) | TCP probe | backend | planned |
-| [BE-02](features/BE-02-ping-probe.md) | Ping probe | backend | planned |
-| [BE-03](features/BE-03-push-monitor.md) | Push monitor | backend | planned |
-| [BE-04](features/BE-04-dns-probe.md) | DNS probe | backend | planned |
-| [BE-05](features/BE-05-certificate-and-domain-expiry.md) | Certificate and domain expiry | backend | planned |
+| [BE-01](features/BE-01-tcp-probe.md) | TCP probe | backend | tests-pending |
+| [BE-02](features/BE-02-ping-probe.md) | Ping probe | backend | tests-pending |
+| [BE-03](features/BE-03-push-monitor.md) | Push monitor | backend | tests-pending |
+| [BE-04](features/BE-04-dns-probe.md) | DNS probe | backend | tests-pending |
+| [BE-05](features/BE-05-certificate-and-domain-expiry.md) | Certificate and domain expiry | backend | tests-pending |
 | [BE-06](features/BE-06-http-keyword-regex-match.md) | HTTP keyword/regex match | backend | planned |
-| [BE-07](features/BE-07-multi-step-http.md) | Multi-step HTTP | backend | planned |
-| [BE-08](features/BE-08-oauth2-client-credentials.md) | OAuth2 client credentials | backend | planned |
-| [BE-09](features/BE-09-grpc-health-probe.md) | gRPC health probe | backend | planned |
-| [BE-10](features/BE-10-kafka-consumer-lag-probe.md) | Kafka consumer lag probe | backend | planned |
+| [BE-07](features/BE-07-multi-step-http.md) | Multi-step HTTP | backend | tests-pending |
+| [BE-08](features/BE-08-oauth2-client-credentials.md) | OAuth2 client credentials | backend | tests-pending |
+| [BE-09](features/BE-09-grpc-health-probe.md) | gRPC health probe | backend | tests-pending |
+| [BE-10](features/BE-10-kafka-consumer-lag-probe.md) | Kafka consumer lag probe | backend | tests-pending |
 | [BE-11](features/BE-11-sql-parameters.md) | SQL parameters | backend | planned |
 | [BE-12](features/BE-12-query-catalog.md) | Query catalog | backend | planned |
 | [BE-13](features/BE-13-catalog-introspection.md) | Catalog introspection | backend | planned |
 | [BE-14](features/BE-14-query-cost-warning.md) | Query cost warning | backend | planned |
-| [BE-15](features/BE-15-per-target-isolation.md) | Per-target isolation | backend | planned |
-| [BE-16](features/BE-16-circuit-breaker.md) | Circuit breaker | backend | planned |
-| [BE-17](features/BE-17-execution-windows.md) | Execution windows | backend | planned |
-| [BE-18](features/BE-18-retries-with-backoff.md) | Retries with backoff | backend | planned |
+| [BE-15](features/BE-15-per-target-isolation.md) | Per-target isolation | backend | tests-pending |
+| [BE-16](features/BE-16-circuit-breaker.md) | Circuit breaker | backend | tests-pending |
+| [BE-17](features/BE-17-execution-windows.md) | Execution windows | backend | tests-pending |
+| [BE-18](features/BE-18-retries-with-backoff.md) | Retries with backoff | backend | tests-pending |
 | [BE-19](features/BE-19-in-memory-rollups.md) | In-memory rollups | backend | in-progress |
 | [BE-20](features/BE-20-uptime-and-sla.md) | Uptime and SLA | backend | in-progress |
 | [BE-21](features/BE-21-percentiles.md) | Percentiles | backend | in-progress |

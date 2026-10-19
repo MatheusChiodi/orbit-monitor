@@ -3,7 +3,7 @@ id: BE-09
 title: "gRPC health probe"
 area: backend
 group: "Probes"
-status: planned
+status: tests-pending
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 Standard `grpc.health.v1` check
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -23,13 +23,14 @@ Standard `grpc.health.v1` check
 —
 
 ## Code
-_None yet._
+- `backend/orbit-probe/src/main/java/io/orbit/probe/grpc/GrpcHealthProbe.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-probe/src/test/java/io/orbit/probe/grpc/GrpcHealthProbeTest.java`
 
 ## Decisions and notes
-_None yet._
+- grpc.health.v1 client port; SERVING = OK, anything else or errors = DOWN.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending tests and stubs added (status: tests-pending).

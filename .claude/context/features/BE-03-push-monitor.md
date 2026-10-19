@@ -3,7 +3,7 @@ id: BE-03
 title: "Push monitor"
 area: backend
 group: "Probes"
-status: planned
+status: tests-pending
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,7 +15,7 @@ updated: 2026-10-18
 Generated URL with secret token; "no signal for X min" = down
 
 ## Status
-- [ ] Tests written (pending or active)
+- [x] Tests written (pending or active)
 - [ ] Implemented
 - [ ] All tests green, none pending
 
@@ -23,13 +23,14 @@ Generated URL with secret token; "no signal for X min" = down
 —
 
 ## Code
-_None yet._
+- `backend/orbit-probe/src/main/java/io/orbit/probe/push/PushRegistry.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-probe/src/test/java/io/orbit/probe/push/PushRegistryTest.java`
 
 ## Decisions and notes
-_None yet._
+- Secret URL-safe token per push monitor (rotating invalidates the old one); silence beyond maxSilence is DOWN.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — pending tests and stubs added (status: tests-pending).
