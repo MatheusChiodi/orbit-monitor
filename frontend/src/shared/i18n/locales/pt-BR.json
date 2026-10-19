@@ -613,7 +613,8 @@
       "other": "Outros"
     },
     "ribbon": {
-      "uptime": "{{pct}} de disponibilidade"
+      "uptime": "{{pct}} de disponibilidade",
+      "segment": "{{from}}–{{to}} · {{status}}"
     },
     "table": {
       "violates": "viola a regra"
@@ -624,7 +625,8 @@
     "picker": {
       "title": "Escolha como mostrar {{field}}",
       "suggested": "Sugerido",
-      "empty": "Execute o preview para comparar visualizações"
+      "empty": "Execute o preview para comparar visualizações",
+      "noPreview": "Sem prévia"
     },
     "reasons": {
       "needsNumber": "Precisa de um número",
@@ -634,7 +636,16 @@
       "tooManySlices": "No máximo {{max}} fatias",
       "needsLongerHistory": "Precisa de mais que as últimas {{hours}} h de histórico",
       "pci": "Dados de cartão são sempre mascarados (PCI DSS)",
-      "personal": "Dados pessoais nunca aparecem na parede (LGPD)"
+      "personal": "Dados pessoais nunca aparecem na parede (LGPD)",
+      "needsMinMax": "Precisa de mínimo e máximo",
+      "needsTarget": "Precisa de uma meta",
+      "needsNumericRule": "Precisa de uma regra com <, <=, > ou >=",
+      "needsItems": "Precisa de vários números",
+      "needsText": "Precisa de um valor em texto",
+      "needsSamples": "Precisa de amostras de latência",
+      "needsSegments": "Precisa de histórico de disponibilidade",
+      "needsMonitors": "Precisa de vários monitores",
+      "needsStatus": "Precisa de um estado"
     },
     "settings": {
       "addBand": "Adicionar faixa de cor",
@@ -678,6 +689,17 @@
     },
     "crosshair": {
       "readout": "{{time}} · {{value}}"
-    }
+    },
+    "heatmap": {
+      "cell": "{{when}} · {{value}}"
+    },
+    "hex": {
+      "cell": "{{name}}: {{status}}"
+    },
+    "chart": {
+      "label": "{{label}}: {{current}}",
+      "lanes": "Estados: {{lanes}}"
+    },
+    "legend": "Legenda"
   }
 }

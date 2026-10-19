@@ -613,7 +613,8 @@
       "other": "Other"
     },
     "ribbon": {
-      "uptime": "{{pct}} uptime"
+      "uptime": "{{pct}} uptime",
+      "segment": "{{from}}–{{to}} · {{status}}"
     },
     "table": {
       "violates": "violates the rule"
@@ -624,7 +625,8 @@
     "picker": {
       "title": "Choose how to show {{field}}",
       "suggested": "Suggested",
-      "empty": "Run the preview to compare visualizations"
+      "empty": "Run the preview to compare visualizations",
+      "noPreview": "No preview"
     },
     "reasons": {
       "needsNumber": "Needs a number",
@@ -634,7 +636,16 @@
       "tooManySlices": "At most {{max}} slices",
       "needsLongerHistory": "Needs more than the last {{hours}} h of history",
       "pci": "Card data is always masked (PCI DSS)",
-      "personal": "Personal data is never shown on the wall (LGPD)"
+      "personal": "Personal data is never shown on the wall (LGPD)",
+      "needsMinMax": "Needs a min and a max",
+      "needsTarget": "Needs a target",
+      "needsNumericRule": "Needs a rule with <, <=, > or >=",
+      "needsItems": "Needs several numbers",
+      "needsText": "Needs a text value",
+      "needsSamples": "Needs latency samples",
+      "needsSegments": "Needs up/down history",
+      "needsMonitors": "Needs several monitors",
+      "needsStatus": "Needs a state"
     },
     "settings": {
       "addBand": "Add color band",
@@ -678,6 +689,17 @@
     },
     "crosshair": {
       "readout": "{{time}} · {{value}}"
-    }
+    },
+    "heatmap": {
+      "cell": "{{when}} · {{value}}"
+    },
+    "hex": {
+      "cell": "{{name}}: {{status}}"
+    },
+    "chart": {
+      "label": "{{label}}: {{current}}",
+      "lanes": "States: {{lanes}}"
+    },
+    "legend": "Legend"
   }
 }

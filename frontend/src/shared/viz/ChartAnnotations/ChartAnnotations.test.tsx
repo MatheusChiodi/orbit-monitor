@@ -4,11 +4,13 @@ import { describe, expect, it, vi } from 'vitest';
 import { renderWithLocale } from '@/test/renderWithLocale';
 import { ChartAnnotations } from './ChartAnnotations';
 
-const range = { from: '2026-10-18T14:00:00Z', to: '2026-10-18T18:00:00Z' };
+// Local times throughout, so labels ("17:05") do not depend on the machine time zone.
+const local = (h: number, m = 0) => new Date(2026, 9, 18, h, m).toISOString();
+const range = { from: local(14), to: local(18) };
 const annotations = [
-  { id: 'i1', kind: 'incident' as const, at: new Date(2026, 9, 18, 17, 5).toISOString(), title: 'Reconciliation queue down' },
-  { id: 'm1', kind: 'maintenance' as const, at: '2026-10-18T15:00:00Z', until: '2026-10-18T15:30:00Z', title: 'Core DB patch' },
-  { id: 'd1', kind: 'deploy' as const, at: '2026-10-18T16:00:00Z', title: 'checkout v2.4.1' },
+  { id: 'i1', kind: 'incident' as const, at: local(17, 5), title: 'Reconciliation queue down' },
+  { id: 'm1', kind: 'maintenance' as const, at: local(15), until: local(15, 30), title: 'Core DB patch' },
+  { id: 'd1', kind: 'deploy' as const, at: local(16), title: 'checkout v2.4.1' },
 ];
 
 describe('FE-26 chart annotations', () => {
@@ -43,7 +45,7 @@ describe('FE-26 chart annotations', () => {
     const pan = '4111 1111 1111 1111';
     const { container } = render(
       <ChartAnnotations
-        annotations={[{ id: 'x', kind: 'incident', at: '2026-10-18T17:00:00Z', title: `Row ${pan}` }]}
+        annotations={[{ id: 'x', kind: 'incident', at: local(17), title: `Row ${pan}` }]}
         range={range}
         width={600}
       />,

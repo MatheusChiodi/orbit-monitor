@@ -54,6 +54,17 @@ export function AnimationLevelProvider({ level, prefersReducedMotion, children }
   return <LevelContext.Provider value={effective}>{children}</LevelContext.Provider>;
 }
 
+export interface AnimationLevelScopeProps {
+  /** Already-effective level (callers apply `prefers-reduced-motion` first). */
+  level: AnimationLevel;
+  children: ReactNode;
+}
+
+/** Overrides the level for a subtree only (e.g. static previews); no side effect on the document. */
+export function AnimationLevelScope({ level, children }: AnimationLevelScopeProps) {
+  return <LevelContext.Provider value={level}>{children}</LevelContext.Provider>;
+}
+
 export function useAnimationLevel(): AnimationLevel {
   return useContext(LevelContext);
 }
