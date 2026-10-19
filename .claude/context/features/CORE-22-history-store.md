@@ -3,7 +3,7 @@ id: CORE-22
 title: "30-day history store"
 area: backend
 group: "History"
-status: in-progress
+status: done
 screens: [wall, reports-sla, incident-detail]
 spec: docs/08-logs-and-history.md
 updated: 2026-10-18
@@ -16,7 +16,7 @@ Segmented append-only binary log (varint + delta), hourly zstd columnar blocks w
 
 ## Status
 - [x] Tests written (pending or active)
-- [x] Implemented (store module; wiring into orbit-api is BE-52)
+- [x] Implemented (store module, wired into the app by BE-52)
 - [x] All tests green, none pending
 
 ## Code
@@ -52,3 +52,4 @@ Segmented append-only binary log (varint + delta), hourly zstd columnar blocks w
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — orbit-history module: binary WAL, columnar zstd segments, indexes, rollups, retention, crash recovery, benchmark (status: in-progress until BE-52 wires it into the app).
+- 2026-10-18 — wired into orbit-api through the event bus (BE-52) (status: done).
