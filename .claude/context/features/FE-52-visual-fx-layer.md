@@ -35,7 +35,9 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - `frontend/src/shared/fx/HeroOrb/orbMaterials.ts` — glass/rim/core/halo shaders and the blue→green ring geometry from theme tokens
 - `frontend/src/shared/fx/incident.ts` — `hasUnacknowledgedDown()`: when the wall pauses background motion
 - Integration: `WallApp.tsx` (FxProvider + FxBackground + `.fx-layer`), `HeroCalm.tsx` (2D symbol as the HeroOrb fallback), `Hero.tsx` (`fx-down-glow` when DOWN), `Panel.tsx` (`surface` prop, `glass` by default), `ConsoleApp.tsx` (FxProvider + FxBackground + FxDowngradeNotice; boot intro beside the operator prompt; first-monitor and check-flow guides on the empty monitor list)
-- `frontend/remotion/` — Remotion entry (`index.ts`, `Root.tsx`), `palette.ts`, `compositions/` (`OrbitBoot` with `@remotion/three`, `CheckFlow`, `FirstMonitor`, `RemotionOrb`, `registry.ts`)
+- `frontend/remotion/` — Remotion entry (`index.ts`, `Root.tsx`), `palette.ts`, `compositions/` (`OrbitBoot` with `@remotion/three`, `CheckFlow`, `FirstMonitor`, `RemotionOrb`, `registry.ts`), `render.mjs` (MP4 to `remotion/out/`, README GIFs to `docs/assets/readme/` with a 5 MB guard)
+- `frontend/package.json` — `remotion:studio`, `remotion:render` scripts
+- `docs/assets/readme/{orbit-boot,check-flow,first-monitor}.gif` — rendered compositions (1.2 MB, 248 KB, 158 KB)
 - `frontend/src/shared/fx/OrbitIntro/` — `OrbitIntro` gate (poster + play at standard, autoplay at expressive), lazy `IntroPlayer` (`@remotion/player`), `introProps` (i18n + live palette)
 - `frontend/src/shared/fx/FxDowngradeNotice/FxDowngradeNotice.tsx` — "Keep simplified" / "Try again" after an automatic downgrade
 - `frontend/src/shared/i18n/locales/{en,pt-BR}.json` — `fx.*` keys
