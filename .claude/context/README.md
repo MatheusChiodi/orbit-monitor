@@ -126,9 +126,9 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 
 | ID | Feature | Area | Status |
 |---|---|---|---|
-| [BE-01](features/BE-01-tcp-probe.md) | TCP probe | backend | tests-pending |
-| [BE-02](features/BE-02-ping-probe.md) | Ping probe | backend | tests-pending |
-| [BE-03](features/BE-03-push-monitor.md) | Push monitor | backend | tests-pending |
+| [BE-01](features/BE-01-tcp-probe.md) | TCP probe | backend | in-progress |
+| [BE-02](features/BE-02-ping-probe.md) | Ping probe | backend | in-progress |
+| [BE-03](features/BE-03-push-monitor.md) | Push monitor | backend | in-progress |
 | [BE-04](features/BE-04-dns-probe.md) | DNS probe | backend | tests-pending |
 | [BE-05](features/BE-05-certificate-and-domain-expiry.md) | Certificate and domain expiry | backend | tests-pending |
 | [BE-06](features/BE-06-http-keyword-regex-match.md) | HTTP keyword/regex match | backend | tests-pending |

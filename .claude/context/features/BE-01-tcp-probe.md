@@ -3,7 +3,7 @@ id: BE-01
 title: "TCP probe"
 area: backend
 group: "Probes"
-status: tests-pending
+status: in-progress
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -16,7 +16,7 @@ Connect time, timeout, refused vs timeout distinction
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
+- [x] Implemented
 - [ ] All tests green, none pending
 
 ## Screens
@@ -34,3 +34,4 @@ Connect time, timeout, refused vs timeout distinction
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending tests and stubs added (status: tests-pending).
+- 2026-10-18 — TCP probe implemented; runtime integration via orbit.checks.json pending.

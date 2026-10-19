@@ -2,7 +2,6 @@ package io.orbit.probe.ping;
 
 import io.orbit.probe.tcp.TcpProbe;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -15,7 +14,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-@Tag("pending")
 @DisplayName("BE-02 ping probe")
 class PingProbeTest {
 

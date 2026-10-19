@@ -3,7 +3,7 @@ id: BE-02
 title: "Ping probe"
 area: backend
 group: "Probes"
-status: tests-pending
+status: in-progress
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -16,7 +16,7 @@ ICMP with TCP fallback when ICMP is not permitted
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
+- [x] Implemented
 - [ ] All tests green, none pending
 
 ## Screens
@@ -34,3 +34,4 @@ ICMP with TCP fallback when ICMP is not permitted
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending tests and stubs added (status: tests-pending).
+- 2026-10-18 — ICMP ping with TCP fallback implemented; runtime integration pending.

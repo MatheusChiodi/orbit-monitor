@@ -3,7 +3,7 @@ id: BE-03
 title: "Push monitor"
 area: backend
 group: "Probes"
-status: tests-pending
+status: in-progress
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -16,7 +16,7 @@ Generated URL with secret token; "no signal for X min" = down
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
+- [x] Implemented
 - [ ] All tests green, none pending
 
 ## Screens
@@ -34,3 +34,4 @@ Generated URL with secret token; "no signal for X min" = down
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending tests and stubs added (status: tests-pending).
+- 2026-10-18 — push registry with constant-time token check implemented; push endpoint pending.
