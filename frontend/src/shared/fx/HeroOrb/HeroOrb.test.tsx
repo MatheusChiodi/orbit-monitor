@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { FxProvider } from '../FxProvider';
 import type { FxLevel } from '../fxLevel';
 import { HeroOrb, resetWebglProbe } from './HeroOrb';
@@ -39,6 +39,11 @@ afterEach(() => {
   sceneLoaded.mockClear();
   resetWebglProbe();
 });
+
+// Resolve the lazy chunk once up front, so no test depends on how fast a dynamic import is under load.
+beforeAll(async () => {
+  await import('./OrbScene');
+}, 30_000);
 
 describe('FE-52 HeroOrb', () => {
   it('off and minimal: keeps the 2D symbol and never loads the 3D scene', async () => {

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { renderWithLocale } from '@/test/renderWithLocale';
 import { FxProvider } from '../FxProvider';
 import type { FxLevel } from '../fxLevel';
@@ -30,6 +30,11 @@ function renderIntro(level: FxLevel) {
     </FxProvider>,
   );
 }
+
+// Resolve the lazy chunk once up front, so no test depends on how fast a dynamic import is under load.
+beforeAll(async () => {
+  await import('./IntroPlayer');
+}, 30_000);
 
 afterEach(() => player.mockClear());
 

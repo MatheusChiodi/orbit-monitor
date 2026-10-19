@@ -5,6 +5,8 @@ import { formatClock, formatRelative } from '@/shared/format';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { translate } from '@/shared/i18n/message';
 import { useAnimationLevel } from '@/shared/motion/animationLevel';
+import type { Group } from '@/shared/api/types';
+import { MiniOrb, type OrbMonitor } from '@/shared/fx/LivingOrb';
 import { Button, FlashValue, StatusPill } from '@/shared/ui';
 import type { WallConnectionState } from '../../store';
 import { StaleBadge } from '../StaleBadge';
@@ -20,6 +22,8 @@ export interface WallHeaderProps {
   stale?: boolean;
   /** Runtime controls (sound, notifications, kiosk). */
   controls?: ReactNode;
+  /** FE-59 mini orb with the global state next to the status pill. */
+  orb?: { monitors: readonly OrbMonitor[]; groups: readonly Group[]; uptime24h: number };
 }
 
 const CONNECTION_NOTE = {
@@ -41,7 +45,7 @@ function BrandMark() {
   );
 }
 
-export function WallHeader({ environment, counts, now, updatedAt, connection, onFullscreen, stale = false, controls }: WallHeaderProps) {
+export function WallHeader({ environment, counts, now, updatedAt, connection, onFullscreen, stale = false, controls, orb }: WallHeaderProps) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
   const title = tabTitle(counts);
@@ -62,7 +66,8 @@ export function WallHeader({ environment, counts, now, updatedAt, connection, on
         </span>
       </div>
 
-      <div role="status" aria-live="polite">
+      <div role="status" aria-live="polite" className="flex items-center gap-[0.5rem]">
+        {orb && <MiniOrb monitors={orb.monitors} groups={orb.groups} uptime24h={orb.uptime24h} />}
         <StatusPill status={statusFromCounts(counts)}>{translate(t, globalPhrase(counts))}</StatusPill>
       </div>
 

@@ -102,10 +102,10 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [FE-38](features/FE-38-notification-center.md) | Notification center | frontend | in-progress |
 | [FE-39](features/FE-39-incident-page.md) | Incident page | frontend | in-progress |
 | [FE-40](features/FE-40-escalation-countdown.md) | Escalation countdown | frontend | in-progress |
-| [FE-41](features/FE-41-maintenance-calendar.md) | Maintenance calendar | frontend | tests-pending |
-| [FE-42](features/FE-42-dependency-graph.md) | Dependency graph | frontend | tests-pending |
-| [FE-43](features/FE-43-sla-reports.md) | SLA reports | frontend | tests-pending |
-| [FE-44](features/FE-44-status-page-builder.md) | Status page builder | frontend | tests-pending |
+| [FE-41](features/FE-41-maintenance-calendar.md) | Maintenance calendar | frontend | in-progress |
+| [FE-42](features/FE-42-dependency-graph.md) | Dependency graph | frontend | in-progress |
+| [FE-43](features/FE-43-sla-reports.md) | SLA reports | frontend | in-progress |
+| [FE-44](features/FE-44-status-page-builder.md) | Status page builder | frontend | in-progress |
 | [FE-45](features/FE-45-kiosk-mode.md) | Kiosk mode | frontend | done |
 | [FE-46](features/FE-46-stale-data-indicator.md) | Stale data indicator | frontend | done |
 | [FE-47](features/FE-47-sound-alerts.md) | Sound alerts | frontend | done |
@@ -120,7 +120,7 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [FE-56](features/FE-56-typography-shape-density.md) | Typography, shape and density settings | frontend | planned |
 | [FE-57](features/FE-57-customization-profiles.md) | Customization profiles | frontend | planned |
 | [FE-58](features/FE-58-history-range-picker.md) | History range picker and coverage | frontend | planned |
-| [FE-59](features/FE-59-living-orb.md) | Living orb (system map) | frontend | planned |
+| [FE-59](features/FE-59-living-orb.md) | Living orb (system map) | frontend | in-progress |
 
 ### Backend
 

@@ -75,6 +75,7 @@ export function WallScreen({
         controls={controls}
         connection={connection}
         onFullscreen={onFullscreen}
+        orb={{ monitors: snapshot.monitors, groups: snapshot.groups, uptime24h: snapshot.uptime24h }}
       />
       <main className="wall-layout">
         <div className="wall-col wall-col--action">
@@ -97,6 +98,8 @@ export function WallScreen({
                     lastRecoveryAt={snapshot.lastRecoveryAt}
                     nearLimitCount={near.filter((n) => n.headroom < 0.25).length}
                     now={now}
+                    monitors={snapshot.monitors}
+                    groups={snapshot.groups}
                   />
                 )}
               </motion.div>
