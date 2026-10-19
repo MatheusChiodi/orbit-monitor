@@ -66,3 +66,32 @@ describe('FE-49 phone layout', () => {
     vi.unstubAllGlobals();
   });
 });
+
+describe('FE-45 / FE-47 / FE-48 wall runtime controls', () => {
+  it('the header has a sound toggle (muted by default) that is remembered on the device', async () => {
+    localStorage.clear();
+    const api = { getWallSnapshot: vi.fn().mockRejectedValue(new Error('offline')), acknowledgeIncident: vi.fn() };
+    render(<WallApp api={api} connect={vi.fn()} operator="Ana" mock={() => mockSnapshot('incident', now)} />);
+    const toggle = await screen.findByRole('button', { name: 'Sound alerts' });
+    expect(toggle).toHaveTextContent('Muted');
+    await userEvent.click(toggle);
+    expect(screen.getByRole('button', { name: 'Sound alerts' })).toHaveTextContent('Sound on');
+    expect(JSON.parse(localStorage.getItem('orbit.sound') ?? '{}')).toMatchObject({ muted: false });
+  });
+
+  it('offers to enable desktop notifications', async () => {
+    const api = { getWallSnapshot: vi.fn().mockRejectedValue(new Error('offline')), acknowledgeIncident: vi.fn() };
+    render(<WallApp api={api} connect={vi.fn()} operator="Ana" mock={() => mockSnapshot('incident', now)} />);
+    expect(await screen.findByRole('button', { name: 'Enable desktop notifications' })).toBeInTheDocument();
+  });
+
+  it('kiosk mode holds a screen wake lock', async () => {
+    const request = vi.fn().mockResolvedValue({ release: vi.fn().mockResolvedValue(undefined) });
+    Object.defineProperty(navigator, 'wakeLock', { value: { request }, configurable: true });
+    const api = { getWallSnapshot: vi.fn().mockRejectedValue(new Error('offline')), acknowledgeIncident: vi.fn() };
+    render(<WallApp api={api} connect={vi.fn()} operator="Ana" kiosk mock={() => mockSnapshot('incident', now)} />);
+    await screen.findByText('demo data');
+    expect(request).toHaveBeenCalledWith('screen');
+    Object.defineProperty(navigator, 'wakeLock', { value: undefined, configurable: true });
+  });
+});

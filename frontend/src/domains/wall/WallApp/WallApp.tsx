@@ -8,7 +8,12 @@ import { FxBackground } from '@/shared/fx/FxBackground';
 import { FxProvider } from '@/shared/fx/FxProvider';
 import { hasUnacknowledgedDown } from '@/shared/fx/incident';
 import { MotionProvider } from '@/shared/motion';
+import { notifyIncident } from '@/domains/alerting/desktopNotifications';
+import { useWallAlerts } from '../alerts';
 import { OnCallView } from '../components/OnCallView';
+import { WallControls } from '../components/WallControls';
+import { useKiosk } from '../kiosk';
+import { createSoundPlayer, loadSoundSettings, saveSoundSettings, type SoundSettings } from '../sound';
 import { WallScreen } from '../components/WallScreen';
 import { useMediaQuery } from '@/shared/hooks/useMediaQuery';
 import { acknowledge, startWallFeed } from '../feed';
@@ -22,6 +27,8 @@ export interface WallAppProps {
   mock?: () => WallSnapshot;
   /** Wall layout slug (`/wall/noc`), sent to the WebSocket. */
   layout?: string;
+  /** FE-45: fullscreen, Screen Wake Lock and hidden cursor (requested with ?kiosk=1). */
+  kiosk?: boolean;
 }
 
 /** Name shown in "X acknowledged at HH:MM": `?operator=` in the URL or the last one used. */
@@ -35,7 +42,7 @@ function requestFullscreen(): void {
   else void document.documentElement.requestFullscreen?.();
 }
 
-export function WallApp({ api, connect = connectWall, operator, mock, layout }: WallAppProps) {
+export function WallApp({ api, connect = connectWall, operator, mock, layout, kiosk = false }: WallAppProps) {
   const [store] = useState(() => createWallStore());
   const snapshot = useStore(store, (s) => s.snapshot);
   const connection = useStore(store, (s) => s.connection);
@@ -43,6 +50,21 @@ export function WallApp({ api, connect = connectWall, operator, mock, layout }: 
   const lastUpdateAt = useStore(store, (s) => s.lastUpdateAt);
   const now = useNow(1000);
   const locale = useLocale();
+  const [sound, setSound] = useState<SoundSettings>(loadSoundSettings);
+  const [player] = useState(() => createSoundPlayer());
+  const kioskMode = useKiosk();
+  const { enter: enterKiosk } = kioskMode;
+
+  useEffect(() => {
+    if (kiosk) void enterKiosk();
+  }, [kiosk, enterKiosk]);
+
+  useWallAlerts(snapshot, { sound, player, notify: notifyIncident, locale });
+
+  const onSoundChange = useCallback((next: SoundSettings) => {
+    setSound(next);
+    saveSoundSettings(next);
+  }, []);
 
   useEffect(() => {
     let stopped = false;
@@ -86,6 +108,7 @@ export function WallApp({ api, connect = connectWall, operator, mock, layout }: 
             updatedAt={lastUpdateAt}
             onAcknowledge={onAcknowledge}
             onFullscreen={requestFullscreen}
+            controls={<WallControls sound={sound} onSoundChange={onSoundChange} />}
           />
           )}
         </div>

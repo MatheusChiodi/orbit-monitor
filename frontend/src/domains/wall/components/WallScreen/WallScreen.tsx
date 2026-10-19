@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { countByStatus, nearLimit } from '@/domains/monitor/status';
@@ -23,6 +24,7 @@ export interface WallScreenProps {
   onFullscreen?: () => void;
   /** Last time data arrived; defaults to the snapshot time. */
   updatedAt?: string | null;
+  controls?: ReactNode;
 }
 
 /**
@@ -37,6 +39,7 @@ export function WallScreen({
   onAcknowledge,
   onFullscreen,
   updatedAt,
+  controls,
 }: WallScreenProps) {
   const { t } = useTranslation();
   const heroMotion = useMotionPreset('hero');
@@ -69,6 +72,7 @@ export function WallScreen({
         now={now}
         updatedAt={lastUpdate}
         stale={stale}
+        controls={controls}
         connection={connection}
         onFullscreen={onFullscreen}
       />

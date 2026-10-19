@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { globalPhrase, statusFromCounts, tabTitle, type StatusCounts } from '@/domains/monitor/status';
 import { formatClock, formatRelative } from '@/shared/format';
@@ -18,6 +18,8 @@ export interface WallHeaderProps {
   onFullscreen?: () => void;
   /** FE-46: no update for too long. */
   stale?: boolean;
+  /** Runtime controls (sound, notifications, kiosk). */
+  controls?: ReactNode;
 }
 
 const CONNECTION_NOTE = {
@@ -39,7 +41,7 @@ function BrandMark() {
   );
 }
 
-export function WallHeader({ environment, counts, now, updatedAt, connection, onFullscreen, stale = false }: WallHeaderProps) {
+export function WallHeader({ environment, counts, now, updatedAt, connection, onFullscreen, stale = false, controls }: WallHeaderProps) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
   const title = tabTitle(counts);
@@ -87,6 +89,7 @@ export function WallHeader({ environment, counts, now, updatedAt, connection, on
         <time dateTime={now.toISOString()} className="font-mono text-[1.15rem] font-medium">
           {formatClock(now)}
         </time>
+        {controls}
         {onFullscreen && (
           <Button variant="ghost" onClick={onFullscreen} aria-label={t('wall.fullscreen')}>
             ⛶

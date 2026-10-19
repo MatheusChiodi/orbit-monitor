@@ -174,6 +174,12 @@ html.console {
 .wall-hero {
   display: grid;
 }
+/* FE-45: kiosk mode hides an idle cursor */
+.kiosk-cursor-hidden,
+.kiosk-cursor-hidden * {
+  cursor: none !important;
+}
+
 /* FE-46: stale data greys the wall out (the stale badge explains why) */
 .wall-root[data-stale="true"] .wall-layout {
   filter: grayscale(0.85);

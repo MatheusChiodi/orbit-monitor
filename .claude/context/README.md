@@ -106,10 +106,10 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [FE-42](features/FE-42-dependency-graph.md) | Dependency graph | frontend | tests-pending |
 | [FE-43](features/FE-43-sla-reports.md) | SLA reports | frontend | tests-pending |
 | [FE-44](features/FE-44-status-page-builder.md) | Status page builder | frontend | tests-pending |
-| [FE-45](features/FE-45-kiosk-mode.md) | Kiosk mode | frontend | tests-pending |
+| [FE-45](features/FE-45-kiosk-mode.md) | Kiosk mode | frontend | done |
 | [FE-46](features/FE-46-stale-data-indicator.md) | Stale data indicator | frontend | done |
-| [FE-47](features/FE-47-sound-alerts.md) | Sound alerts | frontend | tests-pending |
-| [FE-48](features/FE-48-desktop-notifications.md) | Desktop notifications | frontend | tests-pending |
+| [FE-47](features/FE-47-sound-alerts.md) | Sound alerts | frontend | done |
+| [FE-48](features/FE-48-desktop-notifications.md) | Desktop notifications | frontend | done |
 | [FE-49](features/FE-49-mobile-on-call-view.md) | Mobile on-call view | frontend | done |
 | [FE-50](features/FE-50-device-preferences.md) | Device preferences | frontend | tests-pending |
 | [FE-51](features/FE-51-component-motion-system.md) | Component motion system | frontend | in-progress |

@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { I18nextProvider } from 'react-i18next';
 import { loadOperator, normalizeOperatorName, saveOperator } from '@/domains/security/operator';
 import { WallApp, operatorName } from '@/domains/wall/WallApp';
+import { isKioskRequested } from '@/domains/wall/kiosk';
 import { mockSnapshot } from '@/domains/wall/mock';
 import { createApiClient } from '@/shared/api/client';
 import { wallLayoutSlug } from '@/shared/api/wallSocket';
@@ -27,7 +28,7 @@ if (root) {
   createRoot(root).render(
     <StrictMode>
       <I18nextProvider i18n={i18n}>
-        <WallApp api={api} operator={operator} mock={mock} layout={layout} />
+        <WallApp api={api} operator={operator} mock={mock} layout={layout} kiosk={isKioskRequested(window.location.search)} />
       </I18nextProvider>
     </StrictMode>,
   );

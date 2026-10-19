@@ -27,8 +27,8 @@ _To be filled as the screen is built (component tree, file paths)._
 - [FE-07 · Density](../features/FE-07-density.md) — tests-pending
 - [FE-08 · Viewing distance scale](../features/FE-08-viewing-distance-scale.md) — tests-pending
 - [FE-09 · Night mode schedule](../features/FE-09-night-mode-schedule.md) — tests-pending
-- [FE-47 · Sound alerts](../features/FE-47-sound-alerts.md) — tests-pending
-- [FE-48 · Desktop notifications](../features/FE-48-desktop-notifications.md) — tests-pending
+- [FE-47 · Sound alerts](../features/FE-47-sound-alerts.md) — done
+- [FE-48 · Desktop notifications](../features/FE-48-desktop-notifications.md) — done
 - [FE-50 · Device preferences](../features/FE-50-device-preferences.md) — tests-pending
 
 ## Code
