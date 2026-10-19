@@ -12,7 +12,7 @@ updated: 2026-10-18
 # FE-04 · Theme import/export
 
 ## Summary
-JSON schema-validated; share a theme with the workspace
+Orbit theme JSON (schema-validated), import of VS Code color theme `.json` with token mapping and contrast fixes, sharing with the workspace. See docs/05 §1.3.
 
 ## Status
 - [x] Tests written (pending or active)
@@ -34,3 +34,4 @@ _None yet._
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
+- 2026-10-18 — scope expanded (30 built-in themes + accessibility, VS Code import).

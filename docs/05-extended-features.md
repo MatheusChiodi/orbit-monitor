@@ -12,8 +12,8 @@ Test-first workflow: each feature gets its test suite **before** the implementat
 |---|---|---|
 | FE-01 | **Theme editor** | Create/edit a color theme (`bg`, `s1–s3`, `line`, `text/muted/dim`, `ok/warn/down/info`) with live preview of the wall and console |
 | FE-02 | **Contrast guard** | Checks WCAG 4.5:1 (body) and 3:1 (large labels) for every text/surface pair; status colors must be distinguishable; suggests a fixed value |
-| FE-03 | **Theme presets** | Orbit Dark (default), Light, High contrast, OLED black, Color-blind safe (deuteranopia, protanopia, tritanopia) |
-| FE-04 | **Theme import/export** | JSON schema-validated; share a theme with the workspace |
+| FE-03 | **Theme gallery** | Keep the default Orbit Dark or switch to 30 built-in themes inspired by popular editor themes (Dracula, Nord, Tokyo Night, Catppuccin…) plus 6 accessibility themes (see §1.3) |
+| FE-04 | **Theme import/export** | Orbit theme JSON (schema-validated), **import a VS Code color theme `.json`** with automatic mapping, share a theme with the workspace |
 | FE-05 | **Per-layout theme** | A wall layout can override the console theme |
 | FE-06 | **Animation settings** | Configure how much motion Orbit has: preset level, intensity, speed and per-category switches, per device and per wall layout, with live preview (see §1.2) |
 | FE-07 | **Density** | `compact`, `comfortable`, `spacious` in the console |
@@ -74,6 +74,59 @@ Test-first workflow: each feature gets its test suite **before** the implementat
 | 20 | Hex grid | Many monitors at a glance |
 
 Every mode: state always has a text label, values use tabular mono, all sensitive values go through `<SafeValue>` ([04-data-protection.md](04-data-protection.md)), and the mode respects the animation level.
+
+#### 1.3 Themes (FE-01 – FE-05)
+
+The user can **keep the default theme (Orbit Dark)** or pick any of **30 built-in themes** inspired by popular editor color schemes, plus **6 accessibility themes**. Every theme recolors the whole product: wall, console, charts, SQL editor syntax, status colors and the FX layer (FE-52).
+
+| # | Theme | Mode | Inspired by |
+|---|---|---|---|
+| 1 | Dracula | dark | Dracula |
+| 2 | One Dark | dark | Atom One Dark |
+| 3 | Nord | dark | Nord |
+| 4 | Tokyo Night | dark | Tokyo Night |
+| 5 | Tokyo Night Storm | dark | Tokyo Night |
+| 6 | Catppuccin Mocha | dark | Catppuccin |
+| 7 | Catppuccin Macchiato | dark | Catppuccin |
+| 8 | Catppuccin Frappé | dark | Catppuccin |
+| 9 | Rosé Pine | dark | Rosé Pine |
+| 10 | Rosé Pine Moon | dark | Rosé Pine |
+| 11 | Gruvbox Dark | dark | Gruvbox |
+| 12 | Solarized Dark | dark | Solarized |
+| 13 | Monokai Classic | dark | Monokai (TextMate) |
+| 14 | GitHub Dark | dark | GitHub themes |
+| 15 | GitHub Dark Dimmed | dark | GitHub themes |
+| 16 | Ayu Dark | dark | Ayu |
+| 17 | Ayu Mirage | dark | Ayu |
+| 18 | Night Owl | dark | Night Owl |
+| 19 | Palenight | dark | Material Palenight |
+| 20 | Everforest Dark | dark | Everforest |
+| 21 | Kanagawa | dark | Kanagawa |
+| 22 | Synthwave '84 | dark | SynthWave '84 |
+| 23 | Cobalt2 | dark | Cobalt2 |
+| 24 | Shades of Purple | dark | Shades of Purple |
+| 25 | Poimandres | dark | Poimandres |
+| 26 | GitHub Light | light | GitHub themes |
+| 27 | Solarized Light | light | Solarized |
+| 28 | Catppuccin Latte | light | Catppuccin |
+| 29 | Rosé Pine Dawn | light | Rosé Pine |
+| 30 | Gruvbox Light | light | Gruvbox |
+
+Accessibility themes: **High Contrast Dark**, **High Contrast Light**, **OLED Black**, **Color-blind safe — deuteranopia / protanopia / tritanopia**.
+
+**Theme tokens** (one JSON per theme in `frontend/src/shared/theme/themes/<id>.json`, same schema as custom themes in `orbit.themes.json`):
+`bg`, `s1`, `s2`, `s3`, `line`, `line2`, `text`, `muted`, `dim`, `ok`, `warn`, `down`, `info`, `accent`, `chart[6]` (series palette), `syntax{keyword,string,number,comment,function,operator,identifier}`, `fx{from,to,glow}`, plus metadata `id`, `name`, `mode` (`dark`/`light`), `inspiredBy`, `author`, `license`, `url`.
+
+**Status colors stay meaningful**: each theme maps OK/WARN/DOWN/INFO to its own green/yellow/red/blue; the contrast guard (FE-02) verifies text contrast (4.5:1 body, 3:1 large) and that the four status colors are distinguishable (including simulated color-vision deficiencies). If a palette fails, the theme ships with adjusted status shades, recorded in its metadata. A unit test validates all built-in themes.
+
+**Gallery** (Settings → Appearance):
+- Card grid with a live mini-wall preview per theme (hero + matrix + chart), filters *Dark / Light / Accessible*, search, favorites, "Restore default".
+- Hover previews the theme on the real screen; click applies; changes animate with a 280 ms color cross-fade (respects FE-06).
+- **Duplicate & edit** any theme in the editor (FE-01) to create a custom one.
+- **Import VS Code theme**: drop a VS Code `*.json` color theme; Orbit maps `editor.background`, `sideBar.background`, `panel.border`, `editor.foreground`, `terminal.ansiGreen/Yellow/Red/Blue`, `tokenColors` scopes, etc. to Orbit tokens, runs the contrast guard and shows the fixes before saving.
+- **Scope**: per device by default (FE-50), workspace default (`orbit.settings.json`), per wall layout override (FE-05, `orbit.layouts.json`), URL override `wall.html?theme=<id>`; `prefers-color-scheme` can auto-pick a light/dark pair.
+
+**Credits and licensing**: built-in themes reproduce color palettes and carry attribution (`inspiredBy`, author, license, link) in their JSON and in `docs/themes.md`; only palettes under permissive licenses are bundled, and names are used descriptively ("inspired by"). No theme assets, logos or icons are copied.
 
 #### 1.2 Animation settings (FE-06)
 

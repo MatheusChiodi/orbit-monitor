@@ -62,10 +62,10 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 |---|---|---|---|
 | [FE-01](features/FE-01-theme-editor.md) | Theme editor | frontend | tests-pending |
 | [FE-02](features/FE-02-contrast-guard.md) | Contrast guard | frontend | tests-pending |
-| [FE-03](features/FE-03-theme-presets.md) | Theme presets | frontend | tests-pending |
+| [FE-03](features/FE-03-theme-presets.md) | Theme gallery | frontend | tests-pending |
 | [FE-04](features/FE-04-theme-import-export.md) | Theme import/export | frontend | tests-pending |
 | [FE-05](features/FE-05-per-layout-theme.md) | Per-layout theme | frontend | tests-pending |
-| [FE-06](features/FE-06-animation-level.md) | Animation settings | frontend | tests-pending |
+| [FE-06](features/FE-06-animation-level.md) | Animation settings | frontend | in-progress |
 | [FE-07](features/FE-07-density.md) | Density | frontend | tests-pending |
 | [FE-08](features/FE-08-viewing-distance-scale.md) | Viewing distance scale | frontend | tests-pending |
 | [FE-09](features/FE-09-night-mode-schedule.md) | Night mode schedule | frontend | tests-pending |
@@ -110,7 +110,7 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [FE-48](features/FE-48-desktop-notifications.md) | Desktop notifications | frontend | tests-pending |
 | [FE-49](features/FE-49-mobile-on-call-view.md) | Mobile on-call view | frontend | tests-pending |
 | [FE-50](features/FE-50-device-preferences.md) | Device preferences | frontend | tests-pending |
-| [FE-51](features/FE-51-component-motion-system.md) | Component motion system | frontend | tests-pending |
+| [FE-51](features/FE-51-component-motion-system.md) | Component motion system | frontend | in-progress |
 | [FE-52](features/FE-52-visual-fx-layer.md) | Visual FX layer (3D, glass, Remotion) | frontend | planned |
 
 ### Backend
