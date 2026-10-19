@@ -1,6 +1,7 @@
 package io.orbit.api.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.orbit.api.privacy.SensitiveDataModule;
 import io.orbit.api.runtime.ConnectionPools;
 import io.orbit.api.web.AccessFilter;
 import io.orbit.api.web.Messages;
@@ -31,6 +32,12 @@ public class WebBeans {
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
         registration.addUrlPatterns("/*");
         return registration;
+    }
+
+    /** Registered in Spring's ObjectMapper: every response and WebSocket message is masked again. */
+    @Bean
+    SensitiveDataModule sensitiveDataModule(SensitiveDataRedactor redactor) {
+        return new SensitiveDataModule(redactor);
     }
 
     @Bean

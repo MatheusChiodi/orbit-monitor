@@ -16,7 +16,7 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
+- [x] Implemented
 - [ ] All tests green, none pending
 
 ## Screens
@@ -37,9 +37,16 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `frontend/src/domains/monitor/rules/rules.ts`
 - `frontend/src/shared/ui/ThresholdChart/ThresholdChart.tsx`
 - `frontend/src/shared/ui/SecretInput/SecretInput.tsx`
+- `backend/orbit-common/src/main/java/io/orbit/common/privacy/SensitiveDataRedactor.java`
+- `backend/orbit-common/src/main/java/io/orbit/common/privacy/Luhn.java`
+- `backend/orbit-common/src/main/java/io/orbit/common/privacy/BrazilianDocuments.java`
+- `backend/orbit-common/src/main/java/io/orbit/common/privacy/DataClass.java`
 - `backend/orbit-common/src/main/java/io/orbit/common/privacy/Sensitive.java`
+- `backend/orbit-monitor/src/main/java/io/orbit/monitor/privacy/PayloadRedactor.java`
+- `backend/orbit-probe/src/main/java/io/orbit/probe/CheckRunner.java`
 - `backend/orbit-api/src/main/java/io/orbit/api/privacy/SensitiveDataModule.java`
 - `backend/orbit-api/src/main/java/io/orbit/api/privacy/MaskingConverter.java`
+- `backend/orbit-api/src/main/resources/logback-spring.xml`
 
 ## Tests
 - `frontend/src/shared/privacy/redact.test.ts`
@@ -57,14 +64,14 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `frontend/src/app/console/ConsoleApp.privacy.test.tsx`
 - `frontend/src/shared/ui/SecretInput/SecretInput.pending.test.tsx`
 - `frontend/src/shared/ui/SecretInput/SecretInput.test.tsx`
+- `backend/orbit-common/src/test/java/io/orbit/common/privacy/SensitiveDataRedactorTest.java`
+- `backend/orbit-monitor/src/test/java/io/orbit/monitor/privacy/PayloadRedactorTest.java`
+- `backend/orbit-probe/src/test/java/io/orbit/probe/CheckRunnerTest.java`
 - `backend/orbit-api/src/test/java/io/orbit/api/privacy/SensitiveDataModuleTest.java`
 - `backend/orbit-api/src/test/java/io/orbit/api/privacy/MaskingConverterTest.java`
+- `backend/orbit-api/src/test/java/io/orbit/api/privacy/LogMaskingTest.java`
 
 ## Decisions and notes
-- Backend: `SensitiveDataRedactor` classifies by field-name tokens (camelCase, snake_case and adjacent pairs such as `api_key`) and by value: Luhn PAN (13-19 digits, also as numeric values), CPF/CNPJ check digits, e-mail, formatted BR phone, JWT and Bearer tokens.
-- Backend: Masks: PAN `•••• •••• •••• 1234`, SAD `[REDACTED]`, secrets `••••`, CPF `•••.•••.•••-12`, e-mail `j•••@d•••.com`, phone `(••) •••••-1234`, other personal fields first letter + `•••`.
-- Backend: Probe boundary: `CheckRunner` evaluates conditions on the raw result in memory, then returns a `CheckResult` with masked payload (SQL rows, JSON body by key/value, sensitive headers), masked condition values/messages and masked error text.
-- Backend: Next: Jackson serialization guard and Logback masking converter.
 - Frontend: `detectSensitive` / `redact` mirror the backend redactor: Luhn PAN 13-19 digits (spaces/hyphens, numbers, inside free text and JSON) → `•••• •••• •••• 1234`; CVV/CVC/track/PIN by field name → `[REDACTED]`; CPF/CNPJ with valid check digits → `•••.•••.•••-12` / `••.•••.•••/••••-81`; e-mail → `j•••@d•••.com`; JWT, Bearer and secret field names → `••••`.
 - Frontend: Classification by field name or by value; non-sensitive values keep their type; redaction is idempotent.
 - Frontend: `<SafeValue>` / `useSafeValue` render the masked text with `data-masked`/`data-class` and an i18n description ("Card data is always masked (PCI DSS)"); copying copies the masked text only; there is no unmask control.
@@ -73,6 +80,11 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - Frontend: The preview shows a `role=note` PCI notice whenever the result contains card data.
 - Frontend: Data & display: fields carry `dataClass`, `masked` and `showOnWall`; sensitive fields are never pre-selected; PCI fields show "PCI · masked", cannot be stored as a series nor unmasked; personal fields show "Personal data (LGPD)" and are masked by default; neither can be shown on the wall.
 - Frontend: `SecretInput` is `type=password` + `autocomplete=off`, uncontrolled (the value never lands in a DOM attribute), no show toggle; stored secrets appear only as `•••• (vault)`.
+- Backend: Layer 1, probe boundary: `CheckRunner` evaluates conditions on the raw result in memory, then returns only masked payload, condition values and errors.
+- Backend: Layer 2, serialization: `SensitiveDataModule` (registered in Spring's ObjectMapper) re-masks every `ResultPayload`, `HttpResponseSnapshot` and `@Sensitive` property on the way out of REST and `/ws/wall`; `@Sensitive` values that look harmless are still masked generically.
+- Backend: Layer 3, logs: `logback-spring.xml` uses `%maskedMsg` (`MaskingConverter`), so every log line, including formatted arguments, is masked.
+- Backend: Masks: PAN `•••• •••• •••• 1234`, SAD `[REDACTED]`, secrets `••••`, CPF `•••.•••.•••-12`, e-mail `j•••@d•••.com`, phone `(••) •••••-1234`.
+- Backend: Pending: masking stack-trace messages (`%wEx`) and the rule that PERSONAL fields cannot be unmasked on the wall.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -85,3 +97,4 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - 2026-10-18 — frontend: Data & display privacy badges and minimization rules.
 - 2026-10-18 — frontend: frontend: secret input.
 - 2026-10-18 — backend: pending tests for the Jackson serialization guard and the Logback masking converter.
+- 2026-10-18 — backend: Jackson serialization guard and Logback masking converter implemented.

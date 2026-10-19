@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Every log line goes through MaskingConverter (%maskedMsg): no card number, CPF or token is ever logged. -->
+<configuration>
+    <conversionRule conversionWord="maskedMsg" converterClass="io.orbit.api.privacy.MaskingConverter"/>
+    <property name="CONSOLE_LOG_PATTERN"
+              value="%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %5p [%15.15t] %-40.40logger{39} : %maskedMsg%n%wEx"/>
+    <property name="FILE_LOG_PATTERN" value="${CONSOLE_LOG_PATTERN}"/>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
