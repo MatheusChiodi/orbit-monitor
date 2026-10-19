@@ -12,6 +12,7 @@ import { MonitorMatrix } from '../MonitorMatrix';
 import { NearLimit } from '../NearLimit';
 import { Timeline } from '../Timeline';
 import { WallHeader } from '../WallHeader';
+import { isStale } from '../StaleBadge';
 
 export interface WallScreenProps {
   snapshot: WallSnapshot | null;
@@ -20,13 +21,23 @@ export interface WallScreenProps {
   freshEventIds: ReadonlySet<string>;
   onAcknowledge: (incidentId: string) => void;
   onFullscreen?: () => void;
+  /** Last time data arrived; defaults to the snapshot time. */
+  updatedAt?: string | null;
 }
 
 /**
  * 16:9 wall: the left side is action (hero, also active, near threshold), the right side is context
  * (matrix and timeline). On narrow screens it becomes one column in that same order.
  */
-export function WallScreen({ snapshot, now, connection, freshEventIds, onAcknowledge, onFullscreen }: WallScreenProps) {
+export function WallScreen({
+  snapshot,
+  now,
+  connection,
+  freshEventIds,
+  onAcknowledge,
+  onFullscreen,
+  updatedAt,
+}: WallScreenProps) {
   const { t } = useTranslation();
   const heroMotion = useMotionPreset('hero');
   if (!snapshot) {
@@ -42,18 +53,22 @@ export function WallScreen({ snapshot, now, connection, freshEventIds, onAcknowl
     );
   }
 
+  const lastUpdate = updatedAt ?? snapshot.generatedAt;
+  // Demo data never goes stale; live data greys out after 60 s without messages.
+  const stale = connection !== 'mock' && isStale(lastUpdate, now);
   const counts = countByStatus(snapshot.monitors);
   const hero = pickHero(snapshot);
   const near = nearLimit(snapshot.monitors);
   const unowned = new Set(snapshot.incidents.filter((i) => !i.acknowledgedBy).map((i) => i.monitorId));
 
   return (
-    <div className="wall-root">
+    <div className="wall-root" data-stale={stale ? 'true' : 'false'}>
       <WallHeader
         environment={snapshot.environment}
         counts={counts}
         now={now}
-        updatedAt={snapshot.generatedAt}
+        updatedAt={lastUpdate}
+        stale={stale}
         connection={connection}
         onFullscreen={onFullscreen}
       />

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { Incident, MonitorView, TimelineEvent, WallSnapshot } from '@/shared/api/types';
 import { applyMessage, createWallStore, TIMELINE_LIMIT } from './wallStore';
 
@@ -119,5 +119,20 @@ describe('createWallStore', () => {
     const store = createWallStore();
     store.getState().setConnection('mock');
     expect(store.getState().connection).toBe('mock');
+  });
+});
+
+describe('FE-46 last update tracking', () => {
+  it('every received message refreshes lastUpdateAt', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 9, 18, 17, 0, 0));
+    const store = createWallStore();
+    expect(store.getState().lastUpdateAt).toBeNull();
+    store.getState().receive({ type: 'snapshot', payload: snapshot() });
+    expect(store.getState().lastUpdateAt).toBe(new Date(2026, 9, 18, 17, 0, 0).toISOString());
+    vi.setSystemTime(new Date(2026, 9, 18, 17, 1, 0));
+    store.getState().receive({ type: 'event', payload: event('e1') });
+    expect(store.getState().lastUpdateAt).toBe(new Date(2026, 9, 18, 17, 1, 0).toISOString());
+    vi.useRealTimers();
   });
 });

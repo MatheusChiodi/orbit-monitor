@@ -7,6 +7,7 @@ import { translate } from '@/shared/i18n/message';
 import { useAnimationLevel } from '@/shared/motion/animationLevel';
 import { Button, FlashValue, StatusPill } from '@/shared/ui';
 import type { WallConnectionState } from '../../store';
+import { StaleBadge } from '../StaleBadge';
 
 export interface WallHeaderProps {
   environment: string;
@@ -15,6 +16,8 @@ export interface WallHeaderProps {
   updatedAt: string | null;
   connection: WallConnectionState;
   onFullscreen?: () => void;
+  /** FE-46: no update for too long. */
+  stale?: boolean;
 }
 
 const CONNECTION_NOTE = {
@@ -36,7 +39,7 @@ function BrandMark() {
   );
 }
 
-export function WallHeader({ environment, counts, now, updatedAt, connection, onFullscreen }: WallHeaderProps) {
+export function WallHeader({ environment, counts, now, updatedAt, connection, onFullscreen, stale = false }: WallHeaderProps) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
   const title = tabTitle(counts);
@@ -75,7 +78,8 @@ export function WallHeader({ environment, counts, now, updatedAt, connection, on
 
       <div className="ml-auto flex items-center gap-[0.9rem]">
         {note && <span className="text-[0.78rem] text-warn-text">{note}</span>}
-        {updatedAt && (
+        {updatedAt && stale && <StaleBadge updatedAt={updatedAt} now={now} />}
+        {updatedAt && !stale && (
           <span className="text-[0.78rem] text-muted">
             {t('wall.updated', { when: formatRelative(updatedAt, now, locale) })}
           </span>

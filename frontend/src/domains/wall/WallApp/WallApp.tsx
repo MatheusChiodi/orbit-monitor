@@ -38,6 +38,7 @@ export function WallApp({ api, connect = connectWall, operator, mock, layout }: 
   const snapshot = useStore(store, (s) => s.snapshot);
   const connection = useStore(store, (s) => s.connection);
   const freshEventIds = useStore(store, (s) => s.freshEventIds);
+  const lastUpdateAt = useStore(store, (s) => s.lastUpdateAt);
   const now = useNow(1000);
   const locale = useLocale();
 
@@ -74,6 +75,7 @@ export function WallApp({ api, connect = connectWall, operator, mock, layout }: 
             now={now}
             connection={connection}
             freshEventIds={freshEventIds}
+            updatedAt={lastUpdateAt}
             onAcknowledge={onAcknowledge}
             onFullscreen={requestFullscreen}
           />

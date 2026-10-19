@@ -44,6 +44,8 @@ export interface WallState {
   connection: WallConnectionState;
   /** Events received live, highlighted for 3 s on the timeline. */
   freshEventIds: ReadonlySet<string>;
+  /** When the last message arrived (FE-46 stale data indicator). */
+  lastUpdateAt: string | null;
   receive: (message: WallMessage) => void;
   setConnection: (connection: WallConnectionState) => void;
   acknowledgeLocal: (incidentId: string, by: string, at?: Date, locale?: Locale) => void;
@@ -52,15 +54,17 @@ export interface WallState {
 export function createWallStore(initial: WallSnapshot | null = null) {
   return createStore<WallState>()((set) => ({
     snapshot: initial,
+    lastUpdateAt: null,
     connection: 'connecting',
     freshEventIds: new Set(),
     receive: (message) =>
       set((state) => {
         const snapshot = applyMessage(state.snapshot, message);
-        if (message.type !== 'event') return { snapshot };
+        const lastUpdateAt = new Date().toISOString();
+        if (message.type !== 'event') return { snapshot, lastUpdateAt };
         const freshEventIds = new Set(state.freshEventIds);
         freshEventIds.add(message.payload.id);
-        return { snapshot, freshEventIds };
+        return { snapshot, freshEventIds, lastUpdateAt };
       }),
     setConnection: (connection) => set({ connection }),
     acknowledgeLocal: (incidentId, by, at = new Date(), locale = DEFAULT_LOCALE) =>

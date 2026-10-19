@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { deviationLabel, formatReading, ruleText } from '@/domains/monitor/rules';
-import { formatDuration, formatElapsed } from '@/shared/format';
+import { EscalationCountdown } from '@/domains/alerting/EscalationCountdown';
+import { formatElapsed } from '@/shared/format';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { translate } from '@/shared/i18n/message';
 import { SafeValue } from '@/shared/privacy/SafeValue';
@@ -22,7 +23,6 @@ export function Hero({ selection, now, onAcknowledge }: HeroProps) {
   const status = monitor.status;
   const unowned = Boolean(incident && !incident.acknowledgedBy);
   const deviation = monitor.rule && monitor.value !== null ? deviationLabel(monitor.value, monitor.rule, locale) : null;
-  const escalatesIn = incident?.escalatesAt && unowned ? Date.parse(incident.escalatesAt) - now.getTime() : null;
 
   return (
     <Panel
@@ -80,10 +80,13 @@ export function Hero({ selection, now, onAcknowledge }: HeroProps) {
           </div>
         )}
         <div className="ml-auto flex w-full flex-col items-stretch gap-[0.5rem] sm:w-auto sm:flex-row sm:items-center sm:gap-[0.8rem]">
-          {escalatesIn !== null && escalatesIn > 0 && (
-            <span className="font-mono text-[0.85rem] text-warn-text">
-              {t('wall.hero.escalatesIn', { duration: formatDuration(escalatesIn) })}
-            </span>
+          {incident && (
+            <EscalationCountdown
+              escalatesAt={incident.escalatesAt}
+              nextStep={null}
+              now={now}
+              acknowledged={Boolean(incident.acknowledgedBy)}
+            />
           )}
           {incident && <AcknowledgeButton incident={incident} onAcknowledge={onAcknowledge} className="w-full sm:w-auto" />}
         </div>

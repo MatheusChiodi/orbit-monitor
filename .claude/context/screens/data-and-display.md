@@ -27,10 +27,10 @@ Pick fields to store, label/format/unit, series or not, display mode via visuali
 - [CORE-12 · Value formatting](../features/CORE-12-value-formatting.md) — done
 - [CORE-16 · Sensitive data protection (LGPD / PCI DSS)](../features/CORE-16-sensitive-data-protection-lgpd-pci-dss.md) — in-progress
 - [FE-14 · Reorder fields and columns](../features/FE-14-reorder-fields-and-columns.md) — tests-pending
-- [FE-21 · Visualization picker](../features/FE-21-visualization-picker.md) — tests-pending
+- [FE-21 · Visualization picker](../features/FE-21-visualization-picker.md) — done
 - [FE-22 · Compatibility rules](../features/FE-22-compatibility-rules.md) — done
-- [FE-23 · Visualization settings](../features/FE-23-visualization-settings.md) — in-progress
-- [FE-24 · 20 display modes](../features/FE-24-20-display-modes.md) — in-progress
+- [FE-23 · Visualization settings](../features/FE-23-visualization-settings.md) — done
+- [FE-24 · 20 display modes](../features/FE-24-20-display-modes.md) — done
 - [FE-25 · Week-over-week overlay](../features/FE-25-week-over-week-overlay.md) — done
 - [FE-26 · Chart annotations](../features/FE-26-chart-annotations.md) — done
 - [FE-27 · Zoom and synced crosshair](../features/FE-27-zoom-and-synced-crosshair.md) — done
