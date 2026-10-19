@@ -29,7 +29,9 @@ updated: 2026-10-18
 - `backend/orbit-common/src/test/java/io/orbit/common/MonitorStateTest.java`
 
 ## Decisions and notes
-_None yet._
+- Order OK < UNKNOWN < WARN < DOWN; UNKNOWN means no data yet and is exposed to the wall as status `UNKNOWN`.
+- `worstOf` of an empty collection is UNKNOWN (used for groups without data).
 
 ## Changelog
 - 2026-10-18 — context file created (status: done).
+- 2026-10-18 — notes synced.

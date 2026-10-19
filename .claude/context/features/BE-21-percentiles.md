@@ -3,7 +3,7 @@ id: BE-21
 title: "Percentiles"
 area: backend
 group: "Telemetry"
-status: planned
+status: in-progress
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,21 +15,24 @@ updated: 2026-10-18
 p50/p95/p99 per window
 
 ## Status
-- [ ] Tests written (pending or active)
-- [ ] Implemented
+- [x] Tests written (pending or active)
+- [x] Implemented
 - [ ] All tests green, none pending
 
 ## Screens
 —
 
 ## Code
-_None yet._
+- `backend/orbit-telemetry/src/main/java/io/orbit/telemetry/Statistics.java`
+- `backend/orbit-telemetry/src/main/java/io/orbit/telemetry/LatencySummary.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-telemetry/src/test/java/io/orbit/telemetry/StatisticsTest.java`
 
 ## Decisions and notes
-_None yet._
+- Nearest-rank p50/p95/p99 over OK/WARN checks; exposed in `GET /api/monitors/{id}` as `latency`.
+- Pending: percentiles of SQL series values.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — latency percentiles.

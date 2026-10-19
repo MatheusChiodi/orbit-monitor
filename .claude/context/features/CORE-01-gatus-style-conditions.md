@@ -30,7 +30,11 @@ Parser and evaluators for `[STATUS]`, `[RESPONSE_TIME]`, `[BODY]`, `[ROWS]`, `[C
 - `backend/orbit-monitor/src/test/java/io/orbit/monitor/condition/ConditionEngineTest.java`
 
 ## Decisions and notes
-_None yet._
+- Conditions state the healthy case (Gatus): a failing condition puts the monitor in its level (WARN or DOWN); the final state is the worst failed level.
+- Operators: `< <= > >= == != between in contains older than newer than`; durations `ms s min h d`; `now() +/- duration`; quoted or bare text; lists `(a, b)`.
+- Evaluators live in a `Map<Operator, ConditionEvaluator>`; incompatible types and missing values fail with a message instead of throwing.
+- Syntax errors are `Localizable` (key + args) so the API translates them (CORE-15).
 
 ## Changelog
 - 2026-10-18 — context file created (status: done).
+- 2026-10-18 — notes synced; contains/newer than operators and translatable syntax errors.

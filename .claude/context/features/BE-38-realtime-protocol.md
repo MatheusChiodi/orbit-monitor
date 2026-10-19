@@ -3,7 +3,7 @@ id: BE-38
 title: "Realtime protocol"
 area: backend
 group: "Workspace and configuration"
-status: planned
+status: in-progress
 screens: []
 spec: docs/05-extended-features.md
 updated: 2026-10-18
@@ -15,21 +15,23 @@ updated: 2026-10-18
 WebSocket snapshot + deltas with sequence numbers; resume after reconnect
 
 ## Status
-- [ ] Tests written (pending or active)
-- [ ] Implemented
+- [x] Tests written (pending or active)
+- [x] Implemented
 - [ ] All tests green, none pending
 
 ## Screens
 —
 
 ## Code
-_None yet._
+- `backend/orbit-api/src/main/java/io/orbit/api/wall/WallSocketHandler.java`
 
 ## Tests
-_None yet._
+- `backend/orbit-api/src/test/java/io/orbit/api/wall/WallSocketTest.java`
 
 ## Decisions and notes
-_None yet._
+- Snapshot on connect, then deltas with increasing `seq`; a client that sees a gap reloads `GET /api/wall/snapshot`.
+- Pending: resume from a sequence number without a full snapshot.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
+- 2026-10-18 — snapshot + deltas with sequence numbers.

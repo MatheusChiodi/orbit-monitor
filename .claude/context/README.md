@@ -36,23 +36,23 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | ID | Feature | Area | Status |
 |---|---|---|---|
 | [CORE-01](features/CORE-01-gatus-style-conditions.md) | Gatus-style conditions | backend | done |
-| [CORE-02](features/CORE-02-sql-validator-and-row-limit-wrapper.md) | SQL validator and row-limit wrapper | backend | planned |
-| [CORE-03](features/CORE-03-sql-probe-and-result-payload.md) | SQL probe and result payload | backend | planned |
-| [CORE-04](features/CORE-04-http-probe-with-ssrf-protection.md) | HTTP probe with SSRF protection | backend | planned |
-| [CORE-05](features/CORE-05-state-hysteresis-uptime-and-p95.md) | State, hysteresis, uptime and p95 | backend | planned |
-| [CORE-06](features/CORE-06-incidents-and-acknowledgement.md) | Incidents and acknowledgement | full-stack | planned |
-| [CORE-07](features/CORE-07-workspaces-and-groups.md) | Workspaces and groups | full-stack | planned |
-| [CORE-08](features/CORE-08-access-policy-vault-and-audit.md) | Access policy, vault and audit | full-stack | planned |
-| [CORE-19](features/CORE-19-per-feature-json-configuration-files.md) | Per-feature JSON configuration files | backend | planned |
-| [CORE-20](features/CORE-20-local-first-runtime.md) | Local-first runtime | full-stack | planned |
+| [CORE-02](features/CORE-02-sql-validator-and-row-limit-wrapper.md) | SQL validator and row-limit wrapper | backend | done |
+| [CORE-03](features/CORE-03-sql-probe-and-result-payload.md) | SQL probe and result payload | backend | in-progress |
+| [CORE-04](features/CORE-04-http-probe-with-ssrf-protection.md) | HTTP probe with SSRF protection | backend | in-progress |
+| [CORE-05](features/CORE-05-state-hysteresis-uptime-and-p95.md) | State, hysteresis, uptime and p95 | backend | done |
+| [CORE-06](features/CORE-06-incidents-and-acknowledgement.md) | Incidents and acknowledgement | full-stack | in-progress |
+| [CORE-07](features/CORE-07-workspaces-and-groups.md) | Workspaces and groups | full-stack | in-progress |
+| [CORE-08](features/CORE-08-access-policy-vault-and-audit.md) | Access policy, vault and audit | full-stack | in-progress |
+| [CORE-19](features/CORE-19-per-feature-json-configuration-files.md) | Per-feature JSON configuration files | backend | in-progress |
+| [CORE-20](features/CORE-20-local-first-runtime.md) | Local-first runtime | full-stack | in-progress |
 | [CORE-09](features/CORE-09-realtime-wall-updates.md) | Realtime wall updates | full-stack | in-progress |
 | [CORE-10](features/CORE-10-data-display-step.md) | Data & display step | frontend | in-progress |
 | [CORE-11](features/CORE-11-global-status-summary.md) | Global status summary | frontend | done |
 | [CORE-12](features/CORE-12-value-formatting.md) | Value formatting | frontend | done |
 | [CORE-13](features/CORE-13-threshold-rule-headroom-and-deviation.md) | Threshold rule, headroom and deviation | frontend | done |
 | [CORE-14](features/CORE-14-monitor-state-severity.md) | Monitor state severity | backend | done |
-| [CORE-15](features/CORE-15-internationalization-en-pt-br.md) | Internationalization (en / pt-BR) | full-stack | planned |
-| [CORE-16](features/CORE-16-sensitive-data-protection-lgpd-pci-dss.md) | Sensitive data protection (LGPD / PCI DSS) | full-stack | planned |
+| [CORE-15](features/CORE-15-internationalization-en-pt-br.md) | Internationalization (en / pt-BR) | full-stack | in-progress |
+| [CORE-16](features/CORE-16-sensitive-data-protection-lgpd-pci-dss.md) | Sensitive data protection (LGPD / PCI DSS) | full-stack | in-progress |
 | [CORE-17](features/CORE-17-design-tokens-and-base-theme.md) | Design tokens and base theme | frontend | done |
 | [CORE-18](features/CORE-18-application-skeleton-and-health.md) | Application skeleton and health | backend | done |
 
@@ -134,14 +134,14 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [BE-16](features/BE-16-circuit-breaker.md) | Circuit breaker | backend | planned |
 | [BE-17](features/BE-17-execution-windows.md) | Execution windows | backend | planned |
 | [BE-18](features/BE-18-retries-with-backoff.md) | Retries with backoff | backend | planned |
-| [BE-19](features/BE-19-in-memory-rollups.md) | In-memory rollups | backend | planned |
-| [BE-20](features/BE-20-uptime-and-sla.md) | Uptime and SLA | backend | planned |
-| [BE-21](features/BE-21-percentiles.md) | Percentiles | backend | planned |
+| [BE-19](features/BE-19-in-memory-rollups.md) | In-memory rollups | backend | in-progress |
+| [BE-20](features/BE-20-uptime-and-sla.md) | Uptime and SLA | backend | in-progress |
+| [BE-21](features/BE-21-percentiles.md) | Percentiles | backend | in-progress |
 | [BE-22](features/BE-22-anomaly-detection.md) | Anomaly detection | backend | planned |
 | [BE-23](features/BE-23-body-metric-extraction.md) | Body metric extraction | backend | planned |
 | [BE-24](features/BE-24-time-to-threshold.md) | Time to threshold | backend | planned |
 | [BE-25](features/BE-25-flapping-detection.md) | Flapping detection | backend | planned |
-| [BE-26](features/BE-26-incident-lifecycle.md) | Incident lifecycle | backend | planned |
+| [BE-26](features/BE-26-incident-lifecycle.md) | Incident lifecycle | backend | in-progress |
 | [BE-27](features/BE-27-escalation-policies.md) | Escalation policies | backend | planned |
 | [BE-28](features/BE-28-channels.md) | Channels | backend | planned |
 | [BE-29](features/BE-29-deduplication.md) | Deduplication | backend | planned |
@@ -153,16 +153,16 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [BE-35](features/BE-35-notification-templates.md) | Notification templates | backend | planned |
 | [BE-36](features/BE-36-channel-reliability.md) | Channel reliability | backend | planned |
 | [BE-37](features/BE-37-config-export-import.md) | Config export/import | backend | planned |
-| [BE-38](features/BE-38-realtime-protocol.md) | Realtime protocol | backend | planned |
+| [BE-38](features/BE-38-realtime-protocol.md) | Realtime protocol | backend | in-progress |
 | [BE-39](features/BE-39-workspace-variables.md) | Workspace variables | backend | planned |
 | [BE-40](features/BE-40-workspace-defaults-and-themes-api.md) | Workspace defaults and themes API | backend | planned |
 | [BE-41](features/BE-41-wall-layouts.md) | Wall layouts | backend | planned |
 | [BE-42](features/BE-42-status-page-api.md) | Status page API | backend | planned |
 | [BE-43](features/BE-43-uptime-kuma-import.md) | Uptime Kuma import | backend | planned |
-| [BE-44](features/BE-44-network-access-policy.md) | Network access policy | backend | planned |
-| [BE-45](features/BE-45-operator-identity.md) | Operator identity | backend | planned |
-| [BE-46](features/BE-46-audit-query-api.md) | Audit query API | backend | planned |
+| [BE-44](features/BE-44-network-access-policy.md) | Network access policy | backend | done |
+| [BE-45](features/BE-45-operator-identity.md) | Operator identity | backend | in-progress |
+| [BE-46](features/BE-46-audit-query-api.md) | Audit query API | backend | in-progress |
 | [BE-47](features/BE-47-rate-limiting.md) | Rate limiting | backend | planned |
 | [BE-48](features/BE-48-secret-rotation.md) | Secret rotation | backend | planned |
-| [BE-49](features/BE-49-problem-details-errors.md) | Problem Details errors | backend | planned |
+| [BE-49](features/BE-49-problem-details-errors.md) | Problem Details errors | backend | in-progress |
 | [BE-50](features/BE-50-self-monitoring-and-config-backup.md) | Self-monitoring and config backup | backend | planned |
