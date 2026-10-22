@@ -1,26 +1,25 @@
 import { useMemo, useState } from 'react';
-import { QueryClient, QueryClientProvider, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useStore } from 'zustand';
-import { MonitorForm } from '@/domains/monitor/components/MonitorForm';
 import { canEdit } from '@/domains/security/access';
 import type { OperatorStore } from '@/domains/security/operator';
 import { OperatorPrompt } from '@/domains/security/OperatorPrompt';
 import { ViewOnlyBanner } from '@/domains/security/ViewOnlyBanner';
-import { DevicePreferences } from '@/domains/workspace/DevicePreferences';
-import { GroupList } from '@/domains/workspace/GroupList';
-import { CommandPalette, type PaletteItem } from './CommandPalette';
-import { DEFAULT_SHORTCUTS, ShortcutsHelp, useShortcuts } from './ShortcutsHelp';
-import type { AccessInfo, MonitorDefinition } from '@/shared/api/types';
+import type { AccessInfo } from '@/shared/api/types';
 import { FxBackground } from '@/shared/fx/FxBackground';
 import { FxDowngradeNotice } from '@/shared/fx/FxDowngradeNotice';
 import { FxProvider } from '@/shared/fx/FxProvider';
-import { LivingOrb } from '@/shared/fx/LivingOrb';
 import { OrbitIntro } from '@/shared/fx/OrbitIntro';
-import { LanguageSelector } from '@/shared/i18n/LanguageSelector';
 import { AnimationLevelProvider } from '@/shared/motion/animationLevel';
 import { createPreferencesStore, type PreferencesStore } from '@/shared/preferences/preferences';
-import { Button } from '@/shared/ui';
+import { ConsoleHeader } from './ConsoleHeader';
+import { ConsolePalette } from './ConsolePalette';
+import { ConsoleProvider } from './ConsoleContext';
+import { ConsoleRoutes } from './ConsoleRoutes';
+import type { IncidentFeedConnector } from './NotificationsBell';
+import { routeHref, useHashRoute, type ConsoleRoute } from './routes';
+import { DEFAULT_SHORTCUTS, ShortcutsHelp, useShortcuts } from './ShortcutsHelp';
 import { usePreferenceEffects } from './usePreferenceEffects';
 import { createConsoleSource, type ConsoleApi } from './consoleSource';
 
@@ -30,15 +29,12 @@ export interface ConsoleAppProps {
   queryClient?: QueryClient;
   /** FE-50: device preferences; created from `localStorage` when omitted. */
   preferencesStore?: PreferencesStore;
+  /** FE-38: live incident changes (the wall WebSocket); polling only when omitted. */
+  connectFeed?: IncidentFeedConnector;
 }
 
 /** `index.html#/settings/preferences` opens the device preferences screen. */
-export const PREFERENCES_HASH = '#/settings/preferences';
-type ConsoleView = 'list' | 'new' | 'preferences';
-
-function initialView(): ConsoleView {
-  return typeof window !== 'undefined' && window.location.hash === PREFERENCES_HASH ? 'preferences' : 'list';
-}
+export const PREFERENCES_HASH = routeHref({ name: 'preferences' });
 
 /** Probe data stays in memory only: no persisted query cache, short garbage collection. */
 function createQueryClient(): QueryClient {
@@ -52,141 +48,53 @@ interface WorkspaceProps {
   operator: string;
   onChangeName: () => void;
   preferences: PreferencesStore;
+  operatorStore: OperatorStore;
+  connectFeed?: IncidentFeedConnector;
 }
 
-function Workspace({ api, access, demo, operator, onChangeName, preferences }: WorkspaceProps) {
+function Workspace({ api, access, demo, operator, onChangeName, preferences, operatorStore, connectFeed }: WorkspaceProps) {
   const { t } = useTranslation();
   const source = useMemo(() => createConsoleSource(api, demo), [api, demo]);
-  const queryClient = useQueryClient();
-  const [view, setView] = useState<ConsoleView>(initialView);
+  const [route, navigate] = useHashRoute();
   const [notice, setNotice] = useState<string | null>(null);
   const editable = canEdit(access.mode);
+  const context = useMemo(
+    () => ({ source, access, editable, demo, operator, navigate }),
+    [source, access, editable, demo, operator, navigate],
+  );
 
-  const groups = useQuery({ queryKey: ['groups', demo], queryFn: source.listGroups });
-  const monitors = useQuery({ queryKey: ['monitors', demo], queryFn: source.listMonitors });
-  const connections = useQuery({
-    queryKey: ['connections', demo],
-    queryFn: source.listConnections,
-    enabled: view === 'new' && editable,
-  });
-
-  const openNew = () => {
-    if (!editable) return;
+  const go = (next: ConsoleRoute) => {
     setNotice(null);
-    setView('new');
+    navigate(next);
+  };
+  const openNew = () => {
+    if (editable) go({ name: 'new-monitor' });
   };
   useShortcuts({ 'monitor.new': openNew });
 
-  const paletteItems: PaletteItem[] = [
-    ...(monitors.data ?? []).map((m) => ({
-      id: `monitor:${m.id}`,
-      kind: 'monitor' as const,
-      label: m.name,
-      hint: groups.data?.find((g) => g.id === m.groupId)?.name,
-    })),
-    ...(groups.data ?? []).map((g) => ({ id: `group:${g.id}`, kind: 'group' as const, label: g.name })),
-    { id: 'action:new-monitor', kind: 'action', label: t('console.monitors.new'), requiresEdit: true },
-    { id: 'action:open-wall', kind: 'action', label: t('console.openWall') },
-  ];
-
-  function onPaletteSelect(item: PaletteItem) {
-    if (item.id === 'action:new-monitor') openNew();
-    else if (item.id === 'action:open-wall') window.location.assign('/wall.html');
-    else setView('list');
-  }
-
-  const create = useMutation({
-    mutationFn: source.createMonitor,
-    onSuccess: async (_, definition: MonitorDefinition) => {
-      await queryClient.invalidateQueries({ queryKey: ['monitors', demo] });
-      setNotice(t('console.monitors.saved', { name: definition.name }));
-      setView('list');
-    },
-  });
-
   return (
-    <div className="min-h-screen">
-      <header className="flex flex-wrap items-center gap-[1rem] border-b border-line px-[1.4rem] py-[0.7rem]">
-        <span className="font-display text-[1.25rem] font-bold tracking-tight">{t('app.name')}</span>
-        <span className="text-[0.85rem] text-muted">{t('app.console')}</span>
-        {demo && <span className="text-[0.8rem] text-warn-text">{t('app.demoData')}</span>}
-        <nav className="ml-auto flex flex-wrap items-center gap-[0.8rem] text-[0.9rem]">
-          <LanguageSelector />
-          <Button variant="ghost" aria-current={view === 'preferences' ? 'page' : undefined} onClick={() => setView('preferences')}>
-            {t('preferences.title')}
-          </Button>
-          <a href="/wall.html" className="text-info hover:underline">
-            {t('console.openWall')}
-          </a>
-          <span className="text-muted">{operator}</span>
-          <Button variant="ghost" onClick={onChangeName}>
-            {t('operator.change')}
-          </Button>
-        </nav>
-      </header>
-
-      <CommandPalette items={paletteItems} mode={access.mode} onSelect={onPaletteSelect} />
-      <ShortcutsHelp shortcuts={DEFAULT_SHORTCUTS} />
-      <main className="mx-auto flex max-w-[80rem] flex-col gap-[1rem] p-[1.4rem]">
-        <ViewOnlyBanner mode={access.mode} />
-        {notice && (
-          <p className="m-0 rounded-[0.45rem] border border-ok/50 bg-ok/12 px-[0.8rem] py-[0.5rem] text-ok-text">{notice}</p>
-        )}
-        {view === 'preferences' ? (
-          <>
-            <h1 className="m-0 font-display text-[1.6rem] font-bold tracking-tight">{t('preferences.title')}</h1>
-            <DevicePreferences store={preferences} />
-          </>
-        ) : view === 'list' || !editable ? (
-          <>
-            <h1 className="m-0 font-display text-[1.6rem] font-bold tracking-tight">{t('console.monitors.title')}</h1>
-            {(groups.isError || monitors.isError) && <p className="m-0 text-down-text">{t('console.monitors.loadError')}</p>}
-            {groups.isPending || monitors.isPending ? (
-              <p className="m-0 text-muted">{t('app.loading')}</p>
-            ) : (
-              <>
-                {(monitors.data ?? []).length === 0 ? (
-                  <div className="grid gap-[1rem] md:grid-cols-2">
-                    <OrbitIntro id="first-monitor" tilt />
-                    <OrbitIntro id="check-flow" tilt />
-                  </div>
-                ) : (
-                  <LivingOrb
-                    interactive
-                    monitors={monitors.data ?? []}
-                    groups={groups.data ?? []}
-                    className="h-[19rem] w-full"
-                    onOpen={(id) => document.getElementById(`monitor-${id}`)?.scrollIntoView({ block: 'center' })}
-                  />
-                )}
-                <GroupList
-                groups={groups.data ?? []}
-                monitors={monitors.data ?? []}
-                canEdit={editable}
-                onNewMonitor={() => {
-                  setNotice(null);
-                  setView('new');
-                }}
-              />
-              </>
-            )}
-          </>
-        ) : (
-          <>
-            <h1 className="m-0 font-display text-[1.6rem] font-bold tracking-tight">{t('console.monitors.newTitle')}</h1>
-            <MonitorForm
-              groups={groups.data ?? []}
-              connections={connections.data ?? []}
-              onPreview={source.previewMonitor}
-              onSave={async (definition) => {
-                await create.mutateAsync(definition);
-              }}
-              onCancel={() => setView('list')}
-            />
-          </>
-        )}
-      </main>
-    </div>
+    <ConsoleProvider value={context}>
+      <div className="min-h-screen">
+        <ConsoleHeader route={route} onChangeName={onChangeName} connectFeed={connectFeed} />
+        <ConsolePalette onNewMonitor={openNew} onNavigate={go} />
+        <ShortcutsHelp shortcuts={DEFAULT_SHORTCUTS} />
+        <main className="mx-auto flex max-w-[80rem] flex-col gap-[1rem] p-[1.4rem]">
+          <ViewOnlyBanner mode={access.mode} />
+          {notice && (
+            <p className="m-0 rounded-[0.45rem] border border-ok/50 bg-ok/12 px-[0.8rem] py-[0.5rem] text-ok-text">{notice}</p>
+          )}
+          <ConsoleRoutes
+            route={route}
+            preferences={preferences}
+            operatorStore={operatorStore}
+            onMonitorSaved={(name) => {
+              navigate({ name: 'monitors' });
+              setNotice(t('console.monitors.saved', { name }));
+            }}
+          />
+        </main>
+      </div>
+    </ConsoleProvider>
   );
 }
 
@@ -194,9 +102,10 @@ interface ShellProps {
   api: ConsoleApi;
   operatorStore: OperatorStore;
   preferences: PreferencesStore;
+  connectFeed?: IncidentFeedConnector;
 }
 
-function Shell({ api, operatorStore, preferences }: ShellProps) {
+function Shell({ api, operatorStore, preferences, connectFeed }: ShellProps) {
   const { t } = useTranslation();
   const operator = useStore(operatorStore, (s) => s.name);
   const setName = useStore(operatorStore, (s) => s.setName);
@@ -229,12 +138,14 @@ function Shell({ api, operatorStore, preferences }: ShellProps) {
       operator={operator}
       onChangeName={() => setRenaming(true)}
       preferences={preferences}
+      operatorStore={operatorStore}
+      connectFeed={connectFeed}
     />
   );
 }
 
 /** Console: no login; the operator declares a name once and the API decides edit vs. view-only. */
-export function ConsoleApp({ api, operatorStore, queryClient, preferencesStore }: ConsoleAppProps) {
+export function ConsoleApp({ api, operatorStore, queryClient, preferencesStore, connectFeed }: ConsoleAppProps) {
   const [client] = useState(() => queryClient ?? createQueryClient());
   const [preferences] = useState(() => preferencesStore ?? createPreferencesStore());
   const effective = usePreferenceEffects(preferences, operatorStore);
@@ -244,7 +155,7 @@ export function ConsoleApp({ api, operatorStore, queryClient, preferencesStore }
         <FxProvider>
           <FxBackground />
           <div className="fx-layer">
-            <Shell api={api} operatorStore={operatorStore} preferences={preferences} />
+            <Shell api={api} operatorStore={operatorStore} preferences={preferences} connectFeed={connectFeed} />
           </div>
           <FxDowngradeNotice />
         </FxProvider>

@@ -4,21 +4,53 @@ import { useTranslation } from 'react-i18next';
 import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { translate } from '@/shared/i18n/message';
+import type { CatalogTable } from '@/shared/api/consoleTypes';
+import type { MonitorSaveResult } from '@/shared/api/monitorTargets';
 import type { Connection, Group, MonitorDefinition, PreviewRequest, PreviewResult } from '@/shared/api/types';
 import { Button, INPUT_CLASS, SELECT_CLASS } from '@/shared/ui';
-import { suggestFields } from '../../display';
-import { buildDefinition, buildTarget, initialFormState, previewContext, validateForm, validateTarget, type MonitorFormState } from '../../form';
-import { ConditionEditor } from '../ConditionEditor';
+import { addPickedField, suggestFields } from '../../display';
+import {
+  MONITOR_KINDS,
+  buildDefinition,
+  buildTarget,
+  conditionFieldsFor,
+  initialFormState,
+  isPreviewable,
+  previewContext,
+  validateForm,
+  validateTarget,
+  type MonitorFormState,
+  type MonitorKind,
+} from '../../form';
+import { ConditionBuilder } from '../ConditionBuilder';
 import { DataDisplayStep } from '../DataDisplayStep';
+import { JsonExplorer } from '../JsonExplorer';
 import { PreviewTable } from '../PreviewTable';
 import { FormField, TargetFields } from './TargetFields';
+import { useCatalog } from './useCatalog';
+
+function parseJson(body: string | null | undefined): unknown {
+  if (!body) return undefined;
+  const trimmed = body.trim();
+  if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) return undefined;
+  try {
+    return JSON.parse(trimmed) as unknown;
+  } catch {
+    return undefined;
+  }
+}
 
 export interface MonitorFormProps {
   groups: readonly Group[];
   connections: readonly Connection[];
   onPreview: (target: PreviewRequest) => Promise<PreviewResult>;
-  onSave: (definition: MonitorDefinition) => Promise<void>;
+  /** May resolve with the save result (a new push monitor carries its one-time `pushUrl`). */
+  onSave: (definition: MonitorDefinition) => Promise<MonitorSaveResult | void>;
   onCancel: () => void;
+  /** Kind preselected by the route (`#/monitors/new/http`). */
+  initialType?: MonitorKind;
+  /** FE-33: tables and columns of a connection for SQL autocomplete (`/api/connections/{id}/catalog`). */
+  onLoadCatalog?: (connectionId: string) => Promise<CatalogTable[]>;
 }
 
 interface SectionProps {
@@ -62,11 +94,11 @@ function ErrorList({ errors }: { errors: readonly string[] }) {
 }
 
 /** Monitor form: configuration on the left, live preview on the right. */
-export function MonitorForm({ groups, connections, onPreview, onSave, onCancel }: MonitorFormProps) {
+export function MonitorForm({ groups, connections, onPreview, onSave, onCancel, onLoadCatalog, initialType = 'SQL' }: MonitorFormProps) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
   const skeletonShimmer = useMotionPreset('enter').level === 'off' ? '' : 'anim-shimmer';
-  const [state, setState] = useState<MonitorFormState>(initialFormState);
+  const [state, setState] = useState<MonitorFormState>(() => ({ ...initialFormState(), type: initialType }));
   const [preview, setPreview] = useState<PreviewResult | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
@@ -75,7 +107,10 @@ export function MonitorForm({ groups, connections, onPreview, onSave, onCancel }
 
   const patch = (next: Partial<MonitorFormState>) => setState((s) => ({ ...s, ...next }));
   const targetErrors = validateTarget(state);
-  const fieldNames = state.fields.map((f) => f.field);
+  const previewable = isPreviewable(state.type);
+  const fieldNames = previewable ? state.fields.map((f) => f.field) : conditionFieldsFor(state.type);
+  const catalog = useCatalog(state.type === 'SQL' ? state.connectionId : '', onLoadCatalog);
+  const json = state.type === 'HTTP' ? parseJson(preview?.body) : undefined;
 
   function switchType(type: MonitorFormState['type']) {
     patch({ type, fields: [], conditions: [] });
@@ -87,6 +122,7 @@ export function MonitorForm({ groups, connections, onPreview, onSave, onCancel }
     setRunning(true);
     setPreviewError(null);
     try {
+      if (state.type !== 'SQL' && state.type !== 'HTTP') return;
       const result = await onPreview(buildTarget(state));
       setPreview(result);
       patch({ fields: suggestFields(result, state.type, locale) });
@@ -116,14 +152,14 @@ export function MonitorForm({ groups, connections, onPreview, onSave, onCancel }
     <div className="flex flex-col gap-[1rem]">
       <div className="grid grid-cols-1 gap-[1rem] lg:grid-cols-2">
         <Section title={t('form.configuration')}>
-          <div role="radiogroup" aria-label={t('form.type')} className="flex gap-[0.4rem]">
-            {(['SQL', 'HTTP'] as const).map((type) => (
+          <div role="radiogroup" aria-label={t('form.type')} className="flex flex-wrap gap-[0.4rem]">
+            {MONITOR_KINDS.map((type) => (
               <label
                 key={type}
                 className={`flex h-[2.2rem] cursor-pointer items-center gap-[0.4rem] rounded-[0.45rem] border px-[0.8rem] text-[0.85rem] font-semibold ${state.type === type ? 'border-info bg-info/12 text-info' : 'border-line-2 text-muted'}`}
               >
                 <input type="radio" name="monitor-type" className="sr-only" checked={state.type === type} onChange={() => switchType(type)} />
-                {type}
+                {t(`monitorForm.types.${type}`)}
               </label>
             ))}
           </div>
@@ -170,12 +206,14 @@ export function MonitorForm({ groups, connections, onPreview, onSave, onCancel }
               )}
             </FormField>
           </div>
-          <TargetFields state={state} connections={connections} onChange={patch} />
-          <div>
-            <Button variant="primary" onClick={runPreview} disabled={running || targetErrors.length > 0}>
-              {t('form.runPreview')}
-            </Button>
-          </div>
+          <TargetFields state={state} connections={connections} onChange={patch} catalog={catalog.catalog} catalogStatus={catalog.status} />
+          {previewable && (
+            <div>
+              <Button variant="primary" onClick={runPreview} disabled={running || targetErrors.length > 0}>
+                {t('form.runPreview')}
+              </Button>
+            </div>
+          )}
         </Section>
 
         <Section title={t('form.preview')}>
@@ -194,7 +232,9 @@ export function MonitorForm({ groups, connections, onPreview, onSave, onCancel }
               {t('form.running')}
             </p>
           )}
-          {preview ? (
+          {!previewable ? (
+            <p className="m-0 text-[0.85rem] text-muted">{t('monitorForm.noPreview')}</p>
+          ) : preview ? (
             <PreviewTable preview={preview} />
           ) : (
             !previewError && !running && <p className="m-0 text-[0.85rem] text-muted">{t('form.previewEmpty')}</p>
@@ -204,12 +244,20 @@ export function MonitorForm({ groups, connections, onPreview, onSave, onCancel }
 
       {preview && (
         <Section title={t('form.dataDisplay')} motionKind="expand">
+          {json !== undefined && (
+            <div className="flex flex-col gap-[0.4rem]">
+              <span className="text-[0.8rem] text-muted">{t('monitorForm.jsonExplorerHint')}</span>
+              <div className="max-h-[18rem] overflow-auto rounded-[0.6rem] border border-line p-[0.5rem]">
+                <JsonExplorer value={json} onPick={(pick) => patch({ fields: addPickedField(state.fields, pick, preview) })} />
+              </div>
+            </div>
+          )}
           <DataDisplayStep fields={state.fields} onChange={(fields) => patch({ fields })} />
         </Section>
       )}
 
       <Section title={t('form.conditions')}>
-        <ConditionEditor
+        <ConditionBuilder
           conditions={state.conditions}
           fields={fieldNames}
           context={preview ? previewContext(preview) : null}

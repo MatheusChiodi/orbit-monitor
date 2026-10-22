@@ -27,4 +27,6 @@ createI18n('en', { global: true });
 
 afterEach(() => {
   cleanup();
+  // Console screens live in the URL hash; each test starts on the monitor list.
+  if (window.location.hash) window.history.replaceState(null, '', window.location.pathname + window.location.search);
 });

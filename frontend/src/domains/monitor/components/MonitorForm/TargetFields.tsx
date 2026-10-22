@@ -1,21 +1,17 @@
-import { useId, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Connection, HttpMethod } from '@/shared/api/types';
 import { INPUT_CLASS, SELECT_CLASS } from '@/shared/ui';
 import type { MonitorFormState } from '../../form';
-import { SqlEditor } from '../SqlEditor';
+import { CheckTargetFields } from '../CheckTargetFields';
+import { FormField } from '../FormField';
+import { HttpStepsFields } from '../HttpStepsFields';
+import { OAuthFields } from '../OAuthFields';
+import { SqlCodeEditor, type SqlCatalog } from '../SqlCodeEditor';
 
-export function FormField({ label, children }: { label: string; children: (id: string) => ReactNode }) {
-  const id = useId();
-  return (
-    <div className="flex min-w-0 flex-col gap-[0.3rem]">
-      <label htmlFor={id} className="text-[0.8rem] text-muted">
-        {label}
-      </label>
-      {children(id)}
-    </div>
-  );
-}
+export { FormField };
+
+export type CatalogStatus = 'idle' | 'loading' | 'ready' | 'unavailable';
+const EMPTY_CATALOG: SqlCatalog = { tables: [] };
 
 const METHODS: HttpMethod[] = ['GET', 'POST', 'PUT', 'HEAD'];
 
@@ -23,11 +19,23 @@ export interface TargetFieldsProps {
   state: MonitorFormState;
   connections: readonly Connection[];
   onChange: (patch: Partial<MonitorFormState>) => void;
+  /** FE-33: tables and columns of the chosen connection (BE-13). */
+  catalog?: SqlCatalog;
+  catalogStatus?: CatalogStatus;
 }
 
-/** Target fields: connection + SELECT, or method + URL + headers + body. */
-export function TargetFields({ state, connections, onChange }: TargetFieldsProps) {
+/** Target fields per monitor kind: SQL, HTTP (+ OAuth2), HTTP steps or a check target. */
+export function TargetFields({ state, connections, onChange, catalog = EMPTY_CATALOG, catalogStatus = 'idle' }: TargetFieldsProps) {
   const { t } = useTranslation();
+  if (state.type === 'HTTP_STEPS') {
+    return (
+      <>
+        <HttpStepsFields steps={state.steps} onChange={(steps) => onChange({ steps })} />
+        <OAuthFields state={state} onChange={onChange} />
+      </>
+    );
+  }
+  if (state.type !== 'SQL' && state.type !== 'HTTP') return <CheckTargetFields state={state} onChange={onChange} />;
   if (state.type === 'SQL') {
     return (
       <>
@@ -48,7 +56,9 @@ export function TargetFields({ state, connections, onChange }: TargetFieldsProps
             </select>
           )}
         </FormField>
-        <SqlEditor value={state.sql} onChange={(sql) => onChange({ sql })} />
+        <SqlCodeEditor value={state.sql} catalog={catalog} onChange={(sql) => onChange({ sql })} />
+        {catalogStatus === 'loading' && <p className="m-0 text-[0.75rem] text-dim">{t('monitorForm.catalogLoading')}</p>}
+        {catalogStatus === 'unavailable' && <p className="m-0 text-[0.75rem] text-dim">{t('monitorForm.catalogUnavailable')}</p>}
       </>
     );
   }
@@ -108,6 +118,7 @@ export function TargetFields({ state, connections, onChange }: TargetFieldsProps
           )}
         </FormField>
       )}
+      <OAuthFields state={state} onChange={onChange} />
       <p className="m-0 text-[0.75rem] text-dim">{t('form.secretsNote')}</p>
     </>
   );

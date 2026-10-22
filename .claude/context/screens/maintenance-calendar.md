@@ -2,9 +2,9 @@
 screen: maintenance-calendar
 title: "Maintenance calendar"
 route: "index.html#/maintenance"
-status: planned
+status: in-progress
 spec: FE-41, BE-31
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # Maintenance calendar
@@ -13,7 +13,7 @@ updated: 2026-10-18
 Drag on a calendar to create one-off/recurring maintenance windows.
 
 ## Layout and components
-_To be filled as the screen is built (component tree, file paths)._
+`MaintenanceScreen` (week navigation, `/api/maintenance` query and save) → `MaintenanceCalendar`.
 
 ## States
 - Loading, empty, error, stale data
@@ -25,10 +25,13 @@ _To be filled as the screen is built (component tree, file paths)._
 - [FE-41 · Maintenance calendar](../features/FE-41-maintenance-calendar.md) — in-progress
 
 ## Code
-_None yet._
+- `frontend/src/app/console/screens/MaintenanceScreen/MaintenanceScreen.tsx`
+- `frontend/src/domains/alerting/MaintenanceCalendar/MaintenanceCalendar.tsx`
 
 ## Tests
-_None yet._
+- `frontend/src/app/console/screens/MaintenanceScreen/maintenanceItems.test.ts`
+- `frontend/src/app/console/ConsoleApp.screens.test.tsx`
 
 ## Changelog
 - 2026-10-18 — context file created.
+- 2026-10-22 — screen routed and wired to the assumed `/api/maintenance` contract (status: in-progress).

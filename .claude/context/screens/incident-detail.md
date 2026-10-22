@@ -2,9 +2,9 @@
 screen: incident-detail
 title: "Incident detail"
 route: "index.html#/incidents/:id"
-status: planned
+status: done
 spec: docs/02-features.md §4
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # Incident detail
@@ -13,7 +13,7 @@ updated: 2026-10-18
 Timeline, comments, acknowledge, ticket link, escalation countdown, postmortem.
 
 ## Layout and components
-_To be filled as the screen is built (component tree, file paths)._
+`IncidentScreen` (query `['incident', demo, id]`, ack/comment/ticket mutations) → `toIncidentDetail` → `IncidentPage` (header with severity, impact, `EscalationCountdown`, `AcknowledgeButton`; postmortem when resolved; timeline; comments; ticket link in edit mode).
 
 ## States
 - Loading, empty, error, stale data
@@ -23,14 +23,19 @@ _To be filled as the screen is built (component tree, file paths)._
 
 ## Features on this screen
 - [CORE-06 · Incidents and acknowledgement](../features/CORE-06-incidents-and-acknowledgement.md) — in-progress
-- [FE-39 · Incident page](../features/FE-39-incident-page.md) — in-progress
+- [FE-39 · Incident page](../features/FE-39-incident-page.md) — done
 - [FE-40 · Escalation countdown](../features/FE-40-escalation-countdown.md) — in-progress
 
 ## Code
-_None yet._
+- `frontend/src/app/console/screens/IncidentScreen/IncidentScreen.tsx`
+- `frontend/src/app/console/screens/IncidentScreen/incidentDetail.ts`
+- `frontend/src/domains/alerting/IncidentPage/IncidentPage.tsx`
 
 ## Tests
-_None yet._
+- `frontend/src/app/console/screens/IncidentScreen/incidentDetail.test.ts`
+- `frontend/src/domains/alerting/IncidentPage/IncidentPage.test.tsx`
+- `frontend/src/app/console/ConsoleApp.routes.test.tsx`
 
 ## Changelog
 - 2026-10-18 — context file created.
+- 2026-10-22 — route `#/incidents/:id` wired to the incident API (status: done).

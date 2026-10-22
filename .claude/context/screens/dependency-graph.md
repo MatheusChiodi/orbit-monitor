@@ -2,9 +2,9 @@
 screen: dependency-graph
 title: "Dependency graph"
 route: "index.html#/dependencies"
-status: planned
+status: in-progress
 spec: FE-42, BE-30
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # Dependency graph
@@ -13,7 +13,7 @@ updated: 2026-10-18
 Interactive graph of groups/monitors with impact radius.
 
 ## Layout and components
-_To be filled as the screen is built (component tree, file paths)._
+`DependenciesScreen` (`/api/dependencies` query, add/remove panel for editors) → `DependencyGraph`.
 
 ## States
 - Loading, empty, error, stale data
@@ -25,10 +25,13 @@ _To be filled as the screen is built (component tree, file paths)._
 - [FE-42 · Dependency graph](../features/FE-42-dependency-graph.md) — in-progress
 
 ## Code
-_None yet._
+- `frontend/src/app/console/screens/DependenciesScreen/DependenciesScreen.tsx`
+- `frontend/src/domains/workspace/DependencyGraph/DependencyGraph.tsx`
 
 ## Tests
-_None yet._
+- `frontend/src/app/console/screens/DependenciesScreen/dependencyNodes.test.ts`
+- `frontend/src/app/console/ConsoleApp.screens.test.tsx`
 
 ## Changelog
 - 2026-10-18 — context file created.
+- 2026-10-22 — screen routed and wired to the assumed `/api/dependencies` contract (status: in-progress).

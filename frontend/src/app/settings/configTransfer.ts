@@ -38,7 +38,7 @@ export interface ConfigDiff {
   removed: string[];
 }
 
-/** Dry-run diff shown before an import is applied. */
+/** Dry-run diff shown before an import is applied (same shape as the backend `FileChange`). */
 export function diffConfig(current: ConfigBundle, incoming: ConfigBundle): ConfigDiff[] {
   const files = [...new Set([...Object.keys(current), ...Object.keys(incoming)])].sort();
   const result: ConfigDiff[] = [];
@@ -55,5 +55,5 @@ export function diffConfig(current: ConfigBundle, incoming: ConfigBundle): Confi
 
 export function exportFileName(now: Date = new Date()): string {
   const pad = (n: number) => String(n).padStart(2, '0');
-  return `orbit-config-${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}.json`;
+  return `orbit-config-${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}.zip`;
 }

@@ -4,7 +4,7 @@ title: "SQL monitor editor"
 route: "index.html#/monitors/new/sql"
 status: in-progress
 spec: docs/02-features.md §2.2
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # SQL monitor editor
@@ -13,8 +13,7 @@ updated: 2026-10-18
 Connection, SQL editor with guards, preview with detected types, read mode suggestion, conditions.
 
 ## Layout and components
-- `MonitorForm` (two columns): Configuration (type, name, group, interval, retries, `TargetFields` → connection + `SqlEditor` with guard chips) | Preview (`PreviewTable`)
-- Below: Data & display (`DataDisplayStep`), Conditions (`ConditionEditor` with "would fail now"), Cancel / Save
+`NewMonitorScreen` (`#/monitors/new`, `#/monitors/new/sql`) → `MonitorForm`: kind picker, `TargetFields` (connection + `SqlCodeEditor` with the connection catalog via `useCatalog`), preview (`PreviewTable`), Data & display (`DataDisplayStep`), conditions (`ConditionBuilder`).
 
 ## States
 - Loading, empty, error, stale data
@@ -29,24 +28,27 @@ Connection, SQL editor with guards, preview with detected types, read mode sugge
 - [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — in-progress
 - [CORE-16 · Sensitive data protection (LGPD / PCI DSS)](../features/CORE-16-sensitive-data-protection-lgpd-pci-dss.md) — in-progress
 - [FE-33 · SQL editor](../features/FE-33-sql-editor.md) — in-progress
-- [FE-34 · Condition builder](../features/FE-34-condition-builder.md) — in-progress
+- [FE-34 · Condition builder](../features/FE-34-condition-builder.md) — done
 
 ## Code
 - `frontend/src/domains/monitor/components/MonitorForm/MonitorForm.tsx`
 - `frontend/src/domains/monitor/components/MonitorForm/TargetFields.tsx`
-- `frontend/src/domains/monitor/components/SqlEditor/SqlEditor.tsx`
 - `frontend/src/domains/monitor/sql/sql.ts`
 - `frontend/src/domains/monitor/form/form.ts`
 - `frontend/src/domains/monitor/conditions/conditions.ts`
+- `frontend/src/app/console/screens/NewMonitorScreen/NewMonitorScreen.tsx`
+- `frontend/src/domains/monitor/components/SqlCodeEditor/SqlCodeEditor.tsx`
 
 ## Tests
 - `frontend/src/domains/monitor/components/MonitorForm/MonitorForm.test.tsx`
 - `frontend/src/domains/monitor/components/MonitorForm/TargetFields.test.tsx`
-- `frontend/src/domains/monitor/components/SqlEditor/SqlEditor.test.tsx`
 - `frontend/src/domains/monitor/sql/sql.test.ts`
 - `frontend/src/domains/monitor/form/form.test.ts`
 - `frontend/src/domains/monitor/conditions/conditions.test.ts`
+- `frontend/src/domains/monitor/components/MonitorForm/MonitorForm.kinds.test.tsx`
+- `frontend/src/domains/monitor/components/MonitorForm/TargetFields.kinds.test.tsx`
 
 ## Changelog
 - 2026-10-18 — context file created.
 - 2026-10-18 — SQL editor screen with client-side safe mode, preview, data step and conditions; en/pt-BR.
+- 2026-10-22 — SQL editor with catalog, condition builder and kind picker in the form.

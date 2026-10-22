@@ -89,3 +89,15 @@ export function suggestFields(preview: PreviewResult, kind: 'SQL' | 'HTTP', loca
   }
   return fields;
 }
+
+/** FE-35: a JSONPath picked in the response explorer becomes (or re-selects) a field; sensitive rules still apply. */
+export function addPickedField(
+  fields: readonly FieldDisplay[],
+  pick: { path: string; type: PreviewColumn['type'] },
+  preview: PreviewResult,
+): FieldDisplay[] {
+  if (fields.some((f) => f.field === pick.path)) {
+    return fields.map((f) => (f.field === pick.path && !f.masked ? { ...f, selected: true } : f));
+  }
+  return [...fields, columnField({ name: pick.path, type: pick.type }, preview)];
+}

@@ -6,6 +6,10 @@ import themeEn from '@/shared/theme/locales/en.json';
 import themePtBR from '@/shared/theme/locales/pt-BR.json';
 import historyRangeEn from '@/domains/telemetry/history/locales/en.json';
 import historyRangePtBR from '@/domains/telemetry/history/locales/pt-BR.json';
+import screensEn from '@/app/console/locales/en.json';
+import screensPtBR from '@/app/console/locales/pt-BR.json';
+import monitorFormEn from '@/domains/monitor/locales/en.json';
+import monitorFormPtBR from '@/domains/monitor/locales/pt-BR.json';
 
 export const SUPPORTED_LOCALES = ['en', 'pt-BR'] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
@@ -13,11 +17,13 @@ export const DEFAULT_LOCALE: Locale = 'en';
 export const LOCALE_STORAGE_KEY = 'orbit.locale';
 
 /** Theme and history-range messages live with their features (`@/shared/theme`, `@/domains/telemetry/history`). */
-export type Messages = typeof en & { theme: typeof themeEn; historyRange: typeof historyRangeEn };
+export type Messages = typeof en & { theme: typeof themeEn; historyRange: typeof historyRangeEn; screens: typeof screensEn;
+  monitorForm: typeof monitorFormEn;
+};
 
 const RESOURCES: Record<Locale, Messages> = {
-  en: { ...en, theme: themeEn, historyRange: historyRangeEn },
-  'pt-BR': { ...ptBR, theme: themePtBR, historyRange: historyRangePtBR },
+  en: { ...en, theme: themeEn, historyRange: historyRangeEn, screens: screensEn, monitorForm: monitorFormEn },
+  'pt-BR': { ...ptBR, theme: themePtBR, historyRange: historyRangePtBR, screens: screensPtBR, monitorForm: monitorFormPtBR },
 };
 
 export function isLocale(value: unknown): value is Locale {

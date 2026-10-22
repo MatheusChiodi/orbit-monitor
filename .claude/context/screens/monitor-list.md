@@ -4,7 +4,7 @@ title: "Monitor list"
 route: "index.html#/monitors"
 status: in-progress
 spec: docs/02-features.md §1–2
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # Monitor list
@@ -24,7 +24,7 @@ Groups and monitors with state, filters, saved views, bulk actions.
 
 ## Features on this screen
 - [CORE-07 · Workspaces and groups](../features/CORE-07-workspaces-and-groups.md) — in-progress
-- [FE-13 · Reorder monitors and groups](../features/FE-13-reorder-monitors-and-groups.md) — in-progress
+- [FE-13 · Reorder monitors and groups](../features/FE-13-reorder-monitors-and-groups.md) — done
 - [FE-28 · Command palette](../features/FE-28-command-palette.md) — done
 - [FE-29 · Keyboard shortcuts](../features/FE-29-keyboard-shortcuts.md) — done
 - [FE-30 · Saved views](../features/FE-30-saved-views.md) — done
@@ -37,12 +37,16 @@ Groups and monitors with state, filters, saved views, bulk actions.
 - `frontend/src/app/console/consoleSource.ts`
 - `frontend/src/domains/workspace/GroupList/GroupList.tsx`
 - `frontend/src/app/console-main.tsx`
+- `frontend/src/app/console/screens/MonitorsScreen/MonitorsScreen.tsx`
+- `frontend/src/domains/workspace/GroupOrderEditor/GroupOrderEditor.tsx`
 
 ## Tests
 - `frontend/src/app/console/ConsoleApp.test.tsx`
 - `frontend/src/app/console/consoleSource.test.ts`
 - `frontend/src/domains/workspace/GroupList/GroupList.test.tsx`
+- `frontend/src/app/console/ConsoleApp.routes.test.tsx`
 
 ## Changelog
 - 2026-10-18 — context file created.
 - 2026-10-18 — monitor list with filter, view-only handling and demo fallback; en/pt-BR.
+- 2026-10-22 — Reorder mode (FE-13) persisted through PUT /api/groups/order; console sections in the header.

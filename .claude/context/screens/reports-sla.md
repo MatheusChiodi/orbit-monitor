@@ -2,9 +2,9 @@
 screen: reports-sla
 title: "SLA reports"
 route: "index.html#/reports"
-status: planned
+status: done
 spec: docs/02-features.md §5, FE-43
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # SLA reports
@@ -13,7 +13,7 @@ updated: 2026-10-18
 Uptime per group/monitor, MTTA/MTTR, CSV/PDF export.
 
 ## Layout and components
-_To be filled as the screen is built (component tree, file paths)._
+`ReportsScreen` (coverage + per-monitor history summary queries, CSV/PDF download) → `SlaReports`.
 
 ## States
 - Loading, empty, error, stale data
@@ -24,13 +24,18 @@ _To be filled as the screen is built (component tree, file paths)._
 ## Features on this screen
 - [CORE-05 · State, hysteresis, uptime and p95](../features/CORE-05-state-hysteresis-uptime-and-p95.md) — done
 - [CORE-20 · Local-first runtime](../features/CORE-20-local-first-runtime.md) — in-progress
-- [FE-43 · SLA reports](../features/FE-43-sla-reports.md) — in-progress
+- [FE-43 · SLA reports](../features/FE-43-sla-reports.md) — done
 
 ## Code
-_None yet._
+- `frontend/src/app/console/screens/ReportsScreen/ReportsScreen.tsx`
+- `frontend/src/domains/telemetry/SlaReports/SlaReports.tsx`
+- `frontend/src/domains/telemetry/SlaReports/slaPdf.ts`
 
 ## Tests
-_None yet._
+- `frontend/src/domains/telemetry/SlaReports/SlaReports.wiring.test.tsx`
+- `frontend/src/domains/telemetry/SlaReports/slaPdf.test.ts`
+- `frontend/src/app/console/ConsoleApp.screens.test.tsx`
 
 ## Changelog
 - 2026-10-18 — context file created.
+- 2026-10-22 — route `#/reports` wired to the history API with CSV and PDF export (status: done).

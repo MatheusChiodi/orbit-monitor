@@ -66,7 +66,9 @@ export function createConfigClient(options: ApiClientOptions = {}) {
   return {
     async list<T extends ConfigItem = ConfigItem>(resource: ConfigResource): Promise<ConfigFile<T>> {
       try {
-        const file = await request<ConfigFile<T>>(path(resource));
+        const data = await request<ConfigFile<T> | T[]>(path(resource));
+        // Some controllers answer the item list itself (e.g. GET /api/groups); normalize to the file shape.
+        const file: ConfigFile<T> = Array.isArray(data) ? { version: 1, items: data } : data;
         return scrubSecrets(file) as ConfigFile<T>;
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) return emptyConfigFile<T>();

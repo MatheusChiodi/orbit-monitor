@@ -2,9 +2,9 @@
 screen: data-and-display
 title: "Data & display step"
 route: "index.html#/monitors/:id/display"
-status: in-progress
+status: done
 spec: docs/02-features.md §2.3
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # Data & display step
@@ -23,7 +23,7 @@ Pick fields to store, label/format/unit, series or not, display mode via visuali
 
 ## Features on this screen
 - [CORE-03 · SQL probe and result payload](../features/CORE-03-sql-probe-and-result-payload.md) — in-progress
-- [CORE-10 · Data & display step](../features/CORE-10-data-display-step.md) — in-progress
+- [CORE-10 · Data & display step](../features/CORE-10-data-display-step.md) — done
 - [CORE-12 · Value formatting](../features/CORE-12-value-formatting.md) — done
 - [CORE-16 · Sensitive data protection (LGPD / PCI DSS)](../features/CORE-16-sensitive-data-protection-lgpd-pci-dss.md) — in-progress
 - [FE-14 · Reorder fields and columns](../features/FE-14-reorder-fields-and-columns.md) — done
@@ -39,12 +39,15 @@ Pick fields to store, label/format/unit, series or not, display mode via visuali
 - `frontend/src/domains/monitor/components/DataDisplayStep/DataDisplayStep.tsx`
 - `frontend/src/domains/monitor/components/PreviewTable/PreviewTable.tsx`
 - `frontend/src/domains/monitor/display/display.ts`
+- `frontend/src/domains/monitor/components/JsonExplorer/JsonExplorer.tsx`
 
 ## Tests
 - `frontend/src/domains/monitor/components/DataDisplayStep/DataDisplayStep.test.tsx`
 - `frontend/src/domains/monitor/components/PreviewTable/PreviewTable.test.tsx`
 - `frontend/src/domains/monitor/display/display.test.ts`
+- `frontend/src/domains/monitor/display/display.pick.test.ts`
 
 ## Changelog
 - 2026-10-18 — context file created.
 - 2026-10-18 — first version inside the monitor form; privacy badges pending (CORE-16).
+- 2026-10-22 — JSON explorer integrated for HTTP previews (status: done).

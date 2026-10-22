@@ -1,5 +1,6 @@
 import type { FieldFormat } from '@/shared/format';
 import type { DataClass } from '@/shared/privacy/redact';
+import type { CheckTarget, HttpStepsTarget, OAuth2Auth } from './monitorTargets';
 
 /**
  * Data contract between the frontend and the Orbit API (REST `/api`, WebSocket `/ws/wall`).
@@ -8,7 +9,7 @@ import type { DataClass } from '@/shared/privacy/redact';
 
 export type Status = 'OK' | 'WARN' | 'DOWN';
 export type Severity = Exclude<Status, 'OK'>;
-export type MonitorType = 'HTTP' | 'SQL' | 'PING' | 'PUSH';
+export type MonitorType = 'HTTP' | 'SQL' | 'TCP' | 'PING' | 'PUSH' | 'DNS' | 'CERT' | 'GRPC' | 'KAFKA' | 'HTTP_STEPS';
 
 export type ComparisonOperator = '<' | '<=' | '>' | '>=' | '==' | '!=';
 
@@ -117,6 +118,8 @@ export interface PreviewResult {
   elapsedMs: number;
   /** HTTP status, when the monitor is HTTP. */
   status?: number;
+  /** HTTP response body, already masked by the backend (FE-35 JSON explorer). */
+  body?: string | null;
 }
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'HEAD';
@@ -133,6 +136,8 @@ export interface HttpTarget {
   url: string;
   headers: Record<string, string>;
   body?: string;
+  /** FE form: OAuth2 client credentials (BE-08); not sent with previews. */
+  auth?: OAuth2Auth;
 }
 
 export type PreviewRequest = SqlTarget | HttpTarget;
@@ -185,7 +190,7 @@ export interface MonitorDefinitionBase {
   fields: FieldDisplay[];
 }
 
-export type MonitorDefinition = MonitorDefinitionBase & (SqlTarget | HttpTarget);
+export type MonitorDefinition = MonitorDefinitionBase & (SqlTarget | HttpTarget | HttpStepsTarget | CheckTarget);
 
 export type DatabaseKind = 'ORACLE' | 'POSTGRES' | 'SQLSERVER' | 'MYSQL';
 

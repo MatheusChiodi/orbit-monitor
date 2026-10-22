@@ -2,9 +2,9 @@
 screen: audit-log
 title: "Audit log"
 route: "index.html#/admin/audit"
-status: planned
+status: done
 spec: FE-36, BE-46
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # Audit log
@@ -13,7 +13,7 @@ updated: 2026-10-18
 Filterable trail with SELECT diff.
 
 ## Layout and components
-_To be filled as the screen is built (component tree, file paths)._
+`AuditScreen` at `#/audit` (alias `#/admin/audit`): filter form (action, target, operator), table of 50 entries per page, and a SELECT history panel (`QueryDiff`) for `sql.save` targets.
 
 ## States
 - Loading, empty, error, stale data
@@ -23,13 +23,16 @@ _To be filled as the screen is built (component tree, file paths)._
 
 ## Features on this screen
 - [CORE-08 · Access policy, vault and audit](../features/CORE-08-access-policy-vault-and-audit.md) — in-progress
-- [FE-36 · Query history diff](../features/FE-36-query-history-diff.md) — in-progress
+- [FE-36 · Query history diff](../features/FE-36-query-history-diff.md) — done
 
 ## Code
-_None yet._
+- `frontend/src/app/console/screens/AuditScreen/AuditScreen.tsx`
+- `frontend/src/app/console/screens/AuditScreen/queryChanges.ts`
 
 ## Tests
-_None yet._
+- `frontend/src/app/console/screens/AuditScreen/queryChanges.test.ts`
+- `frontend/src/app/console/ConsoleApp.screens.test.tsx`
 
 ## Changelog
 - 2026-10-18 — context file created.
+- 2026-10-22 — audit trail screen with filters, pagination and SELECT history diff (status: done).

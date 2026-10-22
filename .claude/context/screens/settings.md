@@ -4,7 +4,7 @@ title: "Settings and config files"
 route: "index.html#/settings"
 status: in-progress
 spec: docs/06-configuration-files.md
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # Settings and config files
@@ -36,6 +36,8 @@ Access mode banner (edit / view-only), operator name, workspace defaults, config
 - `frontend/src/shared/i18n/LanguageSelector/LanguageSelector.tsx`
 - `frontend/src/app/settings/SettingsScreen/SettingsScreen.tsx`
 - `frontend/src/app/settings/configTransfer.ts`
+- `frontend/src/app/console/screens/SettingsRoute/SettingsRoute.tsx`
+- `frontend/src/app/console/screens/SettingsRoute/settingsApi.ts`
 
 ## Tests
 - `frontend/src/domains/security/OperatorPrompt/OperatorPrompt.test.tsx`
@@ -43,6 +45,7 @@ Access mode banner (edit / view-only), operator name, workspace defaults, config
 - `frontend/src/shared/i18n/LanguageSelector/LanguageSelector.test.tsx`
 - `frontend/src/app/settings/SettingsScreen/SettingsScreen.test.tsx`
 - `frontend/src/app/settings/configTransfer.test.ts`
+- `frontend/src/app/console/screens/SettingsRoute/settingsApi.test.ts`
 
 ## Changelog
 - 2026-10-18 — context file created.
@@ -50,3 +53,4 @@ Access mode banner (edit / view-only), operator name, workspace defaults, config
 - 2026-10-18 — settings screen with access mode, operator name, defaults, config health and export/import.
 - 2026-10-18 — settings screen with access mode, operator name, defaults, config health and export/import.
 - 2026-10-18 — settings screen with access mode, operator name, defaults, config health and export/import.
+- 2026-10-22 — `#/settings` wired to /api/settings, /api/config/health and the zip export/import with dry-run diff.

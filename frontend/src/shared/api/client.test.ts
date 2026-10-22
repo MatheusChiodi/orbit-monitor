@@ -28,6 +28,12 @@ describe('createApiClient', () => {
     expect(headers.get('Authorization')).toBeNull();
   });
 
+  it('CORE-15: sends the UI language as Accept-Language so Problem Details come translated', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse([]));
+    await createApiClient({ fetch: fetchMock, getLocale: () => 'pt-BR' }).listGroups();
+    expect(new Headers(fetchMock.mock.calls[0]?.[1]?.headers).get('Accept-Language')).toBe('pt-BR');
+  });
+
   it('without an operator name the header is omitted', async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse([]));
     await createApiClient({ fetch: fetchMock, getOperator: () => null }).listGroups();
