@@ -1,3 +1,4 @@
+import type { MotionSettings } from '@/shared/motion/motionSettings';
 /** Visual FX levels mirror the animation levels of FE-06 (docs/05-extended-features.md §1.2). */
 export const FX_LEVELS = ['off', 'minimal', 'standard', 'expressive'] as const;
 export type FxLevel = (typeof FX_LEVELS)[number];
@@ -52,5 +53,23 @@ export function resolveFx(inputs: FxInputs): FxState {
     backgroundPaused: inputs.incidentActive,
     intros: level === 'expressive',
     downGlow: level === 'off' ? 'none' : level === 'minimal' ? 'static' : 'pulse',
+  };
+}
+
+const INTENSITY_CAP: Record<FxLevel, number> = { off: 0, minimal: 0.25, standard: 1, expressive: 1 };
+
+/**
+ * FE-06 controls on top of the FX level: the background and intros switches act on their own and the
+ * intensity comes from the settings. They only restrict: nothing the level (or reduced motion) turned off
+ * comes back, and `minimal` keeps its low ceiling.
+ */
+export function applyFxSettings(fx: FxState, settings: Pick<MotionSettings, 'intensity' | 'background' | 'intros'>): FxState {
+  if (fx.level === 'off') return fx;
+  const rich = fx.level === 'standard' || fx.level === 'expressive';
+  return {
+    ...fx,
+    intensity: Math.min(INTENSITY_CAP[fx.level], Math.max(0, settings.intensity) / 100),
+    background: settings.background ? fx.background : 'static',
+    intros: rich && settings.intros,
   };
 }

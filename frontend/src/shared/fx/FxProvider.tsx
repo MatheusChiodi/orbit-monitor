@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { useAnimationLevel } from '@/shared/motion/animationLevel';
+import { useAnimationLevel, useProvidedMotionSettings } from '@/shared/motion/animationLevel';
+import { settingsFor } from '@/shared/motion/motionSettings';
 import { createFrameMonitor } from './frameMonitor';
-import { parseFxLevel, resolveFx, type FxLevel, type FxState } from './fxLevel';
+import { applyFxSettings, parseFxLevel, resolveFx, type FxLevel, type FxState } from './fxLevel';
 import './fx.css';
 
 export interface FxContextValue extends FxState {
@@ -54,7 +55,11 @@ export function FxProvider({ level, incidentActive = false, monitorFrames = true
   const reducedMotion = usePrefersReducedMotion();
   const [downgraded, setDowngraded] = useState(false);
 
-  const fx = resolveFx({ level: requested, reducedMotion, incidentActive, downgraded });
+  // FE-06: background, intros and intensity follow the animation settings (`useMotionSettings`).
+  // `?motion=` wins over everything (its preset); otherwise the provider's settings, else the level's preset.
+  const provided = useProvidedMotionSettings();
+  const settings = fromUrl ? settingsFor(fromUrl) : (provided ?? settingsFor(requested));
+  const fx = applyFxSettings(resolveFx({ level: requested, reducedMotion, incidentActive, downgraded }), settings);
   const animated = fx.orb || fx.background !== 'static';
 
   useEffect(() => {
@@ -76,7 +81,7 @@ export function FxProvider({ level, incidentActive = false, monitorFrames = true
   const value = useMemo<FxContextValue>(
     () => ({ ...fx, downgraded, restore: () => setDowngraded(false) }),
     // `fx` is derived from exactly these inputs.
-    [requested, reducedMotion, incidentActive, downgraded],
+    [requested, reducedMotion, incidentActive, downgraded, settings.intensity, settings.background, settings.intros],
   );
 
   return <FxContext.Provider value={value}>{children}</FxContext.Provider>;

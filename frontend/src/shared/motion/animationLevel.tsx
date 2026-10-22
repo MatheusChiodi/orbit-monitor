@@ -71,6 +71,11 @@ export function AnimationLevelProvider({ level, settings, prefersReducedMotion, 
   );
 }
 
+/** The settings of the nearest provider, or null when none is mounted (callers pick their own preset). */
+export function useProvidedMotionSettings(): MotionSettings | null {
+  return useContext(SettingsContext);
+}
+
 /** FE-06 single source of truth; without a provider, the preset of the current level. */
 export function useMotionSettings(): MotionSettings {
   const level = useContext(LevelContext);
