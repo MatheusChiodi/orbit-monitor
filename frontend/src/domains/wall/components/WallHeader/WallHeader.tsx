@@ -5,7 +5,8 @@ import { formatClock, formatRelative } from '@/shared/format';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { translate } from '@/shared/i18n/message';
 import { useAnimationLevel } from '@/shared/motion/animationLevel';
-import type { Group } from '@/shared/api/types';
+import type { Group, WorkspaceBranding } from '@/shared/api/types';
+import { OrbitMark, WorkspaceBrand } from '@/domains/workspace/WorkspaceBrand';
 import { MiniOrb, type OrbMonitor } from '@/shared/fx/LivingOrb';
 import { Button, FlashValue, StatusPill } from '@/shared/ui';
 import type { WallConnectionState } from '../../store';
@@ -24,6 +25,8 @@ export interface WallHeaderProps {
   controls?: ReactNode;
   /** FE-59 mini orb with the global state next to the status pill. */
   orb?: { monitors: readonly OrbMonitor[]; groups: readonly Group[]; uptime24h: number };
+  /** FE-10: workspace name and sanitized logo next to the Orbit mark. */
+  brand?: WorkspaceBranding;
 }
 
 const CONNECTION_NOTE = {
@@ -32,20 +35,7 @@ const CONNECTION_NOTE = {
   connecting: 'wall.connection.connecting',
 } as const;
 
-/** Provisional mark: blue→green gradient ring with a dark core (docs/03-design.md, section 8). */
-function BrandMark() {
-  return (
-    <span
-      aria-hidden
-      className="inline-block size-[1.3rem] rounded-full p-[0.22rem]"
-      style={{ background: 'conic-gradient(from 200deg, var(--info), var(--ok), var(--info))' }}
-    >
-      <span className="block size-full rounded-full bg-bg" />
-    </span>
-  );
-}
-
-export function WallHeader({ environment, counts, now, updatedAt, connection, onFullscreen, stale = false, controls, orb }: WallHeaderProps) {
+export function WallHeader({ environment, counts, now, updatedAt, connection, onFullscreen, stale = false, controls, orb, brand }: WallHeaderProps) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
   const title = tabTitle(counts);
@@ -59,8 +49,14 @@ export function WallHeader({ environment, counts, now, updatedAt, connection, on
   return (
     <header data-motion-level={level} className="flex min-h-[3.2rem] flex-wrap items-center gap-x-[1.2rem] gap-y-[0.4rem] border-b border-line px-[1rem] py-[0.4rem]">
       <div className="flex items-center gap-[0.55rem]">
-        <BrandMark />
-        <span className="font-display text-[1.1rem] font-bold tracking-tight">{t('app.name')}</span>
+        {brand ? (
+          <WorkspaceBrand name={brand.name} logoSvg={brand.logoSvg} />
+        ) : (
+          <>
+            <OrbitMark />
+            <span className="font-display text-[1.1rem] font-bold tracking-tight">{t('app.name')}</span>
+          </>
+        )}
         <span className="rounded-[0.4rem] border border-line-2 px-[0.45rem] py-[0.05rem] text-[0.78rem] text-muted">
           {environment}
         </span>

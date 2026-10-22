@@ -4,7 +4,7 @@ title: "Wall (TV mode)"
 route: "wall.html"
 status: in-progress
 spec: docs/03-design.md §3
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # Wall (TV mode)
@@ -14,10 +14,11 @@ Header with global status and clock, hero (incident / all operational), also act
 
 ## Layout and components
 - `WallApp` (store + feed + clock + operator) → `WallScreen`
-  - `WallHeader`: brand, environment, global status pill (`aria-live`), counters, updated, clock, fullscreen
+  - `WallHeader`: brand (`WorkspaceBrand` with sanitized logo when the snapshot has `branding`, FE-10), environment, global status pill (`aria-live`), counters, updated, clock, fullscreen
   - left column (action): `Hero` / `HeroCalm` (swapped with `AnimatePresence` + `layoutId`), then `AlsoActive` and `NearLimit`
   - right column (context): `MonitorMatrix`, `Timeline`
 - Layout CSS in `frontend/src/app/theme.css` (`.wall-layout`): full 16:9 grid at ≥ 1100 px and wider than 4:3, otherwise one scrollable column in phone order
+- `NightModeOverlay` (FE-09) above the screen when `?night=` is set; viewing distance (FE-08) via `--wall-scale` (`?scale=` → device preference → 3 m)
 - Entry: `frontend/wall.html` → `frontend/src/app/wall-main.tsx` (locale from `?lang=`, layout from `/wall/<slug>`)
 
 ## States
@@ -39,10 +40,10 @@ Header with global status and clock, hero (incident / all operational), also act
 - [CORE-16 · Sensitive data protection (LGPD / PCI DSS)](../features/CORE-16-sensitive-data-protection-lgpd-pci-dss.md) — in-progress
 - [CORE-17 · Design tokens and base theme](../features/CORE-17-design-tokens-and-base-theme.md) — done
 - [FE-06 · Animation level](../features/FE-06-animation-level.md) — in-progress
-- [FE-07 · Density](../features/FE-07-density.md) — tests-pending
-- [FE-08 · Viewing distance scale](../features/FE-08-viewing-distance-scale.md) — tests-pending
-- [FE-09 · Night mode schedule](../features/FE-09-night-mode-schedule.md) — tests-pending
-- [FE-10 · Workspace branding](../features/FE-10-workspace-branding.md) — tests-pending
+- [FE-07 · Density](../features/FE-07-density.md) — done
+- [FE-08 · Viewing distance scale](../features/FE-08-viewing-distance-scale.md) — done
+- [FE-09 · Night mode schedule](../features/FE-09-night-mode-schedule.md) — done
+- [FE-10 · Workspace branding](../features/FE-10-workspace-branding.md) — done
 - [FE-13 · Reorder monitors and groups](../features/FE-13-reorder-monitors-and-groups.md) — in-progress
 - [FE-21 · Visualization picker](../features/FE-21-visualization-picker.md) — done
 - [FE-22 · Compatibility rules](../features/FE-22-compatibility-rules.md) — done
@@ -64,6 +65,9 @@ Header with global status and clock, hero (incident / all operational), also act
 - `frontend/src/domains/wall/feed/wallFeed.ts`
 - `frontend/src/domains/wall/mock/mockSnapshot.ts`
 - `frontend/src/app/wall-main.tsx`
+- `frontend/src/domains/wall/display/nightMode.tsx`
+- `frontend/src/domains/wall/display/viewingScale.ts`
+- `frontend/src/domains/workspace/WorkspaceBrand/WorkspaceBrand.tsx`
 - `frontend/src/shared/ui/FlashValue/FlashValue.tsx`
 - `frontend/src/shared/ui/AnimatedItem/AnimatedItem.tsx`
 
@@ -73,6 +77,8 @@ Header with global status and clock, hero (incident / all operational), also act
 - `frontend/src/domains/wall/selectors/selectors.test.ts`
 - `frontend/src/domains/wall/store/wallStore.test.ts`
 - `frontend/src/domains/wall/feed/wallFeed.test.ts`
+- `frontend/src/domains/wall/display/*.test.ts(x)`
+- `frontend/src/domains/wall/WallApp/WallApp.nightMode.test.tsx`
 - `frontend/src/domains/wall/components/*/*.motion.test.tsx`
 - `frontend/src/domains/wall/components/*/*.privacy.test.tsx`
 
@@ -80,3 +86,4 @@ Header with global status and clock, hero (incident / all operational), also act
 - 2026-10-18 — context file created.
 - 2026-10-18 — wall built: header, hero/calm hero, also active, near threshold, matrix, timeline, acknowledge; en/pt-BR.
 - 2026-10-18 — FE-51 motion on every wall component; probe values through SafeValue.
+- 2026-10-22 — night mode overlay (FE-09), viewing distance scale (FE-08) and workspace brand in the header (FE-10).

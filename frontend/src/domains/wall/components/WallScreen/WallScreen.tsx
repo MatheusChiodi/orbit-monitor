@@ -68,6 +68,7 @@ export function WallScreen({
     <div className="wall-root" data-stale={stale ? 'true' : 'false'}>
       <WallHeader
         environment={snapshot.environment}
+        brand={snapshot.branding}
         counts={counts}
         now={now}
         updatedAt={lastUpdate}

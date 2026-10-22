@@ -74,6 +74,13 @@ export interface WallSnapshot {
   lastRecoveryAt: string | null;
   /** FE-17: produced by the incident simulator, never by the backend. */
   simulated?: boolean;
+  /** FE-10: workspace name and logo (raw SVG, sanitized before display). */
+  branding?: WorkspaceBranding;
+}
+
+export interface WorkspaceBranding {
+  name: string;
+  logoSvg?: string;
 }
 
 export type WallMessage =
