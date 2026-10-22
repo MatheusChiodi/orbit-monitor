@@ -17,7 +17,10 @@ public enum Operator {
     IN("in"),
     OLDER_THAN("older than"),
     NEWER_THAN("newer than"),
-    CONTAINS("contains");
+    CONTAINS("contains"),
+    NOT_CONTAINS("not contains"),
+    /** Regular expression searched in the value (find semantics; use ^ and $ to anchor). */
+    MATCHES("matches");
 
     private final String symbol;
 

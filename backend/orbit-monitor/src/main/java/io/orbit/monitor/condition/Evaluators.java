@@ -30,6 +30,8 @@ final class Evaluators {
         map.put(Operator.NEWER_THAN,
                 (a, o, c) -> !ValueComparator.requireInstant(a, c).isBefore(threshold(o, c.instant())));
         map.put(Operator.CONTAINS, (a, o, c) -> String.valueOf(a).contains(text(o)));
+        map.put(Operator.NOT_CONTAINS, (a, o, c) -> !String.valueOf(a).contains(text(o)));
+        map.put(Operator.MATCHES, (a, o, c) -> BoundedRegex.find(text(o), String.valueOf(a)));
         return map;
     }
 

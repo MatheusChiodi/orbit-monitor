@@ -1,7 +1,6 @@
 package io.orbit.monitor.condition;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
@@ -9,7 +8,6 @@ import java.time.Clock;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@Tag("pending")
 @DisplayName("BE-06 HTTP keyword/regex match")
 class KeywordRegexConditionTest {
 

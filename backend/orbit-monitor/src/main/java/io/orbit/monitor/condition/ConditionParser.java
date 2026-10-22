@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Parses short Gatus-style expressions such as
@@ -90,6 +91,7 @@ public class ConditionParser {
                 yield new Operand.ListOperand(splitList(m.group(1)).stream().map(ConditionParser::literal).toList());
             }
             case OLDER_THAN, NEWER_THAN -> new Operand.DurationOperand(duration(right));
+            case MATCHES -> regex(right);
             default -> literal(right);
         };
     }
@@ -117,6 +119,20 @@ public class ConditionParser {
             return new Operand.TextOperand(text);
         }
         throw new ConditionSyntaxException("invalid-value", "Invalid value: " + text, text);
+    }
+
+    /** A {@code matches} operand is a quoted regular expression, validated here so errors show at save time. */
+    private static Operand regex(String right) {
+        if (!(literal(right) instanceof Operand.TextOperand text)) {
+            throw new ConditionSyntaxException("invalid-regex", "Invalid regular expression: " + right, right);
+        }
+        try {
+            Pattern.compile(text.value());
+        } catch (PatternSyntaxException e) {
+            throw new ConditionSyntaxException("invalid-regex", "Invalid regular expression: " + text.value(),
+                    text.value());
+        }
+        return text;
     }
 
     static Duration duration(String raw) {
