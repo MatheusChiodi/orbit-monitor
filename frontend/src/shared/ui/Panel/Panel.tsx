@@ -1,5 +1,5 @@
 import { useId, type ReactNode } from 'react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import type { Status } from '@/shared/api/types';
 import { DOT_CLASS } from '../tones';
@@ -24,7 +24,7 @@ export function Panel({ title, actions, tone, pulse = false, live = false, surfa
   const preset = useMotionPreset('enter');
   const colors = preset.level === 'off' ? 'transition-none' : 'transition-colors duration-[400ms]';
   return (
-    <motion.section
+    <m.section
       initial={preset.initial}
       animate={preset.animate}
       exit={preset.exit}
@@ -54,6 +54,6 @@ export function Panel({ title, actions, tone, pulse = false, live = false, surfa
         </header>
       )}
       {children}
-    </motion.section>
+    </m.section>
   );
 }

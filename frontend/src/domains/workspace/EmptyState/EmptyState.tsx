@@ -1,4 +1,4 @@
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import { Button } from '@/shared/ui';
 
@@ -13,7 +13,7 @@ export interface EmptyStateProps {
 export function EmptyState({ title, description, actionLabel, onAction }: EmptyStateProps) {
   const enter = useMotionPreset('enter');
   return (
-    <motion.div
+    <m.div
       initial={enter.initial}
       animate={enter.animate}
       transition={enter.transition}
@@ -27,6 +27,6 @@ export function EmptyState({ title, description, actionLabel, onAction }: EmptyS
           {actionLabel}
         </Button>
       )}
-    </motion.div>
+    </m.div>
   );
 }

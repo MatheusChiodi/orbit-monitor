@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import { AnimatedItem } from '@/shared/ui';
@@ -27,7 +27,7 @@ export function PreviewTable({ preview, maxRows = 50 }: PreviewTableProps) {
     }),
   );
   return (
-    <motion.div
+    <m.div
       initial={enter.initial}
       animate={enter.animate}
       exit={enter.exit}
@@ -85,6 +85,6 @@ export function PreviewTable({ preview, maxRows = 50 }: PreviewTableProps) {
           </table>
         </div>
       )}
-    </motion.div>
+    </m.div>
   );
 }

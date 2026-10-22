@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import { currentPlatform, formatShortcut, matchShortcut, type Shortcut } from './shortcuts';
@@ -28,7 +28,7 @@ export function ShortcutsHelp({ shortcuts, defaultOpen = false }: ShortcutsHelpP
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
+        <m.div
           key="shortcuts"
           role="dialog"
           aria-label={t('shortcuts.title')}
@@ -53,7 +53,7 @@ export function ShortcutsHelp({ shortcuts, defaultOpen = false }: ShortcutsHelpP
               ))}
             </tbody>
           </table>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

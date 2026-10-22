@@ -1,5 +1,5 @@
 import { useId, useState, type KeyboardEvent } from 'react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import type { AccessMode, Group } from '@/shared/api/types';
 import { formatTime } from '@/shared/format';
@@ -142,7 +142,7 @@ export function MaintenanceCalendar({ windows, groups, weekStart, mode, onCreate
       </div>
 
       {draft && editable && (
-        <motion.div
+        <m.div
           role="dialog"
           aria-label={t('maintenance.newWindow')}
           initial={dialogMotion.initial}
@@ -179,7 +179,7 @@ export function MaintenanceCalendar({ windows, groups, weekStart, mode, onCreate
               {t('maintenance.create')}
             </Button>
           </div>
-        </motion.div>
+        </m.div>
       )}
     </div>
   );

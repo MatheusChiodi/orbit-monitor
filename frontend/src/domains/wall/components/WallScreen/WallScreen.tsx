@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { countByStatus, nearLimit } from '@/domains/monitor/status';
 import type { WallSnapshot } from '@/shared/api/types';
@@ -83,7 +83,7 @@ export function WallScreen({
           <div className="wall-hero">
             {/* Hero swap: the old hero fades out while the new one fades in, stacked in the same cell. */}
             <AnimatePresence initial={false}>
-              <motion.div
+              <m.div
                 key={hero ? hero.monitor.id : 'calm'}
                 initial={heroMotion.initial}
                 animate={heroMotion.animate}
@@ -103,7 +103,7 @@ export function WallScreen({
                     groups={snapshot.groups}
                   />
                 )}
-              </motion.div>
+              </m.div>
             </AnimatePresence>
           </div>
           <div className="wall-pair">

@@ -1,5 +1,5 @@
 import { useEffect, useState, type KeyboardEvent } from 'react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { translate, type Message } from '@/shared/i18n/message';
 import { useAnimationLevel } from '@/shared/motion/animationLevel';
@@ -120,7 +120,7 @@ export function LayoutEditor({ layout, onSave, editable }: LayoutEditorProps) {
           const grabbed = dragState.grabbed === block.id;
           const name = safeText(block.id);
           return (
-            <motion.div
+            <m.div
               key={block.id}
               layout={level === 'off' ? false : 'position'}
               animate={grabbed ? drag.animate : { scale: 1 }}
@@ -147,7 +147,7 @@ export function LayoutEditor({ layout, onSave, editable }: LayoutEditorProps) {
                 onClick={() => resize(block)}
                 className="absolute right-[0.2rem] bottom-[0.2rem] size-[0.9rem] cursor-se-resize rounded-[0.2rem] border border-line-2 bg-s3"
               />
-            </motion.div>
+            </m.div>
           );
         })}
       </div>

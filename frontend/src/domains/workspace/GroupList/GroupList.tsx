@@ -1,5 +1,5 @@
 import { useId, useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import { useTranslation } from 'react-i18next';
 import { formatReading, ruleText } from '@/domains/monitor/rules';
@@ -28,7 +28,7 @@ function GroupSection({ group, monitors }: { group: Group; monitors: MonitorView
   const { ok, total, status } = groupSummary(monitors);
   const summary = t('status.groupSummary', { ok, total });
   return (
-    <motion.section
+    <m.section
       initial={enter.initial}
       animate={enter.animate}
       exit={enter.exit}
@@ -82,7 +82,7 @@ function GroupSection({ group, monitors }: { group: Group; monitors: MonitorView
           </AnimatePresence>
         </tbody>
       </table>
-    </motion.section>
+    </m.section>
   );
 }
 

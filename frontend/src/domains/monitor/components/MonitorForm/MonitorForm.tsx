@@ -1,5 +1,5 @@
 import { useId, useState, type ReactNode } from 'react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import { currentLocale } from '@/shared/i18n/i18n';
@@ -36,7 +36,7 @@ function Section({ title, children, className = '', motionKind }: SectionProps) 
     ? { initial: expand.initial, animate: expand.animate, exit: expand.exit, transition: expand.transition }
     : { initial: false as const };
   return (
-    <motion.section
+    <m.section
       {...motionProps}
       data-motion={motionKind}
       data-motion-level={expand.level}
@@ -46,7 +46,7 @@ function Section({ title, children, className = '', motionKind }: SectionProps) 
         {title}
       </h2>
       {children}
-    </motion.section>
+    </m.section>
   );
 }
 

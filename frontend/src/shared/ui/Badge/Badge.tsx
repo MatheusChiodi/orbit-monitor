@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import { SOFT_CLASS, TEXT_CLASS, type Tone } from '../tones';
 
@@ -14,7 +14,7 @@ export interface BadgeProps {
 export function Badge({ tone = 'neutral', mono = false, children, className = '' }: BadgeProps) {
   const preset = useMotionPreset('listItem');
   return (
-    <motion.span
+    <m.span
       initial={preset.initial}
       animate={preset.animate}
       exit={preset.exit}
@@ -24,6 +24,6 @@ export function Badge({ tone = 'neutral', mono = false, children, className = ''
       className={`inline-flex items-center rounded-[0.4rem] border px-[0.5rem] py-[0.1rem] text-[0.78rem] font-medium ${SOFT_CLASS[tone]} ${TEXT_CLASS[tone]} ${mono ? 'font-mono' : ''} ${className}`}
     >
       {children}
-    </motion.span>
+    </m.span>
   );
 }

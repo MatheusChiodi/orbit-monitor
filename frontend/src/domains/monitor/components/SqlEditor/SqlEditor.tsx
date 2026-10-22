@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import { translate } from '@/shared/i18n/message';
@@ -40,7 +40,7 @@ export function SqlEditor({ value, onChange }: SqlEditorProps) {
       </ul>
       <AnimatePresence>
       {error && (
-        <motion.p
+        <m.p
           key="error"
           initial={enter.initial}
           animate={enter.animate}
@@ -52,7 +52,7 @@ export function SqlEditor({ value, onChange }: SqlEditorProps) {
           className="m-0 text-[0.85rem] text-down-text"
         >
           {translate(t, error)}
-        </motion.p>
+        </m.p>
       )}
       </AnimatePresence>
     </div>

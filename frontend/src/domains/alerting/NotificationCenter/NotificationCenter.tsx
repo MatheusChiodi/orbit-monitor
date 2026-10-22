@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import type { Status } from '@/shared/api/types';
 import { formatRelative } from '@/shared/format';
@@ -59,7 +59,7 @@ export function NotificationCenter({ notifications, now, onRead, onReadAll }: No
         {unread > 0 ? t('notifications.bellUnread', { count: unread }) : t('notifications.bell')}
       </Button>
       {open && (
-        <motion.div
+        <m.div
           id={feedId}
           initial={dialog.initial}
           animate={dialog.animate}
@@ -97,7 +97,7 @@ export function NotificationCenter({ notifications, now, onRead, onReadAll }: No
               )}
             </>
           )}
-        </motion.div>
+        </m.div>
       )}
     </div>
   );

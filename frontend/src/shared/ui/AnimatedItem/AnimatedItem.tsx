@@ -1,8 +1,8 @@
-import { motion, type HTMLMotionProps } from 'motion/react';
+import { m, type HTMLMotionProps } from 'motion/react';
 import { motionPreset, staggerDelay } from '@/shared/motion/presets';
 import { useAnimationLevel } from '@/shared/motion/animationLevel';
 
-const ELEMENTS = { li: motion.li, tr: motion.tr, div: motion.div } as const;
+const ELEMENTS = { li: m.li, tr: m.tr, div: m.div } as const;
 
 export interface AnimatedItemProps extends Omit<HTMLMotionProps<'div'>, 'initial' | 'animate' | 'exit' | 'transition'> {
   /** Element to render: list item (default), table row or block. */
@@ -22,7 +22,7 @@ export function AnimatedItem({ as = 'li', motionKind = 'listItem', index = 0, co
   const item = motionPreset(level, 'listItem');
   const reorder = motionPreset(level, 'reorder');
   const delay = staggerDelay(level, index, count);
-  const Element = ELEMENTS[as] as typeof motion.div;
+  const Element = ELEMENTS[as] as typeof m.div;
   return (
     <Element
       {...rest}

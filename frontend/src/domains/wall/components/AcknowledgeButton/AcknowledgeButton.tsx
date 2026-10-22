@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import type { Incident } from '@/shared/api/types';
 import { formatTime } from '@/shared/format';
@@ -30,11 +30,11 @@ export function AcknowledgeButton({ incident, onAcknowledge, className = '', but
   return (
     <AnimatePresence initial={false}>
       {incident.acknowledgedBy ? (
-        <motion.p key="acknowledged" {...fade} className={`m-0 text-[0.85rem] text-info ${className}`}>
+        <m.p key="acknowledged" {...fade} className={`m-0 text-[0.85rem] text-info ${className}`}>
           {text}
-        </motion.p>
+        </m.p>
       ) : (
-        <motion.span key="button" {...fade} className={`inline-flex ${className}`}>
+        <m.span key="button" {...fade} className={`inline-flex ${className}`}>
           <Button
             variant={incident.severity === 'DOWN' ? 'danger' : 'neutral'}
             onClick={() => onAcknowledge(incident.id)}
@@ -42,7 +42,7 @@ export function AcknowledgeButton({ incident, onAcknowledge, className = '', but
           >
             {t('wall.ack.button')}
           </Button>
-        </motion.span>
+        </m.span>
       )}
     </AnimatePresence>
   );

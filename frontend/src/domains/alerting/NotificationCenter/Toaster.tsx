@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { useAnimationLevel, type AnimationLevel } from '@/shared/motion/animationLevel';
 import { motionPreset } from '@/shared/motion/presets';
@@ -21,7 +21,7 @@ function Toast({ toast, onDismiss, level, durationMs }: { toast: AppNotification
     return () => clearTimeout(timer);
   }, [toast.id, onDismiss, durationMs]);
   return (
-    <motion.div
+    <m.div
       role="status"
       data-animation={level}
       initial={preset.initial}
@@ -35,7 +35,7 @@ function Toast({ toast, onDismiss, level, durationMs }: { toast: AppNotification
         <SafeValue value={toast.title} className="block text-[0.85rem] font-semibold" />
         {toast.detail && <SafeValue value={toast.detail} className="block font-mono text-[0.72rem] text-muted" />}
       </span>
-    </motion.div>
+    </m.div>
   );
 }
 

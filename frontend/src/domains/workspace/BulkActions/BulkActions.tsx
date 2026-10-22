@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import type { AccessMode, Group, MonitorView } from '@/shared/api/types';
 import { useMotionPreset } from '@/shared/motion/useMotionPreset';
@@ -105,7 +105,7 @@ export function BulkActions({ selected, groups, mode, onPause, onTag, onMove, on
 
       {/* Confirmation enters with the dialog preset; it closes at once so Escape/Cancel feel immediate. */}
       {panel === 'delete' && (
-          <motion.div
+          <m.div
             key="confirm"
             role="alertdialog"
             aria-modal="true"
@@ -139,7 +139,7 @@ export function BulkActions({ selected, groups, mode, onPause, onTag, onMove, on
                 {t('bulk.confirmAction', { count })}
               </Button>
             </div>
-          </motion.div>
+          </m.div>
       )}
     </div>
   );

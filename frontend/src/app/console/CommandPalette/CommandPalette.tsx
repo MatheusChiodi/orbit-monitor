@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import type { AccessMode } from '@/shared/api/types';
 import { useAnimationLevel, type AnimationLevel } from '@/shared/motion/animationLevel';
@@ -84,7 +84,7 @@ export function CommandPalette({ items, mode, onSelect, animationLevel, defaultO
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
+        <m.div
           key="palette"
           role="dialog"
           aria-modal="true"
@@ -145,7 +145,7 @@ export function CommandPalette({ items, mode, onSelect, animationLevel, defaultO
               })}
             </div>
           )}
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

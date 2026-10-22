@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import type { Condition, ConditionOperator, Severity } from '@/shared/api/types';
@@ -25,7 +25,7 @@ function Verdict({ id, children }: { id: string; children: ReactNode }) {
   return (
     <span className="inline-grid">
       <AnimatePresence initial={false}>
-        <motion.span
+        <m.span
           key={id}
           className="[grid-area:1/1]"
           initial={fade.level === 'off' ? false : { opacity: 0 }}
@@ -34,7 +34,7 @@ function Verdict({ id, children }: { id: string; children: ReactNode }) {
           transition={fade.transition}
         >
           {children}
-        </motion.span>
+        </m.span>
       </AnimatePresence>
     </span>
   );

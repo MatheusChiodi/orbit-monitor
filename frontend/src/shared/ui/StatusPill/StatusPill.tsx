@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import type { Status } from '@/shared/api/types';
 import { MOTION, useAnimationLevel, useMotionPreset } from '@/shared/motion';
@@ -58,7 +58,7 @@ export function StatusPill({ status, children, className = '' }: StatusPillProps
       />
       <span className="inline-grid">
         <AnimatePresence initial={false}>
-          <motion.span
+          <m.span
             key={`${status}:${typeof label === 'string' ? label : ''}`}
             className="[grid-area:1/1]"
             initial={fadeIn}
@@ -67,7 +67,7 @@ export function StatusPill({ status, children, className = '' }: StatusPillProps
             transition={fade.transition}
           >
             {label}
-          </motion.span>
+          </m.span>
         </AnimatePresence>
       </span>
     </span>

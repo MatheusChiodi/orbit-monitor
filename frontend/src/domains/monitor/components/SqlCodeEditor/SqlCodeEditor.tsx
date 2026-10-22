@@ -1,5 +1,5 @@
 import { useId, useRef, useState, type KeyboardEvent } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { translate } from '@/shared/i18n/message';
 import { useMotionPreset } from '@/shared/motion/useMotionPreset';
@@ -167,7 +167,7 @@ export function SqlCodeEditor({ value, onChange, catalog }: SqlCodeEditorProps) 
       </div>
       <AnimatePresence>
         {error && (
-          <motion.p
+          <m.p
             key="error"
             initial={enter.initial}
             animate={enter.animate}
@@ -179,7 +179,7 @@ export function SqlCodeEditor({ value, onChange, catalog }: SqlCodeEditorProps) 
             className="m-0 text-[0.85rem] text-down-text"
           >
             {translate(t, error)}
-          </motion.p>
+          </m.p>
         )}
       </AnimatePresence>
     </div>
