@@ -2,9 +2,9 @@
 screen: preferences
 title: "Device preferences"
 route: "index.html#/settings/preferences"
-status: planned
+status: in-progress
 spec: docs/05-extended-features.md FE-06..FE-09, FE-47, FE-48, FE-50
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # Device preferences
@@ -13,7 +13,10 @@ updated: 2026-10-18
 Language, animation level, density, viewing distance, night mode, sounds, notifications.
 
 ## Layout and components
-_To be filled as the screen is built (component tree, file paths)._
+- Console header button "Device preferences" (or `index.html#/settings/preferences`) → `ConsoleApp` view `preferences`
+  - `DevicePreferences` (Panel): theme, animation level (+ reduced-motion notice), density, language, viewing distance, operator name; "workspace default" markers; export / import JSON; reset
+- State: `createPreferencesStore()` (`shared/preferences/preferences.ts`), applied by `app/console/usePreferenceEffects.ts`
+- Night mode (FE-09) is configured on the wall URL (`?night=22:00-06:00`) for now
 
 ## States
 - Loading, empty, error, stale data
@@ -24,18 +27,27 @@ _To be filled as the screen is built (component tree, file paths)._
 ## Features on this screen
 - [CORE-15 · Internationalization (en / pt-BR)](../features/CORE-15-internationalization-en-pt-br.md) — in-progress
 - [FE-06 · Animation level](../features/FE-06-animation-level.md) — in-progress
-- [FE-07 · Density](../features/FE-07-density.md) — tests-pending
-- [FE-08 · Viewing distance scale](../features/FE-08-viewing-distance-scale.md) — tests-pending
-- [FE-09 · Night mode schedule](../features/FE-09-night-mode-schedule.md) — tests-pending
+- [FE-07 · Density](../features/FE-07-density.md) — done
+- [FE-08 · Viewing distance scale](../features/FE-08-viewing-distance-scale.md) — done
+- [FE-09 · Night mode schedule](../features/FE-09-night-mode-schedule.md) — done
 - [FE-47 · Sound alerts](../features/FE-47-sound-alerts.md) — done
 - [FE-48 · Desktop notifications](../features/FE-48-desktop-notifications.md) — done
-- [FE-50 · Device preferences](../features/FE-50-device-preferences.md) — tests-pending
+- [FE-50 · Device preferences](../features/FE-50-device-preferences.md) — done
 
 ## Code
-_None yet._
+- `frontend/src/domains/workspace/DevicePreferences/DevicePreferences.tsx`
+- `frontend/src/shared/preferences/preferences.ts`
+- `frontend/src/shared/preferences/density.ts`
+- `frontend/src/shared/preferences/viewingDistance.ts`
+- `frontend/src/app/console/usePreferenceEffects.ts`
+- `frontend/src/app/console/ConsoleApp.tsx`
 
 ## Tests
-_None yet._
+- `frontend/src/domains/workspace/DevicePreferences/DevicePreferences.test.tsx`
+- `frontend/src/shared/preferences/preferences.test.ts`
+- `frontend/src/shared/preferences/density.test.ts`
+- `frontend/src/app/console/ConsoleApp.preferences.test.tsx`
 
 ## Changelog
 - 2026-10-18 — context file created.
+- 2026-10-22 — device preferences screen built and wired into the console (FE-07, FE-08, FE-50).

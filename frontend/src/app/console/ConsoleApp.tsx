@@ -7,6 +7,7 @@ import { canEdit } from '@/domains/security/access';
 import type { OperatorStore } from '@/domains/security/operator';
 import { OperatorPrompt } from '@/domains/security/OperatorPrompt';
 import { ViewOnlyBanner } from '@/domains/security/ViewOnlyBanner';
+import { DevicePreferences } from '@/domains/workspace/DevicePreferences';
 import { GroupList } from '@/domains/workspace/GroupList';
 import { CommandPalette, type PaletteItem } from './CommandPalette';
 import { DEFAULT_SHORTCUTS, ShortcutsHelp, useShortcuts } from './ShortcutsHelp';
@@ -17,13 +18,26 @@ import { FxProvider } from '@/shared/fx/FxProvider';
 import { LivingOrb } from '@/shared/fx/LivingOrb';
 import { OrbitIntro } from '@/shared/fx/OrbitIntro';
 import { LanguageSelector } from '@/shared/i18n/LanguageSelector';
+import { AnimationLevelProvider } from '@/shared/motion/animationLevel';
+import { createPreferencesStore, type PreferencesStore } from '@/shared/preferences/preferences';
 import { Button } from '@/shared/ui';
+import { usePreferenceEffects } from './usePreferenceEffects';
 import { createConsoleSource, type ConsoleApi } from './consoleSource';
 
 export interface ConsoleAppProps {
   api: ConsoleApi;
   operatorStore: OperatorStore;
   queryClient?: QueryClient;
+  /** FE-50: device preferences; created from `localStorage` when omitted. */
+  preferencesStore?: PreferencesStore;
+}
+
+/** `index.html#/settings/preferences` opens the device preferences screen. */
+export const PREFERENCES_HASH = '#/settings/preferences';
+type ConsoleView = 'list' | 'new' | 'preferences';
+
+function initialView(): ConsoleView {
+  return typeof window !== 'undefined' && window.location.hash === PREFERENCES_HASH ? 'preferences' : 'list';
 }
 
 /** Probe data stays in memory only: no persisted query cache, short garbage collection. */
@@ -37,13 +51,14 @@ interface WorkspaceProps {
   demo: boolean;
   operator: string;
   onChangeName: () => void;
+  preferences: PreferencesStore;
 }
 
-function Workspace({ api, access, demo, operator, onChangeName }: WorkspaceProps) {
+function Workspace({ api, access, demo, operator, onChangeName, preferences }: WorkspaceProps) {
   const { t } = useTranslation();
   const source = useMemo(() => createConsoleSource(api, demo), [api, demo]);
   const queryClient = useQueryClient();
-  const [view, setView] = useState<'list' | 'new'>('list');
+  const [view, setView] = useState<ConsoleView>(initialView);
   const [notice, setNotice] = useState<string | null>(null);
   const editable = canEdit(access.mode);
 
@@ -97,6 +112,9 @@ function Workspace({ api, access, demo, operator, onChangeName }: WorkspaceProps
         {demo && <span className="text-[0.8rem] text-warn-text">{t('app.demoData')}</span>}
         <nav className="ml-auto flex flex-wrap items-center gap-[0.8rem] text-[0.9rem]">
           <LanguageSelector />
+          <Button variant="ghost" aria-current={view === 'preferences' ? 'page' : undefined} onClick={() => setView('preferences')}>
+            {t('preferences.title')}
+          </Button>
           <a href="/wall.html" className="text-info hover:underline">
             {t('console.openWall')}
           </a>
@@ -114,7 +132,12 @@ function Workspace({ api, access, demo, operator, onChangeName }: WorkspaceProps
         {notice && (
           <p className="m-0 rounded-[0.45rem] border border-ok/50 bg-ok/12 px-[0.8rem] py-[0.5rem] text-ok-text">{notice}</p>
         )}
-        {view === 'list' || !editable ? (
+        {view === 'preferences' ? (
+          <>
+            <h1 className="m-0 font-display text-[1.6rem] font-bold tracking-tight">{t('preferences.title')}</h1>
+            <DevicePreferences store={preferences} />
+          </>
+        ) : view === 'list' || !editable ? (
           <>
             <h1 className="m-0 font-display text-[1.6rem] font-bold tracking-tight">{t('console.monitors.title')}</h1>
             {(groups.isError || monitors.isError) && <p className="m-0 text-down-text">{t('console.monitors.loadError')}</p>}
@@ -167,7 +190,13 @@ function Workspace({ api, access, demo, operator, onChangeName }: WorkspaceProps
   );
 }
 
-function Shell({ api, operatorStore }: Omit<ConsoleAppProps, 'queryClient'>) {
+interface ShellProps {
+  api: ConsoleApi;
+  operatorStore: OperatorStore;
+  preferences: PreferencesStore;
+}
+
+function Shell({ api, operatorStore, preferences }: ShellProps) {
   const { t } = useTranslation();
   const operator = useStore(operatorStore, (s) => s.name);
   const setName = useStore(operatorStore, (s) => s.setName);
@@ -199,22 +228,27 @@ function Shell({ api, operatorStore }: Omit<ConsoleAppProps, 'queryClient'>) {
       access={access.data ?? { mode: 'edit', client: 'loopback' }}
       operator={operator}
       onChangeName={() => setRenaming(true)}
+      preferences={preferences}
     />
   );
 }
 
 /** Console: no login; the operator declares a name once and the API decides edit vs. view-only. */
-export function ConsoleApp({ api, operatorStore, queryClient }: ConsoleAppProps) {
+export function ConsoleApp({ api, operatorStore, queryClient, preferencesStore }: ConsoleAppProps) {
   const [client] = useState(() => queryClient ?? createQueryClient());
+  const [preferences] = useState(() => preferencesStore ?? createPreferencesStore());
+  const effective = usePreferenceEffects(preferences, operatorStore);
   return (
     <QueryClientProvider client={client}>
-      <FxProvider>
-        <FxBackground />
-        <div className="fx-layer">
-          <Shell api={api} operatorStore={operatorStore} />
-        </div>
-        <FxDowngradeNotice />
-      </FxProvider>
+      <AnimationLevelProvider level={effective.animation}>
+        <FxProvider>
+          <FxBackground />
+          <div className="fx-layer">
+            <Shell api={api} operatorStore={operatorStore} preferences={preferences} />
+          </div>
+          <FxDowngradeNotice />
+        </FxProvider>
+      </AnimationLevelProvider>
     </QueryClientProvider>
   );
 }

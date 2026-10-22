@@ -3,16 +3,23 @@ import { createRoot } from 'react-dom/client';
 import { I18nextProvider } from 'react-i18next';
 import { loadOperator, normalizeOperatorName, saveOperator } from '@/domains/security/operator';
 import { WallApp, operatorName } from '@/domains/wall/WallApp';
+import { applyViewingScale, scaleFromSearch, scheduleFromSearch } from '@/domains/wall/display';
 import { isKioskRequested } from '@/domains/wall/kiosk';
 import { mockSnapshot } from '@/domains/wall/mock';
 import { createApiClient } from '@/shared/api/client';
 import { wallLayoutSlug } from '@/shared/api/wallSocket';
 import { createI18n, detectLocale } from '@/shared/i18n/i18n';
+import { loadPreferences } from '@/shared/preferences/preferences';
 import './theme.css';
 
 const params = new URLSearchParams(window.location.search);
 const scenario = params.get('scenario') === 'ok' ? 'ok' : 'incident';
 const layout = wallLayoutSlug(window.location.pathname);
+
+// FE-08: `?scale=` wins over the device preference (FE-50); 3 m otherwise.
+applyViewingScale(params.has('scale') ? scaleFromSearch(window.location.search) : (loadPreferences().scale ?? '3m'));
+// FE-09: `?night=22:00-06:00`.
+const nightMode = scheduleFromSearch(window.location.search);
 
 const operator = operatorName(window.location.search, loadOperator());
 saveOperator(normalizeOperatorName(operator));
@@ -28,7 +35,7 @@ if (root) {
   createRoot(root).render(
     <StrictMode>
       <I18nextProvider i18n={i18n}>
-        <WallApp api={api} operator={operator} mock={mock} layout={layout} kiosk={isKioskRequested(window.location.search)} />
+        <WallApp api={api} operator={operator} mock={mock} layout={layout} kiosk={isKioskRequested(window.location.search)} nightMode={nightMode} />
       </I18nextProvider>
     </StrictMode>,
   );
