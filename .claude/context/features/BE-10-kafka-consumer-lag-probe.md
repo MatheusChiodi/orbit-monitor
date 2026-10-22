@@ -3,10 +3,10 @@ id: BE-10
 title: "Kafka consumer lag probe"
 area: backend
 group: "Probes"
-status: tests-pending
+status: done
 screens: []
 spec: docs/05-extended-features.md
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # BE-10 · Kafka consumer lag probe
@@ -16,8 +16,8 @@ Lag per group/topic as a series
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
-- [ ] All tests green, none pending
+- [x] Implemented
+- [x] All tests green, none pending
 
 ## Screens
 —
@@ -30,7 +30,10 @@ Lag per group/topic as a series
 
 ## Decisions and notes
 - Offsets port (AdminClient); lag = end - committed per partition, summed; uncommitted partitions count fully.
+- Offsets port (Kafka AdminClient `listOffsets` + `listConsumerGroupOffsets` in production) keeps kafka-clients out of this module.
+- Lag never goes negative (commit ahead of end offset counts as 0); broker errors are returned in `error`.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending tests and stubs added (status: tests-pending).
+- 2026-10-22 — implemented consumer lag per partition and total with reported broker errors (status: done).

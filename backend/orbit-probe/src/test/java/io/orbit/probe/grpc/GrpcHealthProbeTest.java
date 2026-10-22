@@ -2,7 +2,6 @@ package io.orbit.probe.grpc;
 
 import io.orbit.common.MonitorState;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -10,7 +9,6 @@ import java.util.concurrent.TimeoutException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Tag("pending")
 @DisplayName("BE-09 gRPC health probe")
 class GrpcHealthProbeTest {
 
