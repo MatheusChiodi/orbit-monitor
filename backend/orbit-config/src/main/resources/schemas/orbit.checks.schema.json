@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/MatheusChiodi/orbit-monitor/schemas/orbit.checks.schema.json",
   "title": "orbit.checks.json",
-  "description": "TCP, ping and push monitors; push tokens are sealed in the vault",
+  "description": "TCP, ping, push, DNS, gRPC health, Kafka lag and certificate/domain expiry checks; push tokens are sealed in the vault",
   "type": "object",
   "required": [
     "version",
@@ -93,7 +93,11 @@
             "enum": [
               "TCP",
               "PING",
-              "PUSH"
+              "PUSH",
+              "DNS",
+              "GRPC",
+              "KAFKA",
+              "CERT"
             ]
           },
           "host": {
@@ -131,6 +135,74 @@
               "string",
               "null"
             ]
+          },
+          "window": {
+            "$ref": "#/$defs/window"
+          },
+          "retry": {
+            "$ref": "#/$defs/retry"
+          },
+          "probe": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Settings of DNS, gRPC, Kafka and certificate checks",
+            "properties": {
+              "recordType": {
+                "enum": [
+                  "A",
+                  "AAAA",
+                  "CNAME",
+                  "MX",
+                  "TXT",
+                  "NS",
+                  null
+                ]
+              },
+              "expected": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "service": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "tls": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "bootstrapServers": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "consumerGroup": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "topic": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "domain": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
           }
         }
       }
@@ -228,6 +300,91 @@
           ]
         }
       }
+    },
+    "window": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "BE-17 execution window; outside it scheduled checks are skipped",
+      "properties": {
+        "days": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "enum": [
+              "MONDAY",
+              "TUESDAY",
+              "WEDNESDAY",
+              "THURSDAY",
+              "FRIDAY",
+              "SATURDAY",
+              "SUNDAY"
+            ]
+          }
+        },
+        "from": {
+          "type": "string",
+          "pattern": "^[0-2][0-9]:[0-5][0-9]$"
+        },
+        "to": {
+          "type": "string",
+          "pattern": "^[0-2][0-9]:[0-5][0-9]$"
+        },
+        "zone": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "from",
+        "to"
+      ]
+    },
+    "retry": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "BE-18 attempts with exponential backoff",
+      "properties": {
+        "attempts": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "initialDelayMs": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 60000
+        },
+        "multiplier": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 10
+        },
+        "maxDelayMs": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 60000
+        }
+      },
+      "required": [
+        "attempts"
+      ]
     }
   }
 }

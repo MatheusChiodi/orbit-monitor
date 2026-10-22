@@ -22,6 +22,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -39,6 +40,9 @@ public class WallViewFactory {
     private final Clock clock;
     private final String environment;
     private Function<Incident, Optional<Instant>> escalatesAt = incident -> Optional.empty();
+    private Supplier<Optional<WallViews.BrandingView>> branding = Optional::empty;
+    private Function<Incident, Optional<WallViews.NextStepView>> nextEscalation = incident -> Optional.empty();
+    private Supplier<List<WallViews.OnCallView>> onCall = List::of;
     private Predicate<String> inMaintenance = monitorId -> false;
 
     public WallViewFactory(MonitorDefinitions definitions, TelemetryService telemetry, MonitorRuntime runtime,
@@ -57,6 +61,21 @@ public class WallViewFactory {
     /** BE-27: source of the escalation countdown shown on the wall. */
     public void setEscalatesAt(Function<Incident, Optional<Instant>> escalatesAt) {
         this.escalatesAt = escalatesAt;
+    }
+
+    /** BE-27: next escalation step of an incident (name, due time, on call). */
+    public void setNextEscalation(Function<Incident, Optional<WallViews.NextStepView>> nextEscalation) {
+        this.nextEscalation = nextEscalation;
+    }
+
+    /** BE-33: who is on call now, for the wall clock block. */
+    public void setOnCall(Supplier<List<WallViews.OnCallView>> onCall) {
+        this.onCall = onCall;
+    }
+
+    /** FE-10: source of the workspace name and logo shown on the wall. */
+    public void setBranding(Supplier<Optional<WallViews.BrandingView>> branding) {
+        this.branding = branding;
     }
 
     /** CORE-07: monitors in an active maintenance window (directly or through their group). */
@@ -98,7 +117,9 @@ public class WallViewFactory {
                 .map(groupNames::get).filter(Objects::nonNull).map(List::of).orElse(List.of());
         return new WallViews.IncidentView(incident.id(), incident.monitorId(), incident.severity().name(),
                 incident.openedAt(), incident.acknowledgedBy(), incident.acknowledgedAt(), impact,
-                escalatesAt.apply(incident).orElse(null));
+                escalatesAt.apply(incident).orElse(null),
+                incident.isOpen() && incident.acknowledgedBy() == null ? nextEscalation.apply(incident).orElse(null)
+                        : null);
     }
 
     public WallViews.WallSnapshot snapshot() {
@@ -106,7 +127,8 @@ public class WallViewFactory {
         List<WallViews.IncidentView> open = incidents.recent().stream().filter(Incident::isOpen)
                 .map(this::incidentView).toList();
         return new WallViews.WallSnapshot(clock.instant(), environment, groupViews(), monitors, open,
-                timeline.recent(), uptime(), timeline.lastRecoveryAt().orElse(null));
+                timeline.recent(), uptime(), timeline.lastRecoveryAt().orElse(null), branding.get().orElse(null),
+                onCall.get());
     }
 
     /** Mean availability of the monitors that have data, in percentage points. */

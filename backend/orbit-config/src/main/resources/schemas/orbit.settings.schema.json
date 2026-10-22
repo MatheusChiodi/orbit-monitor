@@ -106,6 +106,29 @@
               "string",
               "null"
             ]
+          },
+          "branding": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "FE-10 workspace name and logo (sanitized inline SVG)",
+            "properties": {
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "maxLength": 80
+              },
+              "logoSvg": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "maxLength": 65536
+              }
+            }
           }
         }
       }

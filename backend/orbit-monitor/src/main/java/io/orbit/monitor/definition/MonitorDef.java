@@ -36,6 +36,16 @@ public interface MonitorDef extends ConfigItem {
     @JsonIgnore
     MonitorKind kind();
 
+    /** BE-17: execution window; null runs at any time. */
+    default WindowDef window() {
+        return null;
+    }
+
+    /** BE-18: retry policy; null means one attempt. */
+    default RetryDef retry() {
+        return null;
+    }
+
     @JsonIgnore
     default List<Condition> parsedConditions() {
         return conditions().stream().map(ConditionDef::parse).toList();

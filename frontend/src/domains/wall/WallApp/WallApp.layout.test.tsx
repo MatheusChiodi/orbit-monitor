@@ -49,6 +49,15 @@ describe('FE-11 wall renders the saved layout by slug', () => {
     expect(within(onCall).getByText('Rui Prado')).toBeInTheDocument();
   });
 
+  it('uses the on-call list sent with the snapshot (BE-33) without asking the REST endpoint', async () => {
+    const loadOnCall = vi.fn(async () => []);
+    const snapshot = { ...mockSnapshot('ok', now), onCall: [{ schedule: 'Payments', person: 'Lia Costa', shiftEndsAt: null }] };
+    setup({ layout: 'exec', loadOnCall }, snapshot);
+    const onCall = await screen.findByRole('region', { name: 'On call' }, { timeout: 5000 });
+    expect(within(onCall).getByText('Lia Costa')).toBeInTheDocument();
+    expect(loadOnCall).not.toHaveBeenCalled();
+  });
+
   it('an unknown slug falls back to the built-in NOC wall', async () => {
     setup({ layout: 'missing' });
     expect(await screen.findByText('All monitors')).toBeInTheDocument();
@@ -142,7 +151,7 @@ describe('FE-20 / FE-40 on the wall', () => {
     const loadEscalation = vi.fn(async () => ({ policyName: 'Payments', nextStep: { index: 1, name: 'Team lead', at: '' } }));
     const snapshot = mockSnapshot('incident', new Date());
     // Without the step name in the wall payload the wall asks the escalation API.
-    setup({ loadEscalation }, { ...snapshot, incidents: snapshot.incidents.map((i) => ({ ...i, nextStepName: null })) });
+    setup({ loadEscalation }, { ...snapshot, incidents: snapshot.incidents.map((i) => ({ ...i, nextStep: null })) });
     expect(await screen.findByText('next: Team lead', {}, { timeout: 5000 })).toBeInTheDocument();
     expect(loadEscalation).toHaveBeenCalledWith('inc-reconciliation');
   });

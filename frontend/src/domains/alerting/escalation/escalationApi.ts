@@ -53,13 +53,13 @@ export function createEscalationApi(options: Pick<ApiClientOptions, 'fetch' | 'b
 }
 
 /**
- * FE-40: name of the next escalation step for the countdown. Uses `nextStepName` when the wall
+ * FE-40: name of the next escalation step for the countdown. Uses `nextStep.name` when the wall
  * incident carries it, otherwise asks the escalation API once per incident and deadline.
  */
 export function useNextEscalationStep(incident: Incident | null, load?: LoadEscalation): string | null {
   const [loaded, setLoaded] = useState<{ key: string; name: string | null } | null>(null);
   const active = incident && !incident.acknowledgedBy && incident.escalatesAt ? incident : null;
-  const inline = active?.nextStepName ?? null;
+  const inline = active?.nextStep?.name ?? null;
   const key = active ? `${active.id}@${active.escalatesAt}` : null;
   const incidentId = active?.id ?? null;
 

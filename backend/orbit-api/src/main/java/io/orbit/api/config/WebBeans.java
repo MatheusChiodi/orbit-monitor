@@ -67,7 +67,7 @@ public class WebBeans {
 
     @Bean
     PreviewService previewService(MonitorDefinitions definitions, ConnectionPools pools, SqlProbe sqlProbe,
-                                  HttpProbe httpProbe, PayloadRedactor redactor) {
-        return new PreviewService(definitions, pools, sqlProbe, httpProbe, redactor);
+                                  HttpProbe httpProbe, PayloadRedactor redactor, Messages messages) {
+        return new PreviewService(definitions, pools, sqlProbe, httpProbe, redactor, messages);
     }
 }

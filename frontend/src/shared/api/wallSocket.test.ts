@@ -87,6 +87,26 @@ describe('connectWall', () => {
     expect(FakeSocket.instances).toHaveLength(3);
   });
 
+  it('BE-38: reconnects with stream and last seq so the server can resume without a snapshot', () => {
+    connectWall({ url: 'ws://x/ws/wall?layout=noc', onMessage: vi.fn(), createSocket: (u) => new FakeSocket(u) });
+    const first = FakeSocket.instances[0]!;
+    first.onmessage?.({ data: JSON.stringify({ type: 'snapshot', seq: 4, stream: 'run-1', payload: {} }) });
+    first.onmessage?.({ data: JSON.stringify({ type: 'event', seq: 5, stream: 'run-1', payload: { id: 'e' } }) });
+    first.onclose?.();
+    vi.advanceTimersByTime(1000);
+    expect(FakeSocket.instances[1]?.url).toBe('ws://x/ws/wall?layout=noc&stream=run-1&since=5');
+  });
+
+  it('BE-38: a gap in seq drops the resume point so the next connection gets a snapshot', () => {
+    connectWall({ url: 'ws://x/ws/wall', onMessage: vi.fn(), createSocket: (u) => new FakeSocket(u) });
+    const first = FakeSocket.instances[0]!;
+    first.onmessage?.({ data: JSON.stringify({ type: 'snapshot', seq: 4, stream: 'run-1', payload: {} }) });
+    first.onmessage?.({ data: JSON.stringify({ type: 'event', seq: 7, stream: 'run-1', payload: { id: 'e' } }) });
+    expect(first.closed).toBe(true);
+    vi.advanceTimersByTime(1000);
+    expect(FakeSocket.instances[1]?.url).toBe('ws://x/ws/wall');
+  });
+
   it('close() stops and does not reconnect', () => {
     const onStatus = vi.fn();
     const conn = connectWall({ url: 'ws://x', onMessage: vi.fn(), onStatus, createSocket: (u) => new FakeSocket(u) });
@@ -98,24 +118,10 @@ describe('connectWall', () => {
   });
 });
 
-describe('CORE-09 / BE-38 resume by sequence', () => {
-  it('keeps the sequence number of each message', () => {
-    expect(parseWallMessage(JSON.stringify({ type: 'event', seq: 12, payload: { id: 'e1' } }))?.seq).toBe(12);
-    expect(parseWallMessage(JSON.stringify({ type: 'event', seq: 'x', payload: { id: 'e1' } }))?.seq).toBeUndefined();
-  });
-
+describe('wall layout from ?layout=', () => {
   it('`?layout=` also selects the layout (wall.html?layout=exec)', () => {
     expect(wallLayoutSlug('/wall.html', '?layout=exec')).toBe('exec');
     expect(wallLayoutSlug('/wall/noc', '?layout=Bad Slug')).toBe('noc');
   });
-
-  it('reconnects with `since=<last seq>` so the server replays only the missed deltas', () => {
-    let last: number | null = null;
-    connectWall({ url: 'ws://x/ws/wall?layout=noc', onMessage: vi.fn(), createSocket: (u) => new FakeSocket(u), reconnectMs: 10, since: () => last });
-    expect(FakeSocket.instances[0]?.url).toBe('ws://x/ws/wall?layout=noc');
-    last = 41;
-    FakeSocket.instances[0]?.onclose?.();
-    vi.advanceTimersByTime(10);
-    expect(FakeSocket.instances[1]?.url).toBe('ws://x/ws/wall?layout=noc&since=41');
-  });
 });
+

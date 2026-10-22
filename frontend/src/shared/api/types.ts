@@ -50,8 +50,22 @@ export interface Incident {
   acknowledgedAt: string | null;
   impact: string[];
   escalatesAt: string | null;
-  /** FE-40: name of the next escalation step, when the backend sends it with the incident (BE-27). */
-  nextStepName?: string | null;
+  /** FE-40 / BE-27: next escalation step (open, unacknowledged incidents only). */
+  nextStep?: NextEscalationStep | null;
+}
+
+export interface NextEscalationStep {
+  name: string;
+  dueAt: string;
+  /** Person on call for that step, when the step names a schedule. */
+  onCall?: string | null;
+}
+
+/** BE-33: who is on call now, sent with the wall snapshot for the clock block. */
+export interface WallOnCall {
+  schedule: string;
+  person: string;
+  shiftEndsAt: string | null;
 }
 
 export type TimelineKind = 'DOWN' | 'WARN' | 'OK' | 'ACK' | 'INFO';
@@ -78,6 +92,8 @@ export interface WallSnapshot {
   simulated?: boolean;
   /** FE-10: workspace name and logo (raw SVG, sanitized before display). */
   branding?: WorkspaceBranding;
+  /** BE-33 on-call entries (absent on older backends: the wall then asks `/api/oncall/now`). */
+  onCall?: WallOnCall[];
 }
 
 export interface WorkspaceBranding {

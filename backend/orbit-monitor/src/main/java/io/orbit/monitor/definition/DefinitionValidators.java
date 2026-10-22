@@ -5,6 +5,7 @@ import io.orbit.common.privacy.SensitiveDataRedactor;
 import io.orbit.monitor.condition.ConditionSyntaxException;
 import io.orbit.monitor.sql.Dialect;
 import io.orbit.monitor.sql.SelectValidator;
+import io.orbit.monitor.sql.SqlParameters;
 import io.orbit.monitor.sql.UnsafeSqlException;
 
 import java.net.URI;
@@ -53,6 +54,15 @@ final class DefinitionValidators {
             } catch (UnsafeSqlException e) {
                 errors.add(s.id() + ": " + e.getMessage());
             }
+            try {
+                List<String> missing = SqlParameters.names(s.sql()).stream()
+                        .filter(n -> !s.parameters().containsKey(n)).distinct().toList();
+                if (!missing.isEmpty()) {
+                    errors.add(s.id() + ": parameters need a value for " + String.join(", ", missing));
+                }
+            } catch (UnsafeSqlException e) {
+                // already reported by the SELECT validation
+            }
             if (s.maxRows() < 1 || s.maxRows() > 5_000) {
                 errors.add(s.id() + ": maxRows must be between 1 and 5000");
             }
@@ -92,6 +102,7 @@ final class DefinitionValidators {
             } catch (IllegalArgumentException | NullPointerException e) {
                 errors.add(r.id() + ": invalid url");
             }
+            HttpExtrasValidator.validate(r, errors);
         }
         return errors;
     }
@@ -101,7 +112,7 @@ final class DefinitionValidators {
         for (CheckMonitorDef c : items) {
             common(c, errors);
             if (c.type() == null) {
-                errors.add(c.id() + ": type must be TCP, PING or PUSH");
+                errors.add(c.id() + ": type must be TCP, PING, PUSH, DNS, GRPC, KAFKA or CERT");
                 continue;
             }
             switch (c.type()) {
@@ -117,13 +128,20 @@ final class DefinitionValidators {
                         errors.add(c.id() + ": maxSilenceSeconds must be at least 60");
                     }
                 }
+                default -> CheckProbeValidator.validate(c, errors);
             }
         }
         return errors;
     }
 
+    /** Fixed sub-paths of /api/history/{id}; a monitor with one of these ids would be unreachable there. */
+    private static final Set<String> RESERVED_IDS = Set.of("coverage", "health", "audit");
+
     private static void common(MonitorDef m, List<String> errors) {
         id(m.id(), errors);
+        if (RESERVED_IDS.contains(m.id())) {
+            errors.add(m.id() + ": id is reserved");
+        }
         required(m.id(), "name", m.name(), errors);
         if (m.intervalSeconds() < 15 || m.intervalSeconds() > 86_400) {
             errors.add(m.id() + ": interval must be between 15 s and 24 h");
@@ -139,9 +157,23 @@ final class DefinitionValidators {
         }
         for (FieldDef f : m.fields()) {
             DataClass dataClass = REDACTOR.classifyName(f.key());
-            if (f.series() && (dataClass == DataClass.PCI_PAN || dataClass == DataClass.PCI_SAD)) {
+            boolean card = dataClass == DataClass.PCI_PAN || dataClass == DataClass.PCI_SAD;
+            if (f.series() && card) {
                 errors.add(m.id() + ": card field " + f.key() + " cannot be stored as a series");
             }
+            // CORE-16 (docs/04): card data is never unmasked; personal and card data never go to the wall.
+            if (card && Boolean.FALSE.equals(f.masked())) {
+                errors.add(m.id() + ": card field " + f.key() + " cannot be unmasked");
+            }
+            if ((card || dataClass == DataClass.PERSONAL) && f.showOnWall()) {
+                errors.add(m.id() + ": sensitive field " + f.key() + " cannot be shown on the wall");
+            }
+        }
+        if (m.window() != null) {
+            m.window().problems().forEach(p -> errors.add(m.id() + ": " + p));
+        }
+        if (m.retry() != null) {
+            m.retry().problems().forEach(p -> errors.add(m.id() + ": " + p));
         }
         for (ConditionDef c : m.conditions()) {
             try {
@@ -158,7 +190,7 @@ final class DefinitionValidators {
         }
     }
 
-    private static void required(String id, String field, String value, List<String> errors) {
+    static void required(String id, String field, String value, List<String> errors) {
         if (value == null || value.isBlank()) {
             errors.add(id + ": " + field + " is required");
         }

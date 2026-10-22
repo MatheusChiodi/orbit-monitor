@@ -3,6 +3,7 @@ package io.orbit.api.wall;
 import io.orbit.alerting.Incident;
 import io.orbit.alerting.IncidentEvent;
 import io.orbit.alerting.IncidentEventType;
+import io.orbit.api.runtime.Notice;
 import io.orbit.common.MonitorState;
 import io.orbit.common.event.MonitorStateChanged;
 import io.orbit.monitor.condition.ConditionResult;
@@ -24,10 +25,17 @@ public class WallPublisher {
     private final WallViewFactory views;
     private final WallTimeline timeline;
     private final MonitorDefinitions definitions;
+    private final WallTitles titles;
     private final Map<String, CheckResult> lastResults = new ConcurrentHashMap<>();
 
     public WallPublisher(WallSocketHandler socket, WallViewFactory views, WallTimeline timeline,
                          MonitorDefinitions definitions) {
+        this(socket, views, timeline, definitions, WallTitles.english());
+    }
+
+    public WallPublisher(WallSocketHandler socket, WallViewFactory views, WallTimeline timeline,
+                         MonitorDefinitions definitions, WallTitles titles) {
+        this.titles = titles;
         this.socket = socket;
         this.views = views;
         this.timeline = timeline;
@@ -46,9 +54,9 @@ public class WallPublisher {
         }
         String name = definitions.monitor(event.monitorId()).map(MonitorDef::name).orElse(event.monitorId());
         String title = switch (event.current()) {
-            case DOWN -> name + " is down";
-            case WARN -> name + " needs attention";
-            default -> name + " recovered";
+            case DOWN -> titles.text("wall.timeline.down", "{0} is down", name);
+            case WARN -> titles.text("wall.timeline.warn", "{0} needs attention", name);
+            default -> titles.text("wall.timeline.ok", "{0} recovered", name);
         };
         socket.broadcast("event", timeline.add(event.current().name(), title, detail(event.monitorId()), event.at()));
     }
@@ -58,8 +66,15 @@ public class WallPublisher {
         IncidentEvent last = incident.events().getLast();
         if (last.type() == IncidentEventType.ACKNOWLEDGED) {
             String name = definitions.monitor(incident.monitorId()).map(MonitorDef::name).orElse(incident.monitorId());
-            socket.broadcast("event", timeline.add("ACK", name + " acknowledged by " + last.actor(), "", last.at()));
+            socket.broadcast("event", timeline.add("ACK",
+                    titles.text("wall.timeline.ack", "{0} acknowledged by {1}", name, last.actor()), "", last.at()));
         }
+    }
+
+    /** Informational events such as a certificate crossing a warning step (BE-05). */
+    public void onNotice(Notice notice) {
+        String title = titles.text(notice.key(), notice.type() + " {0}", notice.args().toArray());
+        socket.broadcast("event", timeline.add("INFO", title, "", notice.at()));
     }
 
     /** First failing condition or the check error, both already masked. */

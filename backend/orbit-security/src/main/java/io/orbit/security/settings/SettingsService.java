@@ -27,6 +27,18 @@ public class SettingsService {
             if (s.historyHours() != null && (s.historyHours() < 1 || s.historyHours() > 168)) {
                 errors.add("historyHours must be between 1 and 168");
             }
+            if (s.branding() != null) {
+                if (s.branding().name() != null && s.branding().name().strip().length() > 80) {
+                    errors.add("branding.name must be at most 80 characters");
+                }
+                if (s.branding().logoSvg() != null && !s.branding().logoSvg().isBlank()) {
+                    try {
+                        SvgSanitizer.sanitize(s.branding().logoSvg());
+                    } catch (IllegalArgumentException e) {
+                        errors.add("branding.logoSvg: " + e.getMessage());
+                    }
+                }
+            }
             if (s.access() != null) {
                 String from = s.access().editFrom() == null ? "" : s.access().editFrom().toLowerCase(Locale.ROOT);
                 if (!EDIT_FROM.contains(from)) {
@@ -69,6 +81,10 @@ public class SettingsService {
     }
 
     public synchronized OrbitSettings save(OrbitSettings settings, String operator) {
+        List<String> errors = VALIDATOR.validate(List.of(settings));
+        if (!errors.isEmpty()) {
+            throw new io.orbit.config.ConfigValidationException(errors);
+        }
         OrbitSettings stamped = settings.stamped(OperatorName.normalize(operator), clock.instant());
         file.save(List.of(stamped));
         return stamped;

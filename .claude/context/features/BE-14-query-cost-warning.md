@@ -26,15 +26,20 @@ Preview time and `EXPLAIN` when supported; suggests a longer interval
 - `backend/orbit-monitor/src/main/java/io/orbit/monitor/sql/QueryCostAdvisor.java`
 - `backend/orbit-api/src/main/resources/messages.properties`
 - `backend/orbit-api/src/main/resources/messages_pt_BR.properties`
+- `backend/orbit-api/src/main/java/io/orbit/api/web/PreviewService.java`
+- `backend/orbit-api/src/main/java/io/orbit/api/web/MonitorRequest.java`
 
 ## Tests
 - `backend/orbit-monitor/src/test/java/io/orbit/monitor/sql/QueryCostAdvisorTest.java`
+- `backend/orbit-api/src/test/java/io/orbit/api/web/SqlEditorApiTest.java`
 
 ## Decisions and notes
 - NONE < 1 s; WARN suggests interval >= 60x preview time; HEAVY >= 10 s suggests >= 15 min and a view. EXPLAIN is a follow-up.
 - Suggested interval = max(current, ceil(60 x preview)); HEAVY floors it at 900 s; capped at 24 h. Keys `sql.cost.none|warn|heavy` (en + pt-BR, `{0}` = suggested seconds).
+- API (2026-10-22): `POST /api/monitors/preview` accepts `intervalSeconds` (default 60) and SQL previews answer `cost: {level: NONE|WARN|HEAVY, suggestedIntervalSeconds, message}` with `message` in the request language. EXPLAIN-based estimates remain a possible follow-up (preview time is the measure).
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending tests and stubs added (status: tests-pending).
 - 2026-10-22 — implemented the query cost advisor (status: done).
+- 2026-10-22 — cost warning returned with every SQL preview.

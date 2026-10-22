@@ -6,7 +6,7 @@ group: "Privacy"
 status: in-progress
 screens: [wall, monitor-editor-sql, monitor-editor-http, data-and-display]
 spec: docs/01-architecture.md, docs/02-features.md, docs/04-data-protection.md
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # CORE-16 · Sensitive data protection (LGPD / PCI DSS)
@@ -50,6 +50,11 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `backend/orbit-config/src/main/java/io/orbit/config/ConfigFile.java`
 - `.githooks/pre-commit`
 - `backend/orbit-api/src/main/resources/logback-spring.xml`
+- `backend/orbit-monitor/src/main/java/io/orbit/monitor/definition/FieldDef.java`
+- `backend/orbit-monitor/src/main/java/io/orbit/monitor/definition/DefinitionValidators.java`
+- `backend/orbit-api/src/main/java/io/orbit/api/runtime/PrimaryValue.java`
+- `backend/orbit-api/src/main/java/io/orbit/api/runtime/SeriesMetrics.java`
+- `backend/orbit-security/src/main/java/io/orbit/security/settings/SvgSanitizer.java`
 
 ## Tests
 - `frontend/src/shared/privacy/redact.test.ts`
@@ -65,7 +70,6 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `frontend/src/domains/wall/components/WallScreen/WallScreen.privacy.test.tsx`
 - `frontend/src/domains/workspace/GroupList/GroupList.privacy.test.tsx`
 - `frontend/src/app/console/ConsoleApp.privacy.test.tsx`
-- `frontend/src/shared/ui/SecretInput/SecretInput.pending.test.tsx`
 - `frontend/src/shared/ui/SecretInput/SecretInput.test.tsx`
 - `backend/orbit-common/src/test/java/io/orbit/common/privacy/SensitiveDataRedactorTest.java`
 - `backend/orbit-monitor/src/test/java/io/orbit/monitor/privacy/PayloadRedactorTest.java`
@@ -77,6 +81,9 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `backend/orbit-api/src/test/java/io/orbit/api/privacy/CardDataLeakTest.java`
 - `backend/orbit-config/src/test/java/io/orbit/config/ConfigFileTest.java`
 - `.githooks/pre-commit.test.sh`
+- `backend/orbit-monitor/src/test/java/io/orbit/monitor/definition/ExtendedDefinitionsTest.java`
+- `backend/orbit-api/src/test/java/io/orbit/api/runtime/PrimaryValueTest.java`
+- `backend/orbit-security/src/test/java/io/orbit/security/settings/SvgSanitizerTest.java`
 
 ## Decisions and notes
 - Frontend: `detectSensitive` / `redact` mirror the backend redactor: Luhn PAN 13-19 digits (spaces/hyphens, numbers, inside free text and JSON) → `•••• •••• •••• 1234`; CVV/CVC/track/PIN by field name → `[REDACTED]`; CPF/CNPJ with valid check digits → `•••.•••.•••-12` / `••.•••.•••/••••-81`; e-mail → `j•••@d•••.com`; JWT, Bearer and secret field names → `••••`.
@@ -101,7 +108,8 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - Research: log masking via a custom Logback `ClassicConverter`/`ThrowableProxyConverter` (chosen: no dependency, works with Spring Boot's console pattern) vs. logstash-logback-encoder `MaskingJsonGeneratorDecorator` (JSON output only, extra dependency) vs. regex `replace` in the pattern (no Luhn check, would mask every 16-digit number). For the hook, a POSIX awk scan (no runtime needed) vs. gitleaks/detect-secrets (strong for secrets, but they need an extra binary per clone; whether their card rules apply Luhn was not verified). Luhn per ISO/IEC 7812-1.
 - Open: the BE-37 config export is not implemented yet; it reads the same `ConfigFile`s, which can no longer hold a PAN. CSV/PDF exports do not exist yet; when they do they must go through the redactor and get a test in `CardDataLeakTest`.
 - Open: the hook is not enabled in the shared clone (`core.hooksPath` unset).
-- Pending: the rule that PERSONAL fields cannot be unmasked on the wall (backend).
+- Backend (2026-10-22): `FieldDef` stores `masked` and `showOnWall` from the console; saving rejects a card field with `masked: false` and any personal or card field with `showOnWall: true`. The wall value (`PrimaryValue`) never comes from a personal or card column/path, even a numeric one (e.g. a CPF stored as a number); series never keep card fields (`SeriesMetrics`, plus `MetricExtractor`).
+- Backend: the workspace logo (FE-10) is an allowlist-sanitized SVG (`SvgSanitizer`: no DOCTYPE/entities, no scripts, handlers, foreignObject, style, external or javascript references).
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -116,3 +124,4 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - 2026-10-18 — backend: pending tests for the Jackson serialization guard and the Logback masking converter.
 - 2026-10-18 — backend: Jackson serialization guard and Logback masking converter implemented.
 - 2026-10-18 — audit: PAN next to other numbers, floating-point PANs, plain strings in the API, stack traces and config files closed; frontend phone and key=value secret masks; end-to-end leak test; pre-commit hook hardened with tests.
+- 2026-10-22 — backend: personal/card fields cannot reach the wall or be unmasked; card fields never become series.

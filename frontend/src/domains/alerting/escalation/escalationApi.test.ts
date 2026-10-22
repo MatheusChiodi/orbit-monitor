@@ -43,7 +43,7 @@ describe('FE-40 escalation API (BE-27)', () => {
 
   it('useNextEscalationStep prefers the name sent with the wall incident', () => {
     const load = vi.fn();
-    const { result } = renderHook(() => useNextEscalationStep({ ...incident, nextStepName: 'On-call SRE' }, load));
+    const { result } = renderHook(() => useNextEscalationStep({ ...incident, nextStep: { name: 'On-call SRE', dueAt: '2026-10-22T10:15:00Z' } }, load));
     expect(result.current).toBe('On-call SRE');
     expect(load).not.toHaveBeenCalled();
   });

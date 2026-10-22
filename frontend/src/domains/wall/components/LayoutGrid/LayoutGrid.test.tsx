@@ -78,6 +78,11 @@ describe('FE-11 wall rendering of a saved layout', () => {
     expect(screen.getByText('17:10:00')).toBeInTheDocument();
   });
 
+  it('on-call entries sent with the snapshot reach the clock block through WallScreen (see WallApp tests)', () => {
+    setup([block('clock')], { onCall: [] });
+    expect(screen.getByText('Nobody on call')).toBeInTheDocument();
+  });
+
   it('text blocks never render HTML and redact sensitive values', () => {
     setup([block('text', { text: '<b>Call 4111 1111 1111 1111</b>' })]);
     expect(document.querySelector('b')).toBeNull();

@@ -2,7 +2,9 @@ package io.orbit.api.config;
 
 import io.orbit.alerting.InMemoryIncidentRepository;
 import io.orbit.alerting.IncidentService;
+import io.orbit.api.runtime.AuditForwarder;
 import io.orbit.api.runtime.EventBus;
+import io.orbit.history.store.HistoryStore;
 import io.orbit.common.privacy.SensitiveDataRedactor;
 import io.orbit.config.ConfigFile;
 import io.orbit.config.ConfigMapper;
@@ -113,9 +115,13 @@ public class DomainBeans {
     }
 
     @Bean
-    AuditLog auditLog(SensitiveDataRedactor redactor, Clock clock, OrbitProperties properties) {
-        return new AuditLog(redactor, clock, properties.history(),
-                org.slf4j.LoggerFactory.getLogger("orbit.audit")::info);
+    AuditLog auditLog(SensitiveDataRedactor redactor, Clock clock, OrbitProperties properties, HistoryStore history) {
+        org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger("orbit.audit");
+        AuditForwarder forwarder = new AuditForwarder(history);
+        return new AuditLog(redactor, clock, properties.history(), line -> {
+            log.info(line);
+            forwarder.accept(line);
+        });
     }
 
     @Bean

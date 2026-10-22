@@ -2,6 +2,7 @@ package io.orbit.api.config;
 
 import io.orbit.api.runtime.ConnectionPools;
 import io.orbit.api.runtime.EventBus;
+import io.orbit.api.runtime.ExtendedChecks;
 import io.orbit.api.runtime.MonitorRuntime;
 import io.orbit.api.runtime.SimpleProbes;
 import io.orbit.probe.http.HostResolver;
@@ -49,10 +50,11 @@ public class RuntimeBeans {
     @Bean
     MonitorRuntime monitorRuntime(MonitorDefinitions definitions, CheckRunner runner, TelemetryService telemetry,
                                   ConnectionPools pools, SecretResolver secrets, ProbeScheduler scheduler,
-                                  EventBus bus, Clock clock, SimpleProbes simpleProbes, VariableService variables) {
+                                  EventBus bus, Clock clock, SimpleProbes simpleProbes, VariableService variables,
+                                  ExtendedChecks extended) {
         return new MonitorRuntime(definitions, runner, telemetry, pools, secrets, scheduler, bus,
                 new CircuitBreaker(clock, 3, Duration.ofMinutes(1)), new TargetLimiter(1), simpleProbes,
-                variables::resolver);
+                variables::resolver, extended, duration -> Thread.sleep(duration.toMillis()), clock);
     }
 
     @Bean
@@ -70,6 +72,6 @@ public class RuntimeBeans {
 
     @Bean(destroyMethod = "stop")
     ProbeWorkers probeWorkers(BlockingQueue<String> probeQueue, ProbeScheduler scheduler, MonitorRuntime runtime) {
-        return new ProbeWorkers(probeQueue, scheduler, runtime::runCheck);
+        return new ProbeWorkers(probeQueue, scheduler, runtime::runScheduled);
     }
 }

@@ -72,7 +72,13 @@ export function WallScreen({
   const hero = snapshot ? pickHero(snapshot) : null;
   const nextStep = useNextEscalationStep(hero?.incident ?? null, loadEscalation);
   const classic = !blocks || isClassicArrangement(blocks);
-  const onCall = useOnCallNow(loadOnCall, !classic && Boolean(blocks?.some((b) => b.kind === 'clock')));
+  // BE-33: on-call comes with the snapshot; older backends are asked over REST.
+  const hasClock = !classic && Boolean(blocks?.some((b) => b.kind === 'clock'));
+  const fromSnapshot = snapshot?.onCall;
+  const fetched = useOnCallNow(loadOnCall, hasClock && !fromSnapshot);
+  const onCall = fromSnapshot
+    ? fromSnapshot.map((e) => ({ scheduleId: e.schedule, scheduleName: e.schedule, person: e.person, shiftEndsAt: e.shiftEndsAt }))
+    : fetched;
   if (!snapshot) {
     return (
       <main
