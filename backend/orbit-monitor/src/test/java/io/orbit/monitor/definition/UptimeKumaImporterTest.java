@@ -1,12 +1,10 @@
 package io.orbit.monitor.definition;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Tag("pending")
 @DisplayName("BE-43 Uptime Kuma import")
 class UptimeKumaImporterTest {
 
