@@ -12,6 +12,7 @@ import { notifyIncident } from '@/domains/alerting/desktopNotifications';
 import { useWallAlerts } from '../alerts';
 import { OnCallView } from '../components/OnCallView';
 import { WallControls } from '../components/WallControls';
+import { NightModeOverlay, type NightSchedule } from '../display/nightMode';
 import { useKiosk } from '../kiosk';
 import { createSoundPlayer, loadSoundSettings, saveSoundSettings, type SoundSettings } from '../sound';
 import { WallScreen } from '../components/WallScreen';
@@ -29,6 +30,8 @@ export interface WallAppProps {
   layout?: string;
   /** FE-45: fullscreen, Screen Wake Lock and hidden cursor (requested with ?kiosk=1). */
   kiosk?: boolean;
+  /** FE-09: dims the wall between two local times (`?night=22:00-06:00`). */
+  nightMode?: NightSchedule | null;
 }
 
 /** Name shown in "X acknowledged at HH:MM": `?operator=` in the URL or the last one used. */
@@ -42,7 +45,7 @@ function requestFullscreen(): void {
   else void document.documentElement.requestFullscreen?.();
 }
 
-export function WallApp({ api, connect = connectWall, operator, mock, layout, kiosk = false }: WallAppProps) {
+export function WallApp({ api, connect = connectWall, operator, mock, layout, kiosk = false, nightMode = null }: WallAppProps) {
   const [store] = useState(() => createWallStore());
   const snapshot = useStore(store, (s) => s.snapshot);
   const connection = useStore(store, (s) => s.connection);
@@ -92,9 +95,11 @@ export function WallApp({ api, connect = connectWall, operator, mock, layout, ki
     [store, operator, api, locale],
   );
 
+  const unownedIncident = snapshot ? hasUnacknowledgedDown(snapshot.incidents) : false;
+
   return (
     <MotionProvider>
-      <FxProvider incidentActive={snapshot ? hasUnacknowledgedDown(snapshot.incidents) : false}>
+      <FxProvider incidentActive={unownedIncident}>
         <FxBackground />
         <div className="fx-layer">
           {phone && snapshot ? (
@@ -112,6 +117,7 @@ export function WallApp({ api, connect = connectWall, operator, mock, layout, ki
           />
           )}
         </div>
+        {nightMode && <NightModeOverlay schedule={nightMode} now={now} hasUnownedIncident={unownedIncident} />}
       </FxProvider>
     </MotionProvider>
   );
