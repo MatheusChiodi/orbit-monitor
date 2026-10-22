@@ -73,4 +73,19 @@ class TelemetryServiceTest {
         assertThat(service.status("m").history()).isEmpty();
         assertThat(service.currentState("m")).isEqualTo(MonitorState.UNKNOWN);
     }
+
+    @Test
+    void uptimeLeavesOutMaintenanceWindows() {
+        record(MonitorState.OK, 100, 0);
+        record(MonitorState.DOWN, 0, 60);
+        record(MonitorState.DOWN, 0, 120);
+        record(MonitorState.OK, 100, 180);
+        service.setMaintenance(id -> id.equals("m")
+                ? List.of(new TimeRange(T0.plusSeconds(60), T0.plusSeconds(180))) : List.of());
+
+        UptimeReport uptime = service.status("m").uptime();
+
+        assertThat(uptime.samples()).isEqualTo(2);
+        assertThat(uptime.ratio()).isEqualTo(1.0);
+    }
 }

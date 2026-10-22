@@ -9,6 +9,7 @@ import io.orbit.alerting.suppression.AlertDeduplicator;
 import io.orbit.alerting.suppression.CascadeResolver;
 import io.orbit.alerting.suppression.Dependency;
 import io.orbit.alerting.suppression.DependencyGraph;
+import io.orbit.alerting.suppression.MaintenanceSchedule;
 import io.orbit.alerting.suppression.MaintenanceWindow;
 import io.orbit.alerting.suppression.SilenceService;
 import io.orbit.api.runtime.EventBus;
@@ -24,6 +25,8 @@ import io.orbit.probe.http.HostResolver;
 import io.orbit.probe.http.SsrfGuard;
 import io.orbit.security.vault.SecretResolver;
 import io.orbit.telemetry.FlappingDetector;
+import io.orbit.telemetry.TelemetryService;
+import io.orbit.telemetry.TimeRange;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -70,12 +73,25 @@ public class AlertingBeans {
     @Bean
     ConfigFile<MaintenanceWindow> maintenanceFile(OrbitProperties properties) {
         return new ConfigFile<>(properties.configDir(), "maintenance", MaintenanceWindow.class, ConfigMapper.create(),
-                items -> List.of());
+                items -> items.stream().flatMap(w -> w.problems().stream()).toList());
+    }
+
+    /** BE-31: silences alerts during windows and feeds past windows into uptime (BE-20). */
+    @Bean
+    MaintenanceSchedule maintenanceSchedule(ConfigFile<MaintenanceWindow> maintenanceFile, TelemetryService telemetry,
+                                            MonitorDefinitions definitions, OrbitProperties properties, Clock clock) {
+        MaintenanceSchedule schedule = new MaintenanceSchedule(maintenanceFile::items);
+        telemetry.setMaintenance(monitorId -> {
+            Instant now = clock.instant();
+            return schedule.exclusions(targets(monitorId, definitions), now.minus(properties.history()), now).stream()
+                    .map(o -> new TimeRange(o.start(), o.end())).toList();
+        });
+        return schedule;
     }
 
     @Bean
     NotificationDispatcher notificationDispatcher(ConfigFile<ChannelDef> channelFile, SilenceService silences,
-                                                  ConfigFile<MaintenanceWindow> maintenanceFile,
+                                                  MaintenanceSchedule maintenance,
                                                   MonitorDefinitions definitions, MonitorRuntime runtime,
                                                   SecretResolver secrets, OrbitProperties properties, Clock clock,
                                                   EventBus bus) {
@@ -94,7 +110,7 @@ public class AlertingBeans {
         };
         NotificationDispatcher dispatcher = new NotificationDispatcher(channelFile::items, poster, secrets,
                 new AlertDeduplicator(Duration.ofMinutes(5)),
-                monitorId -> suppressed(monitorId, definitions, silences, maintenanceFile, clock),
+                monitorId -> suppressed(monitorId, definitions, silences, maintenance, clock),
                 monitorId -> definitions.monitor(monitorId).map(m -> info(m, runtime.latest(monitorId))),
                 properties.publicUrl(), clock);
         bus.onIncident(dispatcher);
@@ -162,13 +178,15 @@ public class AlertingBeans {
 
     /** Silenced or in maintenance, by monitor id or by its group. */
     private static boolean suppressed(String monitorId, MonitorDefinitions definitions, SilenceService silences,
-                                      ConfigFile<MaintenanceWindow> maintenance, Clock clock) {
-        String groupId = definitions.monitor(monitorId).map(MonitorDef::groupId).orElse(null);
-        if (silences.isSilenced(monitorId) || groupId != null && silences.isSilenced(groupId)) {
-            return true;
-        }
-        return maintenance.items().stream().anyMatch(w -> w.covers(monitorId, clock.instant())
-                || groupId != null && w.covers(groupId, clock.instant()));
+                                      MaintenanceSchedule maintenance, Clock clock) {
+        List<String> targets = targets(monitorId, definitions);
+        return targets.stream().anyMatch(silences::isSilenced) || maintenance.inMaintenance(targets, clock.instant());
+    }
+
+    /** A monitor is addressed by its own id and by its group's id. */
+    private static List<String> targets(String monitorId, MonitorDefinitions definitions) {
+        return definitions.monitor(monitorId).map(MonitorDef::groupId).filter(g -> !g.isBlank())
+                .map(g -> List.of(monitorId, g)).orElse(List.of(monitorId));
     }
 
     private static NotificationDispatcher.MonitorInfo info(MonitorDef monitor, Optional<CheckResult> latest) {
