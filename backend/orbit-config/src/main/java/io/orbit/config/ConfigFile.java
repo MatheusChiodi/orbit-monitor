@@ -7,15 +7,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.orbit.common.privacy.SensitiveDataRedactor;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileTime;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -89,7 +83,7 @@ public class ConfigFile<T extends ConfigItem> {
             if (!violations.isEmpty()) {
                 throw new ConfigValidationException(violations);
             }
-            writeAtomically(mapper.writeValueAsBytes(document));
+            AtomicFiles.write(path, mapper.writeValueAsBytes(document));
             items = List.copyOf(newItems);
             loadedModifiedTime = Files.getLastModifiedTime(path);
             lastError = null;
@@ -192,32 +186,6 @@ public class ConfigFile<T extends ConfigItem> {
             }
         } else if ((node.isTextual() || node.isIntegralNumber()) && REDACTOR.containsCardNumber(node.asText())) {
             errors.add(path + ": card numbers cannot be stored in configuration");
-        }
-    }
-
-    private void writeAtomically(byte[] content) throws IOException {
-        Path tmp = path.resolveSibling(path.getFileName() + ".tmp");
-        try (FileChannel channel = FileChannel.open(tmp, StandardOpenOption.CREATE, StandardOpenOption.WRITE,
-                StandardOpenOption.TRUNCATE_EXISTING)) {
-            channel.write(ByteBuffer.wrap(content));
-            channel.force(true);
-        }
-        restrictToOwner(tmp);
-        if (Files.exists(path)) {
-            Files.copy(path, path.resolveSibling(path.getFileName() + ".bak"), StandardCopyOption.REPLACE_EXISTING);
-        }
-        try {
-            Files.move(tmp, path, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-        } catch (AtomicMoveNotSupportedException e) {
-            Files.move(tmp, path, StandardCopyOption.REPLACE_EXISTING);
-        }
-    }
-
-    private static void restrictToOwner(Path file) {
-        try {
-            Files.setPosixFilePermissions(file, PosixFilePermissions.fromString("rw-------"));
-        } catch (UnsupportedOperationException | IOException e) {
-            // Windows: the user profile directory already limits access
         }
     }
 }

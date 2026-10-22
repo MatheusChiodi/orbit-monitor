@@ -16,7 +16,8 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        # metrics: BE-50 self-monitoring (orbit.checks, orbit.queue.size); no personal data in tags.
+        include: health,info,metrics
   endpoint:
     health:
       show-details: never
@@ -47,6 +48,10 @@ orbit:
     # Private ranges are allowed by default (Orbit watches internal systems); metadata is always blocked.
     block-private: false
     allowlist: []
+  # BE-50: encrypted config backups in ~/.orbit/backups, newest 7 kept, one a day.
+  backup:
+    keep: 7
+    interval: PT24H
   wall:
     allowed-origins:
       - "http://localhost:[*]"

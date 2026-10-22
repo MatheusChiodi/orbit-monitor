@@ -3,6 +3,7 @@ package io.orbit.api.web;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.orbit.api.runtime.MonitorRuntime;
+import io.orbit.api.runtime.SelfMonitor;
 import io.orbit.api.wall.WallViewFactory;
 import io.orbit.api.wall.WallViews;
 import io.orbit.monitor.condition.Condition;
@@ -34,6 +35,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -68,11 +70,14 @@ public class MonitorController {
     private final AuditLog audit;
     private final ObjectMapper json;
     private final PushRegistry push;
+    private final SelfMonitor self;
 
     public MonitorController(MonitorDefinitions definitions, MonitorRuntime runtime, TelemetryService telemetry,
                              WallViewFactory views, MonitorRequestMapper mapper,
-                             PreviewService preview, AuditLog audit, ObjectMapper json, PushRegistry push) {
+                             PreviewService preview, AuditLog audit, ObjectMapper json, PushRegistry push,
+                             SelfMonitor self) {
         this.push = push;
+        this.self = self;
         this.definitions = definitions;
         this.runtime = runtime;
         this.telemetry = telemetry;
@@ -84,8 +89,12 @@ public class MonitorController {
     }
 
     @GetMapping("/api/monitors")
+    /** BE-50: Orbit's own health ({@code orbit_self}) is always the first entry. */
     public List<WallViews.MonitorView> list() {
-        return definitions.monitors().stream().map(views::monitorView).toList();
+        List<WallViews.MonitorView> list = new ArrayList<>();
+        list.add(self.view());
+        definitions.monitors().stream().map(views::monitorView).forEach(list::add);
+        return list;
     }
 
     @GetMapping("/api/monitors/{id}")
@@ -98,6 +107,9 @@ public class MonitorController {
                               @RequestHeader(value = Operators.HEADER, required = false) String header,
                               HttpServletRequest request) {
         String operator = Operators.require(header, null);
+        if (SelfMonitor.ID.equals(body.id())) {
+            throw new IllegalArgumentException(SelfMonitor.ID + " is reserved for Orbit's own health");
+        }
         String type = body.type() == null ? "" : body.type().toUpperCase(Locale.ROOT);
         String pushUrl = null;
         MonitorDef saved;
