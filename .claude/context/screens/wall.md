@@ -19,7 +19,10 @@ Header with global status and clock, hero (incident / all operational), also act
   - right column (context): `MonitorMatrix`, `Timeline`
 - Layout CSS in `frontend/src/app/theme.css` (`.wall-layout`): full 16:9 grid at ≥ 1100 px and wider than 4:3, otherwise one scrollable column in phone order
 - `NightModeOverlay` (FE-09) above the screen when `?night=` is set; viewing distance (FE-08) via `--wall-scale` (`?scale=` → device preference → 3 m)
-- Entry: `frontend/wall.html` → `frontend/src/app/wall-main.tsx` (locale from `?lang=`, layout from `/wall/<slug>`)
+- Entry: `frontend/wall.html` → `frontend/src/app/wall-main.tsx` (locale from `?lang=`, layout from `?layout=` or `/wall/<slug>`; only the active language is loaded)
+- Saved layouts (FE-11): `WallScreen` keeps the classic arrangement for the built-in NOC blocks and otherwise renders the lazy `LayoutGrid`; layouts of a playlist (FE-19) cross-fade inside `.wall-stage`
+- TV overrides: `?theme=` (FE-05, `LazyThemeProvider`), `?motion=` (FE-06), `?tile=n/2|n/4` (FE-20, `TiledWall`)
+- Hero countdown names the next escalation step (FE-40); clock blocks show who is on call (BE-33)
 
 ## States
 - Loading, empty, error, stale data
@@ -52,7 +55,11 @@ Header with global status and clock, hero (incident / all operational), also act
 - [FE-25 · Week-over-week overlay](../features/FE-25-week-over-week-overlay.md) — done
 - [FE-26 · Chart annotations](../features/FE-26-chart-annotations.md) — done
 - [FE-27 · Zoom and synced crosshair](../features/FE-27-zoom-and-synced-crosshair.md) — done
-- [FE-40 · Escalation countdown](../features/FE-40-escalation-countdown.md) — in-progress
+- [FE-40 · Escalation countdown](../features/FE-40-escalation-countdown.md) — done
+- [FE-11 · Wall layout editor](../features/FE-11-wall-layout-editor.md) — in-progress
+- [FE-19 · Layout playlist](../features/FE-19-layout-playlist.md) — in-progress
+- [FE-20 · Video wall tiling](../features/FE-20-video-wall-tiling.md) — done
+- [FE-05 · Per-layout theme](../features/FE-05-per-layout-theme.md) — in-progress
 - [FE-45 · Kiosk mode](../features/FE-45-kiosk-mode.md) — done
 - [FE-46 · Stale data indicator](../features/FE-46-stale-data-indicator.md) — done
 - [FE-47 · Sound alerts](../features/FE-47-sound-alerts.md) — done
@@ -70,6 +77,9 @@ Header with global status and clock, hero (incident / all operational), also act
 - `frontend/src/domains/workspace/WorkspaceBrand/WorkspaceBrand.tsx`
 - `frontend/src/shared/ui/FlashValue/FlashValue.tsx`
 - `frontend/src/shared/ui/AnimatedItem/AnimatedItem.tsx`
+- `frontend/src/domains/wall/layout/`
+- `frontend/src/domains/wall/components/LayoutGrid/LayoutGrid.tsx`
+- `frontend/src/shared/theme/LazyThemeProvider.tsx`
 
 ## Tests
 - `frontend/src/domains/wall/WallApp/WallApp.test.tsx`
@@ -81,9 +91,12 @@ Header with global status and clock, hero (incident / all operational), also act
 - `frontend/src/domains/wall/WallApp/WallApp.nightMode.test.tsx`
 - `frontend/src/domains/wall/components/*/*.motion.test.tsx`
 - `frontend/src/domains/wall/components/*/*.privacy.test.tsx`
+- `frontend/src/domains/wall/WallApp/WallApp.layout.test.tsx`
+- `frontend/src/domains/wall/layout/*.test.ts`
 
 ## Changelog
 - 2026-10-18 — context file created.
 - 2026-10-18 — wall built: header, hero/calm hero, also active, near threshold, matrix, timeline, acknowledge; en/pt-BR.
 - 2026-10-18 — FE-51 motion on every wall component; probe values through SafeValue.
 - 2026-10-22 — night mode overlay (FE-09), viewing distance scale (FE-08) and workspace brand in the header (FE-10).
+- 2026-10-22 — saved layouts by slug, playlist cross-fade, `?theme=`/`?motion=`/`?tile=`, escalation step name, on-call clock, lazy chunks for the budget.

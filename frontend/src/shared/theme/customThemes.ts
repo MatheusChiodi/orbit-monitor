@@ -1,29 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import type { ConfigClient } from '@/shared/api/configResources';
+import { sanitizeCustomThemes } from './customThemeItems';
 import { isBuiltInThemeId } from './registry';
-import { validateTheme } from './schema';
 import type { OrbitTheme } from './types';
 
 /**
  * Custom themes live in `orbit.themes.json` (docs/06), served by the generic config API
  * (`/api/themes`, `{ version, items }`). The browser never keeps its own copy.
  */
+export { sanitizeCustomThemes } from './customThemeItems';
+
 export type ThemesClient = Pick<ConfigClient, 'list' | 'create' | 'update' | 'remove'>;
 export const CUSTOM_THEMES_QUERY_KEY = ['config', 'themes'] as const;
-
-/** Untrusted file content → clean custom themes; invalid items and built-in ids are dropped. */
-export function sanitizeCustomThemes(items: readonly unknown[]): OrbitTheme[] {
-  const seen = new Set<string>();
-  const themes: OrbitTheme[] = [];
-  for (const item of items) {
-    const result = validateTheme(typeof item === 'object' && item !== null ? { ...item, category: 'custom' } : item);
-    if (!result.ok || isBuiltInThemeId(result.theme.id) || seen.has(result.theme.id)) continue;
-    seen.add(result.theme.id);
-    themes.push(result.theme);
-  }
-  return themes;
-}
 
 const NONE: readonly OrbitTheme[] = [];
 

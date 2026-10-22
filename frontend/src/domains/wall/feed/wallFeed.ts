@@ -7,8 +7,8 @@ export interface WallFeedOptions {
   loadSnapshot: () => Promise<WallSnapshot>;
   connect: (options: ConnectWallOptions) => WallConnection;
   url: string;
-  /** Demo snapshot used when the backend does not answer. */
-  mock?: () => WallSnapshot;
+  /** Demo snapshot used when the backend does not answer (may be loaded on demand). */
+  mock?: () => WallSnapshot | Promise<WallSnapshot>;
 }
 
 export interface WallFeed {
@@ -21,7 +21,7 @@ export async function startWallFeed(store: WallStore, options: WallFeedOptions):
   try {
     receive({ type: 'snapshot', payload: await options.loadSnapshot() });
   } catch {
-    if (options.mock) receive({ type: 'snapshot', payload: options.mock() });
+    if (options.mock) receive({ type: 'snapshot', payload: await options.mock() });
     setConnection('mock');
     return { stop() {} };
   }

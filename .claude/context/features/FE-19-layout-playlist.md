@@ -6,7 +6,7 @@ group: "Drag and drop and layout"
 status: in-progress
 screens: [layout-editor]
 spec: docs/05-extended-features.md
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # FE-19 · Layout playlist
@@ -25,16 +25,22 @@ Rotate layouts with per-layout duration; pauses while an incident is unacknowled
 ## Code
 - `frontend/src/domains/wall/playlist/playlist.ts`
 - `frontend/src/domains/wall/playlist/usePlaylist.ts`
+- `frontend/src/domains/wall/layout/useWallLayouts.ts`
+- `frontend/src/domains/wall/components/WallScreen/WallScreen.tsx`
+- `frontend/src/domains/wall/components/WallControls/WallControls.tsx`
 
 ## Tests
 - `frontend/src/domains/wall/playlist/playlist.test.ts`
 - `frontend/src/domains/wall/playlist/usePlaylist.test.ts`
+- `frontend/src/domains/wall/layout/useWallLayouts.test.ts`
+- `frontend/src/domains/wall/WallApp/WallApp.layout.test.tsx`
 
 ## Decisions and notes
 - Pure `nextPlaylistState` wraps around, enforces a 5 s minimum per entry and freezes while an incident is unacknowledged; one entry never rotates.
-- Pending: wire `usePlaylist` into the wall with a layout cross-fade.
+- Wall: a layout with `playlist.entries` (`{ layout: <slug>, seconds }`) rotates through those layouts; each entry layout is loaded once by slug. Layouts cross-fade (old and new stacked in `.wall-stage`, hero preset, instant when off). Any unacknowledged incident holds the rotation; the header says "Layout n of N" or "Rotation paused: unacknowledged incident" (`role=status`). Theme and animation follow the layout on screen. `usePlaylist` restarts when the playlist changes and starts no timer for fewer than two entries.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
 - 2026-10-18 — layout playlist logic (status: in-progress).
+- 2026-10-22 — playlist wired into the wall with cross-fade, pause on unacknowledged incident and status text.

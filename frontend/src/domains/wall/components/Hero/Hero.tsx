@@ -13,10 +13,12 @@ export interface HeroProps {
   selection: HeroSelection;
   now: Date;
   onAcknowledge: (incidentId: string) => void;
+  /** FE-40: name of the next escalation step (BE-27), shown next to the countdown. */
+  nextStep?: string | null;
 }
 
 /** Hero: identification; name + value + rule + deviation; chart; impact and acknowledgement. */
-export function Hero({ selection, now, onAcknowledge }: HeroProps) {
+export function Hero({ selection, now, onAcknowledge, nextStep = null }: HeroProps) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
   const { monitor, incident, group } = selection;
@@ -83,7 +85,7 @@ export function Hero({ selection, now, onAcknowledge }: HeroProps) {
           {incident && (
             <EscalationCountdown
               escalatesAt={incident.escalatesAt}
-              nextStep={null}
+              nextStep={nextStep}
               now={now}
               acknowledged={Boolean(incident.acknowledgedBy)}
             />

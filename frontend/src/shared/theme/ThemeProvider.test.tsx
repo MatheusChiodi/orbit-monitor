@@ -1,6 +1,6 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AnimationLevelProvider } from '@/shared/motion';
 import { DEVICE_THEME_KEY, loadDevicePrefs } from './deviceStore';
 import { ORBIT_DARK } from './registry';
@@ -129,5 +129,24 @@ describe('FE-03/FE-05 ThemeProvider', () => {
     } finally {
       Storage.prototype.getItem = original;
     }
+  });
+
+  it('FE-50: a controlled device theme (device preferences) is applied and changes go to its owner', async () => {
+    const onDeviceThemeChange = vi.fn();
+    const target = setup({ deviceThemeId: 'kanagawa', onDeviceThemeChange, workspaceThemeId: 'nord' });
+    expect(value('theme')).toBe('kanagawa');
+    expect(value('source')).toBe('device');
+    expect(target.dataset.theme).toBe('kanagawa');
+    await userEvent.click(screen.getByText('device nord'));
+    expect(onDeviceThemeChange).toHaveBeenCalledWith('nord');
+    expect(loadDevicePrefs().themeId).toBeNull();
+    await userEvent.click(screen.getByText('restore default'));
+    expect(onDeviceThemeChange).toHaveBeenLastCalledWith(null);
+  });
+
+  it('FE-50: a controlled device theme of null falls back to the workspace default', () => {
+    localStorage.setItem(DEVICE_THEME_KEY, JSON.stringify({ version: 1, themeId: 'dracula', favorites: [] }));
+    setup({ deviceThemeId: null, onDeviceThemeChange: vi.fn(), workspaceThemeId: 'nord' });
+    expect(value('theme')).toBe('nord');
   });
 });

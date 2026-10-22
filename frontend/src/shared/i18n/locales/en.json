@@ -100,6 +100,37 @@
         "ACK": "acknowledged",
         "INFO": "informational"
       }
+    },
+    "blocks": {
+      "grid": "Wall layout {{name}}",
+      "clock": "Clock",
+      "onCall": "On call",
+      "onCallEntry": "{{schedule}}: {{person}}",
+      "onCallUntil": "until {{time}}",
+      "nobodyOnCall": "Nobody on call",
+      "uptime": "24 h availability",
+      "value": "Value",
+      "monitorMissing": "Monitor not found",
+      "indicators": "Status",
+      "table": "Monitors",
+      "tableColumns": {
+        "name": "Monitor",
+        "status": "State",
+        "value": "Value"
+      },
+      "ranking": "Closest to threshold",
+      "series": "Last 60 minutes",
+      "seriesRange": {
+        "24h": "Last 24 hours",
+        "7d": "Last 7 days",
+        "30d": "Last 30 days"
+      },
+      "seriesOf": "{{name}}: {{range}}",
+      "note": "Note"
+    },
+    "playlist": {
+      "position": "Layout {{index}} of {{total}}",
+      "paused": "Rotation paused: unacknowledged incident"
     }
   },
   "access": {

@@ -136,6 +136,7 @@ export function mockSnapshot(scenario: MockScenario, now: Date = new Date()): Wa
             acknowledgedAt: null,
             impact: ['Checkout', 'Merchant payouts', 'Daily report'],
             escalatesAt: minutesAgo(now, -11),
+            nextStepName: 'Payments team lead',
           },
           {
             id: 'inc-tablespace',

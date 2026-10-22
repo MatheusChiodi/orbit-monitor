@@ -5,16 +5,20 @@ import { loadOperator, normalizeOperatorName, saveOperator } from '@/domains/sec
 import { WallApp, operatorName } from '@/domains/wall/WallApp';
 import { applyViewingScale, scaleFromSearch, scheduleFromSearch } from '@/domains/wall/display';
 import { isKioskRequested } from '@/domains/wall/kiosk';
-import { mockSnapshot } from '@/domains/wall/mock';
+import { createEscalationApi } from '@/domains/alerting/escalation/escalationApi';
+import { createOnCallApi } from '@/domains/alerting/oncall/oncallApi';
+import { createLayoutsApi } from '@/domains/workspace/layout/layoutsApi';
 import { createApiClient } from '@/shared/api/client';
+import { createConfigClient } from '@/shared/api/configResources';
 import { wallLayoutSlug } from '@/shared/api/wallSocket';
-import { createI18n, detectLocale } from '@/shared/i18n/i18n';
+import { fetchWorkspaceDefaults } from '@/shared/api/workspaceDefaults';
+import { createI18n, detectLocale, loadLocale } from '@/shared/i18n/i18n';
 import { loadPreferences } from '@/shared/preferences/preferences';
 import './theme.css';
 
 const params = new URLSearchParams(window.location.search);
 const scenario = params.get('scenario') === 'ok' ? 'ok' : 'incident';
-const layout = wallLayoutSlug(window.location.pathname);
+const layout = wallLayoutSlug(window.location.pathname, window.location.search);
 
 // FE-08: `?scale=` wins over the device preference (FE-50); 3 m otherwise.
 applyViewingScale(params.has('scale') ? scaleFromSearch(window.location.search) : (loadPreferences().scale ?? '3m'));
@@ -25,8 +29,23 @@ const operator = operatorName(window.location.search, loadOperator());
 saveOperator(normalizeOperatorName(operator));
 
 const api = createApiClient({ getOperator: () => operator });
-const mock = () => mockSnapshot(scenario);
+const layouts = createLayoutsApi();
+const config = createConfigClient();
+const escalation = createEscalationApi();
+const onCall = createOnCallApi();
+const loaders = {
+  loadLayout: layouts.bySlug,
+  loadWorkspaceDefaults: () => fetchWorkspaceDefaults(),
+  loadCustomThemes: async () => (await config.list('themes')).items,
+  loadEscalation: escalation.forIncident,
+  loadOnCall: onCall.now,
+  loadHistory: async (monitorId: string, range: { from: Date; to: Date }, resolution: 'raw' | '1m' | '1h') =>
+    (await import('@/domains/telemetry/history/historyApi')).fetchHistory(monitorId, range, resolution),
+};
+// Demo data loads only when the backend does not answer.
+const mock = async () => (await import('@/domains/wall/mock')).mockSnapshot(scenario);
 const locale = detectLocale();
+await loadLocale(locale);
 const i18n = createI18n(locale);
 document.documentElement.lang = locale;
 
@@ -35,7 +54,7 @@ if (root) {
   createRoot(root).render(
     <StrictMode>
       <I18nextProvider i18n={i18n}>
-        <WallApp api={api} operator={operator} mock={mock} layout={layout} kiosk={isKioskRequested(window.location.search)} nightMode={nightMode} />
+        <WallApp api={api} operator={operator} mock={mock} layout={layout} kiosk={isKioskRequested(window.location.search)} nightMode={nightMode} {...loaders} />
       </I18nextProvider>
     </StrictMode>,
   );

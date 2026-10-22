@@ -4,6 +4,9 @@ import ptBR from './locales/pt-BR.json';
 import {
   LOCALE_STORAGE_KEY,
   createI18n,
+  isLocaleLoaded,
+  loadLocale,
+  loadLocaleMessages,
   loadSavedLocale,
   messages,
   resolveLocale,
@@ -100,5 +103,21 @@ describe('messages', () => {
   it('returns the raw resource for pure formatters', () => {
     expect(messages('en').time.ago).toBe('{{duration}} ago');
     expect(messages('pt-BR').time.ago).toBe('há {{duration}}');
+  });
+});
+
+describe('lazy locales (wall budget: only the active language is downloaded)', () => {
+  it('loads one locale on demand, with the theme and history namespaces', async () => {
+    const pt = await loadLocaleMessages('pt-BR');
+    expect(pt.time.ago).toBe(ptBR.time.ago);
+    expect(pt.theme).toBeDefined();
+    expect(pt.historyRange).toBeDefined();
+    expect((await loadLocaleMessages('en')).app.name).toBe(en.app.name);
+  });
+
+  it('an instance only holds the locales that were loaded', async () => {
+    await loadLocale('pt-BR');
+    expect(isLocaleLoaded('pt-BR')).toBe(true);
+    expect(createI18n('pt-BR').hasResourceBundle('pt-BR', 'translation')).toBe(true);
   });
 });

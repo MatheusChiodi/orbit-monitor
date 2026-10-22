@@ -6,7 +6,7 @@ group: "Platform"
 status: in-progress
 screens: [preferences, wall, settings]
 spec: docs/01-architecture.md, docs/02-features.md, docs/04-data-protection.md
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # CORE-15 · Internationalization (en / pt-BR)
@@ -53,9 +53,11 @@ English default, pt-BR available; i18next on the front, MessageSource + Accept-L
 - Backend: Problem Details keep the stable English `code`; `title` and `detail` come from `messages*.properties`. Domain errors (`UnsafeSqlException`, `ConditionSyntaxException`, `SsrfBlockedException`) implement `Localizable` (key + args) and keep an English message as fallback.
 - Backend: `MessageBundlesTest` fails when a key exists in one language only.
 - Backend: Pending: config validation error lists, wall timeline titles and notification texts.
+- Frontend: each language is its own chunk (base + theme + historyRange namespaces). Entry points `await loadLocale(locale)` before rendering, `setLocale` loads a language before switching and adds it to the instance, so the wall downloads one language only (~9 KB gzip saved from the first load). Tests load both in `src/test/setup.ts`. `messages(locale)` falls back to any loaded language.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — frontend: i18next infrastructure, en/pt-BR locale files, typed keys and language selector (status: in-progress).
 - 2026-10-18 — frontend: every screen and component now translated; language selector in the console header.
 - 2026-10-18 — backend: API errors translated en/pt-BR via MessageSource and Accept-Language.
+- 2026-10-22 — frontend: lazy per-language locale chunks (`loadLocale`).

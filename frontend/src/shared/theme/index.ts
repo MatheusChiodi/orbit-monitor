@@ -11,3 +11,6 @@ export * from './types';
 export * from './vscodeImport';
 export * from './paths';
 export * from './customThemes';
+export * from './defaults';
+export * from './lazyThemes';
+export * from './LazyThemeProvider';

@@ -1,11 +1,8 @@
 import i18next, { type i18n as I18n } from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import en from './locales/en.json';
-import ptBR from './locales/pt-BR.json';
-import themeEn from '@/shared/theme/locales/en.json';
-import themePtBR from '@/shared/theme/locales/pt-BR.json';
-import historyRangeEn from '@/domains/telemetry/history/locales/en.json';
-import historyRangePtBR from '@/domains/telemetry/history/locales/pt-BR.json';
+import type en from './locales/en.json';
+import type themeEn from '@/shared/theme/locales/en.json';
+import type historyRangeEn from '@/domains/telemetry/history/locales/en.json';
 
 export const SUPPORTED_LOCALES = ['en', 'pt-BR'] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
@@ -15,10 +12,42 @@ export const LOCALE_STORAGE_KEY = 'orbit.locale';
 /** Theme and history-range messages live with their features (`@/shared/theme`, `@/domains/telemetry/history`). */
 export type Messages = typeof en & { theme: typeof themeEn; historyRange: typeof historyRangeEn };
 
-const RESOURCES: Record<Locale, Messages> = {
-  en: { ...en, theme: themeEn, historyRange: historyRangeEn },
-  'pt-BR': { ...ptBR, theme: themePtBR, historyRange: historyRangePtBR },
+/**
+ * Locales are separate chunks: an entry point awaits `loadLocale` for its language before rendering,
+ * and `setLocale` loads a new language before switching, so a wall downloads one language only.
+ */
+const LOADERS: Record<Locale, () => Promise<Messages>> = {
+  en: async () => {
+    const [base, theme, historyRange] = await Promise.all([
+      import('./locales/en.json'),
+      import('@/shared/theme/locales/en.json'),
+      import('@/domains/telemetry/history/locales/en.json'),
+    ]);
+    return { ...base.default, theme: theme.default, historyRange: historyRange.default };
+  },
+  'pt-BR': async () => {
+    const [base, theme, historyRange] = await Promise.all([
+      import('./locales/pt-BR.json'),
+      import('@/shared/theme/locales/pt-BR.json'),
+      import('@/domains/telemetry/history/locales/pt-BR.json'),
+    ]);
+    return { ...base.default, theme: theme.default, historyRange: historyRange.default };
+  },
 };
+
+const RESOURCES: Partial<Record<Locale, Messages>> = {};
+
+export function loadLocaleMessages(locale: Locale): Promise<Messages> {
+  return LOADERS[locale]();
+}
+
+export function isLocaleLoaded(locale: Locale): boolean {
+  return RESOURCES[locale] !== undefined;
+}
+
+export async function loadLocale(locale: Locale): Promise<void> {
+  RESOURCES[locale] ??= await loadLocaleMessages(locale);
+}
 
 export function isLocale(value: unknown): value is Locale {
   return typeof value === 'string' && (SUPPORTED_LOCALES as readonly string[]).includes(value);
@@ -70,7 +99,9 @@ export function saveLocale(locale: Locale): void {
 
 /** Raw resource for pure code (formatters) that cannot use hooks. */
 export function messages(locale: Locale): Messages {
-  return RESOURCES[locale];
+  const resource = RESOURCES[locale] ?? RESOURCES[DEFAULT_LOCALE] ?? Object.values(RESOURCES)[0];
+  if (!resource) throw new Error('No locale loaded: await loadLocale() before rendering');
+  return resource;
 }
 
 export interface CreateI18nOptions {
@@ -85,7 +116,7 @@ export function createI18n(locale: Locale, options: CreateI18nOptions = {}): I18
     lng: locale,
     fallbackLng: DEFAULT_LOCALE,
     supportedLngs: [...SUPPORTED_LOCALES],
-    resources: { en: { translation: RESOURCES.en }, 'pt-BR': { translation: RESOURCES['pt-BR'] } },
+    resources: Object.fromEntries(Object.entries(RESOURCES).map(([lng, translation]) => [lng, { translation }])),
     interpolation: { escapeValue: false },
     initAsync: false,
   });
@@ -97,6 +128,8 @@ export function currentLocale(instance: I18n): Locale {
 }
 
 export async function setLocale(instance: I18n, locale: Locale): Promise<void> {
+  await loadLocale(locale);
+  if (!instance.hasResourceBundle(locale, 'translation')) instance.addResourceBundle(locale, 'translation', RESOURCES[locale]);
   await instance.changeLanguage(locale);
   saveLocale(locale);
   document.documentElement.lang = locale;

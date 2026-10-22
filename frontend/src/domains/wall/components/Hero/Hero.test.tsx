@@ -51,6 +51,11 @@ describe('Hero', () => {
     expect(screen.getByRole('timer', { name: 'Escalation' })).toHaveTextContent('Escalates in 11:00');
   });
 
+  it('FE-40: names the next escalation step next to the countdown', () => {
+    render(<Hero selection={selection()} now={now} onAcknowledge={vi.fn()} nextStep="Team lead" />);
+    expect(screen.getByText('next: Team lead')).toBeInTheDocument();
+  });
+
   it('blinks the side bar only when down and unowned', () => {
     const { container, rerender } = render(<Hero selection={selection()} now={now} onAcknowledge={vi.fn()} />);
     expect(container.querySelector('[data-pulse="true"]')).not.toBeNull();

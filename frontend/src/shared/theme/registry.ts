@@ -1,50 +1,9 @@
-import type { OrbitTheme, ThemeMode } from './types';
+import { DEFAULT_THEME_ID, BUILT_IN_THEME_IDS } from './defaults';
+import type { OrbitTheme } from './types';
 
-/** Built-in themes, one JSON per theme in `./themes` (docs/05-extended-features.md §1.3). */
-export const DEFAULT_THEME_ID = 'orbit-dark';
+export { BUILT_IN_THEME_IDS, DEFAULT_SCHEME_PAIR, DEFAULT_THEME_ID, isBuiltInThemeId, type BuiltInThemeId } from './defaults';
 
-/** Gallery order: default, the 30 editor-inspired themes in spec order, then accessibility themes. */
-export const BUILT_IN_THEME_IDS = [
-  'orbit-dark',
-  'dracula',
-  'one-dark',
-  'nord',
-  'tokyo-night',
-  'tokyo-night-storm',
-  'catppuccin-mocha',
-  'catppuccin-macchiato',
-  'catppuccin-frappe',
-  'rose-pine',
-  'rose-pine-moon',
-  'gruvbox-dark',
-  'solarized-dark',
-  'monokai-classic',
-  'github-dark',
-  'github-dark-dimmed',
-  'ayu-dark',
-  'ayu-mirage',
-  'night-owl',
-  'palenight',
-  'everforest-dark',
-  'kanagawa',
-  'synthwave-84',
-  'cobalt2',
-  'shades-of-purple',
-  'poimandres',
-  'github-light',
-  'solarized-light',
-  'catppuccin-latte',
-  'rose-pine-dawn',
-  'gruvbox-light',
-  'high-contrast-dark',
-  'high-contrast-light',
-  'oled-black',
-  'colorblind-deuteranopia',
-  'colorblind-protanopia',
-  'colorblind-tritanopia',
-] as const;
-export type BuiltInThemeId = (typeof BUILT_IN_THEME_IDS)[number];
-
+/** Built-in themes, one JSON per theme in `./themes` (docs/05-extended-features.md §1.3), loaded eagerly. */
 const modules = import.meta.glob<OrbitTheme>('./themes/*.json', { eager: true, import: 'default' });
 const byId = new Map<string, OrbitTheme>(
   Object.values(modules).map((theme) => [theme.id, Object.freeze(theme) as OrbitTheme]),
@@ -61,9 +20,7 @@ export function builtInTheme(id: string): OrbitTheme | undefined {
   return byId.get(id);
 }
 
-export function isBuiltInThemeId(id: string): boolean {
-  return byId.has(id);
+/** Built-in theme by id, then a custom one, then Orbit Dark. */
+export function findTheme(id: string, custom: readonly OrbitTheme[] = []): OrbitTheme {
+  return builtInTheme(id) ?? custom.find((t) => t.id === id) ?? ORBIT_DARK;
 }
-
-/** Light/dark pair used when the device follows `prefers-color-scheme`. */
-export const DEFAULT_SCHEME_PAIR: Readonly<Record<ThemeMode, string>> = { dark: 'orbit-dark', light: 'github-light' };

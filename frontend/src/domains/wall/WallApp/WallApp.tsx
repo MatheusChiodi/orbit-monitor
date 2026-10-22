@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { useStore } from 'zustand';
 import { useLocale } from '@/shared/i18n/useLocale';
 import type { ApiClient } from '@/shared/api/client';
@@ -7,10 +7,20 @@ import { connectWall, wallSocketUrl, type ConnectWallOptions, type WallConnectio
 import { FxBackground } from '@/shared/fx/FxBackground';
 import { FxProvider } from '@/shared/fx/FxProvider';
 import { hasUnacknowledgedDown } from '@/shared/fx/incident';
-import { MotionProvider } from '@/shared/motion';
+import { AnimationLevelProvider, effectiveAnimationLevel, systemPrefersReducedMotion } from '@/shared/motion/animationLevel';
+import { motionFromUrl, resolveAnimationLevel } from '@/shared/motion/animationPrecedence';
+import { MotionProvider } from '@/shared/motion/motion';
+import { loadPreferences, type DeviceChoices } from '@/shared/preferences/preferences';
+import { LazyThemeProvider } from '@/shared/theme/LazyThemeProvider';
+import type { LoadEscalation } from '@/domains/alerting/escalation/escalationApi';
+import type { LoadOnCall } from '@/domains/alerting/oncall/oncallApi';
+import { TiledWall } from '../TiledWall';
+import { useWallPresentation, type LoadLayout } from '../layout/useWallLayouts';
+import { useWallSettings, type LoadCustomThemes, type LoadWorkspaceDefaults } from '../layout/useWallSettings';
+import { parseTile } from '../tiling';
+import type { LoadHistory } from '../components/SeriesBlock';
 import { notifyIncident } from '@/domains/alerting/desktopNotifications';
 import { useWallAlerts } from '../alerts';
-import { OnCallView } from '../components/OnCallView';
 import { WallControls } from '../components/WallControls';
 import { NightModeOverlay, type NightSchedule } from '../display/nightMode';
 import { useKiosk } from '../kiosk';
@@ -25,13 +35,42 @@ export interface WallAppProps {
   api: Pick<ApiClient, 'getWallSnapshot' | 'acknowledgeIncident'>;
   connect?: (options: ConnectWallOptions) => WallConnection;
   operator: string;
-  mock?: () => WallSnapshot;
+  mock?: () => WallSnapshot | Promise<WallSnapshot>;
   /** Wall layout slug (`/wall/noc`), sent to the WebSocket. */
   layout?: string;
   /** FE-45: fullscreen, Screen Wake Lock and hidden cursor (requested with ?kiosk=1). */
   kiosk?: boolean;
   /** FE-09: dims the wall between two local times (`?night=22:00-06:00`). */
   nightMode?: NightSchedule | null;
+  /** Query string with the TV overrides `?theme=`, `?motion=` and `?tile=`; defaults to the page URL. */
+  search?: string;
+  /** FE-50 device choices; defaults to this browser's saved preferences. */
+  device?: DeviceChoices;
+  /** BE-41 `GET /api/layouts/{slug}`; without it the built-in NOC wall is shown. */
+  loadLayout?: LoadLayout;
+  /** BE-40 workspace defaults (`GET /api/settings/defaults`). */
+  loadWorkspaceDefaults?: LoadWorkspaceDefaults;
+  /** Custom themes (`GET /api/themes`). */
+  loadCustomThemes?: LoadCustomThemes;
+  loadEscalation?: LoadEscalation;
+  loadOnCall?: LoadOnCall;
+  loadHistory?: LoadHistory;
+}
+
+const NO_LAYOUT: LoadLayout = async () => null;
+
+/** FE-49 phone view, loaded only on phones (wall budget). */
+const OnCallView = lazy(() => import('../components/OnCallView').then((mod) => ({ default: mod.OnCallView })));
+
+function useViewport(): { width: number; height: number } {
+  const read = () => ({ width: window.innerWidth, height: window.innerHeight });
+  const [size, setSize] = useState(read);
+  useEffect(() => {
+    const onResize = () => setSize(read());
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return size;
 }
 
 /** Name shown in "X acknowledged at HH:MM": `?operator=` in the URL or the last one used. */
@@ -45,7 +84,24 @@ function requestFullscreen(): void {
   else void document.documentElement.requestFullscreen?.();
 }
 
-export function WallApp({ api, connect = connectWall, operator, mock, layout, kiosk = false, nightMode = null }: WallAppProps) {
+export function WallApp({
+  api,
+  connect = connectWall,
+  operator,
+  mock,
+  layout = 'noc',
+  kiosk = false,
+  nightMode = null,
+  search = window.location.search,
+  device: deviceProp,
+  loadLayout = NO_LAYOUT,
+  loadWorkspaceDefaults,
+  loadCustomThemes,
+  loadEscalation,
+  loadOnCall,
+  loadHistory,
+}: WallAppProps) {
+  const [device] = useState<DeviceChoices>(() => deviceProp ?? loadPreferences());
   const [store] = useState(() => createWallStore());
   const snapshot = useStore(store, (s) => s.snapshot);
   const connection = useStore(store, (s) => s.connection);
@@ -96,29 +152,81 @@ export function WallApp({ api, connect = connectWall, operator, mock, layout, ki
   );
 
   const unownedIncident = snapshot ? hasUnacknowledgedDown(snapshot.incidents) : false;
+  const unacknowledged = snapshot ? snapshot.incidents.some((i) => !i.acknowledgedBy) : false;
+
+  // FE-11 / FE-19: saved layout by slug, rotating through its playlist.
+  const presentation = useWallPresentation({ load: loadLayout, slug: layout, unacknowledgedIncident: unacknowledged });
+  const { defaults, customThemes } = useWallSettings(loadWorkspaceDefaults, loadCustomThemes);
+  // FE-06: `?motion=` → layout override → device → workspace default (reduced motion applied by the provider).
+  const motion = resolveAnimationLevel({
+    url: motionFromUrl(search),
+    layout: presentation.animationLevel,
+    device: device.animation,
+    workspace: defaults.animation,
+  });
+  const animated = effectiveAnimationLevel(motion.level, systemPrefersReducedMotion()) !== 'off';
+
+  // FE-20: `?tile=n/2|n/4`, one browser per screen of a video wall.
+  const tile = parseTile(search);
+  const viewport = useViewport();
+  const tileRows = tile?.rows ?? null;
+  useEffect(() => {
+    if (tileRows === null) return;
+    const html = document.documentElement;
+    html.style.setProperty('--wall-tile-factor', String(tileRows));
+    return () => {
+      html.style.removeProperty('--wall-tile-factor');
+    };
+  }, [tileRows]);
+
+  const screen = (
+    <WallScreen
+      snapshot={presentation.ready ? snapshot : null}
+      now={now}
+      connection={connection}
+      freshEventIds={freshEventIds}
+      updatedAt={lastUpdateAt}
+      onAcknowledge={onAcknowledge}
+      onFullscreen={requestFullscreen}
+      controls={<WallControls sound={sound} onSoundChange={onSoundChange} playlist={presentation.playlist} />}
+      blocks={presentation.blocks}
+      layoutKey={presentation.slug}
+      loadEscalation={loadEscalation}
+      loadOnCall={loadOnCall}
+      loadHistory={loadHistory}
+    />
+  );
 
   return (
+    <AnimationLevelProvider level={motion.level}>
+    <LazyThemeProvider
+      search={search}
+      layoutThemeId={presentation.themeId}
+      deviceThemeId={device.theme ?? null}
+      workspaceThemeId={defaults.theme ?? null}
+      customThemes={customThemes}
+      animate={animated}
+    >
     <MotionProvider>
       <FxProvider incidentActive={unownedIncident}>
         <FxBackground />
         <div className="fx-layer">
           {phone && snapshot ? (
-            <OnCallView snapshot={snapshot} now={now} onAcknowledge={onAcknowledge} />
+            <Suspense fallback={null}>
+              <OnCallView snapshot={snapshot} now={now} onAcknowledge={onAcknowledge} />
+            </Suspense>
+          ) : tile ? (
+            <TiledWall tile={tile} canvas={{ width: viewport.width * tile.columns, height: viewport.height * tile.rows }}>
+              {screen}
+            </TiledWall>
           ) : (
-          <WallScreen
-            snapshot={snapshot}
-            now={now}
-            connection={connection}
-            freshEventIds={freshEventIds}
-            updatedAt={lastUpdateAt}
-            onAcknowledge={onAcknowledge}
-            onFullscreen={requestFullscreen}
-            controls={<WallControls sound={sound} onSoundChange={onSoundChange} />}
-          />
+            screen
           )}
         </div>
         {nightMode && <NightModeOverlay schedule={nightMode} now={now} hasUnownedIncident={unownedIncident} />}
       </FxProvider>
     </MotionProvider>
+    </LazyThemeProvider>
+    </AnimationLevelProvider>
   );
 }

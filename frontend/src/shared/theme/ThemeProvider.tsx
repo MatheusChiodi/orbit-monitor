@@ -48,6 +48,13 @@ export interface ThemeProviderProps {
   workspaceThemeId?: string | null;
   /** Wall layout override from `orbit.layouts.json` (FE-05). */
   layoutThemeId?: string | null;
+  /**
+   * FE-50: device theme owned by the device preferences store. When `onDeviceThemeChange` is given the
+   * provider is controlled: it applies this value (null = no device choice) and reports changes instead
+   * of keeping its own copy. Favorites stay in the provider's storage.
+   */
+  deviceThemeId?: string | null;
+  onDeviceThemeChange?: (id: string | null) => void;
   schemePair?: Readonly<Record<ThemeMode, string>>;
   /** Element that receives the CSS variables; defaults to `<html>`. */
   target?: HTMLElement;
@@ -62,6 +69,8 @@ export function ThemeProvider({
   customThemes = NO_CUSTOM,
   workspaceThemeId = null,
   layoutThemeId = null,
+  deviceThemeId: controlledDevice,
+  onDeviceThemeChange,
   schemePair,
   target,
   search,
@@ -71,13 +80,15 @@ export function ThemeProvider({
   const [previewing, setPreviewing] = useState<string | null>(null);
   const dark = useSyncExternalStore(subscribeScheme, prefersDark, () => true);
   const level = useAnimationLevel();
+  const controlled = onDeviceThemeChange !== undefined;
+  const deviceTheme = controlled ? (controlledDevice ?? null) : prefs.themeId;
 
   const exists = useCallback((id: string) => Boolean(builtInTheme(id) ?? customThemes.find((t) => t.id === id)), [customThemes]);
   const resolved = resolveThemeId(
     {
       url: themeFromUrl(search ?? window.location.search),
       layout: layoutThemeId,
-      device: prefs.themeId,
+      device: deviceTheme,
       workspace: workspaceThemeId,
       prefersDark: dark,
       ...(schemePair ? { schemePair } : {}),
@@ -98,7 +109,10 @@ export function ThemeProvider({
     });
   }, []);
 
-  const setDeviceTheme = useCallback((id: string | null) => update((p) => ({ ...p, themeId: id })), [update]);
+  const setDeviceTheme = useCallback(
+    (id: string | null) => (onDeviceThemeChange ? onDeviceThemeChange(id) : update((p) => ({ ...p, themeId: id }))),
+    [onDeviceThemeChange, update],
+  );
   const toggleFavorite = useCallback(
     (id: string) =>
       update((p) => ({
@@ -114,14 +128,14 @@ export function ThemeProvider({
       theme,
       source: resolved.source,
       themes,
-      deviceThemeId: prefs.themeId,
+      deviceThemeId: deviceTheme,
       setDeviceTheme,
       preview: setPreviewing,
       previewing,
       favorites: prefs.favorites,
       toggleFavorite,
     }),
-    [theme, resolved.source, themes, prefs, setDeviceTheme, previewing, toggleFavorite],
+    [theme, resolved.source, themes, deviceTheme, prefs.favorites, setDeviceTheme, previewing, toggleFavorite],
   );
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }

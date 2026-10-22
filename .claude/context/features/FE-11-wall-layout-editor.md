@@ -6,7 +6,7 @@ group: "Drag and drop and layout"
 status: in-progress
 screens: [layout-editor]
 spec: docs/05-extended-features.md
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # FE-11 · Wall layout editor
@@ -26,18 +26,37 @@ updated: 2026-10-18
 - `frontend/src/domains/workspace/layout/grid.ts`
 - `frontend/src/domains/workspace/layout/layoutsApi.ts`
 - `frontend/src/domains/workspace/LayoutEditor/LayoutEditor.tsx`
+- `frontend/src/domains/workspace/layout/blockKinds.ts`
+- `frontend/src/domains/wall/layout/wallLayout.ts`
+- `frontend/src/domains/wall/layout/useWallLayouts.ts`
+- `frontend/src/domains/wall/components/LayoutGrid/LayoutGrid.tsx`
+- `frontend/src/domains/wall/components/HeroSwap/HeroSwap.tsx`
+- `frontend/src/domains/wall/components/ClockBlock/ClockBlock.tsx`
+- `frontend/src/domains/wall/components/MetricBlock/MetricBlock.tsx`
+- `frontend/src/domains/wall/components/SeriesBlock/SeriesBlock.tsx`
+- `frontend/src/domains/wall/components/IndicatorsBlock/IndicatorsBlock.tsx`
+- `frontend/src/domains/wall/components/MonitorTable/MonitorTable.tsx`
+- `frontend/src/domains/wall/components/TextBlock/TextBlock.tsx`
+- `frontend/src/domains/alerting/oncall/oncallApi.ts`
 
 ## Tests
 - `frontend/src/domains/workspace/layout/grid.test.ts`
 - `frontend/src/domains/workspace/layout/layoutsApi.test.ts`
 - `frontend/src/domains/workspace/LayoutEditor/LayoutEditor.test.tsx`
+- `frontend/src/domains/wall/layout/wallLayout.test.ts`
+- `frontend/src/domains/wall/layout/useWallLayouts.test.ts`
+- `frontend/src/domains/wall/components/LayoutGrid/LayoutGrid.test.tsx`
+- `frontend/src/domains/wall/WallApp/WallApp.layout.test.tsx`
+- `frontend/src/domains/alerting/oncall/oncallApi.test.ts`
 
 ## Decisions and notes
 - 12-column grid with snapping; blocks stay inside the columns and overlapped blocks cascade down, so layouts never overlap.
 - Layouts are read and saved only through `/api/layouts` (`{version, items}`, missing file = empty, `PUT /api/layouts/{id}`); view-only grids are `aria-readonly` without Save.
-- Pending: console route and wall rendering of saved layouts (BE-41).
+- Wall rendering: `wall.html?layout=<slug>` or `/wall/<slug>` loads `GET /api/layouts/{slug}` (404/offline = built-in NOC blocks). The built-in arrangement keeps the hand-tuned classic wall; any other layout renders `LayoutGrid` (12 columns at ≥ 1100 px and wider than 4:3, one column in reading order otherwise), loaded lazily so the classic wall stays within budget. Every block kind renders: hero, also active, near limit, ranking (near-limit list, 10 items), matrix, timeline, clock (with BE-33 `GET /api/oncall/now`, refreshed every 5 min), uptime, value, series (live 60 min or a FE-58 history range), indicators, live table (monitor name/state/value only; the snapshot never carries result rows) and text (plain text through the redactor).
+- API normalization (`normalizeLayout`): accepts the BE-41 list shape (plain array) or `{ version, items }`, blocks as `{ type }` or `{ kind }` with optional `id`; unknown kinds and invalid overrides are dropped. Saves send `type` next to `kind` so the backend record keeps the block. Optional fields `themeId`, `animationLevel`, `playlist` and per-block `source`, `range`, `text` are the assumed BE-41 contract (orbit.layouts.json).
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
 - 2026-10-18 — layout editor, grid and layouts API client (status: in-progress).
+- 2026-10-22 — wall renders saved layouts by slug (LayoutGrid, all block kinds, on-call clock).

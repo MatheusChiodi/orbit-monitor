@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
-import { createI18n } from '@/shared/i18n/i18n';
+import { createI18n, loadLocale } from '@/shared/i18n/i18n';
 
 // jsdom has no matchMedia: a browser-like default (no query matches) that tests can spy on or stub.
 if (typeof window.matchMedia !== 'function') {
@@ -29,6 +29,9 @@ vi.mock('motion/react', async (importOriginal) => {
   const actual = await importOriginal<typeof import('motion/react')>();
   return { ...actual, m: actual.motion };
 });
+
+// Production entry points load their one language first; tests have both.
+await Promise.all([loadLocale('en'), loadLocale('pt-BR')]);
 
 // Components render in English unless a test mounts its own I18nextProvider.
 createI18n('en', { global: true });

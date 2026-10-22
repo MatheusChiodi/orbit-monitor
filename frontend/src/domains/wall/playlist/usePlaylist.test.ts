@@ -42,4 +42,9 @@ describe('FE-19 usePlaylist', () => {
     unmount();
     expect(vi.getTimerCount()).toBe(0);
   });
+
+  it('a playlist with fewer than two entries starts no timer', () => {
+    renderHook(() => usePlaylist({ entries: [{ layout: 'noc', seconds: 10 }] }, { unacknowledgedIncident: false }));
+    expect(vi.getTimerCount()).toBe(0);
+  });
 });

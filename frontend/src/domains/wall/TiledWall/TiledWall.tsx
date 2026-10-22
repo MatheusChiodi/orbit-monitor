@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { tileViewport, type Size, type Tile } from '../tiling';
 
@@ -22,7 +22,15 @@ export function TiledWall({ tile, canvas, children }: TiledWallProps) {
     >
       <div
         data-testid="tile-canvas"
-        style={{ width: `${canvas.width}px`, height: `${canvas.height}px`, transform: `translate(${-view.x}px, ${-view.y}px)` }}
+        style={
+          {
+            width: `${canvas.width}px`,
+            height: `${canvas.height}px`,
+            transform: `translate(${-view.x}px, ${-view.y}px)`,
+            // The wall fills the whole canvas instead of one screen (theme.css `.wall-root`).
+            '--wall-canvas-height': `${canvas.height}px`,
+          } as CSSProperties
+        }
       >
         {children}
       </div>

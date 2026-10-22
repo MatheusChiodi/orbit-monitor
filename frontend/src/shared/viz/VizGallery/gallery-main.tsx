@@ -2,10 +2,11 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { I18nextProvider } from 'react-i18next';
 import '@/app/theme.css';
-import { createI18n, detectLocale } from '@/shared/i18n/i18n';
+import { createI18n, detectLocale, loadLocale } from '@/shared/i18n/i18n';
 import { VizGallery } from './VizGallery';
 
 const locale = detectLocale();
+await loadLocale(locale);
 document.documentElement.lang = locale;
 const section = new URLSearchParams(window.location.search).get('section') === 'picker' ? 'picker' : 'modes';
 const root = document.getElementById('root');

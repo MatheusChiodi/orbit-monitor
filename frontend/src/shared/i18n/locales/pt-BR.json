@@ -100,6 +100,37 @@
         "ACK": "reconhecido",
         "INFO": "informativo"
       }
+    },
+    "blocks": {
+      "grid": "Layout do painel {{name}}",
+      "clock": "Relógio",
+      "onCall": "De plantão",
+      "onCallEntry": "{{schedule}}: {{person}}",
+      "onCallUntil": "até {{time}}",
+      "nobodyOnCall": "Ninguém de plantão",
+      "uptime": "Disponibilidade 24 h",
+      "value": "Valor",
+      "monitorMissing": "Monitor não encontrado",
+      "indicators": "Estado",
+      "table": "Monitores",
+      "tableColumns": {
+        "name": "Monitor",
+        "status": "Estado",
+        "value": "Valor"
+      },
+      "ranking": "Mais perto do limite",
+      "series": "Últimos 60 minutos",
+      "seriesRange": {
+        "24h": "Últimas 24 horas",
+        "7d": "Últimos 7 dias",
+        "30d": "Últimos 30 dias"
+      },
+      "seriesOf": "{{name}}: {{range}}",
+      "note": "Nota"
+    },
+    "playlist": {
+      "position": "Layout {{index}} de {{total}}",
+      "paused": "Rotação pausada: incidente não reconhecido"
     }
   },
   "access": {

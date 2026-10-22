@@ -1,20 +1,9 @@
+import type { BlockKind } from './blockKinds';
+
 /** FE-11: wall layouts live on a 12-column grid; rows grow downwards. */
 export const GRID_COLUMNS = 12;
 
-export type BlockKind =
-  | 'hero'
-  | 'also-active'
-  | 'near-limit'
-  | 'matrix'
-  | 'timeline'
-  | 'value'
-  | 'indicators'
-  | 'series'
-  | 'live-table'
-  | 'ranking'
-  | 'uptime'
-  | 'clock'
-  | 'text';
+export { BLOCK_KINDS, isBlockKind, type BlockKind } from './blockKinds';
 
 export interface LayoutBlock {
   id: string;
@@ -25,6 +14,12 @@ export interface LayoutBlock {
   h: number;
   /** Live tables may never expose personal data on the wall. */
   allowPersonalData?: boolean;
+  /** Monitor id (value, series) or group id (indicators) the block shows; all monitors when absent. */
+  source?: string;
+  /** FE-58: history window of a series block. */
+  range?: '24h' | '7d' | '30d';
+  /** Plain text of a text block (rendered as text, never as HTML). */
+  text?: string;
 }
 
 export interface GridMetrics {

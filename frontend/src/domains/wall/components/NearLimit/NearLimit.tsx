@@ -9,16 +9,18 @@ import { AnimatedItem, FlashValue, Panel } from '@/shared/ui';
 
 export interface NearLimitProps {
   items: readonly NearLimitItem[];
+  /** Defaults to "Near threshold"; the ranking block reuses this list with its own title. */
+  title?: string;
 }
 
 /** Below 25% headroom the bar turns amber. */
 const LOW_HEADROOM = 0.25;
 
-export function NearLimit({ items }: NearLimitProps) {
+export function NearLimit({ items, title }: NearLimitProps) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
   return (
-    <Panel title={t('wall.nearLimit.title')}>
+    <Panel title={title ?? t('wall.nearLimit.title')}>
       {items.length === 0 ? (
         <p className="m-0 text-[0.85rem] text-muted">{t('wall.nearLimit.empty')}</p>
       ) : (

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createLayoutsApi, type WallLayout } from './layoutsApi';
+import { createLayoutsApi, normalizeLayout, type WallLayout } from './layoutsApi';
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -55,5 +55,60 @@ describe('FE-11 layouts API (/api/layouts, mirrors orbit.layouts.json)', () => {
     await api.list();
     await api.save(noc);
     expect(setItem).not.toHaveBeenCalled();
+  });
+
+  it('accepts the BE-41 list shape (plain array) and its blocks ({ type } without id)', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+      json([
+        {
+          id: 'default-noc',
+          slug: 'noc',
+          name: 'NOC',
+          version: 3,
+          blocks: [
+            { type: 'hero', x: 0, y: 0, w: 8, h: 6, source: null, field: null, display: null },
+            { type: 'timeline', x: 8, y: 6, w: 4, h: 4 },
+            { type: 'teleporter', x: 0, y: 9, w: 2, h: 2 },
+          ],
+        },
+      ]),
+    );
+    const [layout] = await createLayoutsApi({ fetch: fetchMock }).list();
+    expect(layout?.version).toBe(3);
+    expect(layout?.blocks).toEqual([
+      { id: 'hero-1', kind: 'hero', x: 0, y: 0, w: 8, h: 6 },
+      { id: 'timeline-2', kind: 'timeline', x: 8, y: 6, w: 4, h: 4 },
+    ]);
+  });
+
+  it('reads one layout by slug (GET /api/layouts/{slug}); 404 means "not configured"', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(json(noc));
+    expect(await createLayoutsApi({ fetch: fetchMock }).bySlug('noc')).toMatchObject({ slug: 'noc', blocks: noc.blocks });
+    expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/layouts/noc');
+    const missing = createLayoutsApi({ fetch: vi.fn<typeof fetch>().mockResolvedValue(json({ detail: 'Layout not found' }, 404)) });
+    expect(await missing.bySlug('tv-2')).toBeNull();
+  });
+
+  it('keeps the layout theme (FE-05), animation override (FE-06) and playlist (FE-19), dropping invalid values', () => {
+    const layout = normalizeLayout({
+      ...noc,
+      themeId: 'nord',
+      animationLevel: 'minimal',
+      playlist: { entries: [{ layout: 'noc', seconds: 60 }, { layout: 'Bad Slug!', seconds: 10 }, { layout: 'exec', seconds: 'x' }] },
+    });
+    expect(layout).toMatchObject({ themeId: 'nord', animationLevel: 'minimal', playlist: { entries: [{ layout: 'noc', seconds: 60 }] } });
+    const invalid = normalizeLayout({ ...noc, themeId: '<script>', animationLevel: 'loud', playlist: 'x' });
+    expect(invalid?.themeId).toBeUndefined();
+    expect(invalid?.animationLevel).toBeUndefined();
+    expect(invalid?.playlist).toBeUndefined();
+    expect(normalizeLayout({ id: 'x' })).toBeNull();
+  });
+
+  it('saves blocks in the BE-41 shape too (type next to kind) so the backend keeps them', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(json(noc));
+    await createLayoutsApi({ fetch: fetchMock }).save({ ...noc, themeId: 'nord' });
+    const body = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
+    expect(body.blocks[0]).toMatchObject({ id: 'hero', kind: 'hero', type: 'hero' });
+    expect(body.themeId).toBe('nord');
   });
 });
