@@ -6,18 +6,20 @@ import themeEn from '@/shared/theme/locales/en.json';
 import themePtBR from '@/shared/theme/locales/pt-BR.json';
 import historyRangeEn from '@/domains/telemetry/history/locales/en.json';
 import historyRangePtBR from '@/domains/telemetry/history/locales/pt-BR.json';
+import customizationEn from '@/shared/customization/locales/en.json';
+import customizationPtBR from '@/shared/customization/locales/pt-BR.json';
 
 export const SUPPORTED_LOCALES = ['en', 'pt-BR'] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = 'en';
 export const LOCALE_STORAGE_KEY = 'orbit.locale';
 
-/** Theme and history-range messages live with their features (`@/shared/theme`, `@/domains/telemetry/history`). */
-export type Messages = typeof en & { theme: typeof themeEn; historyRange: typeof historyRangeEn };
+/** Theme, history-range and customization messages live with their features (`@/shared/theme`, `@/domains/telemetry/history`, `@/shared/customization`). */
+export type Messages = typeof en & { theme: typeof themeEn; historyRange: typeof historyRangeEn; customization: typeof customizationEn };
 
 const RESOURCES: Record<Locale, Messages> = {
-  en: { ...en, theme: themeEn, historyRange: historyRangeEn },
-  'pt-BR': { ...ptBR, theme: themePtBR, historyRange: historyRangePtBR },
+  en: { ...en, theme: themeEn, historyRange: historyRangeEn, customization: customizationEn },
+  'pt-BR': { ...ptBR, theme: themePtBR, historyRange: historyRangePtBR, customization: customizationPtBR },
 };
 
 export function isLocale(value: unknown): value is Locale {
@@ -87,6 +89,8 @@ export function createI18n(locale: Locale, options: CreateI18nOptions = {}): I18
     supportedLngs: [...SUPPORTED_LOCALES],
     resources: { en: { translation: RESOURCES.en }, 'pt-BR': { translation: RESOURCES['pt-BR'] } },
     interpolation: { escapeValue: false },
+    // FE-54: renamed labels are added at runtime; components re-render when the store changes.
+    react: { bindI18nStore: 'added' },
     initAsync: false,
   });
   return instance;

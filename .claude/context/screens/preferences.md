@@ -33,6 +33,7 @@ Language, animation level, density, viewing distance, night mode, sounds, notifi
 - [FE-47 · Sound alerts](../features/FE-47-sound-alerts.md) — done
 - [FE-48 · Desktop notifications](../features/FE-48-desktop-notifications.md) — done
 - [FE-50 · Device preferences](../features/FE-50-device-preferences.md) — done
+- [FE-56 · Typography, shape and density settings](../features/FE-56-typography-shape-density.md) — done
 
 ## Code
 - `frontend/src/domains/workspace/DevicePreferences/DevicePreferences.tsx`
@@ -51,3 +52,4 @@ Language, animation level, density, viewing distance, night mode, sounds, notifi
 ## Changelog
 - 2026-10-18 — context file created.
 - 2026-10-22 — device preferences screen built and wired into the console (FE-07, FE-08, FE-50).
+- 2026-10-22 — density and animation level are also editable from the customization settings (bridged to the device preferences).
