@@ -3,10 +3,10 @@ id: BE-19
 title: "In-memory rollups"
 area: backend
 group: "Telemetry"
-status: in-progress
+status: done
 screens: []
 spec: docs/05-extended-features.md
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # BE-19 · In-memory rollups
@@ -16,8 +16,8 @@ updated: 2026-10-18
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
-- [ ] All tests green, none pending
+- [x] Implemented
+- [x] All tests green, none pending
 
 ## Screens
 —
@@ -34,9 +34,12 @@ updated: 2026-10-18
 
 ## Decisions and notes
 - Raw heartbeats in per-monitor ring buffers (window `orbit.history`, default 24 h, max 20 000 per monitor); per-minute series computed on demand for the wall.
-- Hour/day rollups are pending; everything is lost on restart by design.
+- Everything in memory is lost on restart by design; durable rollups live in the history log (CORE-22).
+- `Rollups.of(heartbeats, bucket)` buckets by epoch-aligned windows (1 min, 1 h), oldest first, empty buckets omitted; min/max/avg over the primary value (null without values), `upRatio` = non-DOWN share, `p95Latency` over answering checks (0 when none).
+- Pure JDK, computed on demand from the ring buffer; alternatives considered: a streaming t-digest/HdrHistogram (extra dependency, overkill for <= 20 000 points per monitor) and Micrometer timers (global registry, no per-bucket replay). Writing the rollups to the 30-day history log (CORE-22) belongs to orbit-history.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — in-memory heartbeats and per-minute series.
 - 2026-10-18 — pending tests for 1m/1h rollups.
+- 2026-10-22 — 1m/1h rollups implemented; pending tag removed from RollupsTest (status: done).
