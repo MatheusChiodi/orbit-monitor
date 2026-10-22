@@ -8,31 +8,67 @@ export interface WallFeedOptions {
   loadSnapshot: () => Promise<WallSnapshot>;
   connect: (options: ConnectWallOptions) => WallConnection;
   url: string;
-  /** Demo snapshot used when the backend does not answer (may be loaded on demand). */
+  /** Demo snapshot, only when explicitly requested (`wall.html?demo`); never a silent fallback. */
   mock?: () => WallSnapshot | Promise<WallSnapshot>;
+  /** Without a backend (and without demo), how long to wait before asking again. */
+  retryMs?: number;
 }
+
+const DEFAULT_RETRY_MS = 5000;
 
 export interface WallFeed {
   stop(): void;
 }
 
-/** Loads the initial snapshot and starts listening to `/ws/wall`; without a backend, uses demo data. */
+/**
+ * Loads the initial snapshot and starts listening to `/ws/wall`. Without a backend the wall shows that it
+ * is waiting and asks again every `retryMs`; demo data appears only when `mock` was explicitly given.
+ */
 export async function startWallFeed(store: WallStore, options: WallFeedOptions): Promise<WallFeed> {
   const { receive, setConnection } = store.getState();
-  try {
-    receive({ type: 'snapshot', payload: await options.loadSnapshot() });
-  } catch {
-    if (options.mock) receive({ type: 'snapshot', payload: await options.mock() });
+  let stopped = false;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let connection: WallConnection | undefined;
+
+  const listen = () => {
+    // CORE-09 / BE-38: `connectWall` resumes by stream and sequence and handles gaps itself.
+    connection = options.connect({ url: options.url, onMessage: receive, onStatus: setConnection });
+  };
+  const load = async (): Promise<boolean> => {
+    try {
+      receive({ type: 'snapshot', payload: await options.loadSnapshot() });
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  const retry = () => {
+    timer = setTimeout(() => {
+      void load().then((ok) => {
+        if (stopped) return;
+        if (ok) listen();
+        else retry();
+      });
+    }, options.retryMs ?? DEFAULT_RETRY_MS);
+  };
+  const stop = () => {
+    stopped = true;
+    clearTimeout(timer);
+    connection?.close();
+  };
+
+  if (await load()) {
+    listen();
+    return { stop };
+  }
+  if (options.mock) {
+    receive({ type: 'snapshot', payload: await options.mock() });
     setConnection('mock');
     return { stop() {} };
   }
-  // CORE-09 / BE-38: `connectWall` resumes by stream and sequence and handles gaps itself.
-  const connection = options.connect({
-    url: options.url,
-    onMessage: receive,
-    onStatus: setConnection,
-  });
-  return { stop: () => connection.close() };
+  setConnection('closed');
+  retry();
+  return { stop };
 }
 
 /** Acknowledges an incident; in demo mode or when the API fails, marks it locally so the wall never gets stuck. */

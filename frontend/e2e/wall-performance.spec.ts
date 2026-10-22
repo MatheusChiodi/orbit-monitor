@@ -49,7 +49,7 @@ test.describe('wall performance (production build)', () => {
   test('first contentful paint under 1.5 s and the hero within 2 s', async ({ page }) => {
     await goOffline(page);
     const start = Date.now();
-    await page.goto(`${PREVIEW_URL}/wall.html`);
+    await page.goto(`${PREVIEW_URL}/wall.html?demo`);
     await expect(page.getByRole('heading', { name: 'Situation' })).toBeVisible({ timeout: 2_000 });
     expect(Date.now() - start).toBeLessThan(2_000);
 
@@ -65,7 +65,7 @@ test.describe('wall performance (production build)', () => {
       if (/\/assets\/(LivingOrbScene|orbMaterials|HeroOrbScene|OrbitIntro|remotion)/i.test(path)) fxChunks.push(path);
     });
 
-    await page.goto(`${PREVIEW_URL}/wall.html?scenario=ok&motion=off`);
+    await page.goto(`${PREVIEW_URL}/wall.html?demo&scenario=ok&motion=off`);
     await expect(page.getByRole('heading', { name: 'Situation' })).toBeVisible();
     await page.waitForTimeout(2_000);
 
@@ -75,7 +75,7 @@ test.describe('wall performance (production build)', () => {
   test('a slow GPU is downgraded to minimal FX and the wall settles near 60 fps', async ({ page }) => {
     // Headless Chromium renders WebGL in software: a good stand-in for a weak TV box.
     await goOffline(page);
-    await page.goto(`${PREVIEW_URL}/wall.html?scenario=ok`);
+    await page.goto(`${PREVIEW_URL}/wall.html?demo&scenario=ok`);
     await expect(page.getByRole('heading', { name: 'Situation' })).toBeVisible();
     await page.waitForTimeout(6_000);
 

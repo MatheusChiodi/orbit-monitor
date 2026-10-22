@@ -42,6 +42,7 @@ Runs entirely on the operator machine with no Orbit database; binds to 127.0.0.1
 - `backend/orbit-api/src/test/java/io/orbit/api/web/HistoryRuntimeApiTest.java`
 
 ## Decisions and notes
+- No invented data: without a reachable backend the console shows "Cannot reach the Orbit server" with a retry and the wall shows "Waiting for the Orbit server…" and retries every 5 s. Demo data exists only behind an explicit `?demo` (`index.html?demo`, `wall.html?demo`), never as a silent fallback.
 - Backend: No datasource for Orbit itself; binds to `127.0.0.1:8080` by default; config in `~/.orbit/config`, key in `~/.orbit/master.key` (both overridable).
 - Backend: Scheduler ticks every second into an in-memory queue; virtual-thread workers (`orbit.workers`, default 4); config files are re-read every 5 s and the schedule resynced.
 - Backend: Smoke-tested with the packaged jar: health UP, group saved to `orbit.groups.json`, wall snapshot served, OpenAPI at `/v3/api-docs`.
@@ -58,3 +59,4 @@ Runs entirely on the operator machine with no Orbit database; binds to 127.0.0.1
 - 2026-10-18 — frontend: history coverage helpers and history notice.
 - 2026-10-22 — backend: frontend served from static/ in the jar and history coverage label in the API.
 - 2026-10-22 — backend items finished; packaging verified (status: done).
+- 2026-10-22 — removed the silent demo fallback: unreachable server screen (console), waiting state with retry (wall), demo only with `?demo`.

@@ -2,7 +2,7 @@
 title: "QA — end-to-end, accessibility and performance checks"
 owner: orbit-qa
 status: active
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # QA — end-to-end, accessibility and performance checks
@@ -53,3 +53,4 @@ the calm wall loads the 3D orb (orbMaterials ≈ 235 KB gzip, after first paint,
 
 ## Changelog
 - 2026-10-18 — Playwright + axe suite created; 7 findings reported to their owners.
+- 2026-10-22 — demo specs open pages with `?demo`; new `no-backend.spec.ts` proves the console and wall never invent data without a server.

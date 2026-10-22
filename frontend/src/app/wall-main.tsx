@@ -42,8 +42,8 @@ const loaders = {
   loadHistory: async (monitorId: string, range: { from: Date; to: Date }, resolution: 'raw' | '1m' | '1h') =>
     (await import('@/domains/telemetry/history/historyApi')).fetchHistory(monitorId, range, resolution),
 };
-// Demo data loads only when the backend does not answer.
-const mock = async () => (await import('@/domains/wall/mock')).mockSnapshot(scenario);
+// Demo data only when explicitly asked for (`wall.html?demo`); otherwise the wall waits for the server.
+const mock = params.has('demo') ? async () => (await import('@/domains/wall/mock')).mockSnapshot(scenario) : undefined;
 // CORE-21: the wall only reads customization (workspace, this layout, this device).
 const customizationApi = createCustomizationApi();
 const customization = createCustomizationStore({ api: customizationApi });

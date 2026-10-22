@@ -7,7 +7,7 @@ test.describe('console operator name (BE-45, no login)', () => {
   });
 
   test('a first visit asks for a name before showing the workspace', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/?demo');
 
     await expect(page.getByRole('heading', { name: 'What name should appear on your actions?' })).toBeVisible();
     await expect(page.getByText('It is self-declared, not a login.')).toBeVisible();
@@ -15,7 +15,7 @@ test.describe('console operator name (BE-45, no login)', () => {
   });
 
   test('an empty or blank name is refused with an alert', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/?demo');
 
     await page.getByLabel('Operator name').fill('   ');
     await page.getByRole('button', { name: 'Continue' }).click();
@@ -25,7 +25,7 @@ test.describe('console operator name (BE-45, no login)', () => {
   });
 
   test('a name opens the demo workspace and survives a reload', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/?demo');
 
     await page.getByLabel('Operator name').fill('  Ana Souza  ');
     await page.getByRole('button', { name: 'Continue' }).click();
@@ -40,7 +40,7 @@ test.describe('console operator name (BE-45, no login)', () => {
   });
 
   test('"Change name" reopens the prompt with the current name filled in', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/?demo');
     await page.getByLabel('Operator name').fill('Ana');
     await page.getByRole('button', { name: 'Continue' }).click();
 
@@ -52,7 +52,7 @@ test.describe('console operator name (BE-45, no login)', () => {
     await expect(page.getByText('Bruno', { exact: true })).toBeVisible();
   });
 
-  test('every API call carries the declared name in X-Orbit-Operator', async ({ page }) => {
+  test('every API call after the name is declared carries it in X-Orbit-Operator', async ({ page }) => {
     const headers: (string | undefined)[] = [];
     await page.route(
       (url) => url.pathname.startsWith('/api/'),
@@ -62,9 +62,12 @@ test.describe('console operator name (BE-45, no login)', () => {
       },
     );
     await page.goto('/');
+    await expect(page.getByLabel('Operator name')).toBeVisible();
+    // Before a name is declared there is none to send (boot reads of themes and customization).
+    headers.length = 0;
     await page.getByLabel('Operator name').fill('Ana');
     await page.getByRole('button', { name: 'Continue' }).click();
-    await expect(page.getByRole('heading', { name: 'Monitors' })).toBeVisible();
+    await expect(page.getByRole('alert')).toContainText('Cannot reach the Orbit server');
 
     expect(headers.length).toBeGreaterThan(0);
     expect(new Set(headers)).toEqual(new Set(['Ana']));

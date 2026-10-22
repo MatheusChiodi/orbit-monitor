@@ -87,7 +87,7 @@ export function WallScreen({
         data-skeleton
         className={`flex min-h-screen items-center justify-center text-muted ${heroMotion.level === 'off' ? '' : 'anim-shimmer'}`}
       >
-        {t('wall.loading')}
+        {connection === 'closed' ? t('wall.waitingServer') : t('wall.loading')}
       </main>
     );
   }

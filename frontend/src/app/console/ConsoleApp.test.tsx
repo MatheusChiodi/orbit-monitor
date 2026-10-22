@@ -41,11 +41,11 @@ beforeEach(() => {
 
 describe('ConsoleApp (no login)', () => {
   it('asks once for the operator name, then opens the monitor list', async () => {
-    render(<ConsoleApp api={offlineApi()} operatorStore={createOperatorStore()} />);
+    render(<ConsoleApp api={onlineApi('edit')} operatorStore={createOperatorStore()} />);
     expect(screen.queryByLabelText(/password/i)).toBeNull();
     await userEvent.type(screen.getByLabelText('Operator name'), 'M. Chiodi');
     await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-    expect(await screen.findByText('Reconciliation queue')).toBeInTheDocument();
+    expect(await screen.findByText('Web portal')).toBeInTheDocument();
     expect(screen.getByText('M. Chiodi')).toBeInTheDocument();
   });
 
@@ -68,8 +68,19 @@ describe('ConsoleApp (no login)', () => {
     expect(screen.queryByRole('button', { name: 'New monitor' })).toBeNull();
   });
 
-  it('without a backend falls back to demo data, creates a monitor with preview and returns saved', { timeout: 15_000 }, async () => {
-    render(<ConsoleApp api={offlineApi()} operatorStore={namedStore()} />);
+  it('without a backend shows that the server is unreachable and never invents data', async () => {
+    const api = offlineApi();
+    render(<ConsoleApp api={api} operatorStore={namedStore()} />);
+    expect(await screen.findByRole('alert')).toHaveTextContent('Cannot reach the Orbit server');
+    expect(screen.queryByText('Reconciliation queue')).toBeNull();
+    expect(screen.queryByText('demo data')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'New monitor' })).toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(api.getAccess).toHaveBeenCalledTimes(2);
+  });
+
+  it('demo data only when explicitly requested (?demo), creates a monitor with preview and returns saved', { timeout: 15_000 }, async () => {
+    render(<ConsoleApp api={offlineApi()} operatorStore={namedStore()} demo />);
     expect(await screen.findByText('Reconciliation queue')).toBeInTheDocument();
     expect(screen.getByText('demo data')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'New monitor' }));

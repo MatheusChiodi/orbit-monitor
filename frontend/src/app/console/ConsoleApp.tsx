@@ -37,7 +37,8 @@ import { createConfigClient } from '@/shared/api/configResources';
 import { saveWorkspaceDefaults } from '@/shared/api/workspaceDefaults';
 import type { WorkspacePreferenceDefaults } from '@/shared/preferences/preferences';
 import type { ThemesClient } from '@/shared/theme/customThemes';
-import { createConsoleSource, type ConsoleApi } from './consoleSource';
+import { createConsoleSource, DEMO_ACCESS, type ConsoleApi } from './consoleSource';
+import { ServerUnreachable } from './ServerUnreachable';
 
 export interface ConsoleAppProps {
   api: ConsoleApi;
@@ -56,6 +57,8 @@ export interface ConsoleAppProps {
   layoutsApi?: Pick<LayoutsApi, 'list' | 'save'>;
   /** BE-40: saves the workspace defaults (`PUT /api/settings/defaults`, editors only). */
   saveDefaults?: (defaults: WorkspacePreferenceDefaults) => Promise<WorkspacePreferenceDefaults>;
+  /** Demo data in memory, only when explicitly asked for (`index.html?demo`); never a silent fallback. */
+  demo?: boolean;
 }
 
 /** `index.html#/settings/preferences` opens the device preferences screen. */
@@ -139,18 +142,19 @@ function Workspace({ api, access, demo, operator, onChangeName, preferences, ope
 
 interface ShellProps {
   api: ConsoleApi;
+  demo: boolean;
   operatorStore: OperatorStore;
   preferences: PreferencesStore;
   connectFeed?: IncidentFeedConnector;
   services: ConsoleServices;
 }
 
-function Shell({ api, operatorStore, preferences, connectFeed, services }: ShellProps) {
+function Shell({ api, demo, operatorStore, preferences, connectFeed, services }: ShellProps) {
   const { t } = useTranslation();
   const operator = useStore(operatorStore, (s) => s.name);
   const setName = useStore(operatorStore, (s) => s.setName);
   const [renaming, setRenaming] = useState(false);
-  const access = useQuery({ queryKey: ['access'], queryFn: api.getAccess, enabled: Boolean(operator) });
+  const access = useQuery({ queryKey: ['access'], queryFn: api.getAccess, enabled: Boolean(operator) && !demo });
 
   if (!operator || renaming) {
     return (
@@ -167,14 +171,29 @@ function Shell({ api, operatorStore, preferences, connectFeed, services }: Shell
     );
   }
 
+  if (demo) {
+    return (
+      <Workspace
+        api={api}
+        demo
+        access={DEMO_ACCESS}
+        operator={operator}
+        onChangeName={() => setRenaming(true)}
+        preferences={preferences}
+        operatorStore={operatorStore}
+        connectFeed={connectFeed}
+        services={services}
+      />
+    );
+  }
   if (access.isPending) return <p className="p-[1.4rem] text-muted">{t('app.loading')}</p>;
+  if (access.isError) return <ServerUnreachable onRetry={() => void access.refetch()} retrying={access.isFetching} />;
 
-  const demo = access.isError;
   return (
     <Workspace
       api={api}
-      demo={demo}
-      access={access.data ?? { mode: 'edit', client: 'loopback' }}
+      demo={false}
+      access={access.data}
       operator={operator}
       onChangeName={() => setRenaming(true)}
       preferences={preferences}
@@ -197,6 +216,7 @@ export function ConsoleApp({
   configClient,
   layoutsApi,
   saveDefaults,
+  demo = false,
 }: ConsoleAppProps) {
   const [client] = useState(() => queryClient ?? createQueryClient());
   const [preferences] = useState(() => preferencesStore ?? createPreferencesStore());
@@ -227,7 +247,7 @@ export function ConsoleApp({
           <FxBackground />
           <div className="fx-layer">
             <CustomizationRuntime store={customization} terminology={terminology}>
-              <Shell api={api} operatorStore={operatorStore} preferences={preferences} connectFeed={connectFeed} services={services} />
+              <Shell api={api} demo={demo} operatorStore={operatorStore} preferences={preferences} connectFeed={connectFeed} services={services} />
             </CustomizationRuntime>
           </div>
           <FxDowngradeNotice />

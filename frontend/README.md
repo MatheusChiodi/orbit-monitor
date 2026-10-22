@@ -12,12 +12,14 @@ npm run dev
 ```
 
 Vite proxies `/api` and `/ws` to `http://localhost:8080` (Spring backend).
-Without a backend, the wall and the console switch to **demo data** on their own.
+Orbit never invents data: everything on screen comes from what the operator configured. Without a backend
+the console shows "Cannot reach the Orbit server" and the wall waits and retries. To explore the UI with
+sample data, open it explicitly with `?demo` (`/?demo`, `/wall.html?demo`).
 
 There is no login. The console asks once for an **operator name** (kept on this device and sent as
 `X-Orbit-Operator`); the API decides whether this client may edit (`edit`) or only view (`view-only`).
 
-Wall parameters: `?lang=pt-BR` (language), `?scenario=ok` (demo without incidents),
+Wall parameters: `?lang=pt-BR` (language), `?demo` (sample data), `?demo&scenario=ok` (sample data without incidents),
 `?operator=Name` (who appears in "X acknowledged at HH:MM"). The layout comes from the path (`/wall/noc`).
 
 ## Test

@@ -22,7 +22,7 @@ async function violations(page: Page, options: { rules?: string[]; skipKnown?: b
 
 async function openWall(page: Page, query = '') {
   await goOffline(page);
-  await page.goto(`/wall.html${query}`);
+  await page.goto(`/wall.html?demo${query.replace('?', '&')}`);
   await expect(page.getByRole('heading', { level: 2 }).first()).toBeVisible();
 }
 
@@ -42,7 +42,7 @@ test.describe('accessibility (axe)', () => {
 
   test('console operator prompt has no other violations', async ({ page }) => {
     await goOffline(page);
-    await page.goto('/');
+    await page.goto('/?demo');
     await expect(page.getByLabel('Operator name')).toBeVisible();
 
     expect(await violations(page, { skipKnown: true })).toEqual([]);
@@ -51,7 +51,7 @@ test.describe('accessibility (axe)', () => {
   test('console workspace (demo) is fully clean', async ({ page }) => {
     await goOffline(page);
     await rememberOperator(page, 'Ana');
-    await page.goto('/');
+    await page.goto('/?demo');
     await expect(page.getByRole('heading', { name: 'Monitors' })).toBeVisible();
 
     expect(await violations(page)).toEqual([]);
@@ -99,7 +99,7 @@ test.describe('accessibility (axe)', () => {
   // the chart axis labels (9.3 px) need 4.5:1 (WCAG 1.4.3).
   test.fixme('operator prompt hint meets AA contrast', async ({ page }) => {
     await goOffline(page);
-    await page.goto('/');
+    await page.goto('/?demo');
     await expect(page.getByLabel('Operator name')).toBeVisible();
     expect(await violations(page, { rules: ['color-contrast'] })).toEqual([]);
   });

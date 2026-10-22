@@ -11,6 +11,9 @@ import { OrbitIntro } from '@/shared/fx/OrbitIntro';
 import { useConsole, useGroups, useMonitors } from '../../ConsoleContext';
 import { ScreenTitle } from '../ScreenStatus';
 
+/** Orbit's own health check (BE-50, type `SELF`) is built in; only monitors the operator added count. */
+const isConfiguredMonitor = (m: { type: string }) => m.type !== 'SELF';
+
 /** Monitor list grouped by group, with the living orb (or the intro when empty). */
 export function MonitorsScreen() {
   const { t } = useTranslation();
@@ -86,7 +89,7 @@ export function MonitorsScreen() {
         <p className="m-0 text-muted">{t('app.loading')}</p>
       ) : (
         <>
-          {(monitors.data ?? []).length === 0 ? (
+          {!(monitors.data ?? []).some(isConfiguredMonitor) ? (
             <div className="grid gap-[1rem] md:grid-cols-2">
               <OrbitIntro id="first-monitor" tilt />
               <OrbitIntro id="check-flow" tilt />

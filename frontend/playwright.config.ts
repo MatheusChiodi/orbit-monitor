@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 /**
  * End-to-end tests (docs/03-design.md). No backend is started: every spec cuts `/api` and `/ws`,
- * so the wall and the console run in demo mode, or the spec answers `/api` itself.
+ * so pages opened with `?demo` run in demo mode, pages without it wait for the server, or the spec answers `/api` itself.
  * Two servers: a production preview (the default, also used by the performance budgets) and
  * the dev server, only for dev-only pages such as the viz gallery.
  */

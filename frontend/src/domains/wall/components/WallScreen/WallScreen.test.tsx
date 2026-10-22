@@ -69,4 +69,9 @@ describe('WallScreen', () => {
     );
     expect(screen.getByText('Loading the wall…')).toBeInTheDocument();
   });
+
+  it('without a snapshot and without a server, says it is waiting for Orbit instead of showing data', () => {
+    render(<WallScreen snapshot={null} now={now} connection="closed" freshEventIds={new Set()} onAcknowledge={vi.fn()} />);
+    expect(screen.getByRole('status')).toHaveTextContent('Waiting for the Orbit server…');
+  });
 });

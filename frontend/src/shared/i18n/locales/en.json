@@ -8,6 +8,11 @@
     "languages": {
       "en": "English",
       "pt-BR": "Português (Brasil)"
+    },
+    "unreachable": {
+      "title": "Cannot reach the Orbit server",
+      "detail": "Start the backend (cd backend && mvn -pl orbit-api -am spring-boot:run) or check the address. Nothing is shown until Orbit answers.",
+      "retry": "Try again"
     }
   },
   "status": {
@@ -131,7 +136,8 @@
     "playlist": {
       "position": "Layout {{index}} of {{total}}",
       "paused": "Rotation paused: unacknowledged incident"
-    }
+    },
+    "waitingServer": "Waiting for the Orbit server…"
   },
   "access": {
     "viewOnly": "View-only: edits are allowed only on the machine running Orbit"

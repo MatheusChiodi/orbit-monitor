@@ -57,3 +57,4 @@ Groups and monitors with state, filters, saved views, bulk actions.
 - 2026-10-22 — Reorder mode (FE-13) persisted through PUT /api/groups/order; console sections in the header.
 - 2026-10-22 — card settings and Customize mode on the monitor list.
 - 2026-10-22 — card actions open #/monitors/:id, acknowledge the open incident or open the target URL.
+- 2026-10-22 — no backend: "Cannot reach the Orbit server" with Try again; demo only with `?demo`; guides ignore the built-in `orbit_self` monitor.

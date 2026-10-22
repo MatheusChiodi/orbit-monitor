@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test';
 
 const isApi = (url: URL) => url.pathname.startsWith('/api/');
 
-/** Cuts the backend so the wall and the console fall back to demo data. */
+/** Cuts the backend; pages opened with `?demo` then show demo data, others wait for the server. */
 export async function goOffline(page: Page): Promise<void> {
   await page.route(isApi, (route) => route.abort());
   await page.routeWebSocket(/\/ws\//, (socket) => socket.close());

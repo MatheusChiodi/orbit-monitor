@@ -41,6 +41,14 @@ describe('FE-52 console FX', () => {
     expect(await screen.findAllByRole('figure', { name: 'Animated introduction' })).toHaveLength(2);
   });
 
+  it('Orbit\'s own health check alone still counts as an empty workspace: the guides show', async () => {
+    const store = createOperatorStore();
+    store.getState().setName('M. Chiodi');
+    const self = { id: 'orbit_self', name: 'Orbit', groupId: null, type: 'SELF', status: 'OK', value: null, unit: null, since: new Date().toISOString() };
+    render(<ConsoleApp api={api([self])} operatorStore={store} />);
+    expect(await screen.findAllByRole('figure', { name: 'Animated introduction' })).toHaveLength(2);
+  });
+
   it('with monitors there is no guide', async () => {
     const store = createOperatorStore();
     store.getState().setName('M. Chiodi');

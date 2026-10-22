@@ -35,7 +35,13 @@ if (root) {
     <StrictMode>
       <I18nextProvider i18n={i18n}>
         <MotionProvider>
-          <ConsoleApp api={api} operatorStore={operatorStore} connectFeed={connectFeed} customizationApi={customizationApi} />
+          <ConsoleApp
+            api={api}
+            operatorStore={operatorStore}
+            connectFeed={connectFeed}
+            customizationApi={customizationApi}
+            demo={new URLSearchParams(window.location.search).has('demo')}
+          />
         </MotionProvider>
       </I18nextProvider>
     </StrictMode>,

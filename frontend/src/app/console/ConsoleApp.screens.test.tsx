@@ -19,7 +19,7 @@ function operator() {
 }
 
 async function open(hash: string) {
-  render(<ConsoleApp api={offline()} operatorStore={operator()} />);
+  render(<ConsoleApp api={offline()} operatorStore={operator()} demo />);
   await screen.findByText('demo data');
   await act(async () => {
     window.location.hash = hash;

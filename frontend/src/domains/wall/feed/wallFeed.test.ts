@@ -35,7 +35,41 @@ describe('startWallFeed', () => {
     expect(store.getState().snapshot?.timeline[0]?.id).toBe('novo');
   });
 
-  it('falls back to demo data without a backend', async () => {
+  it('without a backend and without demo, never invents data and retries until the server answers', async () => {
+    vi.useFakeTimers();
+    try {
+      const store = createWallStore();
+      const snapshot = mockSnapshot('ok', now);
+      const loadSnapshot = vi.fn().mockRejectedValueOnce(new Error('offline')).mockResolvedValue(snapshot);
+      const connect = vi.fn(() => ({ close: vi.fn() }));
+      const feed = await startWallFeed(store, { loadSnapshot, connect, url: 'ws://x', retryMs: 5000 });
+      expect(store.getState().snapshot).toBeNull();
+      expect(store.getState().connection).toBe('closed');
+      expect(connect).not.toHaveBeenCalled();
+      await vi.advanceTimersByTimeAsync(5000);
+      expect(loadSnapshot).toHaveBeenCalledTimes(2);
+      expect(store.getState().snapshot).toBe(snapshot);
+      expect(connect).toHaveBeenCalledTimes(1);
+      feed.stop();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('stopping while waiting for the server cancels the retry', async () => {
+    vi.useFakeTimers();
+    try {
+      const loadSnapshot = vi.fn().mockRejectedValue(new Error('offline'));
+      const feed = await startWallFeed(createWallStore(), { loadSnapshot, connect: vi.fn(), url: 'ws://x', retryMs: 5000 });
+      feed.stop();
+      await vi.advanceTimersByTimeAsync(20_000);
+      expect(loadSnapshot).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('demo data only when explicitly provided (?demo)', async () => {
     const store = createWallStore();
     const connect = vi.fn();
     const feed = await startWallFeed(store, {

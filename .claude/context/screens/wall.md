@@ -108,3 +108,4 @@ Header with global status and clock, hero (incident / all operational), also act
 - 2026-10-22 — saved layouts by slug, playlist cross-fade, `?theme=`/`?motion=`/`?tile=`, escalation step name, on-call clock, lazy chunks for the budget.
 - 2026-10-22 — customization (look, labels, card settings, Customize mode for editors) on the wall.
 - 2026-10-22 — first load under the 150 KB gzip budget; BE-41 persists layout theme, animation and playlist.
+- 2026-10-22 — no backend: "Waiting for the Orbit server…" with retry; demo data only with `?demo`.

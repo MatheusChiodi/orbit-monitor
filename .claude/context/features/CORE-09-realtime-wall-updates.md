@@ -51,6 +51,7 @@ WebSocket `/ws/wall` feeding a Zustand store; no polling.
 - `backend/orbit-api/src/test/java/io/orbit/api/wall/WallEscalationViewTest.java`
 
 ## Decisions and notes
+- Without a backend the wall feed never loads demo data unless `wall.html?demo`; it sets `closed`, shows "Waiting for the Orbit server…" and retries the snapshot every 5 s, then opens `/ws/wall`.
 - Backend: `/ws/wall` sends `{type: snapshot, seq, payload: WallSnapshot}` on connect, then `monitor` (after every check), `event` (confirmed state changes and acknowledgements) and `incident` deltas; `seq` increases per message.
 - Backend: Payloads follow `frontend/src/shared/api/types.ts`; `status` may also be `UNKNOWN` (no check finished yet). `series` is the last 60 minutes of the primary value with null gaps; `impact` is the monitor's group name.
 - Backend: Only configured origins may connect (`orbit.wall.allowed-origins`, default localhost/127.0.0.1 any port) to block cross-site WebSocket hijacking; the channel is read-only.
@@ -70,3 +71,4 @@ WebSocket `/ws/wall` feeding a Zustand store; no polling.
 - 2026-10-22 — frontend: `?layout=` slug.
 - 2026-10-22 — backend: resumable stream, localized timeline titles, notices and workspace branding in the snapshot.
 - 2026-10-22 — wall updates complete end to end: resumable stream on both sides, next escalation step and on-call in the snapshot (status: done).
+- 2026-10-22 — wall waits and retries instead of falling back to demo data; demo only with `?demo`.
