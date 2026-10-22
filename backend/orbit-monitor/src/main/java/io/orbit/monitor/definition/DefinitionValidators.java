@@ -60,6 +60,21 @@ final class DefinitionValidators {
         return errors;
     }
 
+    static List<String> savedQueries(List<QueryCatalog.SavedQuery> items) {
+        List<String> errors = new ArrayList<>();
+        for (QueryCatalog.SavedQuery q : items) {
+            id(q.id(), errors);
+            required(q.id(), "name", q.name(), errors);
+            required(q.id(), "connectionId", q.connectionId(), errors);
+            try {
+                SELECTS.validate(q.sql());
+            } catch (UnsafeSqlException e) {
+                errors.add(q.id() + ": " + e.getMessage());
+            }
+        }
+        return errors;
+    }
+
     static List<String> requests(List<HttpMonitorDef> items) {
         List<String> errors = new ArrayList<>();
         for (HttpMonitorDef r : items) {
@@ -137,7 +152,7 @@ final class DefinitionValidators {
     }
 
     private static void id(String id, List<String> errors) {
-        if (!ID.matcher(id).matches()) {
+        if (id == null || !ID.matcher(id).matches()) {
             errors.add(id + ": id must be lower-case letters, digits, '_' or '-'");
         }
     }
