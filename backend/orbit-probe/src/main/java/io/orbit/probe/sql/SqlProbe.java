@@ -6,6 +6,7 @@ import io.orbit.monitor.sql.LimitWrapper;
 import io.orbit.monitor.sql.ResultColumn;
 import io.orbit.monitor.sql.ResultPayload;
 import io.orbit.monitor.sql.SelectValidator;
+import io.orbit.monitor.sql.SqlParameters;
 import io.orbit.monitor.sql.ValidatedSelect;
 
 import javax.sql.DataSource;
@@ -53,9 +54,9 @@ public class SqlProbe {
         // One extra row tells whether the result was truncated.
         int fetchLimit = options.maxRows() + 1;
         String wrapped = limitWrapper.wrap(select.sql(), dialect, fetchLimit);
-        NamedParameters bound = params == null || params.isEmpty()
-                ? new NamedParameters(wrapped, List.of())
-                : NamedParameters.parse(wrapped, params);
+        SqlParameters.Bound bound = params == null || params.isEmpty()
+                ? new SqlParameters.Bound(wrapped, List.of())
+                : SqlParameters.bind(wrapped, params);
         long start = System.nanoTime();
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
