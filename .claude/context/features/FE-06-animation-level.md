@@ -36,6 +36,8 @@ Settings → Animation: preset level (off/minimal/standard/expressive/custom), i
 - Levels `off`, `minimal`, `standard` (default), `expressive`; `prefers-reduced-motion` forces `off`; `AnimationLevelProvider` marks `<html data-animation>`.
 - Pending: level picker in device preferences (FE-50).
 - Wall precedence implemented (`resolveAnimationLevel`): `?motion=` → layout `animationLevel` → FE-50 device level → BE-40 workspace default → standard; `AnimationLevelProvider` applies `prefers-reduced-motion` on top and marks `<html data-animation>`.
+- Layout editor: "Animation on this wall" select (needs BE-41 to persist `animationLevel`).
+- Remaining for done: the Settings → Animation panel of §1.2 (intensity, speed, per-category switches, live preview with incident simulation, "Reduce motion" action); today only the level exists (device preferences, workspace default, layout, `?motion=`).
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -44,3 +46,4 @@ Settings → Animation: preset level (off/minimal/standard/expressive/custom), i
 - 2026-10-18 — animation level provider and resolution (status: in-progress).
 - 2026-10-18 — animation level provider and resolution (status: in-progress).
 - 2026-10-22 — animation precedence on the wall (URL, layout, device, workspace).
+- 2026-10-22 — layout animation override in the layout editor.

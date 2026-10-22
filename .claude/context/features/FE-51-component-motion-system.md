@@ -3,7 +3,7 @@ id: FE-51
 title: "Component motion system"
 area: frontend
 group: "Theming and personalization"
-status: in-progress
+status: done
 screens: [wall, monitor-list, monitor-editor-http, monitor-editor-sql, data-and-display, layout-editor, theme-editor, preferences, incidents, incident-detail, settings]
 spec: docs/03-design.md §4.1
 updated: 2026-10-22
@@ -16,8 +16,8 @@ Every component animates enter, exit, status change (OK/WARN/DOWN), value change
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
-- [ ] All tests green, none pending
+- [x] Implemented
+- [x] All tests green, none pending
 
 ## Screens
 All screens (see frontmatter).
@@ -73,6 +73,7 @@ All screens (see frontmatter).
 - The preview shows a shimmering skeleton (`role=status`, `aria-busy`) while it runs; the Data & display section expands into view; condition verdicts cross-fade.
 - `entersAnimated` accepts any opacity below 1 so tests do not race Motion's progress in jsdom.
 - Bundle: components use `m.*` and `MotionProvider` wraps `LazyMotion` whose features (`domMax`: animations, exit, layout) load in their own chunk after first paint. Full `motion.*` pulled every feature into the wall's first load (≈ 28 KB gzip). Alternatives: `LazyMotion` with sync `domAnimation` (smaller saving, no layout animations) or keeping `motion` and missing the 150 KB wall budget. Source: https://motion.dev/docs/react-reduce-bundle-size. Guard: `motion.lazy.test.tsx` fails when a component imports `motion` (shared/viz excluded: its dev gallery has no provider). Tests resolve `m` to `motion` in `src/test/setup.ts` because components are mounted without the provider.
+- New wall blocks (layout grid, clock, metric, series, indicators, table, text) reuse the animated `Panel`, `FlashValue`, `Sparkline` and `NearLimit`; layouts of a playlist cross-fade with the hero preset.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -84,3 +85,4 @@ All screens (see frontmatter).
 - 2026-10-18 — wall components animated (hero, calm hero, matrix, timeline, also active, near threshold, acknowledge, header, wall screen loading skeleton).
 - 2026-10-18 — console components animated (group list, monitor form, preview table, conditions, data step, SQL editor) (status: in-progress).
 - 2026-10-22 — `m` components + `LazyMotion` (features chunk after first paint) to fit the wall budget.
+- 2026-10-22 — every listed component animated, no pending tests (status: done).
