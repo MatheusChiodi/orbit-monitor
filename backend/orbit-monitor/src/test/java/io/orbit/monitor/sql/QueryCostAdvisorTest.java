@@ -1,14 +1,12 @@
 package io.orbit.monitor.sql;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Tag("pending")
 @DisplayName("BE-14 query cost warning")
 class QueryCostAdvisorTest {
 
