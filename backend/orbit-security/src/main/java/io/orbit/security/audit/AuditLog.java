@@ -26,6 +26,12 @@ public class AuditLog {
 
     public static final String UNKNOWN_OPERATOR = "unknown";
     public static final String ANONYMIZED = "anonymized";
+    /** Largest page {@link #page} returns. */
+    public static final int MAX_PAGE = 500;
+
+    /** One page of matching entries (newest first) and how many entries match in total. */
+    public record Page(java.util.List<AuditEntry> items, int total, int offset, int limit) {
+    }
     private static final Logger LOG = LoggerFactory.getLogger("orbit.audit");
 
     private final SensitiveDataRedactor redactor;
@@ -72,7 +78,21 @@ public class AuditLog {
                 .filter(e -> query.target() == null || query.target().equals(e.target()))
                 .filter(e -> query.operator() == null || e.operator().toLowerCase(Locale.ROOT)
                         .contains(query.operator().toLowerCase(Locale.ROOT)))
+                .filter(e -> query.from() == null || !e.at().isBefore(query.from()))
+                .filter(e -> query.to() == null || e.at().isBefore(query.to()))
                 .toList();
+    }
+
+    /** BE-46: a page of {@link #query}; {@code limit} is capped at {@link #MAX_PAGE}. */
+    public Page page(AuditQuery query, int offset, int limit) {
+        if (offset < 0 || limit < 1) {
+            throw new IllegalArgumentException("offset must be 0 or more and limit at least 1");
+        }
+        int size = Math.min(limit, MAX_PAGE);
+        List<AuditEntry> matching = query(query);
+        int start = Math.min(offset, matching.size());
+        return new Page(List.copyOf(matching.subList(start, Math.min(start + size, matching.size()))),
+                matching.size(), offset, size);
     }
 
     /** LGPD art. 18: replaces an operator name in every entry still in memory; returns how many changed. */
