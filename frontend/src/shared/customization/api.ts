@@ -156,10 +156,15 @@ export function createCustomizationApi(options: ApiClientOptions = {}): Customiz
     async saveTerminology(locale: Locale, labels: Record<string, string>): Promise<void> {
       await request(`/api/terminology/${encodeURIComponent(locale)}`, { method: 'PUT', body: { terms: sanitizeLabels(labels) } });
     },
+    /** BE-41 `GET /api/layouts` returns the layouts; the wall addresses them by slug (`/wall/<slug>`). */
     async listLayoutIds(): Promise<string[]> {
-      const file = await orEmpty(() => request<{ items?: unknown }>('/api/layouts'), { items: [] });
-      const items = Array.isArray(file.items) ? file.items : [];
-      return items.flatMap((item) => (isRecord(item) && typeof item.id === 'string' && TARGET_PATTERN.test(item.id) ? [item.id] : []));
+      const body = await orEmpty(() => request<unknown>('/api/layouts'), []);
+      const items: unknown[] = Array.isArray(body) ? body : isRecord(body) && Array.isArray(body.items) ? body.items : [];
+      return items.flatMap((item) => {
+        if (!isRecord(item)) return [];
+        const slug = typeof item.slug === 'string' ? item.slug : item.id;
+        return typeof slug === 'string' && TARGET_PATTERN.test(slug) ? [slug] : [];
+      });
     },
   };
 }

@@ -92,7 +92,7 @@ describe('customization API (BE-51 contract)', () => {
   });
 
   it('lists the wall layout ids that can hold layout-scoped values', async () => {
-    const fetchMock = fetchStub(() => jsonResponse(200, { version: 1, items: [{ id: 'noc', name: 'NOC' }, { id: 'bad id!' }, { name: 'no id' }] }));
+    const fetchMock = fetchStub(() => jsonResponse(200, [{ id: 'lay_1', slug: 'noc', name: 'NOC' }, { id: 'lay_2', slug: 'bad slug!' }, { name: 'no id' }]));
     const api = createCustomizationApi({ fetch: fetchMock });
     expect(await api.listLayoutIds?.()).toEqual(['noc']);
     expect(call(fetchMock, 0)[0]).toBe('/api/layouts');
