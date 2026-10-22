@@ -3,7 +3,6 @@ package io.orbit.probe.sql;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
@@ -18,7 +17,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@Tag("pending")
 @DisplayName("BE-13 catalog introspection")
 class CatalogIntrospectorTest {
 

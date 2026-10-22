@@ -23,6 +23,7 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Runs a monitor SELECT on a target database: validates it (safe mode), wraps it in a row limit,
@@ -39,14 +40,29 @@ public class SqlProbe {
     }
 
     public ResultPayload execute(DataSource dataSource, Dialect dialect, String sql, SqlProbeOptions options) {
+        return execute(dataSource, dialect, sql, Map.of(), options);
+    }
+
+    /**
+     * BE-11: runs a SELECT with named parameters ({@code :days}) bound through
+     * {@code PreparedStatement.setObject}, never concatenated.
+     */
+    public ResultPayload execute(DataSource dataSource, Dialect dialect, String sql, Map<String, Object> params,
+                                 SqlProbeOptions options) {
         ValidatedSelect select = validator.validate(sql);
         // One extra row tells whether the result was truncated.
         int fetchLimit = options.maxRows() + 1;
         String wrapped = limitWrapper.wrap(select.sql(), dialect, fetchLimit);
+        NamedParameters bound = params == null || params.isEmpty()
+                ? new NamedParameters(wrapped, List.of())
+                : NamedParameters.parse(wrapped, params);
         long start = System.nanoTime();
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            try (PreparedStatement statement = connection.prepareStatement(wrapped)) {
+            try (PreparedStatement statement = connection.prepareStatement(bound.sql())) {
+                for (int i = 0; i < bound.values().size(); i++) {
+                    statement.setObject(i + 1, bound.values().get(i));
+                }
                 statement.setQueryTimeout(options.timeoutSeconds());
                 statement.setFetchSize(options.fetchSize());
                 statement.setMaxRows(fetchLimit);
@@ -70,15 +86,6 @@ public class SqlProbe {
         } catch (SQLException e) {
             throw new SqlProbeException("Query failed: " + e.getMessage(), false, e);
         }
-    }
-
-    /**
-     * BE-11: runs a SELECT with named parameters ({@code :days}) bound through
-     * {@code PreparedStatement.setObject}, never concatenated.
-     */
-    public ResultPayload execute(DataSource dataSource, Dialect dialect, String sql, java.util.Map<String, Object> params,
-                                 SqlProbeOptions options) {
-        throw new UnsupportedOperationException("BE-11 SQL parameters are not implemented yet");
     }
 
     private static List<ResultColumn> columns(ResultSetMetaData meta) throws SQLException {
