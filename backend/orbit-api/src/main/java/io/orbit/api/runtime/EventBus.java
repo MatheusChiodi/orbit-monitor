@@ -23,6 +23,7 @@ public class EventBus {
     private final List<StateChangeListener> stateListeners = new CopyOnWriteArrayList<>();
     private final List<IncidentListener> incidentListeners = new CopyOnWriteArrayList<>();
     private final List<Consumer<CheckResult>> checkListeners = new CopyOnWriteArrayList<>();
+    private final List<Consumer<Notice>> noticeListeners = new CopyOnWriteArrayList<>();
 
     public void onStateChange(StateChangeListener listener) {
         stateListeners.add(listener);
@@ -34,6 +35,14 @@ public class EventBus {
 
     public void onCheck(Consumer<CheckResult> listener) {
         checkListeners.add(listener);
+    }
+
+    public void onNotice(Consumer<Notice> listener) {
+        noticeListeners.add(listener);
+    }
+
+    public void publish(Notice notice) {
+        noticeListeners.forEach(l -> safely(() -> l.accept(notice)));
     }
 
     public void publish(MonitorStateChanged event) {

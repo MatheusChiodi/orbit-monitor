@@ -116,7 +116,7 @@ public class MonitorController {
         switch (type) {
             case "SQL" -> saved = definitions.saveSelect(mapper.toSql(body), operator);
             case "HTTP" -> saved = definitions.saveRequest(mapper.toHttp(body), operator);
-            case "TCP", "PING", "PUSH" -> {
+            case "TCP", "PING", "PUSH", "DNS", "GRPC", "KAFKA", "CERT" -> {
                 CheckMonitorDef check = mapper.toCheck(body, CheckMonitorDef.Type.valueOf(type));
                 if (check.type() == CheckMonitorDef.Type.PUSH && check.pushToken() == null) {
                     String token = newPushToken(check);
@@ -132,7 +132,8 @@ public class MonitorController {
                     saved = definitions.saveCheck(check, operator);
                 }
             }
-            default -> throw new IllegalArgumentException("type must be SQL, HTTP, TCP, PING or PUSH");
+            default -> throw new IllegalArgumentException(
+                    "type must be SQL, HTTP, TCP, PING, PUSH, DNS, GRPC, KAFKA or CERT");
         }
         audit.record(operator, type.toLowerCase(Locale.ROOT) + ".save", saved.id(), auditDetail(saved),
                 request.getRemoteAddr());
@@ -150,9 +151,14 @@ public class MonitorController {
         return switch (saved) {
             case SqlMonitorDef sql -> sql.sql();
             case HttpMonitorDef http -> http.url();
-            case CheckMonitorDef check -> check.type() == CheckMonitorDef.Type.PUSH
-                    ? "push, max silence " + check.maxSilenceSeconds() + " s"
-                    : check.host() + (check.port() == null ? "" : ":" + check.port());
+            case CheckMonitorDef check -> switch (check.type()) {
+                case PUSH -> "push, max silence " + check.maxSilenceSeconds() + " s";
+                case KAFKA -> "kafka " + check.probe().bootstrapServers() + " " + check.probe().consumerGroup()
+                        + "/" + check.probe().topic();
+                case CERT -> "cert " + (check.host() == null ? "" : check.host() + " ")
+                        + (check.probe().domain() == null ? "" : check.probe().domain());
+                default -> check.host() + (check.port() == null ? "" : ":" + check.port());
+            };
             default -> null;
         };
     }
@@ -215,6 +221,15 @@ public class MonitorController {
             Map<String, String> masked = new LinkedHashMap<>();
             http.secretHeaders().forEach((name, ref) -> masked.put(name, ref.masked()));
             map.put("secretHeaders", masked);
+            if (http.oauth() != null) {
+                Map<String, Object> oauth = new LinkedHashMap<>();
+                oauth.put("tokenUrl", http.oauth().tokenUrl());
+                oauth.put("clientId", http.oauth().clientId());
+                oauth.put("clientSecret", http.oauth().clientSecret() == null ? null
+                        : http.oauth().clientSecret().masked());
+                oauth.put("scope", http.oauth().scope());
+                map.put("oauth", oauth);
+            }
         }
         if (def instanceof CheckMonitorDef check && check.pushToken() != null) {
             map.put("pushToken", check.pushToken().masked());

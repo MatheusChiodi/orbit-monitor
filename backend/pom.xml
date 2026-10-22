@@ -36,6 +36,8 @@
         <jsqlparser.version>5.1</jsqlparser.version>
         <springdoc.version>2.8.6</springdoc.version>
         <zstd-jni.version>1.5.7-24</zstd-jni.version>
+        <!-- BE-09 gRPC health probe: OkHttp transport (client only, no Netty). -->
+        <grpc.version>1.84.0</grpc.version>
         <!-- Tests tagged "pending" cover features not implemented yet (docs/05 section 3). -->
         <surefire.excludedGroups>pending,bench</surefire.excludedGroups>
         <surefire.groups></surefire.groups>
@@ -43,6 +45,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-bom</artifactId>
+                <version>${grpc.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>io.orbit</groupId>
                 <artifactId>orbit-common</artifactId>

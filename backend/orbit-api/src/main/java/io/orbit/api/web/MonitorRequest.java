@@ -1,12 +1,21 @@
 package io.orbit.api.web;
 
+import io.orbit.monitor.definition.CheckMonitorDef;
+import io.orbit.monitor.definition.HttpMonitorDef;
+import io.orbit.monitor.definition.RetryDef;
+import io.orbit.monitor.definition.WindowDef;
+
 import java.util.List;
 import java.util.Map;
 
 /**
  * Body of POST /api/monitors, following the frontend {@code MonitorDefinition} contract.
  * A condition is either {@code expression} or {@code field + operator + value}. TCP and ping
- * monitors use {@code host}/{@code port}; push monitors use {@code maxSilenceSeconds}.
+ * monitors use {@code host}/{@code port}; push monitors use {@code maxSilenceSeconds}; DNS, gRPC,
+ * Kafka and certificate checks use {@code host}/{@code port} plus {@code probe}. HTTP monitors may add
+ * {@code steps} (BE-07) and {@code oauth} (BE-08), SQL monitors {@code parameters} (BE-11); every type
+ * accepts {@code window} (BE-17) and {@code retry} (BE-18). {@code retries} is the number of failing
+ * checks that confirm DOWN.
  */
 public record MonitorRequest(
         String id,
@@ -31,7 +40,21 @@ public record MonitorRequest(
         Boolean followRedirects,
         String host,
         Integer port,
-        Integer maxSilenceSeconds) {
+        Integer maxSilenceSeconds,
+        CheckMonitorDef.Probe probe,
+        List<HttpMonitorDef.Step> steps,
+        OAuthRequest oauth,
+        WindowDef window,
+        RetryDef retry,
+        Map<String, Object> parameters) {
+
+    /**
+     * BE-08 client credentials as typed in the console: {@code clientSecret} is sealed into the vault
+     * (the masked placeholder keeps the stored one), or {@code clientSecretEnv} names an environment variable.
+     */
+    public record OAuthRequest(String tokenUrl, String clientId, String clientSecret, String clientSecretEnv,
+                               String scope) {
+    }
 
     public record ConditionRequest(String field, String operator, String value, String expression, String level) {
     }
