@@ -58,6 +58,10 @@ public class AccessFilter extends OncePerRequestFilter {
             return AccessAction.READ;
         }
         String path = request.getRequestURI().substring(request.getContextPath().length());
+        if (path.startsWith("/api/push/")) {
+            // BE-03: the secret push token authenticates the call; a job on another machine sends it.
+            return AccessAction.READ;
+        }
         if (request.getMethod().equals("POST") && path.startsWith("/api/incidents/")) {
             return AccessAction.ACKNOWLEDGE;
         }

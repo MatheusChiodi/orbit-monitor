@@ -24,6 +24,12 @@ class MonitorRequestMapperTest {
     }
 
     @Test
+    void reachabilityConditionsTargetTheResponseTime() {
+        assertThat(MonitorRequestMapper.expression(c("latency", ">", "800ms"), "[RESPONSE_TIME]"))
+                .isEqualTo("[RESPONSE_TIME] > 800ms");
+    }
+
+    @Test
     void explicitExpressionWins() {
         var condition = new MonitorRequest.ConditionRequest("x", "<", "1", "[ROWS] == 0", "DOWN");
         assertThat(MonitorRequestMapper.expression(condition, "[COL].")).isEqualTo("[ROWS] == 0");

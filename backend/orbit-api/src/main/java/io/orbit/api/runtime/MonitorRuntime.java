@@ -84,6 +84,23 @@ public class MonitorRuntime {
             }
         }
         active.values().forEach(m -> scheduler.schedule(m.id(), m.interval()));
+        syncPushTokens();
+    }
+
+    /** BE-03: the registry holds the tokens of configured push monitors, decrypted from the vault. */
+    private void syncPushTokens() {
+        for (CheckMonitorDef check : definitions.checks()) {
+            if (check.type() != CheckMonitorDef.Type.PUSH || check.pushToken() == null) {
+                probes.push().forget(check.id());
+                continue;
+            }
+            try {
+                int silence = check.maxSilenceSeconds() == null ? 0 : check.maxSilenceSeconds();
+                probes.push().restore(check.id(), secrets.resolve(check.pushToken()), Duration.ofSeconds(silence));
+            } catch (VaultException e) {
+                probes.push().forget(check.id());
+            }
+        }
     }
 
     public Optional<CheckResult> runCheck(String monitorId) {

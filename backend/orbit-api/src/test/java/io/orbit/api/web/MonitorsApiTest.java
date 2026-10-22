@@ -14,7 +14,9 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import java.nio.file.Files;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -54,11 +56,14 @@ class MonitorsApiTest {
 
     @Test
     void connectionPasswordIsSealedAndNeverReturned() throws Exception {
+        // Other tests share the Spring context and config dir, so look the connection up by id
+        // instead of relying on its position; every listed password must be masked.
         mvc.perform(get("/api/connections"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value("con_h2"))
-                .andExpect(jsonPath("$[0].kind").value("H2"))
-                .andExpect(jsonPath("$[0].password").value("•••• (vault)"));
+                .andExpect(jsonPath("$[?(@.id == 'con_h2')].id").value("con_h2"))
+                .andExpect(jsonPath("$[?(@.id == 'con_h2')].kind").value("H2"))
+                .andExpect(jsonPath("$[?(@.id == 'con_h2')].password").value("•••• (vault)"))
+                .andExpect(jsonPath("$[*].password", everyItem(is("•••• (vault)"))));
         String file = Files.readString(properties.configDir().resolve("orbit.connections.json"));
         assertThat(file).contains("\"enc\"").doesNotContain("\"pw\"");
         send(post("/api/connections/con_h2/test"), "").andExpect(jsonPath("$.ok").value(true));
