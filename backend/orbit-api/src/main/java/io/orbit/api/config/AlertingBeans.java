@@ -69,10 +69,16 @@ public class AlertingBeans {
         return new TemplateCatalog(notificationTemplateFile::items);
     }
 
+    /** A bean like every alerting file, so the 5 s reload (ConfigReloader) picks up external edits. */
     @Bean
-    SilenceService silenceService(OrbitProperties properties, Clock clock) {
-        return new SilenceService(new ConfigFile<>(properties.configDir(), "silences", SilenceService.Silence.class,
-                ConfigMapper.create(), items -> List.of()), clock);
+    ConfigFile<SilenceService.Silence> silencesFile(OrbitProperties properties) {
+        return new ConfigFile<>(properties.configDir(), "silences", SilenceService.Silence.class,
+                ConfigMapper.create(), items -> List.of());
+    }
+
+    @Bean
+    SilenceService silenceService(ConfigFile<SilenceService.Silence> silencesFile, Clock clock) {
+        return new SilenceService(silencesFile, clock);
     }
 
     @Bean
