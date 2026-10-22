@@ -80,8 +80,8 @@
     },
     "ack": {
       "button": "Acknowledge",
-      "doneAt": "{{name}} acknowledged at {{time}}",
-      "done": "{{name}} acknowledged"
+      "doneAt": "Acknowledged at {{time}}",
+      "done": "Acknowledged"
     },
     "alsoActive": {
       "title": "Also active",
@@ -142,13 +142,10 @@
   "access": {
     "viewOnly": "View-only: edits are allowed only on the machine running Orbit"
   },
-  "operator": {
-    "title": "What name should appear on your actions?",
-    "label": "Operator name",
-    "hint": "Saved on this device only. It is self-declared, not a login.",
-    "submit": "Continue",
-    "required": "Enter a name",
-    "change": "Change name"
+  "actor": {
+    "loopback": "This machine",
+    "lan": "Local network",
+    "unknown": "Unknown"
   },
   "console": {
     "openWall": "Open wall",
@@ -331,7 +328,6 @@
     "density": "Density",
     "language": "Language",
     "scale": "Viewing distance",
-    "operatorName": "Operator name",
     "hint": "Saved on this device only. Workspace defaults apply to anything you leave unchanged.",
     "workspaceDefault": "workspace default",
     "reducedMotion": "Your system asks for reduced motion, so animations stay off.",
@@ -490,7 +486,6 @@
   },
   "diff": {
     "table": "SELECT changes",
-    "author": "{{name}} (self-declared) · {{client}}",
     "summary": "{{removed}} line removed, {{added}} line added",
     "empty": "No changes to this SELECT in the audit trail yet"
   },
@@ -518,7 +513,6 @@
     "timeline": "Timeline",
     "comment": "Comment",
     "addComment": "Add comment",
-    "author": "{{name}} (self-declared)",
     "ticket": "Ticket",
     "linkTicket": "Link ticket",
     "postmortem": "Postmortem",

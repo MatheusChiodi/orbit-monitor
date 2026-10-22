@@ -1,7 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createOperatorStore } from '@/domains/security/operator';
 import { makePan } from '@/test/sensitive';
 import { ConsoleApp } from './ConsoleApp';
 import type { ConsoleApi } from './consoleSource';
@@ -41,9 +40,7 @@ afterEach(() => {
 });
 
 async function runPreview() {
-  const store = createOperatorStore();
-  store.getState().setName('M. Chiodi');
-  render(<ConsoleApp api={api()} operatorStore={store} />);
+  render(<ConsoleApp api={api()} />);
   await userEvent.click(await screen.findByRole('button', { name: 'New monitor' }));
   await userEvent.selectOptions(await screen.findByLabelText('Connection'), 'c');
   fireEvent.change(screen.getByRole('textbox', { name: 'SQL query' }), { target: { value: 'SELECT CARD FROM X' } });

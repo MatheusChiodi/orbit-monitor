@@ -13,7 +13,7 @@ updated: 2026-10-22
 Groups and monitors with state, filters, saved views, bulk actions.
 
 ## Layout and components
-- `ConsoleApp` → operator prompt (first visit) → header (language, open wall, operator name, change name) → `ViewOnlyBanner` → `GroupList`
+- `ConsoleApp` → access check (workspace / `ServerUnreachable` / demo with `?demo`; no name prompt) → header (language, open wall) → `ViewOnlyBanner` → `GroupList`
 - `GroupList`: text filter, "New monitor" (edit mode only), one section per group with summary and a row per monitor (state text, name, type, rule, value)
 - `GroupList` rows and group headers follow the FE-55 card settings (fields, variant, title, order, summary, empty text, click / double-click / long-press actions, inline expand); header has the Customize toggle (FE-53, editors only)
 
@@ -58,3 +58,4 @@ Groups and monitors with state, filters, saved views, bulk actions.
 - 2026-10-22 — card settings and Customize mode on the monitor list.
 - 2026-10-22 — card actions open #/monitors/:id, acknowledge the open incident or open the target URL.
 - 2026-10-22 — no backend: "Cannot reach the Orbit server" with Try again; demo only with `?demo`; guides ignore the built-in `orbit_self` monitor.
+- 2026-10-22 — operator name prompt and "Change name" removed: the console opens straight to the workspace.

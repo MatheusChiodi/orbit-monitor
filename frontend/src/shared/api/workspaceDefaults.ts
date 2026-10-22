@@ -9,15 +9,13 @@ import { ApiError, createApiCore, type ApiClientOptions } from './client';
 type RawDefaults = Record<string, unknown>;
 
 function toDefaults(raw: RawDefaults): WorkspacePreferenceDefaults {
-  const clean = sanitizePreferences({
+  return sanitizePreferences({
     theme: raw.theme,
     animation: raw.animationLevel ?? raw.animation,
     density: raw.density,
     locale: raw.locale ?? raw.defaultLocale,
     scale: raw.scale,
   });
-  delete clean.operatorName;
-  return clean;
 }
 
 export async function fetchWorkspaceDefaults(options: Pick<ApiClientOptions, 'fetch' | 'baseUrl'> = {}): Promise<WorkspacePreferenceDefaults> {
@@ -37,7 +35,7 @@ export async function fetchWorkspaceDefaults(options: Pick<ApiClientOptions, 'fe
 /** Editors only (access policy); the backend answers 403 for view-only clients. */
 export async function saveWorkspaceDefaults(
   defaults: WorkspacePreferenceDefaults,
-  options: Pick<ApiClientOptions, 'fetch' | 'baseUrl' | 'getOperator'> = {},
+  options: Pick<ApiClientOptions, 'fetch' | 'baseUrl'> = {},
 ): Promise<WorkspacePreferenceDefaults> {
   const { request } = createApiCore(options);
   return toDefaults(await request<RawDefaults>('/api/settings/defaults', { method: 'PUT', body: defaults }));

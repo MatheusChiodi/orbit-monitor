@@ -23,9 +23,8 @@ export function AcknowledgeButton({ incident, onAcknowledge, className = '', but
     exit: preset.level === 'off' ? {} : { opacity: 0, transition: preset.exit.transition },
     transition: preset.transition,
   };
-  const text = incident.acknowledgedAt
-    ? t('wall.ack.doneAt', { name: incident.acknowledgedBy ?? '', time: formatTime(incident.acknowledgedAt) })
-    : t('wall.ack.done', { name: incident.acknowledgedBy ?? '' });
+  // `acknowledgedBy` holds the client kind (or a legacy name): never shown as a person.
+  const text = incident.acknowledgedAt ? t('wall.ack.doneAt', { time: formatTime(incident.acknowledgedAt) }) : t('wall.ack.done');
 
   return (
     <AnimatePresence initial={false}>

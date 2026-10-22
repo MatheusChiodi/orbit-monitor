@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createOperatorStore } from '@/domains/security/operator';
 import { fromEntries, type CustomizationApi } from '@/shared/customization/api';
 import { createCustomizationStore } from '@/shared/customization/store';
 import { createPreferencesStore } from '@/shared/preferences/preferences';
@@ -30,12 +29,6 @@ function customizationApi(): CustomizationApi {
   };
 }
 
-function namedStore() {
-  const store = createOperatorStore();
-  store.getState().setName('M. Chiodi');
-  return store;
-}
-
 beforeEach(() => {
   localStorage.clear();
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
@@ -51,7 +44,7 @@ describe('CORE-21 customization in the console', () => {
   it('loads the workspace customization and opens the generated settings screen', async () => {
     const preferences = createPreferencesStore();
     const store = createCustomizationStore({ api: customizationApi(), preferences });
-    render(<ConsoleApp api={api()} operatorStore={namedStore()} preferencesStore={preferences} customizationStore={store} />);
+    render(<ConsoleApp api={api()} preferencesStore={preferences} customizationStore={store} />);
     await userEvent.click(await screen.findByRole('button', { name: 'Customization' }));
     expect(screen.getByRole('heading', { level: 1, name: 'Customization' })).toBeInTheDocument();
     expect(await screen.findByRole('combobox', { name: 'Corner radius' })).toHaveValue('sharp');
@@ -60,20 +53,20 @@ describe('CORE-21 customization in the console', () => {
 
   it('applies the renamed labels from orbit.terminology.json', async () => {
     const store = createCustomizationStore({ api: customizationApi() });
-    render(<ConsoleApp api={api()} operatorStore={namedStore()} customizationStore={store} customizationApi={customizationApi()} />);
+    render(<ConsoleApp api={api()} customizationStore={store} customizationApi={customizationApi()} />);
     expect(await screen.findByRole('heading', { level: 1, name: 'Checks' })).toBeInTheDocument();
   });
 
   it('view-only clients see the settings but cannot change them', async () => {
     const store = createCustomizationStore({ api: customizationApi() });
-    render(<ConsoleApp api={api('view-only')} operatorStore={namedStore()} customizationStore={store} />);
+    render(<ConsoleApp api={api('view-only')} customizationStore={store} />);
     await userEvent.click(await screen.findByRole('button', { name: 'Customization' }));
     expect(await screen.findByRole('combobox', { name: 'Corner radius' })).toBeDisabled();
   });
 
   it('FE-53: editors get the Customize toggle (Ctrl+.) with handles on the monitor list', async () => {
     const store = createCustomizationStore({ api: customizationApi() });
-    render(<ConsoleApp api={api()} operatorStore={namedStore()} customizationStore={store} />);
+    render(<ConsoleApp api={api()} customizationStore={store} />);
     await userEvent.click(await screen.findByRole('button', { name: 'Customize' }));
     expect(await screen.findByRole('button', { name: 'Customize Queue' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Customize Queue' }));
@@ -82,14 +75,14 @@ describe('CORE-21 customization in the console', () => {
 
   it('FE-53: view-only clients never see Customize', async () => {
     const store = createCustomizationStore({ api: customizationApi() });
-    render(<ConsoleApp api={api('view-only')} operatorStore={namedStore()} customizationStore={store} />);
+    render(<ConsoleApp api={api('view-only')} customizationStore={store} />);
     expect(await screen.findByRole('button', { name: 'Customization' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Customize' })).not.toBeInTheDocument();
   });
 
   it('FE-57: the customization screen has a profiles tab with the built-in profiles', async () => {
     const store = createCustomizationStore({ api: customizationApi() });
-    render(<ConsoleApp api={api()} operatorStore={namedStore()} customizationStore={store} />);
+    render(<ConsoleApp api={api()} customizationStore={store} />);
     await userEvent.click(await screen.findByRole('button', { name: 'Customization' }));
     await userEvent.click(screen.getByRole('tab', { name: 'Profiles' }));
     expect(screen.getByRole('article', { name: 'TV wall' })).toBeInTheDocument();

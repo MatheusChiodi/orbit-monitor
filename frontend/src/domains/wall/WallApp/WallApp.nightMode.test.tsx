@@ -19,13 +19,13 @@ const offline = () => ({ getWallSnapshot: vi.fn().mockRejectedValue(new Error('o
 
 describe('FE-09 night mode on the wall', () => {
   it('dims a calm wall inside the schedule', async () => {
-    render(<WallApp api={offline()} connect={vi.fn()} operator="Ana" mock={() => mockSnapshot('ok')} nightMode={scheduleAroundNow()} />);
+    render(<WallApp api={offline()} connect={vi.fn()} mock={() => mockSnapshot('ok')} nightMode={scheduleAroundNow()} />);
     expect(await screen.findByTestId('night-mode')).toBeInTheDocument();
     expect(screen.getByText('Night mode')).toBeInTheDocument();
   });
 
   it('an unacknowledged DOWN incident keeps the wall at full brightness', async () => {
-    render(<WallApp api={offline()} connect={vi.fn()} operator="Ana" mock={() => mockSnapshot('incident')} nightMode={scheduleAroundNow()} />);
+    render(<WallApp api={offline()} connect={vi.fn()} mock={() => mockSnapshot('incident')} nightMode={scheduleAroundNow()} />);
     expect(await screen.findByRole('button', { name: 'Acknowledge' })).toBeInTheDocument();
     expect(screen.queryByTestId('night-mode')).toBeNull();
   });

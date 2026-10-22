@@ -1,75 +1,68 @@
 import { expect, test } from '@playwright/test';
 import { goOffline } from './support/offline';
 
-test.describe('console operator name (BE-45, no login)', () => {
-  test.beforeEach(async ({ page }) => {
+/** BE-45 retired in the UI: no login and no self-declared name; the server records the client kind. */
+test.describe('console without an operator name (no login)', () => {
+  test('the demo workspace opens straight away: no name prompt, no "Change name"', async ({ page }) => {
     await goOffline(page);
-  });
-
-  test('a first visit asks for a name before showing the workspace', async ({ page }) => {
     await page.goto('/?demo');
-
-    await expect(page.getByRole('heading', { name: 'What name should appear on your actions?' })).toBeVisible();
-    await expect(page.getByText('It is self-declared, not a login.')).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Monitors' })).toHaveCount(0);
-  });
-
-  test('an empty or blank name is refused with an alert', async ({ page }) => {
-    await page.goto('/?demo');
-
-    await page.getByLabel('Operator name').fill('   ');
-    await page.getByRole('button', { name: 'Continue' }).click();
-
-    await expect(page.getByRole('alert')).toHaveText('Enter a name');
-    await expect(page.getByRole('heading', { name: 'Monitors' })).toHaveCount(0);
-  });
-
-  test('a name opens the demo workspace and survives a reload', async ({ page }) => {
-    await page.goto('/?demo');
-
-    await page.getByLabel('Operator name').fill('  Ana Souza  ');
-    await page.getByRole('button', { name: 'Continue' }).click();
 
     await expect(page.getByRole('heading', { name: 'Monitors' })).toBeVisible();
-    await expect(page.getByText('Ana Souza', { exact: true })).toBeVisible();
     await expect(page.getByText('demo data')).toBeVisible();
-
-    await page.reload();
-    await expect(page.getByRole('heading', { name: 'Monitors' })).toBeVisible();
-    await expect(page.getByText('Ana Souza', { exact: true })).toBeVisible();
+    await expect(page.getByLabel('Operator name')).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'What name should appear on your actions?' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Change name' })).toHaveCount(0);
   });
 
-  test('"Change name" reopens the prompt with the current name filled in', async ({ page }) => {
+  test('a name left by an older version is forgotten on boot and never shown', async ({ page }) => {
+    await goOffline(page);
+    await page.addInitScript(() => {
+      try {
+        if (!sessionStorage.getItem('seeded')) {
+          localStorage.setItem('orbit.operator', 'Ana Souza');
+          sessionStorage.setItem('seeded', '1');
+        }
+      } catch {
+        // storage blocked: nothing to seed
+      }
+    });
     await page.goto('/?demo');
-    await page.getByLabel('Operator name').fill('Ana');
-    await page.getByRole('button', { name: 'Continue' }).click();
 
-    await page.getByRole('button', { name: 'Change name' }).click();
-
-    await expect(page.getByLabel('Operator name')).toHaveValue('Ana');
-    await page.getByLabel('Operator name').fill('Bruno');
-    await page.getByRole('button', { name: 'Continue' }).click();
-    await expect(page.getByText('Bruno', { exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Monitors' })).toBeVisible();
+    await expect(page.getByText('Ana Souza')).toHaveCount(0);
+    expect(await page.evaluate(() => localStorage.getItem('orbit.operator'))).toBeNull();
   });
 
-  test('every API call after the name is declared carries it in X-Orbit-Operator', async ({ page }) => {
-    const headers: (string | undefined)[] = [];
+  test('no API call carries X-Orbit-Operator, and the console reaches the access check without a prompt', async ({ page }) => {
+    const calls: { path: string; operator: string | undefined }[] = [];
     await page.route(
       (url) => url.pathname.startsWith('/api/'),
       (route) => {
-        headers.push(route.request().headers()['x-orbit-operator']);
+        calls.push({ path: new URL(route.request().url()).pathname, operator: route.request().headers()['x-orbit-operator'] });
         return route.abort();
       },
     );
+    await page.routeWebSocket(/\/ws\//, (socket) => socket.close());
     await page.goto('/');
-    await expect(page.getByLabel('Operator name')).toBeVisible();
-    // Before a name is declared there is none to send (boot reads of themes and customization).
-    headers.length = 0;
-    await page.getByLabel('Operator name').fill('Ana');
-    await page.getByRole('button', { name: 'Continue' }).click();
-    await expect(page.getByRole('alert')).toContainText('Cannot reach the Orbit server');
 
-    expect(headers.length).toBeGreaterThan(0);
-    expect(new Set(headers)).toEqual(new Set(['Ana']));
+    await expect(page.getByRole('alert')).toContainText('Cannot reach the Orbit server');
+    expect(calls.map((c) => c.path)).toContain('/api/access');
+    expect(calls.filter((c) => c.operator !== undefined)).toEqual([]);
+  });
+
+  test('the wall sends no X-Orbit-Operator either', async ({ page }) => {
+    const operators: (string | undefined)[] = [];
+    await page.route(
+      (url) => url.pathname.startsWith('/api/'),
+      (route) => {
+        operators.push(route.request().headers()['x-orbit-operator']);
+        return route.abort();
+      },
+    );
+    await page.routeWebSocket(/\/ws\//, (socket) => socket.close());
+    await page.goto('/wall.html?operator=Night%20shift');
+
+    await expect.poll(() => operators.length).toBeGreaterThan(0);
+    expect(operators.filter((o) => o !== undefined)).toEqual([]);
   });
 });

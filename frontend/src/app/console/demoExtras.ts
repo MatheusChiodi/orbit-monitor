@@ -41,13 +41,13 @@ function demoIncidents(snapshot: WallSnapshot, now: Date): IncidentRecord[] {
     severity: 'DOWN',
     openedAt: minutesAgo(now, 101),
     resolvedAt: minutesAgo(now, 95),
-    acknowledgedBy: 'R. Lima',
+    acknowledgedBy: 'lan',
     acknowledgedAt: minutesAgo(now, 99),
     ticket: 'INC-4810',
     events: [
       { type: 'OPENED', actor: 'orbit', at: minutesAgo(now, 101), detail: 'DOWN' },
-      { type: 'ACKNOWLEDGED', actor: 'R. Lima', at: minutesAgo(now, 99), detail: null },
-      { type: 'TICKET_LINKED', actor: 'R. Lima', at: minutesAgo(now, 98), detail: 'INC-4810' },
+      { type: 'ACKNOWLEDGED', actor: 'lan', at: minutesAgo(now, 99), detail: null },
+      { type: 'TICKET_LINKED', actor: 'lan', at: minutesAgo(now, 98), detail: 'INC-4810' },
       { type: 'RESOLVED', actor: 'orbit', at: minutesAgo(now, 95), detail: null },
     ],
     impact: [],
@@ -56,7 +56,7 @@ function demoIncidents(snapshot: WallSnapshot, now: Date): IncidentRecord[] {
 }
 
 function demoAudit(now: Date): AuditEntry[] {
-  const entry = (minutes: number, operator: string, detail: string, remoteAddress: string): AuditEntry => ({
+  const entry = (minutes: number, operator: 'loopback' | 'lan', detail: string, remoteAddress: string): AuditEntry => ({
     at: minutesAgo(now, minutes),
     operator,
     action: 'sql.save',
@@ -65,9 +65,9 @@ function demoAudit(now: Date): AuditEntry[] {
     remoteAddress,
   });
   return [
-    entry(30, 'M. Chiodi', 'SELECT COUNT(*) AS QTY\nFROM V_RECONCILIATION_PENDING\nWHERE STATUS = \'PENDING\'', '127.0.0.1'),
-    entry(600, 'R. Lima', 'SELECT COUNT(*) AS QTY\nFROM V_RECONCILIATION_PENDING', '192.168.0.20'),
-    entry(2000, 'M. Chiodi', 'SELECT COUNT(*) FROM V_RECONCILIATION_PENDING', '127.0.0.1'),
+    entry(30, 'loopback', 'SELECT COUNT(*) AS QTY\nFROM V_RECONCILIATION_PENDING\nWHERE STATUS = \'PENDING\'', '127.0.0.1'),
+    entry(600, 'lan', 'SELECT COUNT(*) AS QTY\nFROM V_RECONCILIATION_PENDING', '192.168.0.20'),
+    entry(2000, 'loopback', 'SELECT COUNT(*) FROM V_RECONCILIATION_PENDING', '127.0.0.1'),
   ];
 }
 
@@ -93,6 +93,8 @@ export function createDemoExtras(snapshot: WallSnapshot, now: Date = new Date())
     return next;
   }
   const append = (incident: IncidentRecord, event: IncidentEventRecord) => [...incident.events, event];
+  // Demo actions happen in this browser: the server would record the client kind, shown as "This machine".
+  const by = 'loopback';
 
   return {
     getMonitor: async (id) => {
@@ -103,20 +105,20 @@ export function createDemoExtras(snapshot: WallSnapshot, now: Date = new Date())
     listIncidents: async (filter = {}) =>
       [...incidents.values()].filter((i) => (!filter.status || i.status === filter.status) && (!filter.monitorId || i.monitorId === filter.monitorId)),
     getIncident: async (id) => update(id, (i) => i),
-    acknowledgeIncidentRecord: async (id, by) =>
+    acknowledgeIncidentRecord: async (id) =>
       update(id, (i, at) => ({ ...i, acknowledgedBy: by, acknowledgedAt: at, events: append(i, { type: 'ACKNOWLEDGED', actor: by, at, detail: null }) })),
-    resolveIncident: async (id, by) =>
+    resolveIncident: async (id) =>
       update(id, (i, at) => ({ ...i, status: 'RESOLVED', resolvedAt: at, events: append(i, { type: 'RESOLVED', actor: by, at, detail: null }) })),
-    reopenIncident: async (id, by) =>
+    reopenIncident: async (id) =>
       update(id, (i, at) => ({ ...i, status: 'OPEN', resolvedAt: null, events: append(i, { type: 'REOPENED', actor: by, at, detail: null }) })),
     getIncidentEscalation: async (id) => {
       const incident = incidents.get(id);
       if (!incident?.escalatesAt || incident.acknowledgedBy || incident.status === 'RESOLVED') return null;
       return { incidentId: id, stepName: 'On-call DBA', dueAt: incident.escalatesAt };
     },
-    commentIncident: async (id, by, text) =>
+    commentIncident: async (id, text) =>
       update(id, (i, at) => ({ ...i, events: append(i, { type: 'COMMENTED', actor: by, at, detail: text }) })),
-    linkIncidentTicket: async (id, by, ticket) =>
+    linkIncidentTicket: async (id, ticket) =>
       update(id, (i, at) => ({ ...i, ticket, events: append(i, { type: 'TICKET_LINKED', actor: by, at, detail: ticket }) })),
     listMaintenance: async () => [...maintenance.values()],
     listMaintenanceOccurrences: async ({ from, to }) =>
@@ -155,7 +157,10 @@ export function createDemoExtras(snapshot: WallSnapshot, now: Date = new Date())
     },
     queryAudit: async (filter) => {
       const items = demoAudit(now).filter(
-        (e) => (!filter.action || e.action.startsWith(filter.action)) && (!filter.target || e.target === filter.target),
+        (e) =>
+          (!filter.action || e.action.startsWith(filter.action)) &&
+          (!filter.target || e.target === filter.target) &&
+          (!filter.operator || e.operator === filter.operator),
       );
       return { items, total: items.length };
     },

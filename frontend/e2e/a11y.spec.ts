@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { fakeApi, goOffline, rememberOperator } from './support/offline';
+import { fakeApi, goOffline } from './support/offline';
 import { DEV_URL } from './support/urls';
 
 /** WCAG 2.1 AA plus axe best practices (docs/03-design.md: contrast, keyboard, screen readers). */
@@ -40,17 +40,8 @@ test.describe('accessibility (axe)', () => {
     expect(await violations(page, { skipKnown: true })).toEqual([]);
   });
 
-  test('console operator prompt has no other violations', async ({ page }) => {
-    await goOffline(page);
-    await page.goto('/?demo');
-    await expect(page.getByLabel('Operator name')).toBeVisible();
-
-    expect(await violations(page, { skipKnown: true })).toEqual([]);
-  });
-
   test('console workspace (demo) is fully clean', async ({ page }) => {
     await goOffline(page);
-    await rememberOperator(page, 'Ana');
     await page.goto('/?demo');
     await expect(page.getByRole('heading', { name: 'Monitors' })).toBeVisible();
 
@@ -58,7 +49,6 @@ test.describe('accessibility (axe)', () => {
   });
 
   test('console view-only banner is announced as a status', async ({ page }) => {
-    await rememberOperator(page, 'TV');
     await fakeApi(page, { access: { mode: 'view-only', client: 'lan' }, groups: [], monitors: [] });
     await page.goto('/');
 
@@ -95,15 +85,8 @@ test.describe('accessibility (axe)', () => {
   });
 
   // Bug (frontend-agent / orbit-themes): `--dim` (#5a6575 on #0d1117, 3.2:1) is a large-text level
-  // (contrast.ts guards it at 3:1) but is used on small text: the operator hint (11.7 px) and
-  // the chart axis labels (9.3 px) need 4.5:1 (WCAG 1.4.3).
-  test.fixme('operator prompt hint meets AA contrast', async ({ page }) => {
-    await goOffline(page);
-    await page.goto('/?demo');
-    await expect(page.getByLabel('Operator name')).toBeVisible();
-    expect(await violations(page, { rules: ['color-contrast'] })).toEqual([]);
-  });
-
+  // (contrast.ts guards it at 3:1) but is used on small text: the chart axis labels (9.3 px) need
+  // 4.5:1 (WCAG 1.4.3).
   test.fixme('viz gallery axis labels meet AA contrast', async ({ page }) => {
     await page.goto(`${DEV_URL}/src/shared/viz/VizGallery/gallery.html`);
     await expect(page.getByRole('heading', { level: 2 })).toHaveCount(20);

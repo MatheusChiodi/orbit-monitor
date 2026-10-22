@@ -1,7 +1,6 @@
 import { useId, useState, type ChangeEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useStore } from 'zustand';
-import { normalizeOperatorName } from '@/domains/security/operator/operator';
 import { SUPPORTED_LOCALES } from '@/shared/i18n/i18n';
 import { translate, type Message } from '@/shared/i18n/message';
 import { ANIMATION_LEVELS, systemPrefersReducedMotion } from '@/shared/motion/animationLevel';
@@ -16,7 +15,7 @@ import {
 } from '@/shared/preferences/preferences';
 import { VIEWING_DISTANCES } from '@/shared/preferences/viewingDistance';
 import { BUILT_IN_THEMES } from '@/shared/theme/registry';
-import { Button, INPUT_CLASS, Panel, SELECT_CLASS } from '@/shared/ui';
+import { Button, Panel, SELECT_CLASS } from '@/shared/ui';
 
 export interface DevicePreferencesProps {
   store: PreferencesStore;
@@ -66,7 +65,7 @@ function Field({ label, fromWorkspace, children }: FieldProps) {
   );
 }
 
-/** FE-50: theme, animation level, density, language, viewing distance and operator name for this device. */
+/** FE-50: theme, animation level, density, language and viewing distance for this device (no operator name). */
 export function DevicePreferences({ store }: DevicePreferencesProps) {
   const { t } = useTranslation();
   const device = useStore(store, (s) => s.device);
@@ -76,7 +75,6 @@ export function DevicePreferences({ store }: DevicePreferencesProps) {
   const reset = useStore(store, (s) => s.reset);
   const setAnimationPreset = useStore(store, (s) => s.setAnimationPreset);
   const [reducedMotion] = useState(systemPrefersReducedMotion);
-  const [operatorDraft, setOperatorDraft] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<Message | null>(null);
 
@@ -93,12 +91,6 @@ export function DevicePreferences({ store }: DevicePreferencesProps) {
   const themes = BUILT_IN_THEMES.some((theme) => theme.id === effective.theme)
     ? BUILT_IN_THEMES.map((theme) => ({ id: theme.id, name: theme.name }))
     : [{ id: effective.theme, name: effective.theme }, ...BUILT_IN_THEMES.map((theme) => ({ id: theme.id, name: theme.name }))];
-
-  const commitOperator = () => {
-    if (operatorDraft === null) return;
-    set('operatorName', normalizeOperatorName(operatorDraft));
-    setOperatorDraft(null);
-  };
 
   async function onImport(event: ChangeEvent<HTMLInputElement>) {
     const input = event.currentTarget;
@@ -183,23 +175,6 @@ export function DevicePreferences({ store }: DevicePreferencesProps) {
           )}
         </Field>
 
-        <Field label={t('preferences.operatorName')} fromWorkspace={false}>
-          {(id) => (
-            <input
-              id={id}
-              type="text"
-              maxLength={60}
-              autoComplete="name"
-              className={INPUT_CLASS}
-              value={operatorDraft ?? effective.operatorName ?? ''}
-              onChange={(event) => setOperatorDraft(event.target.value)}
-              onBlur={commitOperator}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') commitOperator();
-              }}
-            />
-          )}
-        </Field>
       </div>
 
       <MotionSettingsPanel store={store} reducedMotion={reducedMotion} />
@@ -214,7 +189,6 @@ export function DevicePreferences({ store }: DevicePreferencesProps) {
           variant="ghost"
           onClick={() => {
             reset();
-            setOperatorDraft(null);
             setNotice(null);
             setError(null);
           }}

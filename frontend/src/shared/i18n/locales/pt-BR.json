@@ -80,8 +80,8 @@
     },
     "ack": {
       "button": "Reconhecer",
-      "doneAt": "{{name}} reconheceu às {{time}}",
-      "done": "{{name}} reconheceu"
+      "doneAt": "Reconhecido às {{time}}",
+      "done": "Reconhecido"
     },
     "alsoActive": {
       "title": "Também ativos",
@@ -142,13 +142,10 @@
   "access": {
     "viewOnly": "Somente leitura: edições só na máquina onde o Orbit roda"
   },
-  "operator": {
-    "title": "Qual nome deve aparecer nas suas ações?",
-    "label": "Nome do operador",
-    "hint": "Guardado só neste dispositivo. É autodeclarado, não é um login.",
-    "submit": "Continuar",
-    "required": "Informe um nome",
-    "change": "Trocar nome"
+  "actor": {
+    "loopback": "Esta máquina",
+    "lan": "Rede local",
+    "unknown": "Desconhecido"
   },
   "console": {
     "openWall": "Abrir parede",
@@ -331,7 +328,6 @@
     "density": "Densidade",
     "language": "Idioma",
     "scale": "Distância de visualização",
-    "operatorName": "Nome do operador",
     "hint": "Guardado só neste dispositivo. Os padrões do workspace valem para o que você não alterar.",
     "workspaceDefault": "padrão do workspace",
     "reducedMotion": "Seu sistema pede movimento reduzido, então as animações ficam desligadas.",
@@ -490,7 +486,6 @@
   },
   "diff": {
     "table": "Alterações do SELECT",
-    "author": "{{name}} (autodeclarado) · {{client}}",
     "summary": "{{removed}} linha removida, {{added}} linha adicionada",
     "empty": "Nenhuma alteração deste SELECT na trilha de auditoria ainda"
   },
@@ -518,7 +513,6 @@
     "timeline": "Linha do tempo",
     "comment": "Comentário",
     "addComment": "Adicionar comentário",
-    "author": "{{name}} (autodeclarado)",
     "ticket": "Chamado",
     "linkTicket": "Vincular chamado",
     "postmortem": "Pós-incidente",

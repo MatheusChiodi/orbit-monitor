@@ -22,7 +22,7 @@ export type IncidentEventType =
 
 export interface IncidentEventRecord {
   type: IncidentEventType;
-  /** Self-declared operator name, or `orbit` for system events. */
+  /** Client kind (`loopback`, `lan`, `unknown`) or `orbit` for system events; older data may hold a name. */
   actor: string;
   at: string;
   detail: string | null;
@@ -104,6 +104,7 @@ export interface StatusPageRecord {
 /** `GET /api/audit` entry (io.orbit.security.audit.AuditEntry); `detail` is already masked. */
 export interface AuditEntry {
   at: string;
+  /** Client kind (`loopback`, `lan`, `unknown`); older entries may hold a self-declared name. */
   operator: string;
   action: string;
   target: string | null;

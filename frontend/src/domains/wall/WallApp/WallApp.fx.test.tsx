@@ -12,7 +12,7 @@ beforeEach(() => {
 
 function renderWall(scenario: 'ok' | 'incident') {
   const api = { getWallSnapshot: vi.fn().mockRejectedValue(new Error('offline')), acknowledgeIncident: vi.fn() };
-  return render(<WallApp api={api} connect={vi.fn()} operator="M. Chiodi" mock={() => mockSnapshot(scenario, now)} />);
+  return render(<WallApp api={api} connect={vi.fn()} mock={() => mockSnapshot(scenario, now)} />);
 }
 
 describe('FE-52 wall FX', () => {

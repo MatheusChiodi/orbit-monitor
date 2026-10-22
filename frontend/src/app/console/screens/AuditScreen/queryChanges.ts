@@ -16,7 +16,7 @@ export function toQueryChanges(entries: readonly AuditEntry[]): QueryChange[] {
     const current = saves[i]!;
     const after = current.detail ?? '';
     if (before === after) continue;
-    changes.push({ before, after, operator: current.operator, client: clientOf(current.remoteAddress), at: current.at });
+    changes.push({ before, after, client: clientOf(current.remoteAddress), at: current.at });
   }
   return changes.reverse();
 }

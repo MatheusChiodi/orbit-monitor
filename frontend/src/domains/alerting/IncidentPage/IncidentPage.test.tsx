@@ -21,7 +21,7 @@ const incident: IncidentDetail = {
   events: [
     { id: 'e1', at: new Date(2026, 9, 18, 17, 5, 59).toISOString(), kind: 'DOWN', title: 'Reconciliation queue down', detail: 'QTY = 349 · rule QTY < 200' },
   ],
-  comments: [{ id: 'c1', at: new Date(2026, 9, 18, 17, 7).toISOString(), author: 'R. Lima', text: 'Looking at the batch job.' }],
+  comments: [{ id: 'c1', at: new Date(2026, 9, 18, 17, 7).toISOString(), author: 'lan', text: 'Looking at the batch job.' }],
 };
 
 function setup(overrides: Partial<IncidentDetail> = {}, mode: 'edit' | 'view-only' = 'edit') {
@@ -40,15 +40,22 @@ describe('FE-39 incident page', () => {
     expect(timeline).toHaveTextContent('QTY = 349 · rule QTY < 200');
   });
 
-  it('acknowledge, then shows who and when', async () => {
+  it('acknowledge, then shows when (no name)', async () => {
     const h = setup();
     await userEvent.click(screen.getByRole('button', { name: 'Acknowledge' }));
     expect(h.onAcknowledge).toHaveBeenCalledWith('inc-reconciliation');
   });
 
-  it('comments show the self-declared operator name', async () => {
+  it('an acknowledged incident reads "Acknowledged at HH:MM", even with a legacy name stored', () => {
+    setup({ acknowledgedBy: 'R. Lima', acknowledgedAt: new Date(2026, 9, 18, 17, 8).toISOString() });
+    expect(screen.getByText('Acknowledged at 17:08')).toBeInTheDocument();
+    expect(screen.queryByText(/R\. Lima/)).toBeNull();
+  });
+
+  it('comments show where they came from (client kind), never a self-declared name', async () => {
     const h = setup();
-    expect(screen.getByText('R. Lima (self-declared)')).toBeInTheDocument();
+    expect(screen.getByText('Local network')).toBeInTheDocument();
+    expect(screen.queryByText(/self-declared/)).toBeNull();
     await userEvent.type(screen.getByRole('textbox', { name: 'Comment' }), 'Restarted the job');
     await userEvent.click(screen.getByRole('button', { name: 'Add comment' }));
     expect(h.onComment).toHaveBeenCalledWith('inc-reconciliation', 'Restarted the job');
@@ -70,7 +77,7 @@ describe('FE-39 incident page', () => {
 
   it('a resolved incident shows the postmortem with MTTA and MTTR', () => {
     setup({
-      acknowledgedBy: 'R. Lima',
+      acknowledgedBy: 'loopback',
       acknowledgedAt: new Date(2026, 9, 18, 17, 8).toISOString(),
       resolvedAt: new Date(2026, 9, 18, 17, 20).toISOString(),
     });
@@ -97,6 +104,6 @@ describe('FE-39 incident page', () => {
     );
     expect(screen.getByText('FORA')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Reconhecer' })).toBeInTheDocument();
-    expect(screen.getByText('R. Lima (autodeclarado)')).toBeInTheDocument();
+    expect(screen.getByText('Rede local')).toBeInTheDocument();
   });
 });

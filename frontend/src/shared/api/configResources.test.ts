@@ -35,7 +35,7 @@ describe('CORE-19 config resource client (one orbit.<feature>.json per resource)
 
   it('creates, updates and deletes items through the resource endpoint', async () => {
     const fetchMock = vi.fn<typeof fetch>().mockImplementation(async () => jsonResponse({ id: 'sel_1', name: 'Queue' }));
-    const client = createConfigClient({ fetch: fetchMock, getOperator: () => 'M. Chiodi' });
+    const client = createConfigClient({ fetch: fetchMock });
     await client.create('selects', { name: 'Queue' });
     await client.update('selects', 'sel_1', { name: 'Queue 2' });
     fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
@@ -45,7 +45,7 @@ describe('CORE-19 config resource client (one orbit.<feature>.json per resource)
       'PUT /api/selects/sel_1',
       'DELETE /api/selects/sel_1',
     ]);
-    expect(new Headers(fetchMock.mock.calls[0]?.[1]?.headers).get('X-Orbit-Operator')).toBe('M.%20Chiodi');
+    expect(new Headers(fetchMock.mock.calls[0]?.[1]?.headers).has('X-Orbit-Operator')).toBe(false);
   });
 
   it('secrets never come back in clear text: the API returns only "•••• (vault)" markers', async () => {

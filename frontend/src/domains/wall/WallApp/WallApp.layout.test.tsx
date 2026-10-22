@@ -19,7 +19,7 @@ function setup(props: Partial<WallAppProps> = {}, snapshot = mockSnapshot('ok', 
     <WallApp
       api={api(snapshot)}
       connect={vi.fn(() => ({ close: vi.fn() }))}
-      operator="Ana"
+     
       search=""
       device={{}}
       loadLayout={vi.fn(async (slug: string) => (slug === 'exec' ? exec : null))}

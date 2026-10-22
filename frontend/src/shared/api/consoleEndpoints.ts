@@ -83,18 +83,16 @@ export function createConsoleEndpoints(request: JsonRequest, raw: RawRequest, is
     listIncidents: (filter: { status?: 'OPEN' | 'RESOLVED'; monitorId?: string } = {}) =>
       request<IncidentRecord[]>(`/api/incidents${query(filter)}`),
     getIncident: (id: string) => request<IncidentRecord>(`/api/incidents/${enc(id)}`),
-    acknowledgeIncidentRecord: (id: string, by: string) =>
-      request<IncidentRecord>(`/api/incidents/${enc(id)}/ack`, { method: 'POST', body: { by } }),
-    resolveIncident: (id: string, by: string) =>
-      request<IncidentRecord>(`/api/incidents/${enc(id)}/resolve`, { method: 'POST', body: { by } }),
-    reopenIncident: (id: string, by: string) =>
-      request<IncidentRecord>(`/api/incidents/${enc(id)}/reopen`, { method: 'POST', body: { by } }),
+    // Incident actions carry no name: the server records the client kind (`loopback`, `lan`, `unknown`).
+    acknowledgeIncidentRecord: (id: string) => request<IncidentRecord>(`/api/incidents/${enc(id)}/ack`, { method: 'POST' }),
+    resolveIncident: (id: string) => request<IncidentRecord>(`/api/incidents/${enc(id)}/resolve`, { method: 'POST' }),
+    reopenIncident: (id: string) => request<IncidentRecord>(`/api/incidents/${enc(id)}/reopen`, { method: 'POST' }),
     getIncidentEscalation: async (id: string) =>
       (await request<EscalationStep | undefined>(`/api/incidents/${enc(id)}/escalation`)) ?? null,
-    commentIncident: (id: string, by: string, text: string) =>
-      request<IncidentRecord>(`/api/incidents/${enc(id)}/comments`, { method: 'POST', body: { by, text } }),
-    linkIncidentTicket: (id: string, by: string, ticket: string) =>
-      request<IncidentRecord>(`/api/incidents/${enc(id)}/ticket`, { method: 'POST', body: { by, ticket } }),
+    commentIncident: (id: string, text: string) =>
+      request<IncidentRecord>(`/api/incidents/${enc(id)}/comments`, { method: 'POST', body: { text } }),
+    linkIncidentTicket: (id: string, ticket: string) =>
+      request<IncidentRecord>(`/api/incidents/${enc(id)}/ticket`, { method: 'POST', body: { ticket } }),
 
     listMaintenance: () => list<MaintenanceItem>('/api/maintenance'),
     listMaintenanceOccurrences: (range: { from: string; to: string }) =>

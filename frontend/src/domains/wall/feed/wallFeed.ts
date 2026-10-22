@@ -75,17 +75,16 @@ export async function startWallFeed(store: WallStore, options: WallFeedOptions):
 export async function acknowledge(
   store: WallStore,
   incidentId: string,
-  by: string,
-  send: (incidentId: string, by: string) => Promise<Incident>,
+  send: (incidentId: string) => Promise<Incident>,
   locale?: Locale,
 ): Promise<void> {
   const state = store.getState();
   if (state.connection === 'mock') {
-    state.acknowledgeLocal(incidentId, by, new Date(), locale);
+    state.acknowledgeLocal(incidentId, new Date(), locale);
     return;
   }
   try {
-    const answer = await send(incidentId, by);
+    const answer = await send(incidentId);
     // The REST answer is the alerting record (no impact or escalation fields): keep the wall view and
     // take only who acknowledged and when; the `/ws/wall` incident message brings the full view anyway.
     const current = store.getState().snapshot?.incidents.find((i) => i.id === incidentId);
@@ -96,6 +95,6 @@ export async function acknowledge(
   } catch (error) {
     // The API answered and refused (403 access policy, 409 already resolved): never fake it locally.
     if (error instanceof ApiError && error.status >= 400 && error.status < 500) return;
-    store.getState().acknowledgeLocal(incidentId, by, new Date(), locale);
+    store.getState().acknowledgeLocal(incidentId, new Date(), locale);
   }
 }

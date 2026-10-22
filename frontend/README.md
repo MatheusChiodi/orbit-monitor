@@ -16,11 +16,12 @@ Orbit never invents data: everything on screen comes from what the operator conf
 the console shows "Cannot reach the Orbit server" and the wall waits and retries. To explore the UI with
 sample data, open it explicitly with `?demo` (`/?demo`, `/wall.html?demo`).
 
-There is no login. The console asks once for an **operator name** (kept on this device and sent as
-`X-Orbit-Operator`); the API decides whether this client may edit (`edit`) or only view (`view-only`).
+There is no login and no operator name. The console opens straight to the workspace; the API decides whether
+this client may edit (`edit`) or only view (`view-only`) and records actions by client kind
+(`loopback` = "This machine", `lan` = "Local network", `unknown`).
 
-Wall parameters: `?lang=pt-BR` (language), `?demo` (sample data), `?demo&scenario=ok` (sample data without incidents),
-`?operator=Name` (who appears in "X acknowledged at HH:MM"). The layout comes from the path (`/wall/noc`).
+Wall parameters: `?lang=pt-BR` (language), `?demo` (sample data), `?demo&scenario=ok` (sample data without incidents).
+The layout comes from the path (`/wall/noc`).
 
 ## Test
 

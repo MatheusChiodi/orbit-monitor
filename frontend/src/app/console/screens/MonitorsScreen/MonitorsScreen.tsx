@@ -17,7 +17,7 @@ const isConfiguredMonitor = (m: { type: string }) => m.type !== 'SELF';
 /** Monitor list grouped by group, with the living orb (or the intro when empty). */
 export function MonitorsScreen() {
   const { t } = useTranslation();
-  const { editable, navigate, source, demo, operator } = useConsole();
+  const { editable, navigate, source, demo } = useConsole();
   const queryClient = useQueryClient();
   const groups = useGroups();
   const monitors = useMonitors();
@@ -31,7 +31,7 @@ export function MonitorsScreen() {
     try {
       const [open] = (await source.listIncidents({ status: 'OPEN', monitorId })).filter((i) => !i.acknowledgedBy);
       if (!open) return setCardNotice({ ok: false, text: t('screens.monitor.noOpenIncident') });
-      await source.acknowledgeIncidentRecord(open.id, operator);
+      await source.acknowledgeIncidentRecord(open.id);
       setCardNotice({ ok: true, text: t('screens.monitor.acknowledged') });
       await queryClient.invalidateQueries({ queryKey: ['incidents', demo] });
     } catch (error) {

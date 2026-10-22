@@ -92,12 +92,12 @@ describe('acknowledge', () => {
     store.getState().setConnection('open');
     const ack = vi.fn().mockResolvedValue({
       ...store.getState().snapshot!.incidents[0]!,
-      acknowledgedBy: 'Ana',
+      acknowledgedBy: 'loopback',
       acknowledgedAt: now.toISOString(),
     });
-    await acknowledge(store, 'inc-reconciliation', 'Ana', ack);
-    expect(ack).toHaveBeenCalledWith('inc-reconciliation', 'Ana');
-    expect(store.getState().snapshot?.incidents[0]?.acknowledgedBy).toBe('Ana');
+    await acknowledge(store, 'inc-reconciliation', ack);
+    expect(ack).toHaveBeenCalledWith('inc-reconciliation');
+    expect(store.getState().snapshot?.incidents[0]?.acknowledgedBy).toBe('loopback');
   });
 
   it('acknowledges locally in demo mode', async () => {
@@ -105,17 +105,17 @@ describe('acknowledge', () => {
     store.getState().receive({ type: 'snapshot', payload: mockSnapshot('incident', now) });
     store.getState().setConnection('mock');
     const ack = vi.fn();
-    await acknowledge(store, 'inc-reconciliation', 'M. Chiodi', ack);
+    await acknowledge(store, 'inc-reconciliation', ack);
     expect(ack).not.toHaveBeenCalled();
-    expect(store.getState().snapshot?.incidents[0]?.acknowledgedBy).toBe('M. Chiodi');
+    expect(store.getState().snapshot?.incidents[0]?.acknowledgedBy).toBe('unknown');
   });
 
   it('an API failure also acknowledges locally (optimistic)', async () => {
     const store = createWallStore();
     store.getState().receive({ type: 'snapshot', payload: mockSnapshot('incident', now) });
     store.getState().setConnection('open');
-    await acknowledge(store, 'inc-reconciliation', 'Ana', vi.fn().mockRejectedValue(new Error('500')));
-    expect(store.getState().snapshot?.incidents[0]?.acknowledgedBy).toBe('Ana');
+    await acknowledge(store, 'inc-reconciliation', vi.fn().mockRejectedValue(new Error('500')));
+    expect(store.getState().snapshot?.incidents[0]?.acknowledgedBy).toBe('unknown');
   });
 });
 

@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createOperatorStore } from '@/domains/security/operator';
 import { createPreferencesStore } from '@/shared/preferences/preferences';
 import { ConsoleApp } from './ConsoleApp';
 import type { ConsoleApi } from './consoleSource';
@@ -15,12 +14,6 @@ function api(overrides: Partial<ConsoleApi> = {}): ConsoleApi {
     createMonitor: vi.fn(),
     ...overrides,
   };
-}
-
-function operator() {
-  const store = createOperatorStore();
-  store.getState().setName('M. Chiodi');
-  return store;
 }
 
 beforeEach(() => {
@@ -38,7 +31,7 @@ describe('FE-06 animation settings in the console', () => {
   it('device overrides reach the document (attention off, speed) and the FX level', async () => {
     const preferences = createPreferencesStore();
     preferences.getState().setMotion({ attention: false, speed: 0.5, fx: 'high' });
-    render(<ConsoleApp api={api()} operatorStore={operator()} preferencesStore={preferences} />);
+    render(<ConsoleApp api={api()} preferencesStore={preferences} />);
     await screen.findByRole('button', { name: 'Device preferences' });
     const root = document.documentElement;
     expect(root.dataset.motionAttention).toBe('off');
@@ -50,7 +43,7 @@ describe('FE-06 animation settings in the console', () => {
     window.history.replaceState(null, '', '/?motion=minimal');
     const preferences = createPreferencesStore();
     preferences.getState().setAnimationPreset('expressive');
-    render(<ConsoleApp api={api()} operatorStore={operator()} preferencesStore={preferences} />);
+    render(<ConsoleApp api={api()} preferencesStore={preferences} />);
     await screen.findByRole('button', { name: 'Device preferences' });
     expect(document.documentElement.dataset.animation).toBe('minimal');
   });
@@ -58,7 +51,7 @@ describe('FE-06 animation settings in the console', () => {
   it('FE-50: workspace defaults from /api/settings/defaults apply under the device choices', async () => {
     const preferences = createPreferencesStore();
     const getWorkspaceDefaults = vi.fn().mockResolvedValue({ animation: 'minimal', density: 'compact' });
-    render(<ConsoleApp api={api({ getWorkspaceDefaults })} operatorStore={operator()} preferencesStore={preferences} />);
+    render(<ConsoleApp api={api({ getWorkspaceDefaults })} preferencesStore={preferences} />);
     await screen.findByRole('button', { name: 'Device preferences' });
     await vi.waitFor(() => expect(document.documentElement.dataset.animation).toBe('minimal'));
     expect(preferences.getState().effective.density).toBe('compact');

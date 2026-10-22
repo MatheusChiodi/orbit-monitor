@@ -18,7 +18,7 @@ type Action =
 /** FE-39: `#/incidents/:id` — timeline, comments, acknowledge, ticket link and postmortem from the incident API. */
 export function IncidentScreen({ id }: { id: string }) {
   const { t } = useTranslation();
-  const { source, demo, access, operator } = useConsole();
+  const { source, demo, access } = useConsole();
   const queryClient = useQueryClient();
   const key = ['incident', demo, id];
   const incident = useQuery({ queryKey: key, queryFn: () => source.getIncident(id), refetchInterval: 15_000 });
@@ -40,11 +40,11 @@ export function IncidentScreen({ id }: { id: string }) {
 
   const act = useMutation({
     mutationFn: (action: Action): Promise<IncidentRecord> => {
-      if (action.kind === 'ack') return source.acknowledgeIncidentRecord(id, operator);
-      if (action.kind === 'resolve') return source.resolveIncident(id, operator);
-      if (action.kind === 'reopen') return source.reopenIncident(id, operator);
-      if (action.kind === 'comment') return source.commentIncident(id, operator, action.text);
-      if (action.kind === 'ticket') return source.linkIncidentTicket(id, operator, action.ticket);
+      if (action.kind === 'ack') return source.acknowledgeIncidentRecord(id);
+      if (action.kind === 'resolve') return source.resolveIncident(id);
+      if (action.kind === 'reopen') return source.reopenIncident(id);
+      if (action.kind === 'comment') return source.commentIncident(id, action.text);
+      if (action.kind === 'ticket') return source.linkIncidentTicket(id, action.ticket);
       throw new Error(`unknown action ${action.kind}`);
     },
     onSuccess: async (record) => {

@@ -26,7 +26,7 @@ describe('Timeline', () => {
 
   it('acknowledgements come in blue (informational)', () => {
     render(<Timeline events={mockSnapshot('incident', now).timeline} freshIds={new Set()} />);
-    const ack = screen.getByText('R. Lima acknowledged USERS tablespace').closest('li');
+    const ack = screen.getByText('USERS tablespace acknowledged').closest('li');
     expect(ack).toHaveAttribute('data-kind', 'ACK');
     expect(ack?.querySelector('[data-dot]')?.className).toContain('bg-info');
   });

@@ -1,14 +1,12 @@
 import { useEffect, useId, useState, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useStore } from 'zustand';
 import { canEdit } from '@/domains/security/access';
-import type { OperatorStore } from '@/domains/security/operator';
 import { ViewOnlyBanner } from '@/domains/security/ViewOnlyBanner';
 import type { ConfigFile, ConfigItem } from '@/shared/api/configResources';
 import type { AccessInfo } from '@/shared/api/types';
 import { SUPPORTED_LOCALES, isLocale, type Locale } from '@/shared/i18n/i18n';
 import { ANIMATION_LEVELS } from '@/shared/motion/animationLevel';
-import { Button, INPUT_CLASS, LABEL_CLASS, Panel, SELECT_CLASS } from '@/shared/ui';
+import { Button, LABEL_CLASS, Panel, SELECT_CLASS } from '@/shared/ui';
 
 const DENSITIES = ['compact', 'comfortable', 'spacious'] as const;
 import { exportFileName, type ConfigDiff } from '../configTransfer';
@@ -44,7 +42,6 @@ export interface SettingsApi {
 
 export interface SettingsScreenProps {
   api: SettingsApi;
-  operatorStore: OperatorStore;
 }
 
 const STATE_KEY = { ok: 'settings.fileOk', missing: 'settings.fileMissing', invalid: 'settings.fileInvalid' } as const;
@@ -60,13 +57,10 @@ function download(blob: Blob, name: string): void {
 }
 
 
-/** Settings: access mode, operator name, workspace defaults and config files (nothing kept in the browser). */
-export function SettingsScreen({ api, operatorStore }: SettingsScreenProps) {
+/** Settings: access mode, workspace defaults and config files (nothing kept in the browser). */
+export function SettingsScreen({ api }: SettingsScreenProps) {
   const { t } = useTranslation();
-  const ids = { operator: useId(), language: useId(), import: useId(), animation: useId(), density: useId() };
-  const operator = useStore(operatorStore, (s) => s.name);
-  const setOperator = useStore(operatorStore, (s) => s.setName);
-  const [operatorDraft, setOperatorDraft] = useState(operator ?? '');
+  const ids = { language: useId(), import: useId(), animation: useId(), density: useId() };
   const [access, setAccess] = useState<AccessInfo | null>(null);
   const [settings, setSettings] = useState<WorkspaceSettings | null>(null);
   const [health, setHealth] = useState<ConfigFileHealth[]>([]);
@@ -129,19 +123,6 @@ export function SettingsScreen({ api, operatorStore }: SettingsScreenProps) {
         <ViewOnlyBanner mode={access.mode} />
       )}
 
-      <Panel>
-        <div className={LABEL_CLASS}>
-          <label htmlFor={ids.operator}>{t('operator.label')}</label>
-          <input
-            id={ids.operator}
-            className={INPUT_CLASS}
-            value={operatorDraft}
-            onChange={(e) => setOperatorDraft(e.target.value)}
-            onBlur={() => setOperator(operatorDraft)}
-          />
-          <span className="text-[0.75rem] text-dim">{t('operator.hint')}</span>
-        </div>
-      </Panel>
 
       <Panel title={t('settings.defaults')}>
         <div className="flex flex-wrap items-end gap-[0.8rem]">

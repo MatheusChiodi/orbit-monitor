@@ -1,10 +1,9 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { I18nextProvider } from 'react-i18next';
-import { loadOperator, normalizeOperatorName, saveOperator } from '@/domains/security/operator';
 import { WallCustomization } from '@/domains/customization/WallCustomization';
 import { parseAccess } from '@/domains/security/access';
-import { WallApp, operatorName } from '@/domains/wall/WallApp';
+import { WallApp } from '@/domains/wall/WallApp';
 import { scheduleFromSearch } from '@/domains/wall/display/nightSchedule';
 import { applyViewingScale, scaleFromSearch } from '@/domains/wall/display/viewingScale';
 import { isKioskRequested } from '@/domains/wall/kiosk/kioskRequest';
@@ -14,7 +13,7 @@ import { createCustomizationStore } from '@/shared/customization/store';
 import { createTerminologyStore } from '@/shared/customization/terminology';
 import { wallLayoutSlug } from '@/shared/api/wallSocket';
 import { WALL_NAMESPACES, createI18n, detectLocale, loadLocale } from '@/shared/i18n/i18n';
-import { loadPreferences } from '@/shared/preferences/preferences';
+import { forgetLegacyOperator, loadPreferences } from '@/shared/preferences/preferences';
 import './wall.css';
 
 const params = new URLSearchParams(window.location.search);
@@ -26,11 +25,11 @@ applyViewingScale(params.has('scale') ? scaleFromSearch(window.location.search) 
 // FE-09: `?night=22:00-06:00`.
 const nightMode = scheduleFromSearch(window.location.search);
 
-const operator = operatorName(window.location.search, loadOperator());
-saveOperator(normalizeOperatorName(operator));
+// The self-declared operator name (and `?operator=`) is retired: drop what older versions left here.
+forgetLegacyOperator();
 
 // CORE-15: Problem Details in the wall's language (`i18n` is created below; read lazily per request).
-const api = createApiCore({ getOperator: () => operator, getLocale: () => i18n.language });
+const api = createApiCore({ getLocale: () => i18n.language });
 // Feature clients load on first use, off the critical path (wall budget).
 const loaders = {
   loadLayout: async (slug: string) => (await import('@/domains/workspace/layout/layoutsApi')).createLayoutsApi().bySlug(slug),
@@ -60,7 +59,7 @@ if (root) {
     <StrictMode>
       <I18nextProvider i18n={i18n}>
         <WallCustomization store={customization} terminology={terminology} layoutId={layout ?? null} getAccess={wallAccess}>
-          <WallApp api={api} operator={operator} mock={mock} layout={layout} kiosk={isKioskRequested(window.location.search)} nightMode={nightMode} {...loaders} />
+          <WallApp api={api} mock={mock} layout={layout} kiosk={isKioskRequested(window.location.search)} nightMode={nightMode} {...loaders} />
         </WallCustomization>
       </I18nextProvider>
     </StrictMode>,

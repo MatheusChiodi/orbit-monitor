@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { goOffline, rememberOperator } from './support/offline';
+import { goOffline } from './support/offline';
 
 /** Without a backend Orbit never invents data: everything shown comes from what the operator configured. */
 test.describe('no backend, no demo', () => {
@@ -8,7 +8,6 @@ test.describe('no backend, no demo', () => {
   });
 
   test('the console says the server is unreachable and offers a retry', async ({ page }) => {
-    await rememberOperator(page, 'Ana');
     await page.goto('/');
 
     await expect(page.getByRole('alert')).toContainText('Cannot reach the Orbit server');

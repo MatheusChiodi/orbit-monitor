@@ -13,14 +13,9 @@ export class ApiError extends Error {
 export interface ApiClientOptions {
   baseUrl?: string;
   fetch?: typeof fetch;
-  /** Self-declared operator name, sent as `X-Orbit-Operator` (percent-encoded UTF-8). */
-  getOperator?: () => string | null;
   /** UI language sent as `Accept-Language` (CORE-15: translated Problem Details). */
   getLocale?: () => string;
 }
-
-/** Header that carries the self-declared operator name (docs/01-architecture.md §3). */
-export const OPERATOR_HEADER = 'X-Orbit-Operator';
 
 type HttpVerb = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
@@ -56,8 +51,6 @@ export function createApiCore(options: ApiClientOptions = {}) {
     if (contentType) headers.set('Content-Type', contentType);
     const locale = options.getLocale?.();
     if (locale) headers.set('Accept-Language', locale);
-    const operator = options.getOperator?.();
-    if (operator) headers.set(OPERATOR_HEADER, encodeURIComponent(operator));
 
     const response = await doFetch(`${baseUrl}${path}`, { method, headers, body, cache: 'no-store' });
     if (!response.ok) throw new ApiError(response.status, await readErrorMessage(response));
@@ -84,8 +77,8 @@ export function createApiCore(options: ApiClientOptions = {}) {
     raw,
     getAccess: () => request<AccessInfo>('/api/access'),
     getWallSnapshot: () => request<WallSnapshot>('/api/wall/snapshot'),
-    acknowledgeIncident: (id: string, by: string) =>
-      request<Incident>(`/api/incidents/${encodeURIComponent(id)}/ack`, { method: 'POST', body: { by } }),
+    /** No name is sent: the server records the client kind (`loopback`, `lan`, `unknown`) as the actor. */
+    acknowledgeIncident: (id: string) => request<Incident>(`/api/incidents/${encodeURIComponent(id)}/ack`, { method: 'POST' }),
   };
 }
 

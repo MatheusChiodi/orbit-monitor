@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
 import { CustomizationScreen } from '@/domains/customization/CustomizationScreen';
-import type { OperatorStore } from '@/domains/security/operator';
 import { DevicePreferences } from '@/domains/workspace/DevicePreferences';
 import type { PreferencesStore } from '@/shared/preferences/preferences';
 import { useConsole } from '../ConsoleContext';
@@ -34,7 +33,6 @@ export interface ConsoleServices {
 export interface ConsoleRoutesProps {
   route: ConsoleRoute;
   preferences: PreferencesStore;
-  operatorStore: OperatorStore;
   services: ConsoleServices;
   onMonitorSaved: (name: string) => void;
 }
@@ -53,7 +51,7 @@ function LayoutsRoute({ services, layoutId }: { services: ConsoleServices; layou
 }
 
 /** One screen per hash route; view-only clients asking for the form get the list. */
-export function ConsoleRoutes({ route, preferences, operatorStore, services, onMonitorSaved }: ConsoleRoutesProps) {
+export function ConsoleRoutes({ route, preferences, services, onMonitorSaved }: ConsoleRoutesProps) {
   const { t } = useTranslation();
   const { editable } = useConsole();
   switch (route.name) {
@@ -76,7 +74,7 @@ export function ConsoleRoutes({ route, preferences, operatorStore, services, onM
     case 'audit':
       return <AuditScreen />;
     case 'settings':
-      return <SettingsRoute operatorStore={operatorStore} />;
+      return <SettingsRoute />;
     case 'preferences':
       return (
         <>

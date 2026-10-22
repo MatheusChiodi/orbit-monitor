@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { formatRelative } from '@/shared/format';
+import { formatRelative, formatTime } from '@/shared/format';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { SafeValue } from '@/shared/privacy/SafeValue';
 import type { IncidentRecord } from '@/shared/api/consoleTypes';
@@ -28,9 +28,11 @@ function IncidentList({ title, incidents, names }: { title: string; incidents: I
                 <SafeValue value={names.get(incident.monitorId) ?? t('screens.incidents.unknownMonitor')} />
               </a>
               <span className="text-[0.78rem] text-muted">
-                {incident.acknowledgedBy
-                  ? t('screens.incidents.acknowledgedBy', { name: incident.acknowledgedBy })
-                  : t('screens.incidents.notAcknowledged')}
+                {!incident.acknowledgedBy
+                  ? t('screens.incidents.notAcknowledged')
+                  : incident.acknowledgedAt
+                    ? t('screens.incidents.acknowledgedAt', { time: formatTime(incident.acknowledgedAt) })
+                    : t('screens.incidents.acknowledged')}
               </span>
               <time dateTime={incident.openedAt} className="font-mono text-[0.75rem] text-dim">
                 {formatRelative(incident.openedAt, now, locale)}

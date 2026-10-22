@@ -19,14 +19,3 @@ export async function fakeApi(page: Page, responses: Record<string, unknown>): P
   });
   await page.routeWebSocket(/\/ws\//, (socket) => socket.close());
 }
-
-/** Skips the operator prompt by saving a name on the device, like a returning operator. */
-export async function rememberOperator(page: Page, name: string): Promise<void> {
-  await page.addInitScript((value) => {
-    try {
-      localStorage.setItem('orbit.operator', value);
-    } catch {
-      // storage blocked: the prompt will show
-    }
-  }, name);
-}

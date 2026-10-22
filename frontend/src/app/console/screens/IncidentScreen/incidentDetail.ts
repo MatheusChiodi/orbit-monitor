@@ -2,6 +2,7 @@ import type { TFunction } from 'i18next';
 import type { IncidentDetail } from '@/domains/alerting/IncidentPage';
 import type { IncidentEventRecord, IncidentRecord } from '@/shared/api/consoleTypes';
 import type { Group, MonitorView, Severity, TimelineKind } from '@/shared/api/types';
+import { actorText } from '@/shared/ui/ActorLabel/actor';
 
 function severityOf(record: IncidentRecord): Severity {
   return record.severity === 'DOWN' ? 'DOWN' : 'WARN';
@@ -47,7 +48,7 @@ export function toIncidentDetail(
       id,
       at: event.at,
       kind: kindOf(event, severity),
-      title: t(`screens.incidents.events.${event.type}`, { actor: event.actor }),
+      title: t(`screens.incidents.events.${event.type}`, { actor: actorText(event.actor, t) }),
       detail: event.detail ?? '',
     });
   });

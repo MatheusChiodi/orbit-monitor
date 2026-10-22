@@ -20,15 +20,16 @@ test.describe('wall in demo mode', () => {
     await expect(page.getByRole('heading', { name: 'All monitors' })).toBeVisible();
   });
 
-  test('incident scenario: acknowledging records the operator from ?operator=', async ({ page }) => {
+  test('incident scenario: acknowledging shows when, never a name (?operator= is ignored)', async ({ page }) => {
     await page.goto('/wall.html?demo&operator=Night%20shift');
 
     await page.getByRole('button', { name: 'Acknowledge' }).click();
 
-    await expect(page.getByRole('paragraph').filter({ hasText: /^Night shift acknowledged at \d{2}:\d{2}$/ })).toBeVisible();
+    await expect(page.getByRole('paragraph').filter({ hasText: /^Acknowledged at \d{2}:\d{2}$/ })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Acknowledge' })).toHaveCount(0);
     // the acknowledgement also lands on the timeline
-    await expect(page.locator('ol').getByText(/Night shift acknowledged/)).toBeVisible();
+    await expect(page.locator('ol').getByText(/^Acknowledged at \d{2}:\d{2}$/)).toBeVisible();
+    await expect(page.getByText('Night shift')).toHaveCount(0);
   });
 
   test('ok scenario: the calm hero replaces the incident hero', async ({ page }) => {

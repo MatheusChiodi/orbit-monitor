@@ -48,8 +48,12 @@ export interface WallState {
   lastUpdateAt: string | null;
   receive: (message: WallMessage) => void;
   setConnection: (connection: WallConnectionState) => void;
-  acknowledgeLocal: (incidentId: string, by: string, at?: Date, locale?: Locale) => void;
+  /** Marks an incident acknowledged on this wall only (demo, or the API could not be reached). */
+  acknowledgeLocal: (incidentId: string, at?: Date, locale?: Locale) => void;
 }
+
+/** Local acknowledgements have no server-recorded client kind yet. */
+export const LOCAL_ACK_ACTOR = 'unknown';
 
 export function createWallStore(initial: WallSnapshot | null = null) {
   return createStore<WallState>()((set) => ({
@@ -67,7 +71,7 @@ export function createWallStore(initial: WallSnapshot | null = null) {
         return { snapshot, freshEventIds, lastUpdateAt };
       }),
     setConnection: (connection) => set({ connection }),
-    acknowledgeLocal: (incidentId, by, at = new Date(), locale = DEFAULT_LOCALE) =>
+    acknowledgeLocal: (incidentId, at = new Date(), locale = DEFAULT_LOCALE) =>
       set((state) => {
         const snapshot = state.snapshot;
         const incident = snapshot?.incidents.find((i) => i.id === incidentId);
@@ -77,7 +81,7 @@ export function createWallStore(initial: WallSnapshot | null = null) {
           id: `ack-${incidentId}`,
           at: acknowledgedAt,
           kind: 'ACK',
-          title: messages(locale).wall.ack.doneAt.replace('{{name}}', by).replace('{{time}}', formatTime(at)),
+          title: messages(locale).wall.ack.doneAt.replace('{{time}}', formatTime(at)),
           detail: incident.monitorId,
         };
         const freshEventIds = new Set(state.freshEventIds);
@@ -85,7 +89,7 @@ export function createWallStore(initial: WallSnapshot | null = null) {
         return {
           snapshot: {
             ...snapshot,
-            incidents: upsert(snapshot.incidents, { ...incident, acknowledgedBy: by, acknowledgedAt }),
+            incidents: upsert(snapshot.incidents, { ...incident, acknowledgedBy: LOCAL_ACK_ACTOR, acknowledgedAt }),
             timeline: pushEvent(snapshot.timeline, event),
           },
           freshEventIds,

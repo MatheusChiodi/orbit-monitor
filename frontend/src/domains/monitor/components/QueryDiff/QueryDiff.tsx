@@ -1,15 +1,14 @@
 import { useTranslation } from 'react-i18next';
 import { formatClock } from '@/shared/format';
 import { safeText } from '@/shared/privacy/redact';
-import { Panel } from '@/shared/ui';
+import { ActorLabel, Panel, type ClientKind } from '@/shared/ui';
 import { diffLines } from './diffLines';
 
 export interface QueryChange {
   before: string;
   after: string;
-  /** Self-declared operator name (no login). */
-  operator: string;
-  client: 'loopback' | 'lan' | 'unknown';
+  /** Where the change came from (from the audit entry's remote address). */
+  client: ClientKind;
   at: string;
 }
 
@@ -30,9 +29,9 @@ export function QueryDiff({ changes }: QueryDiffProps) {
         const removed = lines.filter((l) => l.op === 'remove').length;
         const added = lines.filter((l) => l.op === 'add').length;
         return (
-          <Panel key={`${change.at}:${change.operator}`}>
+          <Panel key={`${change.at}:${change.client}`}>
             <p className="m-0 flex flex-wrap gap-[0.6rem] text-[0.8rem] text-muted">
-              <span>{t('diff.author', { name: change.operator, client: change.client })}</span>
+              <ActorLabel actor={change.client} />
               <span className="font-mono">{formatClock(change.at)}</span>
               <span className="ml-auto">{t('diff.summary', { removed, added })}</span>
             </p>

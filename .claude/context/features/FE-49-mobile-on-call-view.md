@@ -6,7 +6,7 @@ group: "Wall runtime and preferences"
 status: done
 screens: [mobile-on-call]
 spec: docs/05-extended-features.md
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # FE-49 · Mobile on-call view
@@ -34,6 +34,7 @@ Hero, active incidents and a full-width Acknowledge button
 - `frontend/src/shared/hooks/useMediaQuery.test.ts`
 
 ## Decisions and notes
+- The acknowledged state reads "Acknowledged at HH:MM" / "Reconhecido às HH:MM" (operator name retired 2026-10-22, BE-45).
 - Below 640 px the wall renders `OnCallView`: the worst problem with a full-width Acknowledge (`min-h-[2.75rem]`) and the list of active incidents; no matrix or timeline.
 - Calm state shows "All systems operational" without any action.
 
@@ -41,3 +42,4 @@ Hero, active incidents and a full-width Acknowledge button
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
 - 2026-10-18 — mobile on-call view (status: done).
+- 2026-10-22 — acknowledged text no longer shows a name.

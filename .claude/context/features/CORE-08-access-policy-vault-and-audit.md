@@ -12,7 +12,7 @@ updated: 2026-10-22
 # CORE-08 · Access policy, vault and audit
 
 ## Summary
-No login. Mutations only from loopback by default (configurable LAN/CIDR), view-only otherwise; self-declared operator name; AES-256-GCM secrets inside config files; audit in memory + masked JSON log.
+No login. Mutations only from loopback by default (configurable LAN/CIDR), view-only otherwise; actions recorded by client kind (operator name retired 2026-10-22); AES-256-GCM secrets inside config files; audit in memory + masked JSON log.
 
 ## Status
 - [x] Tests written (pending or active)
@@ -23,8 +23,6 @@ No login. Mutations only from loopback by default (configurable LAN/CIDR), view-
 [settings](../screens/settings.md), [audit-log](../screens/audit-log.md)
 
 ## Code
-- `frontend/src/domains/security/operator/operator.ts`
-- `frontend/src/domains/security/OperatorPrompt/OperatorPrompt.tsx`
 - `frontend/src/domains/security/access/access.ts`
 - `frontend/src/domains/security/ViewOnlyBanner/ViewOnlyBanner.tsx`
 - `frontend/src/shared/api/client.ts`
@@ -40,8 +38,6 @@ No login. Mutations only from loopback by default (configurable LAN/CIDR), view-
 - `backend/config-examples/orbit.settings.example.json`
 
 ## Tests
-- `frontend/src/domains/security/operator/operator.test.ts`
-- `frontend/src/domains/security/OperatorPrompt/OperatorPrompt.test.tsx`
 - `frontend/src/domains/security/access/access.test.ts`
 - `frontend/src/domains/security/ViewOnlyBanner/ViewOnlyBanner.test.tsx`
 - `frontend/src/shared/api/client.test.ts`
@@ -55,7 +51,7 @@ No login. Mutations only from loopback by default (configurable LAN/CIDR), view-
 - `backend/orbit-security/src/test/java/io/orbit/security/audit/AuditLogTest.java`
 
 ## Decisions and notes
-- Frontend: No login: the console asks once for a self-declared operator name (max 60 chars, `localStorage` key `orbit.operator`, try/catch) and sends it percent-encoded in `X-Orbit-Operator`.
+- Frontend: No login and no name (2026-10-22, BE-45 retired): the console opens straight to the access check; no `X-Orbit-Operator` header; the old `orbit.operator` key is removed on boot. Superseded: a self-declared operator name prompt.
 - Frontend: `GET /api/access` → `{ mode: edit | view-only }`; anything unexpected is view-only (fail closed). In view-only the console hides every edit action and shows "View-only: edits are allowed only on the machine running Orbit".
 - Frontend: The client never sends an `Authorization` header and uses `cache: 'no-store'`.
 - Backend: Access policy: READ always allowed; MUTATE from loopback only by default, `lan` adds RFC 1918/ULA/link-local, `cidr` adds listed ranges; ACKNOWLEDGE allowed for view-only clients unless `lanAcknowledge` is off.
@@ -73,3 +69,4 @@ No login. Mutations only from loopback by default (configurable LAN/CIDR), view-
 - 2026-10-18 — backend: pending tests for access policy and defaults in orbit.settings.json.
 - 2026-10-18 — backend: access policy and defaults read from orbit.settings.json.
 - 2026-10-22 — backend: workspace defaults (theme, animation, density, locale, scale) in orbit.settings.json over /api/settings/defaults; audit time range and pagination; editor checks for the new config endpoints (status: done).
+- 2026-10-22 — frontend: operator name prompt and store removed; no `X-Orbit-Operator` header.

@@ -2,7 +2,6 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createOperatorStore } from '@/domains/security/operator';
 import { ConsoleApp } from './ConsoleApp';
 import type { ConsoleApi } from './consoleSource';
 
@@ -12,14 +11,8 @@ function offline(): ConsoleApi {
   return { getAccess: fail, listGroups: fail, listMonitors: fail, listConnections: fail, previewMonitor: fail, createMonitor: fail };
 }
 
-function operator() {
-  const store = createOperatorStore();
-  store.getState().setName('M. Chiodi');
-  return store;
-}
-
 async function open(hash: string) {
-  render(<ConsoleApp api={offline()} operatorStore={operator()} demo />);
+  render(<ConsoleApp api={offline()} demo />);
   await screen.findByText('demo data');
   await act(async () => {
     window.location.hash = hash;
@@ -87,16 +80,29 @@ describe('console screens wired to the data source (demo mode)', () => {
     expect(await screen.findByText('Status page "Payments status" saved')).toBeInTheDocument();
   });
 
+  it('FE-39: #/incidents says when an incident was acknowledged, never by whom', async () => {
+    await open('#/incidents');
+    const resolved = await screen.findByRole('list', { name: 'Resolved' });
+    expect(within(resolved).getByText(/^Acknowledged at \d{2}:\d{2}$/)).toBeInTheDocument();
+    expect(screen.queryByText(/self-declared|R\. Lima/)).toBeNull();
+  });
+
   it('FE-36: #/audit filters the trail and opens the SELECT history diff', async () => {
     await open('#/audit');
     const table = await screen.findByRole('table', { name: 'Audit trail' });
     expect(within(table).getAllByRole('row')).toHaveLength(4);
-    await userEvent.type(screen.getByLabelText('Operator'), 'nobody');
+    expect(within(table).getByRole('columnheader', { name: 'Client' })).toBeInTheDocument();
+    expect(within(table).getAllByText('This machine')).toHaveLength(2);
+    expect(within(table).getByText('Local network')).toBeInTheDocument();
+    expect(within(table).queryByText(/self-declared/)).toBeNull();
+    await userEvent.selectOptions(screen.getByLabelText('Client'), 'lan');
+    await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+    expect(await within(await screen.findByRole('table', { name: 'Audit trail' })).findAllByRole('row')).toHaveLength(2);
     await userEvent.type(screen.getByLabelText('Action'), 'monitor.delete');
     await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
     expect(await screen.findByText('No audit entries match.')).toBeInTheDocument();
     await userEvent.clear(screen.getByLabelText('Action'));
-    await userEvent.clear(screen.getByLabelText('Operator'));
+    await userEvent.selectOptions(screen.getByLabelText('Client'), '');
     await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
     const [show] = await screen.findAllByRole('button', { name: 'Show SELECT history for reconciliation' });
     await userEvent.click(show!);

@@ -20,12 +20,12 @@ describe('createApiClient', () => {
     expect(init?.method).toBe('GET');
   });
 
-  it('sends the operator name as X-Orbit-Operator (percent-encoded) and never an Authorization header', async () => {
+  it('never sends an operator name (X-Orbit-Operator) nor an Authorization header', async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse([]));
-    const api = createApiClient({ fetch: fetchMock, getOperator: () => 'João Silva' });
+    const api = createApiClient({ fetch: fetchMock });
     await api.listGroups();
     const headers = new Headers(fetchMock.mock.calls[0]?.[1]?.headers);
-    expect(headers.get('X-Orbit-Operator')).toBe('Jo%C3%A3o%20Silva');
+    expect(headers.has('X-Orbit-Operator')).toBe(false);
     expect(headers.get('Authorization')).toBeNull();
   });
 
@@ -35,27 +35,21 @@ describe('createApiClient', () => {
     expect(new Headers(fetchMock.mock.calls[0]?.[1]?.headers).get('Accept-Language')).toBe('pt-BR');
   });
 
-  it('without an operator name the header is omitted', async () => {
-    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse([]));
-    await createApiClient({ fetch: fetchMock, getOperator: () => null }).listGroups();
-    expect(new Headers(fetchMock.mock.calls[0]?.[1]?.headers).has('X-Orbit-Operator')).toBe(false);
-  });
-
   it('never lets the browser cache API responses', async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse([]));
     await createApiClient({ fetch: fetchMock }).listMonitors();
     expect(fetchMock.mock.calls[0]?.[1]?.cache).toBe('no-store');
   });
 
-  it('acknowledgement POST with a JSON body', async () => {
-    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ id: 'i1', acknowledgedBy: 'Ana' }));
+  it('acknowledgement POST carries no name: the server records the client kind', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ id: 'i1', acknowledgedBy: 'lan' }));
     const api = createApiClient({ fetch: fetchMock, baseUrl: 'http://h' });
-    const incident = await api.acknowledgeIncident('i1', 'Ana');
-    expect(incident.acknowledgedBy).toBe('Ana');
+    const incident = await api.acknowledgeIncident('i1');
+    expect(incident.acknowledgedBy).toBe('lan');
     const [url, init] = fetchMock.mock.calls[0] ?? [];
     expect(url).toBe('http://h/api/incidents/i1/ack');
     expect(init?.method).toBe('POST');
-    expect(JSON.parse(String(init?.body))).toEqual({ by: 'Ana' });
+    expect(init?.body).toBeUndefined();
   });
 
   it('reads the access mode from /api/access', async () => {

@@ -34,10 +34,11 @@ describe('BE-40 workspace defaults client', () => {
 
   it('saves the defaults with PUT /api/settings/defaults (editors only) and returns what was stored', async () => {
     const fetch = vi.fn(async (_url: string, init?: RequestInit) => json(200, JSON.parse(String(init?.body))));
-    const saved = await saveWorkspaceDefaults({ theme: 'nord', animation: 'minimal' }, { fetch: fetch as unknown as typeof globalThis.fetch, getOperator: () => 'Ana' });
+    const saved = await saveWorkspaceDefaults({ theme: 'nord', animation: 'minimal' }, { fetch: fetch as unknown as typeof globalThis.fetch });
     const [url, init] = fetch.mock.calls[0] ?? [];
     expect(url).toBe('/api/settings/defaults');
     expect(init?.method).toBe('PUT');
+    expect(new Headers(init?.headers).has('X-Orbit-Operator')).toBe(false);
     expect(JSON.parse(String(init?.body))).toEqual({ theme: 'nord', animation: 'minimal' });
     expect(saved).toEqual({ theme: 'nord', animation: 'minimal' });
   });

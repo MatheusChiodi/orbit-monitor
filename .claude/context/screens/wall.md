@@ -13,7 +13,7 @@ updated: 2026-10-22
 Header with global status and clock, hero (incident / all operational), also active, near threshold, monitor matrix, timeline, acknowledge.
 
 ## Layout and components
-- `WallApp` (store + feed + clock + operator) → `WallScreen`
+- `WallApp` (store + feed + clock) → `WallScreen`
   - `WallHeader`: brand (`WorkspaceBrand` with sanitized logo when the snapshot has `branding`, FE-10), environment, global status pill (`aria-live`), counters, updated, clock, fullscreen
   - left column (action): `Hero` / `HeroCalm` (swapped with `AnimatePresence` + `layoutId`), then `AlsoActive` and `NearLimit`
   - right column (context): `MonitorMatrix`, `Timeline`
@@ -109,3 +109,4 @@ Header with global status and clock, hero (incident / all operational), also act
 - 2026-10-22 — customization (look, labels, card settings, Customize mode for editors) on the wall.
 - 2026-10-22 — first load under the 150 KB gzip budget; BE-41 persists layout theme, animation and playlist.
 - 2026-10-22 — no backend: "Waiting for the Orbit server…" with retry; demo data only with `?demo`.
+- 2026-10-22 — no `?operator=`: acknowledgements read "Acknowledged at HH:MM" / "Reconhecido às HH:MM".

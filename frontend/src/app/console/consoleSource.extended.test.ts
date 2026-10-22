@@ -29,12 +29,12 @@ describe('console source: extended endpoints', () => {
     const source = createConsoleSource(coreApi(), true);
     const [first] = await source.listIncidents();
     expect(first?.events[0]?.type).toBe('OPENED');
-    const commented = await source.commentIncident(first!.id, 'Ana', 'checking');
-    expect(commented.events.at(-1)).toMatchObject({ type: 'COMMENTED', actor: 'Ana', detail: 'checking' });
-    const ticketed = await source.linkIncidentTicket(first!.id, 'Ana', 'OPS-1');
+    const commented = await source.commentIncident(first!.id, 'checking');
+    expect(commented.events.at(-1)).toMatchObject({ type: 'COMMENTED', actor: 'loopback', detail: 'checking' });
+    const ticketed = await source.linkIncidentTicket(first!.id, 'OPS-1');
     expect(ticketed.ticket).toBe('OPS-1');
-    const acked = await source.acknowledgeIncidentRecord(first!.id, 'Ana');
-    expect(acked.acknowledgedBy).toBe('Ana');
+    const acked = await source.acknowledgeIncidentRecord(first!.id);
+    expect(acked.acknowledgedBy).toBe('loopback');
     expect((await source.getIncident(first!.id)).events).toHaveLength(4);
   });
 

@@ -40,7 +40,7 @@ Timeline, comments, acknowledge, ticket link, postmortem
 - `frontend/src/domains/alerting/IncidentPage/IncidentPage.actions.test.tsx`
 
 ## Decisions and notes
-- Identification, elapsed time, impact chips, escalation countdown, Acknowledge, masked timeline, comments with "(self-declared)" operator names, ticket link (edit mode only) and a postmortem with time to acknowledge / resolve once resolved.
+- Identification, elapsed time, impact chips, escalation countdown, Acknowledge, masked timeline, comments labelled by client kind (`ActorLabel`; legacy names through `SafeValue`), "Acknowledged at HH:MM" without a name, ticket link (edit mode only) and a postmortem with time to acknowledge / resolve once resolved.
 - Routes `#/incidents` (open first, then resolved) and `#/incidents/:id` read `GET /api/incidents[/{id}]` (io.orbit.alerting.Incident); acknowledge, comment and ticket post to `/api/incidents/{id}/ack|comments|ticket` with the self-declared operator; the response replaces the cached incident.
 - `toIncidentDetail` resolves monitor/group names, keeps COMMENTED events as comments and maps the other events to timeline kinds (RESOLVED = OK, ACKNOWLEDGED = ACK, ticket/comment = INFO); UNKNOWN severity shows as WARN.
 - Routing decision: a 60-line hash router (`useSyncExternalStore` on `hashchange`) instead of wouter (~2.2 KB, MIT) or TanStack Router (~15 KB, MIT): the console needs a dozen flat routes, one parameter, no loaders; zero new dependencies and back/forward work because the hash is the state. Sources: https://tanstack.com/router/latest/docs/comparison.md, https://www.pistack.xyz/posts/2026-08-13-react-router-vs-tanstack-router-vs-wouter-typescript-comparison/
@@ -52,3 +52,4 @@ Timeline, comments, acknowledge, ticket link, postmortem
 - 2026-10-18 — incident page component (status: in-progress).
 - 2026-10-22 — routes `#/incidents` and `#/incidents/:id` wired to the incident API with TanStack Query (status: done).
 - 2026-10-22 — resolve/reopen for editors, comments editor-only, next escalation step.
+- 2026-10-22 — operator name retired: incident actions send no name; timeline events read "Acknowledged · This machine"; the list shows "Acknowledged at HH:MM".

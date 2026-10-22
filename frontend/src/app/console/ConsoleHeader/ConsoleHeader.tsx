@@ -19,14 +19,13 @@ const SECTIONS = [
 
 export interface ConsoleHeaderProps {
   route: ConsoleRoute;
-  onChangeName: () => void;
   connectFeed?: IncidentFeedConnector;
 }
 
-/** Console header: sections, notification bell (FE-38), language, device preferences, wall link and operator. */
-export function ConsoleHeader({ route, onChangeName, connectFeed }: ConsoleHeaderProps) {
+/** Console header: sections, notification bell (FE-38), language, device preferences and wall link. */
+export function ConsoleHeader({ route, connectFeed }: ConsoleHeaderProps) {
   const { t } = useTranslation();
-  const { demo, operator, navigate } = useConsole();
+  const { demo, navigate } = useConsole();
   return (
     <header className="flex flex-col gap-[0.5rem] border-b border-line px-[1.4rem] py-[0.7rem]">
       <div className="flex flex-wrap items-center gap-[1rem]">
@@ -68,10 +67,6 @@ export function ConsoleHeader({ route, onChangeName, connectFeed }: ConsoleHeade
           <a href="/wall.html" className="text-info hover:underline">
             {t('console.openWall')}
           </a>
-          <span className="text-muted">{operator}</span>
-          <Button variant="ghost" onClick={onChangeName}>
-            {t('operator.change')}
-          </Button>
         </div>
       </div>
       <nav aria-label={t('screens.nav.label')} className="-mx-[0.3rem] flex flex-wrap gap-[0.2rem] text-[0.88rem]">

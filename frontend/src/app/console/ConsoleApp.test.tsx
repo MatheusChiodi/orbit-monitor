@@ -1,7 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createOperatorStore } from '@/domains/security/operator';
 import { renderWithLocale } from '@/test/renderWithLocale';
 import { ConsoleApp } from './ConsoleApp';
 import type { ConsoleApi } from './consoleSource';
@@ -29,40 +28,36 @@ function onlineApi(mode: 'edit' | 'view-only'): ConsoleApi {
   };
 }
 
-function namedStore(name = 'M. Chiodi') {
-  const store = createOperatorStore();
-  store.getState().setName(name);
-  return store;
-}
-
 beforeEach(() => {
   localStorage.clear();
 });
 
 describe('ConsoleApp (no login)', () => {
-  it('asks once for the operator name, then opens the monitor list', async () => {
-    render(<ConsoleApp api={onlineApi('edit')} operatorStore={createOperatorStore()} />);
+  it('opens straight to the workspace: no password, no operator name prompt', async () => {
+    const api = onlineApi('edit');
+    render(<ConsoleApp api={api} />);
     expect(screen.queryByLabelText(/password/i)).toBeNull();
-    await userEvent.type(screen.getByLabelText('Operator name'), 'M. Chiodi');
-    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(screen.queryByLabelText('Operator name')).toBeNull();
     expect(await screen.findByText('Web portal')).toBeInTheDocument();
-    expect(screen.getByText('M. Chiodi')).toBeInTheDocument();
-  });
-
-  it('a saved operator name skips the prompt', async () => {
-    render(<ConsoleApp api={onlineApi('edit')} operatorStore={namedStore()} />);
-    expect(await screen.findByText('Web portal')).toBeInTheDocument();
+    expect(api.getAccess).toHaveBeenCalledTimes(1);
     expect(screen.queryByLabelText('Operator name')).toBeNull();
   });
 
+  it('a name left by an older version is neither shown nor asked for', async () => {
+    localStorage.setItem('orbit.operator', 'M. Chiodi');
+    render(<ConsoleApp api={onlineApi('edit')} />);
+    expect(await screen.findByText('Web portal')).toBeInTheDocument();
+    expect(screen.queryByText('M. Chiodi')).toBeNull();
+  });
+
   it('edit mode (loopback) shows edit actions', async () => {
-    render(<ConsoleApp api={onlineApi('edit')} operatorStore={namedStore()} />);
+    render(<ConsoleApp api={onlineApi('edit')} />);
     expect(await screen.findByRole('button', { name: 'New monitor' })).toBeInTheDocument();
     expect(screen.queryByText(/View-only/)).toBeNull();
   });
 
   it('view-only mode hides edit actions and explains why; acknowledging stays on the wall', async () => {
-    render(<ConsoleApp api={onlineApi('view-only')} operatorStore={namedStore()} />);
+    render(<ConsoleApp api={onlineApi('view-only')} />);
     expect(await screen.findByText('Web portal')).toBeInTheDocument();
     expect(screen.getByText('View-only: edits are allowed only on the machine running Orbit')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'New monitor' })).toBeNull();
@@ -70,7 +65,7 @@ describe('ConsoleApp (no login)', () => {
 
   it('without a backend shows that the server is unreachable and never invents data', async () => {
     const api = offlineApi();
-    render(<ConsoleApp api={api} operatorStore={namedStore()} />);
+    render(<ConsoleApp api={api} />);
     expect(await screen.findByRole('alert')).toHaveTextContent('Cannot reach the Orbit server');
     expect(screen.queryByText('Reconciliation queue')).toBeNull();
     expect(screen.queryByText('demo data')).toBeNull();
@@ -80,7 +75,7 @@ describe('ConsoleApp (no login)', () => {
   });
 
   it('demo data only when explicitly requested (?demo), creates a monitor with preview and returns saved', { timeout: 15_000 }, async () => {
-    render(<ConsoleApp api={offlineApi()} operatorStore={namedStore()} demo />);
+    render(<ConsoleApp api={offlineApi()} demo />);
     expect(await screen.findByText('Reconciliation queue')).toBeInTheDocument();
     expect(screen.getByText('demo data')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'New monitor' }));
@@ -95,27 +90,20 @@ describe('ConsoleApp (no login)', () => {
     expect(await screen.findByText('Late batches')).toBeInTheDocument();
   });
 
-  it('the operator can change the name', async () => {
-    const store = namedStore('Ana');
-    render(<ConsoleApp api={onlineApi('edit')} operatorStore={store} />);
-    await userEvent.click(await screen.findByRole('button', { name: 'Change name' }));
-    const input = screen.getByLabelText('Operator name');
-    expect(input).toHaveValue('Ana');
-    await userEvent.clear(input);
-    await userEvent.type(input, 'R. Lima');
-    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-    expect(store.getState().name).toBe('R. Lima');
-    expect(await screen.findByText('R. Lima')).toBeInTheDocument();
+  it('the header has no "Change name" button', async () => {
+    render(<ConsoleApp api={onlineApi('edit')} />);
+    expect(await screen.findByText('Web portal')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Change name' })).toBeNull();
   });
 
   it('has a language selector and a link to the wall', async () => {
-    render(<ConsoleApp api={onlineApi('edit')} operatorStore={namedStore()} />);
+    render(<ConsoleApp api={onlineApi('edit')} />);
     expect(await screen.findByRole('combobox', { name: 'Language' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Open wall' })).toHaveAttribute('href', '/wall.html');
   });
 
   it('renders in pt-BR', async () => {
-    renderWithLocale(<ConsoleApp api={onlineApi('view-only')} operatorStore={namedStore()} />, 'pt-BR');
+    renderWithLocale(<ConsoleApp api={onlineApi('view-only')} />, 'pt-BR');
     expect(await screen.findByRole('heading', { name: 'Monitores' })).toBeInTheDocument();
     expect(screen.getByText('Somente leitura: edições só na máquina onde o Orbit roda')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Abrir parede' })).toBeInTheDocument();
@@ -124,7 +112,7 @@ describe('ConsoleApp (no login)', () => {
 
 describe('FE-28 / FE-29 in the console', () => {
   it('Ctrl+K opens the palette and choosing a monitor action opens the form', async () => {
-    render(<ConsoleApp api={onlineApi('edit')} operatorStore={namedStore()} />);
+    render(<ConsoleApp api={onlineApi('edit')} />);
     await screen.findByText('Web portal');
     await userEvent.keyboard('{Control>}k{/Control}');
     await userEvent.keyboard('New monitor{Enter}');
@@ -132,21 +120,21 @@ describe('FE-28 / FE-29 in the console', () => {
   });
 
   it('the palette lists the monitors', async () => {
-    render(<ConsoleApp api={onlineApi('edit')} operatorStore={namedStore()} />);
+    render(<ConsoleApp api={onlineApi('edit')} />);
     await screen.findByText('Web portal');
     await userEvent.keyboard('{Control>}k{/Control}');
     expect(screen.getByRole('option', { name: /Web portal/ })).toBeInTheDocument();
   });
 
   it('"N" opens a new monitor (edit mode only)', async () => {
-    render(<ConsoleApp api={onlineApi('edit')} operatorStore={namedStore()} />);
+    render(<ConsoleApp api={onlineApi('edit')} />);
     await screen.findByText('Web portal');
     await userEvent.keyboard('n');
     expect(await screen.findByRole('heading', { name: 'New monitor' })).toBeInTheDocument();
   });
 
   it('"N" does nothing in view-only mode', async () => {
-    render(<ConsoleApp api={onlineApi('view-only')} operatorStore={namedStore()} />);
+    render(<ConsoleApp api={onlineApi('view-only')} />);
     await screen.findByText('Web portal');
     await userEvent.keyboard('n');
     expect(screen.queryByRole('heading', { name: 'New monitor' })).toBeNull();

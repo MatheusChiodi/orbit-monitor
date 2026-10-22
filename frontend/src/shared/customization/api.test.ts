@@ -52,12 +52,13 @@ describe('customization API (BE-51 contract)', () => {
 
   it('replaces one scope with PUT { values } and resets it with DELETE', async () => {
     const fetchMock = fetchStub((_url, init) => (init?.method === 'DELETE' ? jsonResponse(204) : jsonResponse(200, {})));
-    const api = createCustomizationApi({ fetch: fetchMock, getOperator: () => 'Ana' });
+    const api = createCustomizationApi({ fetch: fetchMock });
     await api.saveScope('layout', 'noc', { 'card.monitor.variant': 'compact' });
     const [url, init] = call(fetchMock, 0);
     expect(url).toBe('/api/customization/layout/noc');
     expect(init?.method).toBe('PUT');
     expect(JSON.parse(String(init?.body))).toEqual({ values: { 'card.monitor.variant': 'compact' } });
+    expect(new Headers(init?.headers).has('X-Orbit-Operator')).toBe(false);
     await api.saveScope('instance', 'card.monitor:m1', { 'card.monitor.title': 'Queue' });
     expect(call(fetchMock, 1)[0]).toBe('/api/customization/instance/card.monitor.m1');
     await api.deleteEntry(entryId('workspace'));

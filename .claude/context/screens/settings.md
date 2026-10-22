@@ -10,10 +10,10 @@ updated: 2026-10-22
 # Settings and config files
 
 ## Purpose
-Access mode banner (edit / view-only), operator name, workspace defaults, config export/import, config file health.
+Access mode banner (edit / view-only), workspace defaults, config export/import, config file health.
 
 ## Layout and components
-- `SettingsScreen` (`frontend/src/app/settings/SettingsScreen/`): edit-mode note or `ViewOnlyBanner`, operator name, workspace defaults (default language), config files table (OK / Not created yet / Invalid + error), Export config (no secrets), Import config (file → dry-run diff → Apply import)
+- `SettingsScreen` (`frontend/src/app/settings/SettingsScreen/`): edit-mode note or `ViewOnlyBanner`, workspace defaults (default language), config files table (OK / Not created yet / Invalid + error), Export config (no secrets), Import config (file → dry-run diff → Apply import)
 - Pending: theme/animation/density defaults (FE-50), wiring to the backend endpoints and console navigation
 - `CustomizationScreen` (`index.html#/settings/customization`, header button "Customization"): tabs Customization (registry-generated settings with scope selector, search, modified filter, resets, JSON view), Names and terminology (FE-54), Profiles (FE-57)
 
@@ -37,7 +37,6 @@ Access mode banner (edit / view-only), operator name, workspace defaults, config
 - [FE-57 · Customization profiles](../features/FE-57-customization-profiles.md) — done
 
 ## Code
-- `frontend/src/domains/security/OperatorPrompt/OperatorPrompt.tsx`
 - `frontend/src/domains/security/ViewOnlyBanner/ViewOnlyBanner.tsx`
 - `frontend/src/shared/i18n/LanguageSelector/LanguageSelector.tsx`
 - `frontend/src/app/settings/SettingsScreen/SettingsScreen.tsx`
@@ -47,7 +46,6 @@ Access mode banner (edit / view-only), operator name, workspace defaults, config
 - frontend/src/domains/customization/CustomizationScreen/CustomizationScreen.tsx
 
 ## Tests
-- `frontend/src/domains/security/OperatorPrompt/OperatorPrompt.test.tsx`
 - `frontend/src/domains/security/ViewOnlyBanner/ViewOnlyBanner.test.tsx`
 - `frontend/src/shared/i18n/LanguageSelector/LanguageSelector.test.tsx`
 - `frontend/src/app/settings/SettingsScreen/SettingsScreen.test.tsx`
@@ -64,3 +62,4 @@ Access mode banner (edit / view-only), operator name, workspace defaults, config
 - 2026-10-22 — `#/settings` wired to /api/settings, /api/config/health and the zip export/import with dry-run diff.
 - 2026-10-22 — customization screen (settings, names, profiles) added to the console.
 - 2026-10-22 — workspace defaults (language, animation level, density) through /api/settings/defaults.
+- 2026-10-22 — operator name field and `OperatorPrompt` removed (BE-45 retired in the UI).

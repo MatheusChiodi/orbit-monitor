@@ -1,8 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   DEFAULT_PREFERENCES,
+  LEGACY_OPERATOR_KEY,
   PREFERENCES_KEY,
   createPreferencesStore,
+  forgetLegacyOperator,
   exportPreferences,
   loadPreferences,
   mergeWithWorkspaceDefaults,
@@ -18,14 +20,13 @@ afterEach(() => {
 const workspaceDefaults = { theme: 'high-contrast', animation: 'minimal', density: 'compact', locale: 'pt-BR', scale: '5m' } as const;
 
 describe('FE-50 device preferences — model and storage', () => {
-  it('defaults: Orbit Dark, standard animation, comfortable density, en, 3 m, no operator name', () => {
+  it('defaults: Orbit Dark, standard animation, comfortable density, en, 3 m (no operator name)', () => {
     expect(DEFAULT_PREFERENCES).toEqual({
       theme: 'orbit-dark',
       animation: 'standard',
       density: 'comfortable',
       locale: 'en',
       scale: '3m',
-      operatorName: null,
     });
   });
 
@@ -42,9 +43,29 @@ describe('FE-50 device preferences — model and storage', () => {
   });
 
   it('saves only the device choices in localStorage', () => {
-    savePreferences({ locale: 'pt-BR', operatorName: 'M. Chiodi' });
-    expect(JSON.parse(localStorage.getItem(PREFERENCES_KEY) ?? '{}')).toEqual({ locale: 'pt-BR', operatorName: 'M. Chiodi' });
-    expect(loadPreferences()).toEqual({ locale: 'pt-BR', operatorName: 'M. Chiodi' });
+    savePreferences({ locale: 'pt-BR' });
+    expect(JSON.parse(localStorage.getItem(PREFERENCES_KEY) ?? '{}')).toEqual({ locale: 'pt-BR' });
+    expect(loadPreferences()).toEqual({ locale: 'pt-BR' });
+  });
+
+  it('a self-declared operator name is no longer a preference: older saved or imported names are dropped', () => {
+    localStorage.setItem(PREFERENCES_KEY, JSON.stringify({ locale: 'pt-BR', operatorName: 'M. Chiodi' }));
+    expect(loadPreferences()).toEqual({ locale: 'pt-BR' });
+    expect(parsePreferencesFile(JSON.stringify({ version: 1, preferences: { theme: 'light', operatorName: 'Ana' } }))).toEqual({
+      ok: true,
+      preferences: { theme: 'light' },
+    });
+  });
+
+  it('forgets the retired orbit.operator key once, and survives blocked storage', () => {
+    localStorage.setItem(LEGACY_OPERATOR_KEY, 'M. Chiodi');
+    forgetLegacyOperator();
+    expect(LEGACY_OPERATOR_KEY).toBe('orbit.operator');
+    expect(localStorage.getItem('orbit.operator')).toBeNull();
+    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+      throw new Error('blocked');
+    });
+    expect(() => forgetLegacyOperator()).not.toThrow();
   });
 
   it('drops unknown keys and invalid values on load', () => {
@@ -75,8 +96,8 @@ describe('FE-50 device preferences — model and storage', () => {
 
 describe('FE-50 device preferences — JSON export/import', () => {
   it('exports a versioned document with the device choices only', () => {
-    const json = JSON.parse(exportPreferences({ theme: 'light', operatorName: 'Ana' }));
-    expect(json).toEqual({ version: 1, preferences: { theme: 'light', operatorName: 'Ana' } });
+    const json = JSON.parse(exportPreferences({ theme: 'light', density: 'compact' }));
+    expect(json).toEqual({ version: 1, preferences: { theme: 'light', density: 'compact' } });
   });
 
   it('round-trips', () => {

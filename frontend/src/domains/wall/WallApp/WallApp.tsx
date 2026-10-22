@@ -33,7 +33,6 @@ import { createWallStore } from '../store';
 export interface WallAppProps {
   api: Pick<ApiCore, 'getWallSnapshot' | 'acknowledgeIncident'>;
   connect?: (options: ConnectWallOptions) => WallConnection;
-  operator: string;
   mock?: () => WallSnapshot | Promise<WallSnapshot>;
   /** Wall layout slug (`/wall/noc`), sent to the WebSocket. */
   layout?: string;
@@ -87,11 +86,6 @@ function useViewport(): { width: number; height: number } {
   return size;
 }
 
-/** Name shown in "X acknowledged at HH:MM": `?operator=` in the URL or the last one used. */
-export function operatorName(search: string, saved: string | null): string {
-  const fromUrl = new URLSearchParams(search).get('operator');
-  return fromUrl?.trim() || saved?.trim() || 'Operator';
-}
 
 function requestFullscreen(): void {
   if (document.fullscreenElement) void document.exitFullscreen();
@@ -101,7 +95,6 @@ function requestFullscreen(): void {
 export function WallApp({
   api,
   connect = connectWall,
-  operator,
   mock,
   layout = 'noc',
   kiosk = false,
@@ -156,8 +149,8 @@ export function WallApp({
   const phone = useMediaQuery('(max-width: 639px)');
 
   const onAcknowledge = useCallback(
-    (incidentId: string) => void acknowledge(store, incidentId, operator, api.acknowledgeIncident, locale),
-    [store, operator, api, locale],
+    (incidentId: string) => void acknowledge(store, incidentId, api.acknowledgeIncident, locale),
+    [store, api, locale],
   );
 
   const unownedIncident = snapshot ? hasUnacknowledgedDown(snapshot.incidents) : false;

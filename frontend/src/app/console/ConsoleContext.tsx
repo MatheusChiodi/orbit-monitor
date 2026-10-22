@@ -9,7 +9,6 @@ export interface ConsoleContextValue {
   access: AccessInfo;
   editable: boolean;
   demo: boolean;
-  operator: string;
   navigate: (route: ConsoleRoute) => void;
 }
 

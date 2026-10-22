@@ -14,7 +14,7 @@ Language, animation level, density, viewing distance, night mode, sounds, notifi
 
 ## Layout and components
 - Console header button "Device preferences" (or `index.html#/settings/preferences`) → `ConsoleApp` view `preferences`
-  - `DevicePreferences` (Panel): theme, animation level (+ reduced-motion notice), density, language, viewing distance, operator name; "workspace default" markers; export / import JSON; reset
+  - `DevicePreferences` (Panel): theme, animation level (+ reduced-motion notice), density, language, viewing distance (no operator name); "workspace default" markers; export / import JSON; reset
 - State: `createPreferencesStore()` (`shared/preferences/preferences.ts`), applied by `app/console/usePreferenceEffects.ts`
 - Night mode (FE-09) is configured on the wall URL (`?night=22:00-06:00`) for now
 
@@ -56,3 +56,4 @@ Language, animation level, density, viewing distance, night mode, sounds, notifi
 - 2026-10-22 — device preferences screen built and wired into the console (FE-07, FE-08, FE-50).
 - 2026-10-22 — density and animation level are also editable from the customization settings (bridged to the device preferences).
 - 2026-10-22 — FE-06 animation settings panel with live preview embedded.
+- 2026-10-22 — operator name field removed.

@@ -20,8 +20,8 @@ describe('FE-36 query history from the audit trail', () => {
       entry('2026-10-22T11:30:00Z', 'SELECT 2'),
     ]);
     expect(changes).toEqual([
-      { before: 'SELECT 2', after: 'SELECT 3', operator: 'Bia', client: 'lan', at: '2026-10-22T12:00:00Z' },
-      { before: 'SELECT 1', after: 'SELECT 2', operator: 'Ana', client: 'loopback', at: '2026-10-22T11:00:00Z' },
+      { before: 'SELECT 2', after: 'SELECT 3', client: 'lan', at: '2026-10-22T12:00:00Z' },
+      { before: 'SELECT 1', after: 'SELECT 2', client: 'loopback', at: '2026-10-22T11:00:00Z' },
     ]);
   });
 

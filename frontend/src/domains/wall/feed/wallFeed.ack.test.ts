@@ -16,17 +16,17 @@ describe('CORE-06 wall acknowledge against the real API', () => {
       severity: 'DOWN',
       openedAt: before.openedAt,
       resolvedAt: null,
-      acknowledgedBy: 'Ana',
+      acknowledgedBy: 'lan',
       acknowledgedAt: '2026-10-22T10:00:00Z',
       ticket: null,
       flapping: false,
       parentId: null,
       events: [],
     });
-    await acknowledge(store, 'inc-reconciliation', 'Ana', send);
-    expect(send).toHaveBeenCalledWith('inc-reconciliation', 'Ana');
+    await acknowledge(store, 'inc-reconciliation', send);
+    expect(send).toHaveBeenCalledWith('inc-reconciliation');
     const after = store.getState().snapshot!.incidents.find((i) => i.id === 'inc-reconciliation')!;
-    expect(after).toEqual({ ...before, acknowledgedBy: 'Ana', acknowledgedAt: '2026-10-22T10:00:00Z' });
+    expect(after).toEqual({ ...before, acknowledgedBy: 'lan', acknowledgedAt: '2026-10-22T10:00:00Z' });
   });
 });
 
@@ -35,14 +35,14 @@ describe('CORE-06 access policy on the wall', () => {
     const { ApiError } = await import('@/shared/api/client');
     const store = createWallStore(mockSnapshot('incident'));
     store.getState().setConnection('open');
-    await acknowledge(store, 'inc-reconciliation', 'Ana', vi.fn().mockRejectedValue(new ApiError(403, 'Access denied')));
+    await acknowledge(store, 'inc-reconciliation', vi.fn().mockRejectedValue(new ApiError(403, 'Access denied')));
     expect(store.getState().snapshot!.incidents.find((i) => i.id === 'inc-reconciliation')!.acknowledgedBy).toBeNull();
   });
 
   it('a network failure still marks it locally so the wall never gets stuck', async () => {
     const store = createWallStore(mockSnapshot('incident'));
     store.getState().setConnection('open');
-    await acknowledge(store, 'inc-reconciliation', 'Ana', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
-    expect(store.getState().snapshot!.incidents.find((i) => i.id === 'inc-reconciliation')!.acknowledgedBy).toBe('Ana');
+    await acknowledge(store, 'inc-reconciliation', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
+    expect(store.getState().snapshot!.incidents.find((i) => i.id === 'inc-reconciliation')!.acknowledgedBy).toBe('unknown');
   });
 });

@@ -104,15 +104,15 @@ describe('createWallStore', () => {
   it('acknowledgeLocal marks the incident and adds an ACK event in the active locale', () => {
     const store = createWallStore();
     store.getState().receive({ type: 'snapshot', payload: snapshot({ incidents: [incident] }) });
-    store.getState().acknowledgeLocal('i1', 'M. Chiodi', new Date(2026, 9, 18, 17, 4));
+    store.getState().acknowledgeLocal('i1', new Date(2026, 9, 18, 17, 4));
     const state = store.getState().snapshot;
-    expect(state?.incidents[0]?.acknowledgedBy).toBe('M. Chiodi');
+    expect(state?.incidents[0]?.acknowledgedBy).toBe('unknown');
     expect(state?.timeline[0]?.kind).toBe('ACK');
-    expect(state?.timeline[0]?.title).toBe('M. Chiodi acknowledged at 17:04');
+    expect(state?.timeline[0]?.title).toBe('Acknowledged at 17:04');
     const pt = createWallStore();
     pt.getState().receive({ type: 'snapshot', payload: snapshot({ incidents: [incident] }) });
-    pt.getState().acknowledgeLocal('i1', 'M. Chiodi', new Date(2026, 9, 18, 17, 4), 'pt-BR');
-    expect(pt.getState().snapshot?.timeline[0]?.title).toBe('M. Chiodi reconheceu às 17:04');
+    pt.getState().acknowledgeLocal('i1', new Date(2026, 9, 18, 17, 4), 'pt-BR');
+    expect(pt.getState().snapshot?.timeline[0]?.title).toBe('Reconhecido às 17:04');
   });
 
   it('setConnection updates the connection state', () => {

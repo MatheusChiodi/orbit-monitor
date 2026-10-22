@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { fakeApi, rememberOperator } from './support/offline';
+import { fakeApi } from './support/offline';
 
 const GROUPS = [{ id: 'payments', name: 'Payments' }];
 const MONITORS = [
@@ -15,10 +15,6 @@ const MONITORS = [
 ];
 
 test.describe('console view-only mode (BE-44)', () => {
-  test.beforeEach(async ({ page }) => {
-    await rememberOperator(page, 'TV');
-  });
-
   test('a LAN client sees the banner and no editing controls', async ({ page }) => {
     await fakeApi(page, {
       access: { mode: 'view-only', client: 'lan' },

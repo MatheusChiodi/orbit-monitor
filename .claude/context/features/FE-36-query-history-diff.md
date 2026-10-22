@@ -34,7 +34,7 @@ Side-by-side diff of SELECT changes from the audit trail
 - `frontend/src/app/console/ConsoleApp.screens.test.tsx`
 
 ## Decisions and notes
-- Line diff by longest common subsequence (removals before additions, `<del>`/`<ins>`); both SELECT versions are redacted before diffing; authors are marked self-declared.
+- Line diff by longest common subsequence (removals before additions, `<del>`/`<ins>`); both SELECT versions are redacted before diffing; each change shows where it came from as a client label ("This machine" / "Local network" / "Unknown", `ActorLabel`), never a name.
 - Fed from `GET /api/audit?action=sql.save&target=<monitorId>` (BE-46): consecutive saves become before/after pairs (unchanged saves skipped), newest first; the client is derived from the audit remote address (loopback vs LAN). Route `#/audit` has action/target/operator filters and pages of 50 (`limit`/`offset`; the response may be an array or `{items, total}` while BE-46 pagination lands).
 - BE-46 pagination: the body stays an array and the total comes in `X-Total-Count`, which drives the next-page button.
 
@@ -44,3 +44,4 @@ Side-by-side diff of SELECT changes from the audit trail
 - 2026-10-18 — query history diff component (status: in-progress).
 - 2026-10-22 — query history diff fed from the audit API in the new `#/audit` screen (status: done).
 - 2026-10-22 — audit total read from X-Total-Count.
+- 2026-10-22 — operator name retired: the diff shows the client label only (`QueryChange.operator` removed).

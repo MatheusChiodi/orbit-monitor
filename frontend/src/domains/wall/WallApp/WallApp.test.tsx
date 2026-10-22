@@ -3,7 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderWithLocale } from '@/test/renderWithLocale';
 import { mockSnapshot } from '../mock';
-import { WallApp, operatorName } from './WallApp';
+import * as wallAppModule from './WallApp';
+import { WallApp } from './WallApp';
 
 const now = new Date(2026, 9, 18, 17, 10, 0);
 
@@ -17,10 +18,11 @@ describe('WallApp', () => {
       getWallSnapshot: vi.fn().mockRejectedValue(new Error('offline')),
       acknowledgeIncident: vi.fn(),
     };
-    render(<WallApp api={api} connect={vi.fn()} operator="M. Chiodi" mock={() => mockSnapshot('incident', now)} />);
+    render(<WallApp api={api} connect={vi.fn()} mock={() => mockSnapshot('incident', now)} />);
     expect(await screen.findByText('demo data')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Acknowledge' }));
-    expect(screen.getAllByText(/M\. Chiodi acknowledged at/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/^Acknowledged at \d{2}:\d{2}$/).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/M\. Chiodi|Operator acknowledged/)).toBeNull();
     expect(api.acknowledgeIncident).not.toHaveBeenCalled();
   });
 
@@ -30,26 +32,30 @@ describe('WallApp', () => {
       acknowledgeIncident: vi.fn(),
     };
     const connect = vi.fn(() => ({ close: vi.fn() }));
-    render(<WallApp api={api} connect={connect} operator="Ana" />);
+    render(<WallApp api={api} connect={connect} />);
     expect(await screen.findByRole('heading', { name: 'All systems operational' })).toBeInTheDocument();
     expect(connect).toHaveBeenCalled();
   });
 
   it('pt-BR: local acknowledgement is written in Portuguese', async () => {
     const api = { getWallSnapshot: vi.fn().mockRejectedValue(new Error('offline')), acknowledgeIncident: vi.fn() };
-    renderWithLocale(<WallApp api={api} connect={vi.fn()} operator="M. Chiodi" mock={() => mockSnapshot('incident', now)} />, 'pt-BR');
+    renderWithLocale(<WallApp api={api} connect={vi.fn()} mock={() => mockSnapshot('incident', now)} />, 'pt-BR');
     await userEvent.click(await screen.findByRole('button', { name: 'Reconhecer' }));
-    expect(screen.getAllByText(/M\. Chiodi reconheceu às/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/^Reconhecido às \d{2}:\d{2}$/).length).toBeGreaterThan(0);
   });
 });
 
-describe('operatorName', () => {
-  it('reads ?operator= from the URL', () => {
-    expect(operatorName('?operator=R.%20Lima', null)).toBe('R. Lima');
+describe('no operator name on the wall', () => {
+  it('there is no ?operator= helper any more', () => {
+    expect('operatorName' in wallAppModule).toBe(false);
   });
-  it('uses the saved name or "Operator"', () => {
-    expect(operatorName('', 'Ana')).toBe('Ana');
-    expect(operatorName('', null)).toBe('Operator');
+
+  it('acknowledging sends only the incident id', async () => {
+    const acknowledgeIncident = vi.fn().mockResolvedValue({ ...mockSnapshot('incident', now).incidents[0]!, acknowledgedBy: 'lan', acknowledgedAt: now.toISOString() });
+    const api = { getWallSnapshot: vi.fn().mockResolvedValue(mockSnapshot('incident', now)), acknowledgeIncident };
+    render(<WallApp api={api} connect={vi.fn(() => ({ close: vi.fn() }))} />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Acknowledge' }));
+    await waitFor(() => expect(acknowledgeIncident).toHaveBeenCalledWith('inc-reconciliation'));
   });
 });
 
@@ -60,7 +66,7 @@ describe('FE-49 phone layout', () => {
       vi.fn((media: string) => ({ matches: media.includes('max-width'), addEventListener: vi.fn(), removeEventListener: vi.fn() })),
     );
     const api = { getWallSnapshot: vi.fn().mockRejectedValue(new Error('offline')), acknowledgeIncident: vi.fn() };
-    render(<WallApp api={api} connect={vi.fn()} operator="Ana" mock={() => mockSnapshot('incident', now)} />);
+    render(<WallApp api={api} connect={vi.fn()} mock={() => mockSnapshot('incident', now)} />);
     expect(await screen.findByRole('region', { name: 'Active incidents' })).toBeInTheDocument();
     expect(screen.queryByRole('region', { name: 'All monitors' })).toBeNull();
     vi.unstubAllGlobals();
@@ -71,7 +77,7 @@ describe('FE-45 / FE-47 / FE-48 wall runtime controls', () => {
   it('the header has a sound toggle (muted by default) that is remembered on the device', async () => {
     localStorage.clear();
     const api = { getWallSnapshot: vi.fn().mockRejectedValue(new Error('offline')), acknowledgeIncident: vi.fn() };
-    render(<WallApp api={api} connect={vi.fn()} operator="Ana" mock={() => mockSnapshot('incident', now)} />);
+    render(<WallApp api={api} connect={vi.fn()} mock={() => mockSnapshot('incident', now)} />);
     const toggle = await screen.findByRole('button', { name: 'Sound alerts' });
     expect(toggle).toHaveTextContent('Muted');
     await userEvent.click(toggle);
@@ -81,7 +87,7 @@ describe('FE-45 / FE-47 / FE-48 wall runtime controls', () => {
 
   it('offers to enable desktop notifications', async () => {
     const api = { getWallSnapshot: vi.fn().mockRejectedValue(new Error('offline')), acknowledgeIncident: vi.fn() };
-    render(<WallApp api={api} connect={vi.fn()} operator="Ana" mock={() => mockSnapshot('incident', now)} />);
+    render(<WallApp api={api} connect={vi.fn()} mock={() => mockSnapshot('incident', now)} />);
     expect(await screen.findByRole('button', { name: 'Enable desktop notifications' })).toBeInTheDocument();
   });
 
@@ -89,7 +95,7 @@ describe('FE-45 / FE-47 / FE-48 wall runtime controls', () => {
     const request = vi.fn().mockResolvedValue({ release: vi.fn().mockResolvedValue(undefined) });
     Object.defineProperty(navigator, 'wakeLock', { value: { request }, configurable: true });
     const api = { getWallSnapshot: vi.fn().mockRejectedValue(new Error('offline')), acknowledgeIncident: vi.fn() };
-    render(<WallApp api={api} connect={vi.fn()} operator="Ana" kiosk mock={() => mockSnapshot('incident', now)} />);
+    render(<WallApp api={api} connect={vi.fn()} kiosk mock={() => mockSnapshot('incident', now)} />);
     await screen.findByText('demo data');
     // Kiosk code is a lazy chunk (wall budget).
     await waitFor(() => expect(request).toHaveBeenCalledWith('screen'));

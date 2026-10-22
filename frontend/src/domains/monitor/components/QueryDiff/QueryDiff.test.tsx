@@ -6,7 +6,7 @@ import { QueryDiff } from './QueryDiff';
 
 const before = 'SELECT COUNT(*) AS PENDING_QTY\nFROM V_RECONCILIATION_PENDING\nWHERE STATUS = \'P\'';
 const after = 'SELECT COUNT(*) AS PENDING_QTY\nFROM V_RECONCILIATION_PENDING\nWHERE STATUS IN (\'P\', \'R\')';
-const change = { before, after, operator: 'M. Chiodi', client: 'loopback' as const, at: '2026-10-18T17:04:00.000Z' };
+const change = { before, after, client: 'loopback' as const, at: '2026-10-18T17:04:00.000Z' };
 
 describe('FE-36 query history diff', () => {
   describe('diffLines (pure)', () => {
@@ -24,11 +24,12 @@ describe('FE-36 query history diff', () => {
     });
   });
 
-  it('shows the diff side by side with who and when (self-declared operator)', () => {
+  it('shows the diff side by side with where it came from (client kind) and when', () => {
     render(<QueryDiff changes={[change]} />);
     const table = screen.getByRole('table', { name: 'SELECT changes' });
     expect(table).toBeInTheDocument();
-    expect(screen.getByText('M. Chiodi (self-declared) · loopback')).toBeInTheDocument();
+    expect(screen.getByText('This machine')).toBeInTheDocument();
+    expect(screen.queryByText(/self-declared/)).toBeNull();
     expect(screen.getAllByRole('deletion')[0]).toHaveTextContent("WHERE STATUS = 'P'");
     expect(screen.getAllByRole('insertion')[0]).toHaveTextContent("WHERE STATUS IN ('P', 'R')");
   });
@@ -60,5 +61,6 @@ describe('FE-36 query history diff', () => {
     renderWithLocale(<QueryDiff changes={[change]} />, 'pt-BR');
     expect(screen.getByRole('table', { name: 'Alterações do SELECT' })).toBeInTheDocument();
     expect(screen.getByText('1 linha removida, 1 linha adicionada')).toBeInTheDocument();
+    expect(screen.getByText('Esta máquina')).toBeInTheDocument();
   });
 });

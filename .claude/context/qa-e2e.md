@@ -9,12 +9,12 @@ updated: 2026-10-22
 
 ## Scope
 Browser-level checks that unit tests cannot cover: the wall in demo mode, language switching,
-the operator name prompt, view-only access, the dev-only viz gallery, axe audits and the wall budgets.
+the absence of an operator name (no prompt, no `X-Orbit-Operator`), view-only access, the dev-only viz gallery, axe audits and the wall budgets.
 
 ## Code
 - `frontend/playwright.config.ts` — two servers: production preview on 5288 (default `baseURL`, built
   into `frontend/e2e/.dist`, git-ignored) and the dev server on 5287 (viz gallery only).
-- `frontend/e2e/support/` — `goOffline` (cuts `/api` and `/ws` → demo mode), `fakeApi`, `rememberOperator`, URLs.
+- `frontend/e2e/support/` — `goOffline` (cuts `/api` and `/ws` → demo mode), `fakeApi`, URLs (`rememberOperator` removed with the operator name).
 - Specs: `wall-demo`, `i18n`, `console-operator`, `console-view-only`, `viz-gallery`, `a11y`, `wall-performance`.
 - Run: `cd frontend && npm run e2e` (Chromium; `npx playwright install chromium` once).
 
@@ -28,7 +28,7 @@ the operator name prompt, view-only access, the dev-only viz gallery, axe audits
 | 1 | Wall initial load 166.9 KB gzip > 150 KB budget (shared chunk with react-dom, motion, i18next: 145 KB) | frontend-agent | `wall-performance` budget |
 | 2 | Timeline events are preformatted English (`title`/`detail`), pt-BR wall mixes languages | frontend-agent + backend-agent (BE-38) | `i18n` timeline |
 | 3 | SoundToggle name "Sound alerts" does not contain visible "Muted" (WCAG 2.5.3) | frontend-agent | `a11y` sound toggle |
-| 4 | `--dim` (3.2:1) used on small text: operator hint, chart axis labels (WCAG 1.4.3) | frontend-agent / orbit-themes | `a11y` contrast x2 |
+| 4 | `--dim` (3.2:1) used on small text: chart axis labels (WCAG 1.4.3); the operator hint case is gone with the prompt | frontend-agent / orbit-themes | `a11y` contrast |
 | 5 | Wall has no `<h1>` | frontend-agent | `a11y` heading |
 | 6 | FE-49 Acknowledge renders 38.5 px tall on phones (spec: 44 px) | frontend-agent | `wall-demo` touch target |
 | 7 | `OrbitIntro` vitest flaky under the full suite (lazy import vs `findBy` timeout) | fx-agent | — (passes alone) |
@@ -54,3 +54,4 @@ the calm wall loads the 3D orb (orbMaterials ≈ 235 KB gzip, after first paint,
 ## Changelog
 - 2026-10-18 — Playwright + axe suite created; 7 findings reported to their owners.
 - 2026-10-22 — demo specs open pages with `?demo`; new `no-backend.spec.ts` proves the console and wall never invent data without a server.
+- 2026-10-22 — operator name retired: `console-operator.spec.ts` now proves there is no name prompt, the legacy `orbit.operator` key is cleared and neither console nor wall sends `X-Orbit-Operator`; `rememberOperator`, the prompt a11y audit and its contrast fixme removed; `wall-demo` ack reads "Acknowledged at HH:MM" and ignores `?operator=`. Suite: 34 passed, 5 skipped (fixme).

@@ -1,5 +1,4 @@
 import { createStore } from 'zustand/vanilla';
-import { normalizeOperatorName } from '@/domains/security/operator/operator';
 import { isLocale, type Locale } from '@/shared/i18n/i18n';
 import type { Message } from '@/shared/i18n/message';
 import { DEFAULT_ANIMATION_LEVEL, isAnimationLevel, type AnimationLevel } from '@/shared/motion/animationLevel';
@@ -19,15 +18,14 @@ export interface Preferences {
   density: Density;
   locale: Locale;
   scale: ViewingDistance;
-  operatorName: string | null;
   /** FE-06: controls changed on this device on top of the animation preset (absent = the preset). */
   motion?: Partial<MotionSettings>;
 }
 
 export type PreferenceKey = keyof Preferences;
 export type DeviceChoices = Partial<Preferences>;
-/** Workspace defaults from the API; the operator name is always per device. */
-export type WorkspacePreferenceDefaults = Partial<Omit<Preferences, 'operatorName'>>;
+/** Workspace defaults from the API (`orbit.settings.json`). */
+export type WorkspacePreferenceDefaults = Partial<Preferences>;
 
 export const PREFERENCES_KEY = 'orbit.preferences';
 export const PREFERENCES_FILE_VERSION = 1;
@@ -38,8 +36,19 @@ export const DEFAULT_PREFERENCES: Readonly<Preferences> = Object.freeze({
   density: DEFAULT_DENSITY,
   locale: 'en',
   scale: DEFAULT_VIEWING_DISTANCE,
-  operatorName: null,
 });
+
+/** Retired key of the self-declared operator name (the console no longer asks for a name). */
+export const LEGACY_OPERATOR_KEY = 'orbit.operator';
+
+/** Removes the retired operator name left by older versions; called once when a page boots. */
+export function forgetLegacyOperator(): void {
+  try {
+    localStorage.removeItem(LEGACY_OPERATOR_KEY);
+  } catch {
+    // storage blocked: nothing to forget
+  }
+}
 
 const VALIDATORS: { [K in PreferenceKey]: (value: unknown) => Preferences[K] | undefined } = {
   theme: (v) => (typeof v === 'string' && THEME_ID_PATTERN.test(v) ? v : undefined),
@@ -47,7 +56,6 @@ const VALIDATORS: { [K in PreferenceKey]: (value: unknown) => Preferences[K] | u
   density: (v) => (isDensity(v) ? v : undefined),
   locale: (v) => (isLocale(v) ? v : undefined),
   scale: (v) => (isViewingDistance(v) ? v : undefined),
-  operatorName: (v) => (typeof v === 'string' ? (normalizeOperatorName(v) ?? undefined) : undefined),
   motion: (v) => {
     const clean = sanitizeMotionOverrides(v);
     return Object.keys(clean).length > 0 ? clean : undefined;
@@ -70,9 +78,7 @@ export function sanitizePreferences(input: unknown): DeviceChoices {
 
 /** Device choices win over workspace defaults, which win over the built-in defaults. */
 export function mergeWithWorkspaceDefaults(device: DeviceChoices, defaults: WorkspacePreferenceDefaults = {}): Preferences {
-  const workspace = sanitizePreferences(defaults);
-  delete workspace.operatorName;
-  return { ...DEFAULT_PREFERENCES, ...workspace, ...sanitizePreferences(device) };
+  return { ...DEFAULT_PREFERENCES, ...sanitizePreferences(defaults), ...sanitizePreferences(device) };
 }
 
 export function loadPreferences(): DeviceChoices {

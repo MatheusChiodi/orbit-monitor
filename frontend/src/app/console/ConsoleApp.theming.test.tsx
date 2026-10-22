@@ -1,7 +1,6 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createOperatorStore } from '@/domains/security/operator';
 import type { WallLayout } from '@/domains/workspace/layout/layoutsApi';
 import { createPreferencesStore } from '@/shared/preferences/preferences';
 import { ORBIT_DARK } from '@/shared/theme/registry';
@@ -18,12 +17,6 @@ function api(mode: 'edit' | 'view-only' = 'edit'): ConsoleApi {
     previewMonitor: vi.fn(),
     createMonitor: vi.fn(),
   };
-}
-
-function namedStore() {
-  const store = createOperatorStore();
-  store.getState().setName('M. Chiodi');
-  return store;
 }
 
 const custom = { ...ORBIT_DARK, id: 'noc-night', name: 'NOC night', category: 'custom' };
@@ -48,7 +41,7 @@ function setup(props: Partial<ConsoleAppProps> = {}) {
   render(
     <ConsoleApp
       api={api()}
-      operatorStore={namedStore()}
+     
       preferencesStore={preferences}
       saveDefaults={defaultsApi.save}
       layoutsApi={layoutsApi}

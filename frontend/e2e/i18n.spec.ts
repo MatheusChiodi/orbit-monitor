@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { goOffline, rememberOperator } from './support/offline';
+import { goOffline } from './support/offline';
 
 test.describe('language (CORE-15)', () => {
   test.beforeEach(async ({ page }) => {
@@ -31,7 +31,6 @@ test.describe('language (CORE-15)', () => {
   });
 
   test('the console language selector switches live and is remembered on the device', async ({ page }) => {
-    await rememberOperator(page, 'Ana');
     await page.goto('/?demo');
 
     await page.getByLabel('Language').selectOption('pt-BR');

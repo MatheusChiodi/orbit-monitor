@@ -7,7 +7,7 @@ function json(body: unknown, status = 200): Response {
 
 function client(response: Response | (() => Response)) {
   const fetchMock = vi.fn<typeof fetch>().mockImplementation(async () => (typeof response === 'function' ? response() : response));
-  const api = createApiClient({ fetch: fetchMock, getOperator: () => 'Ana' });
+  const api = createApiClient({ fetch: fetchMock });
   const call = (i = 0) => {
     const [url, init] = fetchMock.mock.calls[i] ?? [];
     return { url: String(url), method: init?.method, body: init?.body, headers: new Headers(init?.headers) };
@@ -16,27 +16,29 @@ function client(response: Response | (() => Response)) {
 }
 
 describe('console endpoints', () => {
-  it('incidents: list, get, comment and ticket send the operator name', async () => {
+  it('incidents: list, get, comment and ticket carry no operator name', async () => {
     const { api, call } = client(() => json([]));
     await api.listIncidents();
     expect(call(0)).toMatchObject({ url: '/api/incidents', method: 'GET' });
     await api.getIncident('a/b');
     expect(call(1).url).toBe('/api/incidents/a%2Fb');
-    await api.commentIncident('i1', 'Ana', 'looking');
+    await api.commentIncident('i1', 'looking');
     expect(call(2)).toMatchObject({ url: '/api/incidents/i1/comments', method: 'POST' });
-    expect(JSON.parse(String(call(2).body))).toEqual({ by: 'Ana', text: 'looking' });
-    await api.linkIncidentTicket('i1', 'Ana', 'OPS-1');
-    expect(JSON.parse(String(call(3).body))).toEqual({ by: 'Ana', ticket: 'OPS-1' });
-    await api.acknowledgeIncidentRecord('i1', 'Ana');
+    expect(JSON.parse(String(call(2).body))).toEqual({ text: 'looking' });
+    await api.linkIncidentTicket('i1', 'OPS-1');
+    expect(JSON.parse(String(call(3).body))).toEqual({ ticket: 'OPS-1' });
+    await api.acknowledgeIncidentRecord('i1');
     expect(call(4)).toMatchObject({ url: '/api/incidents/i1/ack', method: 'POST' });
+    expect(call(4).body).toBeUndefined();
+    for (let i = 0; i <= 4; i++) expect(call(i).headers.has('X-Orbit-Operator')).toBe(false);
   });
 
   it('BE-26/27: resolve, reopen, status filter and the next escalation step (204 = none)', async () => {
     const { api, call } = client(() => json({}));
-    await api.resolveIncident('i1', 'Ana');
+    await api.resolveIncident('i1');
     expect(call(0)).toMatchObject({ url: '/api/incidents/i1/resolve', method: 'POST' });
-    expect(JSON.parse(String(call(0).body))).toEqual({ by: 'Ana' });
-    await api.reopenIncident('i1', 'Ana');
+    expect(call(0).body).toBeUndefined();
+    await api.reopenIncident('i1');
     expect(call(1)).toMatchObject({ url: '/api/incidents/i1/reopen', method: 'POST' });
     await api.listIncidents({ status: 'OPEN' });
     expect(call(2).url).toBe('/api/incidents?status=OPEN');
@@ -117,7 +119,7 @@ describe('console endpoints', () => {
     const changes = await imp.api.importConfig(zip, true);
     expect(imp.call(0)).toMatchObject({ url: '/api/config/import?dryRun=true', method: 'POST' });
     expect(imp.call(0).headers.get('Content-Type')).toBe('application/zip');
-    expect(imp.call(0).headers.get('X-Orbit-Operator')).toBe('Ana');
+    expect(imp.call(0).headers.has('X-Orbit-Operator')).toBe(false);
     expect(changes[0]?.file).toBe('orbit.groups.json');
     await imp.api.importConfig(zip, false);
     expect(imp.call(1).url).toBe('/api/config/import?dryRun=false');

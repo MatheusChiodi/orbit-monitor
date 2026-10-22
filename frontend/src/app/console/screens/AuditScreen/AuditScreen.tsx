@@ -5,20 +5,21 @@ import { QueryDiff } from '@/domains/monitor/components/QueryDiff';
 import type { AuditFilter } from '@/shared/api/consoleTypes';
 import { formatClock } from '@/shared/format';
 import { SafeValue } from '@/shared/privacy/SafeValue';
-import { Button, INPUT_CLASS, LABEL_CLASS, Panel } from '@/shared/ui';
+import { ActorLabel, Button, CLIENT_KINDS, INPUT_CLASS, LABEL_CLASS, Panel, SELECT_CLASS } from '@/shared/ui';
 import { useConsole } from '../../ConsoleContext';
 import { ScreenStatus, ScreenTitle } from '../ScreenStatus';
 import { toQueryChanges } from './queryChanges';
 
 export const AUDIT_PAGE_SIZE = 50;
-const FIELDS = ['action', 'target', 'operator'] as const;
-type Draft = Record<(typeof FIELDS)[number], string>;
+const FIELDS = ['action', 'target'] as const;
+/** The audit `operator` field now holds the client kind (`loopback`, `lan`, `unknown`): filtered with a select. */
+type Draft = Record<(typeof FIELDS)[number] | 'operator', string>;
 
 /** BE-46 / FE-36: `#/audit` — filtered, paged audit trail; a monitor's SELECT history opens as a diff. */
 export function AuditScreen() {
   const { t } = useTranslation();
   const { source, demo } = useConsole();
-  const ids = { action: useId(), target: useId(), operator: useId() };
+  const ids = { action: useId(), target: useId(), client: useId() };
   const [draft, setDraft] = useState<Draft>({ action: '', target: '', operator: '' });
   const [filter, setFilter] = useState<AuditFilter>({});
   const [page, setPage] = useState(0);
@@ -52,6 +53,17 @@ export function AuditScreen() {
             <input id={ids[field]} className={INPUT_CLASS} value={draft[field]} onChange={(e) => setDraft({ ...draft, [field]: e.target.value })} />
           </div>
         ))}
+        <div className={LABEL_CLASS}>
+          <label htmlFor={ids.client}>{t('screens.audit.client')}</label>
+          <select id={ids.client} className={SELECT_CLASS} value={draft.operator} onChange={(e) => setDraft({ ...draft, operator: e.target.value })}>
+            <option value="">{t('screens.audit.anyClient')}</option>
+            {CLIENT_KINDS.map((kind) => (
+              <option key={kind} value={kind}>
+                {t(`actor.${kind}`)}
+              </option>
+            ))}
+          </select>
+        </div>
         <Button type="submit" variant="primary">
           {t('screens.audit.apply')}
         </Button>
@@ -62,7 +74,7 @@ export function AuditScreen() {
         <table aria-label={t('screens.audit.title')} className="w-full border-collapse text-[0.85rem]">
           <thead className="text-left text-[0.75rem] text-muted">
             <tr>
-              {(['at', 'operator', 'action', 'target', 'detail'] as const).map((c) => (
+              {(['at', 'client', 'action', 'target', 'detail'] as const).map((c) => (
                 <th key={c} className="py-[0.3rem] pr-[0.6rem]">{t(`screens.audit.columns.${c}`)}</th>
               ))}
             </tr>
@@ -73,7 +85,9 @@ export function AuditScreen() {
                 <td className="py-[0.35rem] pr-[0.6rem] font-mono text-[0.75rem] whitespace-nowrap">
                   <time dateTime={entry.at}>{`${entry.at.slice(0, 10)} ${formatClock(entry.at)}`}</time>
                 </td>
-                <td className="pr-[0.6rem]">{t('incident.author', { name: entry.operator })}</td>
+                <td className="pr-[0.6rem]">
+                  <ActorLabel actor={entry.operator} />
+                </td>
                 <td className="pr-[0.6rem] font-mono">{entry.action}</td>
                 <td className="pr-[0.6rem] font-mono">
                   {entry.target && <SafeValue value={entry.target} />}

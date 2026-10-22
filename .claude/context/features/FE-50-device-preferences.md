@@ -12,7 +12,7 @@ updated: 2026-10-22
 # FE-50 · Device preferences
 
 ## Summary
-Theme, animation level, density, language, scale and operator name saved on the device, with workspace defaults from the server and JSON export/import
+Theme, animation level, density, language and scale saved on the device (no operator name since 2026-10-22), with workspace defaults from the server and JSON export/import
 
 ## Status
 - [x] Tests written (pending or active)
@@ -41,7 +41,8 @@ Theme, animation level, density, language, scale and operator name saved on the 
 - Zustand vanilla store (already in the stack) holding only the device choices in `localStorage` (`orbit.preferences`); effective = built-in defaults ← workspace defaults ← device choices. Every load/import goes through a per-key validator, so unknown keys, secrets, probe rows and config are dropped (docs/04-data-protection.md).
 - Export/import file: `{ "version": 1, "preferences": {…} }`; invalid JSON or another version returns a translatable error and keeps the current preferences.
 - The screen marks fields that come from the workspace defaults, warns when `prefers-reduced-motion` forces animations off, and resets to the workspace defaults.
-- Console wiring: the animation level feeds `AnimationLevelProvider` (reduced motion still forces off), density is applied at once, language and operator name follow later changes only so the startup locale/operator are not overridden.
+- Console wiring: the animation level feeds `AnimationLevelProvider` (reduced motion still forces off), density is applied at once, the language follows later changes only so the startup locale is not overridden.
+- 2026-10-22 product decision: the self-declared operator name is retired (BE-45). It is no longer a preference: an `operatorName` left in `orbit.preferences` or in an imported file is dropped by the validators, and `forgetLegacyOperator()` removes the old `orbit.operator` key once when the console or the wall boots.
 - Workspace defaults now come from `GET /api/settings/defaults` (BE-40) and are applied with `setWorkspaceDefaults` when the console is online; the animation level select sets an FE-06 preset and the panel below it holds the per-device motion overrides (`motion` key).
 
 ## Changelog
@@ -49,3 +50,4 @@ Theme, animation level, density, language, scale and operator name saved on the 
 - 2026-10-18 — pending test suite written (status: tests-pending).
 - 2026-10-22 — implemented preferences store, export/import, DevicePreferences screen and console wiring (status: done).
 - 2026-10-22 — workspace defaults read from /api/settings/defaults; FE-06 motion panel embedded.
+- 2026-10-22 — operator name removed from the preferences (store, screen, export/import); legacy `orbit.operator` key cleared on boot.

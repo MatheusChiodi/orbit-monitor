@@ -14,13 +14,13 @@ const base: Incident = {
   impact: [],
   escalatesAt: null,
 };
-const acked: Incident = { ...base, acknowledgedBy: 'M. Chiodi', acknowledgedAt: new Date(2026, 9, 18, 17, 4).toISOString() };
+const acked: Incident = { ...base, acknowledgedBy: 'loopback', acknowledgedAt: new Date(2026, 9, 18, 17, 4).toISOString() };
 
 describe('FE-51 AcknowledgeButton motion', () => {
   it('standard: the button cross-fades into the acknowledged text', async () => {
     const { rerender } = renderWithMotion(<AcknowledgeButton incident={base} onAcknowledge={vi.fn()} />, 'standard');
     rerender(<AcknowledgeButton incident={acked} onAcknowledge={vi.fn()} />);
-    const text = screen.getByText('M. Chiodi acknowledged at 17:04');
+    const text = screen.getByText('Acknowledged at 17:04');
     expect(entersAnimated(text)).toBe(true);
     expect(screen.queryByRole('button', { name: 'Acknowledge' })).not.toBeNull();
     await flushMotion(500);
@@ -32,7 +32,7 @@ describe('FE-51 AcknowledgeButton motion', () => {
     rerender(<AcknowledgeButton incident={acked} onAcknowledge={vi.fn()} />);
     await flushMotion();
     expect(screen.queryByRole('button', { name: 'Acknowledge' })).toBeNull();
-    expect(isStatic(screen.getByText('M. Chiodi acknowledged at 17:04'))).toBe(true);
+    expect(isStatic(screen.getByText('Acknowledged at 17:04'))).toBe(true);
   });
 
   it('the button exposes the press preset', () => {

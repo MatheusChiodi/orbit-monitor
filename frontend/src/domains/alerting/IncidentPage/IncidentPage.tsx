@@ -5,13 +5,13 @@ import type { AccessMode, Incident, TimelineEvent } from '@/shared/api/types';
 import { formatClock, formatDuration, formatElapsed } from '@/shared/format';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { SafeValue } from '@/shared/privacy/SafeValue';
-import { Badge, Button, INPUT_CLASS, LABEL_CLASS, Panel, StatusDot, TEXT_CLASS } from '@/shared/ui';
+import { ActorLabel, Badge, Button, INPUT_CLASS, LABEL_CLASS, Panel, StatusDot, TEXT_CLASS } from '@/shared/ui';
 import { EscalationCountdown } from '../EscalationCountdown';
 
 export interface IncidentComment {
   id: string;
   at: string;
-  /** Self-declared operator name (no login). */
+  /** Client kind (`loopback`, `lan`, `unknown`); older comments may hold a name. */
   author: string;
   text: string;
 }
@@ -121,7 +121,7 @@ export function IncidentPage({ incident, now, mode, onAcknowledge, onComment, on
         <ul className="m-0 flex list-none flex-col gap-[0.5rem] p-0">
           {incident.comments.map((c) => (
             <li key={c.id} className="text-[0.85rem]">
-              <span className="font-semibold">{t('incident.author', { name: c.author })}</span>
+              <ActorLabel actor={c.author} className="font-semibold" />
               <span className="ml-[0.5rem] font-mono text-[0.72rem] text-dim">{formatClock(c.at)}</span>
               <SafeValue value={c.text} className="block" />
             </li>

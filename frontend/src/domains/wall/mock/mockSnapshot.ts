@@ -143,7 +143,7 @@ export function mockSnapshot(scenario: MockScenario, now: Date = new Date()): Wa
             monitorId: 'tablespace',
             severity: 'WARN',
             openedAt: minutesAgo(now, 27),
-            acknowledgedBy: 'R. Lima',
+            acknowledgedBy: 'lan',
             acknowledgedAt: minutesAgo(now, 20),
             impact: ['Core Banking'],
             escalatesAt: null,
@@ -156,7 +156,7 @@ export function mockSnapshot(scenario: MockScenario, now: Date = new Date()): Wa
       ? [
           { id: 'ev-1', at: minutesAgo(now, 4 + 1 / 60), kind: 'DOWN', title: 'Reconciliation queue down', detail: 'QTY = 349 · rule QTY < 200' },
           { id: 'ev-2', at: minutesAgo(now, 9), kind: 'WARN', title: 'Acquirer error rate warning', detail: 'ERROR_PCT = 1.7 · rule ERROR_PCT < 2' },
-          { id: 'ev-3', at: minutesAgo(now, 20), kind: 'ACK', title: 'R. Lima acknowledged USERS tablespace', detail: 'ticket INC-4821' },
+          { id: 'ev-3', at: minutesAgo(now, 20), kind: 'ACK', title: 'USERS tablespace acknowledged', detail: 'ticket INC-4821' },
           { id: 'ev-4', at: minutesAgo(now, 27), kind: 'WARN', title: 'USERS tablespace warning', detail: 'USED_PCT = 81 · rule USED_PCT < 85' },
           { id: 'ev-5', at: minutesAgo(now, 95), kind: 'OK', title: 'Invoice issuing recovered', detail: 'down for 6min 12s' },
         ]

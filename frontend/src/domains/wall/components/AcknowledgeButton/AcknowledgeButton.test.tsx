@@ -34,20 +34,21 @@ describe('AcknowledgeButton', () => {
   it('becomes text once acknowledged', () => {
     const at = new Date(2026, 9, 18, 17, 4).toISOString();
     render(
-      <AcknowledgeButton incident={{ ...base, acknowledgedBy: 'M. Chiodi', acknowledgedAt: at }} onAcknowledge={vi.fn()} />,
+      <AcknowledgeButton incident={{ ...base, acknowledgedBy: 'lan', acknowledgedAt: at }} onAcknowledge={vi.fn()} />,
     );
     expect(screen.queryByRole('button')).toBeNull();
-    expect(screen.getByText('M. Chiodi acknowledged at 17:04')).toBeInTheDocument();
+    expect(screen.getByText('Acknowledged at 17:04')).toBeInTheDocument();
+    expect(screen.queryByText(/lan/)).toBeNull();
   });
 
-  it('pt-BR: "Reconhecer" and "M. Chiodi reconheceu às 17:04"', () => {
+  it('pt-BR: "Reconhecer" and "Reconhecido às 17:04"', () => {
     renderWithLocale(<AcknowledgeButton incident={base} onAcknowledge={vi.fn()} />, 'pt-BR');
     expect(screen.getByRole('button', { name: 'Reconhecer' })).toBeInTheDocument();
     const at = new Date(2026, 9, 18, 17, 4).toISOString();
     renderWithLocale(
-      <AcknowledgeButton incident={{ ...base, acknowledgedBy: 'M. Chiodi', acknowledgedAt: at }} onAcknowledge={vi.fn()} />,
+      <AcknowledgeButton incident={{ ...base, acknowledgedBy: 'lan', acknowledgedAt: at }} onAcknowledge={vi.fn()} />,
       'pt-BR',
     );
-    expect(screen.getByText('M. Chiodi reconheceu às 17:04')).toBeInTheDocument();
+    expect(screen.getByText('Reconhecido às 17:04')).toBeInTheDocument();
   });
 });

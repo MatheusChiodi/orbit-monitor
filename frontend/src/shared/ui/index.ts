@@ -10,3 +10,4 @@ export * from './SecretInput';
 export * from './HistoryNotice';
 export * from './FlashValue';
 export * from './AnimatedItem';
+export * from './ActorLabel';

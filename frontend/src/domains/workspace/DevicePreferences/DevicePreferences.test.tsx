@@ -19,11 +19,12 @@ function setup() {
 }
 
 describe('FE-50 device preferences — screen', () => {
-  it('lists theme, animation level, density, language, viewing scale and operator name', () => {
+  it('lists theme, animation level, density, language and viewing scale (no operator name)', () => {
     setup();
-    for (const label of ['Theme', 'Animation level', 'Density', 'Language', 'Viewing distance', 'Operator name']) {
+    for (const label of ['Theme', 'Animation level', 'Density', 'Language', 'Viewing distance']) {
       expect(screen.getByLabelText(label)).toBeInTheDocument();
     }
+    expect(screen.queryByLabelText('Operator name')).toBeNull();
   });
 
   it('explains that preferences stay on this device', () => {

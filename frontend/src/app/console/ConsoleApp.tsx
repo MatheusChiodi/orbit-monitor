@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { useStore } from 'zustand';
 import { canEdit } from '@/domains/security/access';
-import type { OperatorStore } from '@/domains/security/operator';
-import { OperatorPrompt } from '@/domains/security/OperatorPrompt';
 import { ViewOnlyBanner } from '@/domains/security/ViewOnlyBanner';
 import { CustomizationRuntime } from '@/domains/customization/CustomizationRuntime';
 import { CustomizeLayer } from '@/domains/customization/CustomizeLayer';
@@ -13,7 +10,6 @@ import type { AccessInfo } from '@/shared/api/types';
 import { FxBackground } from '@/shared/fx/FxBackground';
 import { FxDowngradeNotice } from '@/shared/fx/FxDowngradeNotice';
 import { FxProvider } from '@/shared/fx/FxProvider';
-import { OrbitIntro } from '@/shared/fx/OrbitIntro';
 import { AnimationLevelProvider, systemPrefersReducedMotion } from '@/shared/motion/animationLevel';
 import { fxLevelFor, parseMotionParam, resolveMotion } from '@/shared/motion/motionSettings';
 import type { CustomizationApi } from '@/shared/customization/api';
@@ -42,7 +38,6 @@ import { ServerUnreachable } from './ServerUnreachable';
 
 export interface ConsoleAppProps {
   api: ConsoleApi;
-  operatorStore: OperatorStore;
   queryClient?: QueryClient;
   /** FE-50: device preferences; created from `localStorage` when omitted. */
   preferencesStore?: PreferencesStore;
@@ -51,7 +46,7 @@ export interface ConsoleAppProps {
   /** CORE-21: `orbit.customization.json` / `orbit.terminology.json` (BE-51); device-only when omitted. */
   customizationApi?: CustomizationApi;
   customizationStore?: CustomizationStore;
-  /** FE-04: custom themes (`/api/themes`); created with the operator header when omitted. */
+  /** FE-04: custom themes (`/api/themes`); created when omitted. */
   configClient?: ThemesClient;
   /** FE-11: wall layouts (`/api/layouts`). */
   layoutsApi?: Pick<LayoutsApi, 'list' | 'save'>;
@@ -75,15 +70,12 @@ interface WorkspaceProps {
   api: ConsoleApi;
   access: AccessInfo;
   demo: boolean;
-  operator: string;
-  onChangeName: () => void;
   preferences: PreferencesStore;
-  operatorStore: OperatorStore;
   connectFeed?: IncidentFeedConnector;
   services: ConsoleServices;
 }
 
-function Workspace({ api, access, demo, operator, onChangeName, preferences, operatorStore, connectFeed, services }: WorkspaceProps) {
+function Workspace({ api, access, demo, preferences, connectFeed, services }: WorkspaceProps) {
   const { t } = useTranslation();
   const source = useMemo(() => createConsoleSource(api, demo), [api, demo]);
   // FE-50: workspace defaults (`/api/settings/defaults`, BE-40) sit under this device's own choices.
@@ -95,8 +87,8 @@ function Workspace({ api, access, demo, operator, onChangeName, preferences, ope
   const [notice, setNotice] = useState<string | null>(null);
   const editable = canEdit(access.mode);
   const context = useMemo(
-    () => ({ source, access, editable, demo, operator, navigate }),
-    [source, access, editable, demo, operator, navigate],
+    () => ({ source, access, editable, demo, navigate }),
+    [source, access, editable, demo, navigate],
   );
 
   const go = (next: ConsoleRoute) => {
@@ -112,7 +104,7 @@ function Workspace({ api, access, demo, operator, onChangeName, preferences, ope
     <CustomizeModeProvider editable={editable}>
     <ConsoleProvider value={context}>
       <div className="min-h-screen">
-        <ConsoleHeader route={route} onChangeName={onChangeName} connectFeed={connectFeed} />
+        <ConsoleHeader route={route} connectFeed={connectFeed} />
         <ConsolePalette onNewMonitor={openNew} onNavigate={go} />
         <ShortcutsHelp shortcuts={DEFAULT_SHORTCUTS} />
         <main className="mx-auto flex max-w-[80rem] flex-col gap-[1rem] p-[1.4rem]">
@@ -124,7 +116,6 @@ function Workspace({ api, access, demo, operator, onChangeName, preferences, ope
           <ConsoleRoutes
             route={route}
             preferences={preferences}
-            operatorStore={operatorStore}
             services={services}
             onMonitorSaved={(name) => {
               navigate({ name: 'monitors' });
@@ -143,71 +134,28 @@ function Workspace({ api, access, demo, operator, onChangeName, preferences, ope
 interface ShellProps {
   api: ConsoleApi;
   demo: boolean;
-  operatorStore: OperatorStore;
   preferences: PreferencesStore;
   connectFeed?: IncidentFeedConnector;
   services: ConsoleServices;
 }
 
-function Shell({ api, demo, operatorStore, preferences, connectFeed, services }: ShellProps) {
+/** Opens straight to the workspace: no name prompt; `/api/access` decides edit vs. view-only. */
+function Shell({ api, demo, preferences, connectFeed, services }: ShellProps) {
   const { t } = useTranslation();
-  const operator = useStore(operatorStore, (s) => s.name);
-  const setName = useStore(operatorStore, (s) => s.setName);
-  const [renaming, setRenaming] = useState(false);
-  const access = useQuery({ queryKey: ['access'], queryFn: api.getAccess, enabled: Boolean(operator) && !demo });
-
-  if (!operator || renaming) {
-    return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-[1.2rem] p-[1.4rem]">
-        <OrbitIntro id="orbit-boot" tilt className="w-[min(34rem,90vw)]" />
-        <OperatorPrompt
-          initialName={operator ?? ''}
-          onSubmit={(name) => {
-            setName(name);
-            setRenaming(false);
-          }}
-        />
-      </main>
-    );
-  }
+  const access = useQuery({ queryKey: ['access'], queryFn: api.getAccess, enabled: !demo });
 
   if (demo) {
-    return (
-      <Workspace
-        api={api}
-        demo
-        access={DEMO_ACCESS}
-        operator={operator}
-        onChangeName={() => setRenaming(true)}
-        preferences={preferences}
-        operatorStore={operatorStore}
-        connectFeed={connectFeed}
-        services={services}
-      />
-    );
+    return <Workspace api={api} demo access={DEMO_ACCESS} preferences={preferences} connectFeed={connectFeed} services={services} />;
   }
   if (access.isPending) return <p className="p-[1.4rem] text-muted">{t('app.loading')}</p>;
   if (access.isError) return <ServerUnreachable onRetry={() => void access.refetch()} retrying={access.isFetching} />;
 
-  return (
-    <Workspace
-      api={api}
-      demo={false}
-      access={access.data}
-      operator={operator}
-      onChangeName={() => setRenaming(true)}
-      preferences={preferences}
-      operatorStore={operatorStore}
-      connectFeed={connectFeed}
-      services={services}
-    />
-  );
+  return <Workspace api={api} demo={false} access={access.data} preferences={preferences} connectFeed={connectFeed} services={services} />;
 }
 
-/** Console: no login; the operator declares a name once and the API decides edit vs. view-only. */
+/** Console: no login and no name; the API decides edit vs. view-only from where the request comes from. */
 export function ConsoleApp({
   api,
-  operatorStore,
   queryClient,
   preferencesStore,
   connectFeed,
@@ -222,15 +170,12 @@ export function ConsoleApp({
   const [preferences] = useState(() => preferencesStore ?? createPreferencesStore());
   const [customization] = useState(() => customizationStore ?? createCustomizationStore({ api: customizationApi, preferences }));
   const [terminology] = useState(() => createTerminologyStore(customizationApi));
-  const [services] = useState<ConsoleServices>(() => {
-    const getOperator = () => operatorStore.getState().name;
-    return {
-      themesClient: configClient ?? createConfigClient({ getOperator }),
-      layoutsApi: layoutsApi ?? createLayoutsApi({ getOperator }),
-      saveDefaults: saveDefaults ?? ((d) => saveWorkspaceDefaults(d, { getOperator })),
-    };
-  });
-  const effective = usePreferenceEffects(preferences, operatorStore);
+  const [services] = useState<ConsoleServices>(() => ({
+    themesClient: configClient ?? createConfigClient(),
+    layoutsApi: layoutsApi ?? createLayoutsApi(),
+    saveDefaults: saveDefaults ?? ((d) => saveWorkspaceDefaults(d)),
+  }));
+  const effective = usePreferenceEffects(preferences);
   useAppearance(customization);
   // FE-06 precedence: reduced motion → ?motion= → this device (preset + overrides; workspace defaults are merged in).
   const [url] = useState(() => (typeof window === 'undefined' ? null : parseMotionParam(window.location.search)));
@@ -247,7 +192,7 @@ export function ConsoleApp({
           <FxBackground />
           <div className="fx-layer">
             <CustomizationRuntime store={customization} terminology={terminology}>
-              <Shell api={api} demo={demo} operatorStore={operatorStore} preferences={preferences} connectFeed={connectFeed} services={services} />
+              <Shell api={api} demo={demo} preferences={preferences} connectFeed={connectFeed} services={services} />
             </CustomizationRuntime>
           </div>
           <FxDowngradeNotice />

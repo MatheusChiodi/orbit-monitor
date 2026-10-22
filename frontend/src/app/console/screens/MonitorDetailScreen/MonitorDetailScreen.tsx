@@ -15,7 +15,7 @@ import { targetUrlOf } from './monitorTarget';
 export function MonitorDetailScreen({ id }: { id: string }) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
-  const { source, demo, operator } = useConsole();
+  const { source, demo } = useConsole();
   const queryClient = useQueryClient();
   const detail = useQuery({ queryKey: ['monitor', demo, id], queryFn: () => source.getMonitor(id) });
   const monitors = useMonitors();
@@ -26,7 +26,7 @@ export function MonitorDetailScreen({ id }: { id: string }) {
   const now = new Date();
 
   const ack = useMutation({
-    mutationFn: (incidentId: string) => source.acknowledgeIncidentRecord(incidentId, operator),
+    mutationFn: (incidentId: string) => source.acknowledgeIncidentRecord(incidentId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['incidents', demo] }),
   });
 
