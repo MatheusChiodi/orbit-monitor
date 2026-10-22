@@ -5,7 +5,7 @@ import { formatDuration, formatPercent } from '@/shared/format';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { SafeValue } from '@/shared/privacy/SafeValue';
 import { AnimatedItem, Button, HistoryNotice } from '@/shared/ui';
-import { coverage, slaToCsv } from './sla';
+import { coverage, groupSla, slaToCsv } from './sla';
 
 export interface SlaRow {
   id: string;
@@ -103,6 +103,28 @@ export function SlaReports({ rows, historyStart, now, onExport, period: controll
               </AnimatedItem>
             ))}
           </AnimatePresence>
+        </tbody>
+      </table>
+      <table aria-label={t('screens.reports.groupTable')} className="w-full border-collapse text-[0.85rem]">
+        <thead className="text-left text-[0.75rem] text-muted">
+          <tr>
+            <th className="py-[0.3rem]">{t('form.group')}</th>
+            <th className="text-right">%</th>
+            <th className="text-right">⏱</th>
+            <th className="text-right">#</th>
+          </tr>
+        </thead>
+        <tbody>
+          {groupSla(rows).map((group) => (
+            <tr key={group.id} className="border-t border-line">
+              <td className="py-[0.35rem]">
+                <SafeValue value={group.name} />
+              </td>
+              <td className="text-right font-mono">{group.uptime === null ? '—' : formatPercent(group.uptime, 2, locale)}</td>
+              <td className="text-right font-mono">{formatDuration(group.downMs)}</td>
+              <td className="text-right font-mono">{group.incidents}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
       <div className="flex flex-wrap gap-[0.5rem]">

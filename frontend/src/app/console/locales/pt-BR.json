@@ -68,7 +68,8 @@
     "exportPdf": "Exportar PDF",
     "pdfTitle": "Relatório de SLA do Orbit",
     "pdfPeriod": "Período: {{from}} – {{to}}",
-    "pdfGenerated": "Gerado em {{at}}. Nomes mascarados. A disponibilidade exclui janelas de manutenção."
+    "pdfGenerated": "Gerado em {{at}}. Nomes mascarados. A disponibilidade exclui janelas de manutenção.",
+    "groupTable": "Disponibilidade por grupo"
   },
   "statusPages": {
     "title": "Páginas de status",

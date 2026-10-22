@@ -1,6 +1,6 @@
 import { formatDuration } from '@/shared/format';
 import { safeText } from '@/shared/privacy/redact';
-import type { SlaCsvRow } from './sla';
+import { groupSla, type SlaCsvRow } from './sla';
 
 /**
  * Minimal PDF 1.4 writer for text reports (FE-43): one Helvetica font, WinAnsi encoding, A4 pages.
@@ -80,6 +80,12 @@ export function slaToPdf(rows: readonly SlaCsvRow[], { header }: { header: reado
         cell(formatDuration(row.downMs), 12),
         String(row.incidents),
       ].join(' '),
+    );
+  }
+  lines.push('', `${cell('Group', 55)} ${cell('Uptime', 9)} ${cell('Down', 12)} #`);
+  for (const group of groupSla(rows)) {
+    lines.push(
+      [cell(safeText(group.name), 55), cell(group.uptime === null ? '—' : `${group.uptime.toFixed(2)}%`, 9), cell(formatDuration(group.downMs), 12), String(group.incidents)].join(' '),
     );
   }
   return simplePdf(lines);

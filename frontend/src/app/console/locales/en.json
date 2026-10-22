@@ -68,7 +68,8 @@
     "exportPdf": "Export PDF",
     "pdfTitle": "Orbit SLA report",
     "pdfPeriod": "Period: {{from}} – {{to}}",
-    "pdfGenerated": "Generated {{at}}. Names are redacted. Uptime excludes maintenance windows."
+    "pdfGenerated": "Generated {{at}}. Names are redacted. Uptime excludes maintenance windows.",
+    "groupTable": "Uptime by group"
   },
   "statusPages": {
     "title": "Status pages",
