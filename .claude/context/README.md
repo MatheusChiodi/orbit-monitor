@@ -46,7 +46,7 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [CORE-19](features/CORE-19-per-feature-json-configuration-files.md) | Per-feature JSON configuration files | backend | in-progress |
 | [CORE-20](features/CORE-20-local-first-runtime.md) | Local-first runtime | full-stack | in-progress |
 | [CORE-21](features/CORE-21-customization-registry.md) | Customization registry | full-stack | planned |
-| [CORE-22](features/CORE-22-history-store.md) | 30-day history store | backend | planned |
+| [CORE-22](features/CORE-22-history-store.md) | 30-day history store | backend | done |
 | [CORE-09](features/CORE-09-realtime-wall-updates.md) | Realtime wall updates | full-stack | in-progress |
 | [CORE-10](features/CORE-10-data-display-step.md) | Data & display step | frontend | in-progress |
 | [CORE-11](features/CORE-11-global-status-summary.md) | Global status summary | frontend | done |
@@ -68,10 +68,10 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [FE-04](features/FE-04-theme-import-export.md) | Theme import/export | frontend | in-progress |
 | [FE-05](features/FE-05-per-layout-theme.md) | Per-layout theme | frontend | in-progress |
 | [FE-06](features/FE-06-animation-level.md) | Animation settings | frontend | in-progress |
-| [FE-07](features/FE-07-density.md) | Density | frontend | tests-pending |
-| [FE-08](features/FE-08-viewing-distance-scale.md) | Viewing distance scale | frontend | tests-pending |
-| [FE-09](features/FE-09-night-mode-schedule.md) | Night mode schedule | frontend | tests-pending |
-| [FE-10](features/FE-10-workspace-branding.md) | Workspace branding | frontend | tests-pending |
+| [FE-07](features/FE-07-density.md) | Density | frontend | done |
+| [FE-08](features/FE-08-viewing-distance-scale.md) | Viewing distance scale | frontend | done |
+| [FE-09](features/FE-09-night-mode-schedule.md) | Night mode schedule | frontend | done |
+| [FE-10](features/FE-10-workspace-branding.md) | Workspace branding | frontend | done |
 | [FE-11](features/FE-11-wall-layout-editor.md) | Wall layout editor | frontend | in-progress |
 | [FE-12](features/FE-12-keyboard-drag-and-drop.md) | Keyboard drag and drop | frontend | done |
 | [FE-13](features/FE-13-reorder-monitors-and-groups.md) | Reorder monitors and groups | frontend | in-progress |
@@ -111,7 +111,7 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [FE-47](features/FE-47-sound-alerts.md) | Sound alerts | frontend | done |
 | [FE-48](features/FE-48-desktop-notifications.md) | Desktop notifications | frontend | done |
 | [FE-49](features/FE-49-mobile-on-call-view.md) | Mobile on-call view | frontend | done |
-| [FE-50](features/FE-50-device-preferences.md) | Device preferences | frontend | tests-pending |
+| [FE-50](features/FE-50-device-preferences.md) | Device preferences | frontend | done |
 | [FE-51](features/FE-51-component-motion-system.md) | Component motion system | frontend | in-progress |
 | [FE-52](features/FE-52-visual-fx-layer.md) | Visual FX layer (3D, glass, Remotion) | frontend | done |
 | [FE-53](features/FE-53-customize-mode.md) | Customize mode and inspector | frontend | planned |
@@ -119,63 +119,63 @@ Living context for humans and AI agents. **One file per screen and per feature.*
 | [FE-55](features/FE-55-card-behavior-settings.md) | Card and component behavior settings | frontend | planned |
 | [FE-56](features/FE-56-typography-shape-density.md) | Typography, shape and density settings | frontend | planned |
 | [FE-57](features/FE-57-customization-profiles.md) | Customization profiles | frontend | planned |
-| [FE-58](features/FE-58-history-range-picker.md) | History range picker and coverage | frontend | planned |
+| [FE-58](features/FE-58-history-range-picker.md) | History range picker and coverage | frontend | in-progress |
 | [FE-59](features/FE-59-living-orb.md) | Living orb (system map) | frontend | in-progress |
 
 ### Backend
 
 | ID | Feature | Area | Status |
 |---|---|---|---|
-| [BE-01](features/BE-01-tcp-probe.md) | TCP probe | backend | in-progress |
-| [BE-02](features/BE-02-ping-probe.md) | Ping probe | backend | in-progress |
-| [BE-03](features/BE-03-push-monitor.md) | Push monitor | backend | in-progress |
-| [BE-04](features/BE-04-dns-probe.md) | DNS probe | backend | tests-pending |
-| [BE-05](features/BE-05-certificate-and-domain-expiry.md) | Certificate and domain expiry | backend | tests-pending |
-| [BE-06](features/BE-06-http-keyword-regex-match.md) | HTTP keyword/regex match | backend | tests-pending |
-| [BE-07](features/BE-07-multi-step-http.md) | Multi-step HTTP | backend | tests-pending |
-| [BE-08](features/BE-08-oauth2-client-credentials.md) | OAuth2 client credentials | backend | tests-pending |
-| [BE-09](features/BE-09-grpc-health-probe.md) | gRPC health probe | backend | tests-pending |
-| [BE-10](features/BE-10-kafka-consumer-lag-probe.md) | Kafka consumer lag probe | backend | tests-pending |
-| [BE-11](features/BE-11-sql-parameters.md) | SQL parameters | backend | tests-pending |
-| [BE-12](features/BE-12-query-catalog.md) | Query catalog | backend | tests-pending |
-| [BE-13](features/BE-13-catalog-introspection.md) | Catalog introspection | backend | tests-pending |
-| [BE-14](features/BE-14-query-cost-warning.md) | Query cost warning | backend | tests-pending |
+| [BE-01](features/BE-01-tcp-probe.md) | TCP probe | backend | done |
+| [BE-02](features/BE-02-ping-probe.md) | Ping probe | backend | done |
+| [BE-03](features/BE-03-push-monitor.md) | Push monitor | backend | done |
+| [BE-04](features/BE-04-dns-probe.md) | DNS probe | backend | done |
+| [BE-05](features/BE-05-certificate-and-domain-expiry.md) | Certificate and domain expiry | backend | done |
+| [BE-06](features/BE-06-http-keyword-regex-match.md) | HTTP keyword/regex match | backend | done |
+| [BE-07](features/BE-07-multi-step-http.md) | Multi-step HTTP | backend | done |
+| [BE-08](features/BE-08-oauth2-client-credentials.md) | OAuth2 client credentials | backend | done |
+| [BE-09](features/BE-09-grpc-health-probe.md) | gRPC health probe | backend | done |
+| [BE-10](features/BE-10-kafka-consumer-lag-probe.md) | Kafka consumer lag probe | backend | done |
+| [BE-11](features/BE-11-sql-parameters.md) | SQL parameters | backend | done |
+| [BE-12](features/BE-12-query-catalog.md) | Query catalog | backend | done |
+| [BE-13](features/BE-13-catalog-introspection.md) | Catalog introspection | backend | done |
+| [BE-14](features/BE-14-query-cost-warning.md) | Query cost warning | backend | done |
 | [BE-15](features/BE-15-per-target-isolation.md) | Per-target isolation | backend | done |
 | [BE-16](features/BE-16-circuit-breaker.md) | Circuit breaker | backend | done |
-| [BE-17](features/BE-17-execution-windows.md) | Execution windows | backend | tests-pending |
-| [BE-18](features/BE-18-retries-with-backoff.md) | Retries with backoff | backend | tests-pending |
-| [BE-19](features/BE-19-in-memory-rollups.md) | In-memory rollups | backend | in-progress |
-| [BE-20](features/BE-20-uptime-and-sla.md) | Uptime and SLA | backend | in-progress |
+| [BE-17](features/BE-17-execution-windows.md) | Execution windows | backend | done |
+| [BE-18](features/BE-18-retries-with-backoff.md) | Retries with backoff | backend | done |
+| [BE-19](features/BE-19-in-memory-rollups.md) | In-memory rollups | backend | done |
+| [BE-20](features/BE-20-uptime-and-sla.md) | Uptime and SLA | backend | done |
 | [BE-21](features/BE-21-percentiles.md) | Percentiles | backend | done |
-| [BE-22](features/BE-22-anomaly-detection.md) | Anomaly detection | backend | tests-pending |
-| [BE-23](features/BE-23-body-metric-extraction.md) | Body metric extraction | backend | tests-pending |
-| [BE-24](features/BE-24-time-to-threshold.md) | Time to threshold | backend | tests-pending |
-| [BE-25](features/BE-25-flapping-detection.md) | Flapping detection | backend | tests-pending |
+| [BE-22](features/BE-22-anomaly-detection.md) | Anomaly detection | backend | done |
+| [BE-23](features/BE-23-body-metric-extraction.md) | Body metric extraction | backend | done |
+| [BE-24](features/BE-24-time-to-threshold.md) | Time to threshold | backend | done |
+| [BE-25](features/BE-25-flapping-detection.md) | Flapping detection | backend | done |
 | [BE-26](features/BE-26-incident-lifecycle.md) | Incident lifecycle | backend | in-progress |
 | [BE-27](features/BE-27-escalation-policies.md) | Escalation policies | backend | done |
 | [BE-28](features/BE-28-channels.md) | Channels | backend | in-progress |
 | [BE-29](features/BE-29-deduplication.md) | Deduplication | backend | done |
-| [BE-30](features/BE-30-cascade-suppression.md) | Cascade suppression | backend | tests-pending |
+| [BE-30](features/BE-30-cascade-suppression.md) | Cascade suppression | backend | done |
 | [BE-31](features/BE-31-maintenance-windows.md) | Maintenance windows | backend | in-progress |
 | [BE-32](features/BE-32-silence-snooze.md) | Silence/snooze | backend | done |
-| [BE-33](features/BE-33-on-call-schedules.md) | On-call schedules | backend | tests-pending |
-| [BE-34](features/BE-34-postmortem-report.md) | Postmortem report | backend | tests-pending |
+| [BE-33](features/BE-33-on-call-schedules.md) | On-call schedules | backend | done |
+| [BE-34](features/BE-34-postmortem-report.md) | Postmortem report | backend | done |
 | [BE-35](features/BE-35-notification-templates.md) | Notification templates | backend | in-progress |
 | [BE-36](features/BE-36-channel-reliability.md) | Channel reliability | backend | done |
-| [BE-37](features/BE-37-config-export-import.md) | Config export/import | backend | tests-pending |
+| [BE-37](features/BE-37-config-export-import.md) | Config export/import | backend | done |
 | [BE-38](features/BE-38-realtime-protocol.md) | Realtime protocol | backend | in-progress |
-| [BE-39](features/BE-39-workspace-variables.md) | Workspace variables | backend | tests-pending |
-| [BE-40](features/BE-40-workspace-defaults-and-themes-api.md) | Workspace defaults and themes API | backend | tests-pending |
+| [BE-39](features/BE-39-workspace-variables.md) | Workspace variables | backend | in-progress |
+| [BE-40](features/BE-40-workspace-defaults-and-themes-api.md) | Workspace defaults and themes API | backend | in-progress |
 | [BE-41](features/BE-41-wall-layouts.md) | Wall layouts | backend | done |
-| [BE-42](features/BE-42-status-page-api.md) | Status page API | backend | tests-pending |
-| [BE-43](features/BE-43-uptime-kuma-import.md) | Uptime Kuma import | backend | tests-pending |
+| [BE-42](features/BE-42-status-page-api.md) | Status page API | backend | in-progress |
+| [BE-43](features/BE-43-uptime-kuma-import.md) | Uptime Kuma import | backend | done |
 | [BE-44](features/BE-44-network-access-policy.md) | Network access policy | backend | done |
-| [BE-45](features/BE-45-operator-identity.md) | Operator identity | backend | in-progress |
+| [BE-45](features/BE-45-operator-identity.md) | Operator identity | backend | done |
 | [BE-46](features/BE-46-audit-query-api.md) | Audit query API | backend | in-progress |
-| [BE-47](features/BE-47-rate-limiting.md) | Rate limiting | backend | tests-pending |
+| [BE-47](features/BE-47-rate-limiting.md) | Rate limiting | backend | done |
 | [BE-48](features/BE-48-secret-rotation.md) | Secret rotation | backend | done |
 | [BE-49](features/BE-49-problem-details-errors.md) | Problem Details errors | backend | done |
-| [BE-50](features/BE-50-self-monitoring-and-config-backup.md) | Self-monitoring and config backup | backend | tests-pending |
+| [BE-50](features/BE-50-self-monitoring-and-config-backup.md) | Self-monitoring and config backup | backend | done |
 | [BE-51](features/BE-51-customization-stores.md) | Customization and terminology stores | backend | planned |
-| [BE-52](features/BE-52-history-query-apis.md) | History, events and audit query APIs | backend | planned |
-| [BE-53](features/BE-53-app-log-rotation.md) | Application log rotation | backend | planned |
+| [BE-52](features/BE-52-history-query-apis.md) | History, events and audit query APIs | backend | in-progress |
+| [BE-53](features/BE-53-app-log-rotation.md) | Application log rotation | backend | in-progress |
