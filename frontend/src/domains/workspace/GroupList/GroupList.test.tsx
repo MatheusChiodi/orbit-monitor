@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { mockSnapshot } from '@/domains/wall/mock';
@@ -31,8 +31,11 @@ describe('GroupList', () => {
     render(<GroupList groups={snap.groups} monitors={snap.monitors} onNewMonitor={vi.fn()} />);
     await userEvent.type(screen.getByRole('searchbox', { name: 'Filter monitors' }), 'tablespace');
     expect(screen.getByText('USERS tablespace')).toBeInTheDocument();
-    expect(screen.queryByText('Reconciliation queue')).toBeNull();
-    expect(screen.queryByRole('region', { name: 'Payments' })).toBeNull();
+    // Filtered-out rows leave through the FE-51 exit animation before unmounting.
+    await waitFor(() => {
+      expect(screen.queryByText('Reconciliation queue')).toBeNull();
+      expect(screen.queryByRole('region', { name: 'Payments' })).toBeNull();
+    });
   });
 
   it('the New monitor button only for those who can edit', async () => {
