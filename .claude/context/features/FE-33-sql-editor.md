@@ -3,10 +3,10 @@ id: FE-33
 title: "SQL editor"
 area: frontend
 group: "Console productivity"
-status: in-progress
+status: done
 screens: [monitor-editor-sql]
 spec: docs/05-extended-features.md
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # FE-33 · SQL editor
@@ -16,8 +16,8 @@ Highlighting, catalog autocomplete, format, visible guard chips
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
-- [ ] All tests green, none pending
+- [x] Implemented
+- [x] All tests green, none pending
 
 ## Screens
 [monitor-editor-sql](../screens/monitor-editor-sql.md)
@@ -25,15 +25,26 @@ Highlighting, catalog autocomplete, format, visible guard chips
 ## Code
 - `frontend/src/domains/monitor/components/SqlCodeEditor/SqlCodeEditor.tsx`
 - `frontend/src/domains/monitor/components/SqlCodeEditor/sqlTokens.ts`
+- `frontend/src/domains/monitor/components/MonitorForm/TargetFields.tsx`
+- `frontend/src/domains/monitor/components/MonitorForm/useCatalog.ts`
+- `frontend/src/shared/api/consoleEndpoints.ts`
 
 ## Tests
 - `frontend/src/domains/monitor/components/SqlCodeEditor/SqlCodeEditor.test.tsx`
+- `frontend/src/domains/monitor/components/SqlCodeEditor/SqlCodeEditor.safeMode.test.tsx`
+- `frontend/src/domains/monitor/components/SqlCodeEditor/SqlCodeEditor.safeMode.motion.test.tsx`
+- `frontend/src/domains/monitor/components/MonitorForm/TargetFields.kinds.test.tsx`
+- `frontend/src/domains/monitor/components/MonitorForm/MonitorForm.kinds.test.tsx`
 
 ## Decisions and notes
 - Highlighting is a token layer under a transparent textarea; Ctrl+Space suggests catalog tables after FROM/JOIN and columns elsewhere; Format uppercases keywords and breaks main clauses; guard chips and safe-mode errors match `SqlEditor`.
-- Pending: replace `SqlEditor` in the monitor form and load the catalog from the API (BE-13).
+- The monitor form uses `SqlCodeEditor`; the old `SqlEditor` was removed and its tests (guards, pt-BR, safe-mode error, FE-51 motion) were ported to `SqlCodeEditor.safeMode*.test.tsx`.
+- Catalog: choosing a connection calls `GET /api/connections/{id}/catalog` (BE-13 `TableInfo[]`: schema, name, columns[name,type]); only names reach the editor; a failure shows "Table suggestions are unavailable" and the editor keeps working.
+- Verified against `SqlCatalogController` (developer 3d778a7): `GET /api/connections/{id}/catalog` answers `{connectionId, tables[{schema, name, columns[], columnTypes[]}]}`, normalized by `getCatalog`.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
 - 2026-10-18 — SQL code editor component (status: in-progress).
+- 2026-10-22 — SqlCodeEditor replaces SqlEditor in the monitor form with catalog loading per connection (status: in-progress until the catalog route exists).
+- 2026-10-22 — catalog route verified against the runtime API (status: done).

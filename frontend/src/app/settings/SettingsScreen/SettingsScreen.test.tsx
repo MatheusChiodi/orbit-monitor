@@ -68,17 +68,33 @@ describe('CORE-19 settings and config files', () => {
     expect(screen.getByText('Secrets are never exported')).toBeInTheDocument();
   });
 
-  it('Import config shows a dry-run diff before applying', async () => {
+  it('Import config sends the zip for a dry-run diff before applying', async () => {
     const a = api();
     render(<SettingsScreen api={a} operatorStore={operator()} />);
-    const file = new File(['{"selects":{"version":1,"items":[]}}'], 'orbit-config.json', { type: 'application/json' });
+    const file = new File([new Uint8Array([80, 75, 3, 4])], 'orbit-config.zip', { type: 'application/zip' });
     await userEvent.upload(await screen.findByLabelText('Import config'), file);
     const diff = await screen.findByRole('region', { name: 'Import preview' });
+    expect(a.previewImport).toHaveBeenCalledWith(file);
     expect(within(diff).getByText('selects')).toBeInTheDocument();
     expect(within(diff).getByText('1 added · 1 changed · 0 removed')).toBeInTheDocument();
     expect(a.applyImport).not.toHaveBeenCalled();
     await userEvent.click(screen.getByRole('button', { name: 'Apply import' }));
-    expect(a.applyImport).toHaveBeenCalled();
+    expect(a.applyImport).toHaveBeenCalledWith(file);
+    expect(await screen.findByText('Configuration imported')).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Import preview' })).toBeNull();
+  });
+
+  it('an archive identical to the current config says so and offers no apply', async () => {
+    render(<SettingsScreen api={api({ previewImport: vi.fn().mockResolvedValue([]) })} operatorStore={operator()} />);
+    const file = new File([new Uint8Array([80, 75])], 'orbit-config.zip', { type: 'application/zip' });
+    await userEvent.upload(await screen.findByLabelText('Import config'), file);
+    expect(await screen.findByText('The archive matches the current configuration.')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Apply import' })).toBeNull();
+  });
+
+  it('a failing config health endpoint does not block the screen', async () => {
+    render(<SettingsScreen api={api({ getConfigHealth: vi.fn().mockRejectedValue(new Error('unavailable')) })} operatorStore={operator()} />);
+    expect(await screen.findByRole('button', { name: 'Export config' })).toBeInTheDocument();
   });
 
   it('never stores configuration in the browser', async () => {

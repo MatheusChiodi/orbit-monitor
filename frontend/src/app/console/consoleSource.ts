@@ -1,5 +1,7 @@
 import { mockSnapshot } from '@/domains/wall/mock';
 import type { ApiClient } from '@/shared/api/client';
+import type { ConsoleEndpoints } from '@/shared/api/consoleEndpoints';
+import { createDemoExtras } from './demoExtras';
 import type { AccessInfo, Connection, MonitorDefinition, PreviewRequest, PreviewResult } from '@/shared/api/types';
 
 const DEMO_CONNECTIONS: Connection[] = [
@@ -35,17 +37,38 @@ export async function mockPreview(target: PreviewRequest): Promise<PreviewResult
   };
 }
 
-export type ConsoleApi = Pick<
+type CoreApi = Pick<
   ApiClient,
   'getAccess' | 'listGroups' | 'listMonitors' | 'listConnections' | 'previewMonitor' | 'createMonitor'
 >;
 
+/** The console needs the core endpoints; screens beyond the monitor list use the extended ones when present. */
+export type ConsoleApi = CoreApi & Partial<ConsoleEndpoints>;
+/** What the screens read: every method is there (live, demo or "unavailable"). */
+export type ConsoleSource = CoreApi & ConsoleEndpoints;
+
+const EXTENDED_KEYS = [
+  'getMonitor', 'listIncidents', 'getIncident', 'acknowledgeIncidentRecord', 'resolveIncident', 'reopenIncident', 'getIncidentEscalation', 'commentIncident', 'linkIncidentTicket',
+  'listMaintenance', 'listMaintenanceOccurrences', 'saveMaintenance', 'deleteMaintenance', 'listDependencies', 'saveDependency', 'deleteDependency',
+  'listStatusPages', 'saveStatusPage', 'saveGroupOrder', 'queryAudit', 'getCatalog', 'getHistorySummary',
+  'getHistoryCoverage', 'getWorkspaceDefaults', 'getSettings', 'saveSettings', 'getConfigHealth', 'exportConfig', 'importConfig',
+] as const satisfies readonly (keyof ConsoleEndpoints)[];
+
+const unavailable = () => Promise.reject(new Error('unavailable'));
+
+function withFallbacks(api: ConsoleApi, fallback: Partial<ConsoleEndpoints>): ConsoleSource {
+  const extended = Object.fromEntries(EXTENDED_KEYS.map((key) => [key, api[key] ?? fallback[key] ?? unavailable]));
+  return { ...api, ...(extended as ConsoleEndpoints) };
+}
+
 /** Console data source: the real API or, in demo mode, local data kept in memory only. */
-export function createConsoleSource(api: ConsoleApi, demo: boolean): ConsoleApi {
-  if (!demo) return api;
+export function createConsoleSource(api: ConsoleApi, demo: boolean): ConsoleSource {
+  if (!demo) return withFallbacks(api, {});
   const snapshot = mockSnapshot('incident');
   const created: MonitorDefinition[] = [];
-  return {
+  const extras = createDemoExtras(snapshot);
+  return withFallbacks({
+    ...extras,
     getAccess: async () => DEMO_ACCESS,
     listGroups: async () => snapshot.groups,
     listMonitors: async () => [
@@ -66,5 +89,5 @@ export function createConsoleSource(api: ConsoleApi, demo: boolean): ConsoleApi 
       created.push(definition);
       return definition;
     },
-  };
+  }, {});
 }

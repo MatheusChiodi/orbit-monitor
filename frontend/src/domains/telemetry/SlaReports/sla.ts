@@ -35,6 +35,9 @@ function cell(value: string): string {
 /** CSV export with the history window in the header; names are redacted like everywhere else. */
 export function slaToCsv(rows: readonly SlaCsvRow[], { historyHours }: { historyHours: number }): string {
   const lines = [`# history available: last ${historyHours} h`, 'monitor,group,uptime_pct,downtime,incidents'];
+  const groupLines = groupSla(rows).map((g) =>
+    ['group', cell(safeText(g.name)), g.uptime === null ? '' : g.uptime.toFixed(2), formatDuration(g.downMs), String(g.incidents)].join(','),
+  );
   for (const row of rows) {
     lines.push(
       [
@@ -46,5 +49,22 @@ export function slaToCsv(rows: readonly SlaCsvRow[], { historyHours }: { history
       ].join(','),
     );
   }
-  return `${lines.join('\n')}\n`;
+  return `${[...lines, '', 'scope,group,uptime_pct,downtime,incidents', ...groupLines].join('\n')}\n`;
+}
+
+/** Uptime per group: mean of the members that were measured; downtime and incidents are summed. */
+export function groupSla<T extends SlaCsvRow>(rows: readonly T[]): (SlaCsvRow & { id: string })[] {
+  const groups = new Map<string, T[]>();
+  for (const row of rows) groups.set(row.groupName, [...(groups.get(row.groupName) ?? []), row]);
+  return [...groups.entries()].map(([name, members]) => {
+    const measured = members.map((m) => m.uptime).filter((u): u is number => u !== null);
+    return {
+      id: `group:${name}`,
+      name,
+      groupName: '',
+      uptime: measured.length ? Number((measured.reduce((a, b) => a + b, 0) / measured.length).toFixed(4)) : null,
+      downMs: members.reduce((a, m) => a + m.downMs, 0),
+      incidents: members.reduce((a, m) => a + m.incidents, 0),
+    };
+  });
 }

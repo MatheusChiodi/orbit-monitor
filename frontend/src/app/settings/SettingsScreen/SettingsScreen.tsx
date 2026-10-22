@@ -8,7 +8,7 @@ import type { ConfigFile, ConfigItem } from '@/shared/api/configResources';
 import type { AccessInfo } from '@/shared/api/types';
 import { SUPPORTED_LOCALES, isLocale, type Locale } from '@/shared/i18n/i18n';
 import { Button, INPUT_CLASS, LABEL_CLASS, Panel, SELECT_CLASS } from '@/shared/ui';
-import { exportFileName, type ConfigBundle, type ConfigDiff } from '../configTransfer';
+import { exportFileName, type ConfigDiff } from '../configTransfer';
 
 /** `orbit.settings.json` item with the workspace defaults. */
 export interface WorkspaceSettings extends ConfigItem {
@@ -31,10 +31,12 @@ export interface SettingsApi {
   getSettings: () => Promise<ConfigFile<WorkspaceSettings>>;
   saveSettings: (settings: WorkspaceSettings) => Promise<void>;
   getConfigHealth: () => Promise<ConfigFileHealth[]>;
-  /** Archive of every `orbit.<feature>.json` file, secrets omitted by the backend. */
+  /** Zip of every `orbit.<feature>.json` file, secrets omitted by the backend (BE-37). */
   exportConfig: () => Promise<Blob>;
-  previewImport: (bundle: ConfigBundle) => Promise<ConfigDiff[]>;
-  applyImport: (bundle: ConfigBundle) => Promise<void>;
+  /** `POST /api/config/import?dryRun=true` with the zip: per-file diff, nothing written. */
+  previewImport: (archive: Blob) => Promise<ConfigDiff[]>;
+  /** `POST /api/config/import?dryRun=false`. */
+  applyImport: (archive: Blob) => Promise<void>;
 }
 
 export interface SettingsScreenProps {
@@ -54,10 +56,6 @@ function download(blob: Blob, name: string): void {
   URL.revokeObjectURL(url);
 }
 
-async function readBundle(file: File): Promise<ConfigBundle> {
-  const text = typeof file.text === 'function' ? await file.text() : await new Response(file).text();
-  return JSON.parse(text) as ConfigBundle;
-}
 
 /** Settings: access mode, operator name, workspace defaults and config files (nothing kept in the browser). */
 export function SettingsScreen({ api, operatorStore }: SettingsScreenProps) {
@@ -69,17 +67,23 @@ export function SettingsScreen({ api, operatorStore }: SettingsScreenProps) {
   const [access, setAccess] = useState<AccessInfo | null>(null);
   const [settings, setSettings] = useState<WorkspaceSettings | null>(null);
   const [health, setHealth] = useState<ConfigFileHealth[]>([]);
-  const [importBundle, setImportBundle] = useState<ConfigBundle | null>(null);
+  const [archive, setArchive] = useState<Blob | null>(null);
   const [diff, setDiff] = useState<ConfigDiff[] | null>(null);
+  const [imported, setImported] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
-    void Promise.all([api.getAccess(), api.getSettings(), api.getConfigHealth()]).then(([a, s, h]) => {
+    void Promise.all([api.getAccess(), api.getSettings()]).then(([a, s]) => {
       if (!alive) return;
       setAccess(a);
       setSettings(s.items[0] ?? { id: 'workspace' });
-      setHealth(h);
     });
+    // Health is informative only: a backend without it still shows the rest of the screen.
+    api.getConfigHealth().then(
+      (h) => alive && setHealth(h),
+      () => alive && setHealth([]),
+    );
     return () => {
       alive = false;
     };
@@ -91,9 +95,26 @@ export function SettingsScreen({ api, operatorStore }: SettingsScreenProps) {
   async function onImport(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
-    const bundle = await readBundle(file);
-    setImportBundle(bundle);
-    setDiff(await api.previewImport(bundle));
+    setImported(false);
+    setImportError(null);
+    try {
+      setDiff(await api.previewImport(file));
+      setArchive(file);
+    } catch (e) {
+      setImportError(e instanceof Error ? e.message : String(e));
+    }
+  }
+
+  async function onApply() {
+    if (!archive) return;
+    try {
+      await api.applyImport(archive);
+      setImported(true);
+      setDiff(null);
+      setArchive(null);
+    } catch (e) {
+      setImportError(e instanceof Error ? e.message : String(e));
+    }
   }
 
   return (
@@ -175,13 +196,16 @@ export function SettingsScreen({ api, operatorStore }: SettingsScreenProps) {
           {editable && (
             <span className={LABEL_CLASS}>
               <label htmlFor={ids.import}>{t('settings.import')}</label>
-              <input id={ids.import} type="file" accept="application/json,.json" onChange={(e) => void onImport(e)} />
+              <input id={ids.import} type="file" accept="application/zip,.zip" onChange={(e) => void onImport(e)} />
             </span>
           )}
         </div>
       </Panel>
 
-      {diff && importBundle && (
+      {imported && <p role="status" className="m-0 text-ok-text">{t('screens.settings.imported')}</p>}
+      {importError && <p role="alert" className="m-0 text-down-text">{importError}</p>}
+      {diff && diff.length === 0 && <p role="status" className="m-0 text-muted">{t('screens.settings.noChanges')}</p>}
+      {diff && diff.length > 0 && archive && (
         <Panel title={t('settings.importPreview')}>
           <ul className="m-0 flex list-none flex-col gap-[0.3rem] p-0 text-[0.85rem]">
             {diff.map((d) => (
@@ -194,7 +218,7 @@ export function SettingsScreen({ api, operatorStore }: SettingsScreenProps) {
             ))}
           </ul>
           <div className="mt-[0.8rem]">
-            <Button variant="primary" onClick={() => void api.applyImport(importBundle)}>
+            <Button variant="primary" onClick={() => void onApply()}>
               {t('settings.applyImport')}
             </Button>
           </div>

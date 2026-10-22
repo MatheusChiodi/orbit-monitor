@@ -16,6 +16,8 @@ export interface AppNotification {
   detail: string;
   at: string;
   read: boolean;
+  /** Where the notification leads (e.g. `#/incidents/inc-1`). */
+  href?: string;
 }
 
 export interface NotificationCenterProps {
@@ -76,7 +78,20 @@ export function NotificationCenter({ notifications, now, onRead, onReadAll }: No
                     <StatusDot status={n.severity} className="mt-[0.35rem]" />
                     <span className="min-w-0 flex-1">
                       <span className={`mr-[0.4rem] text-[0.68rem] font-semibold ${TEXT_CLASS[n.severity]}`}>{t(`status.label.${n.severity}`)}</span>
-                      <SafeValue value={n.title} className="text-[0.85rem] font-semibold" />
+                      {n.href ? (
+                        <a
+                          href={n.href}
+                          className="text-[0.85rem] font-semibold text-text hover:underline"
+                          onClick={() => {
+                            if (!n.read) onRead(n.id);
+                            setOpen(false);
+                          }}
+                        >
+                          <SafeValue value={n.title} />
+                        </a>
+                      ) : (
+                        <SafeValue value={n.title} className="text-[0.85rem] font-semibold" />
+                      )}
                       {n.detail && <SafeValue value={n.detail} className="block font-mono text-[0.72rem] text-muted" />}
                       <span className="block text-[0.7rem] text-dim">{formatRelative(n.at, now, locale)}</span>
                     </span>

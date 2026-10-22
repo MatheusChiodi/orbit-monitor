@@ -4,44 +4,62 @@ import type en from './locales/en.json';
 import type themeEn from '@/shared/theme/locales/en.json';
 import type historyRangeEn from '@/domains/telemetry/history/locales/en.json';
 import type customizationEn from '@/shared/customization/locales/en.json';
+import type screensEn from '@/app/console/locales/en.json';
+import type monitorFormEn from '@/domains/monitor/locales/en.json';
 
 export const SUPPORTED_LOCALES = ['en', 'pt-BR'] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = 'en';
 export const LOCALE_STORAGE_KEY = 'orbit.locale';
 
-/** Theme, history-range and customization messages live with their features (`@/shared/theme`, `@/domains/telemetry/history`, `@/shared/customization`). */
-export type Messages = typeof en & { theme: typeof themeEn; historyRange: typeof historyRangeEn; customization: typeof customizationEn };
+/** Feature messages live with their features (theme, history range, customization, console screens, monitor form). */
+export type Messages = typeof en & {
+  theme: typeof themeEn;
+  historyRange: typeof historyRangeEn;
+  customization: typeof customizationEn;
+  screens: typeof screensEn;
+  monitorForm: typeof monitorFormEn;
+};
+
+type Json = { default: object };
+type Loader = () => Promise<Json>;
+type Namespace = Exclude<keyof Messages, keyof typeof en>;
 
 /**
  * Locales are separate chunks: an entry point awaits `loadLocale` for its language before rendering,
  * and `setLocale` loads a new language before switching, so a wall downloads one language only.
  */
-const LOADERS: Record<Locale, () => Promise<Messages>> = {
-  en: async () => {
-    const [base, theme, historyRange, customization] = await Promise.all([
-      import('./locales/en.json'),
-      import('@/shared/theme/locales/en.json'),
-      import('@/domains/telemetry/history/locales/en.json'),
-      import('@/shared/customization/locales/en.json'),
-    ]);
-    return { ...base.default, theme: theme.default, historyRange: historyRange.default, customization: customization.default };
-  },
-  'pt-BR': async () => {
-    const [base, theme, historyRange, customization] = await Promise.all([
-      import('./locales/pt-BR.json'),
-      import('@/shared/theme/locales/pt-BR.json'),
-      import('@/domains/telemetry/history/locales/pt-BR.json'),
-      import('@/shared/customization/locales/pt-BR.json'),
-    ]);
-    return { ...base.default, theme: theme.default, historyRange: historyRange.default, customization: customization.default };
-  },
+const BASE: Record<Locale, Loader> = {
+  en: () => import('./locales/en.json'),
+  'pt-BR': () => import('./locales/pt-BR.json'),
 };
+
+const NAMESPACES: Record<Namespace, Record<Locale, Loader>> = {
+  theme: { en: () => import('@/shared/theme/locales/en.json'), 'pt-BR': () => import('@/shared/theme/locales/pt-BR.json') },
+  historyRange: {
+    en: () => import('@/domains/telemetry/history/locales/en.json'),
+    'pt-BR': () => import('@/domains/telemetry/history/locales/pt-BR.json'),
+  },
+  customization: {
+    en: () => import('@/shared/customization/locales/en.json'),
+    'pt-BR': () => import('@/shared/customization/locales/pt-BR.json'),
+  },
+  screens: { en: () => import('@/app/console/locales/en.json'), 'pt-BR': () => import('@/app/console/locales/pt-BR.json') },
+  monitorForm: { en: () => import('@/domains/monitor/locales/en.json'), 'pt-BR': () => import('@/domains/monitor/locales/pt-BR.json') },
+};
+
+async function loadAll(locale: Locale): Promise<Messages> {
+  const names = Object.keys(NAMESPACES) as Namespace[];
+  const [base, ...parts] = await Promise.all([BASE[locale](), ...names.map((name) => NAMESPACES[name][locale]())]);
+  const messages: Record<string, unknown> = { ...base!.default };
+  names.forEach((name, i) => (messages[name] = parts[i]!.default));
+  return messages as Messages;
+}
 
 const RESOURCES: Partial<Record<Locale, Messages>> = {};
 
 export function loadLocaleMessages(locale: Locale): Promise<Messages> {
-  return LOADERS[locale]();
+  return loadAll(locale);
 }
 
 export function isLocaleLoaded(locale: Locale): boolean {

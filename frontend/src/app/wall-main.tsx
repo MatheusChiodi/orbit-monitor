@@ -33,7 +33,8 @@ const nightMode = scheduleFromSearch(window.location.search);
 const operator = operatorName(window.location.search, loadOperator());
 saveOperator(normalizeOperatorName(operator));
 
-const api = createApiClient({ getOperator: () => operator });
+// CORE-15: Problem Details in the wall's language (`i18n` is created below; read lazily per request).
+const api = createApiClient({ getOperator: () => operator, getLocale: () => i18n.language });
 const layouts = createLayoutsApi();
 const config = createConfigClient();
 const escalation = createEscalationApi();

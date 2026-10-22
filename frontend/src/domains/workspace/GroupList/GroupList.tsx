@@ -26,7 +26,13 @@ export interface GroupListProps {
   canEdit?: boolean;
   /** FE-55 `open-detail` card action. */
   onOpenMonitor?: (id: string) => void;
+  /** FE-55 `acknowledge` card action (the monitor's open incident). */
+  onAcknowledgeMonitor?: (id: string) => void;
+  /** FE-55 `open-target` card action (the monitored URL, or the detail when there is none). */
+  onOpenTarget?: (id: string) => void;
 }
+
+type CardHandlers = Pick<GroupListProps, 'onOpenMonitor' | 'onAcknowledgeMonitor' | 'onOpenTarget'>;
 
 function normalize(text: string): string {
   return text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
@@ -35,7 +41,7 @@ function normalize(text: string): string {
 const ROW_PADDING = { compact: 'py-[0.25rem]', regular: 'py-[0.5rem]', detailed: 'py-[0.7rem]' } as const;
 
 /** One monitor row; content and behavior come from the FE-55 card settings. */
-function MonitorRow({ monitor: m, onOpenMonitor }: { monitor: MonitorView; onOpenMonitor?: (id: string) => void }) {
+function MonitorRow({ monitor: m, onOpenMonitor, onAcknowledgeMonitor, onOpenTarget }: { monitor: MonitorView } & CardHandlers) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
   const card = useMonitorCardSettings(m.id);
@@ -43,6 +49,8 @@ function MonitorRow({ monitor: m, onOpenMonitor }: { monitor: MonitorView; onOpe
   const show = (field: (typeof card.fields)[number]) => card.fields.includes(field);
   const interactions = useCardInteractions(card, {
     'open-detail': onOpenMonitor ? () => onOpenMonitor(m.id) : undefined,
+    acknowledge: onAcknowledgeMonitor ? () => onAcknowledgeMonitor(m.id) : undefined,
+    'open-target': onOpenTarget ? () => onOpenTarget(m.id) : undefined,
     expand: card.expand === 'inline' ? () => setExpanded((e) => !e) : undefined,
   });
   const pad = ROW_PADDING[card.variant];
@@ -87,7 +95,7 @@ function MonitorRow({ monitor: m, onOpenMonitor }: { monitor: MonitorView; onOpe
   );
 }
 
-function GroupSection({ group, monitors, onOpenMonitor }: { group: Group; monitors: MonitorView[]; onOpenMonitor?: (id: string) => void }) {
+function GroupSection({ group, monitors, ...handlers }: { group: Group; monitors: MonitorView[] } & CardHandlers) {
   const { t } = useTranslation();
   const titleId = useId();
   const enter = useMotionPreset('enter');
@@ -128,7 +136,7 @@ function GroupSection({ group, monitors, onOpenMonitor }: { group: Group; monito
         <tbody>
           <AnimatePresence>
           {orderMonitors(monitors, settings.order).map((m) => (
-            <MonitorRow key={m.id} monitor={m} onOpenMonitor={onOpenMonitor} />
+            <MonitorRow key={m.id} monitor={m} {...handlers} />
           ))}
           </AnimatePresence>
         </tbody>
@@ -138,7 +146,7 @@ function GroupSection({ group, monitors, onOpenMonitor }: { group: Group; monito
 }
 
 /** Console list of groups and monitors, with a text filter. */
-export function GroupList({ groups, monitors, onNewMonitor, canEdit = true, onOpenMonitor }: GroupListProps) {
+export function GroupList({ groups, monitors, onNewMonitor, canEdit = true, ...handlers }: GroupListProps) {
   const { t } = useTranslation();
   const { emptyText } = useGroupCardSettings(null);
   const [query, setQuery] = useState('');
@@ -170,7 +178,7 @@ export function GroupList({ groups, monitors, onNewMonitor, canEdit = true, onOp
       ) : (
         <AnimatePresence>
           {sections.map((s) => (
-            <GroupSection key={s.group.id} group={s.group} monitors={s.monitors} onOpenMonitor={onOpenMonitor} />
+            <GroupSection key={s.group.id} group={s.group} monitors={s.monitors} {...handlers} />
           ))}
         </AnimatePresence>
       )}

@@ -7,8 +7,8 @@ import { connectWall, wallSocketUrl, type ConnectWallOptions, type WallConnectio
 import { FxBackground } from '@/shared/fx/FxBackground';
 import { FxProvider } from '@/shared/fx/FxProvider';
 import { hasUnacknowledgedDown } from '@/shared/fx/incident';
-import { AnimationLevelProvider, effectiveAnimationLevel, systemPrefersReducedMotion } from '@/shared/motion/animationLevel';
-import { motionFromUrl, resolveAnimationLevel } from '@/shared/motion/animationPrecedence';
+import { AnimationLevelProvider, systemPrefersReducedMotion } from '@/shared/motion/animationLevel';
+import { fxLevelFor, parseMotionParam, resolveMotion } from '@/shared/motion/motionSettings';
 import { MotionProvider } from '@/shared/motion/motion';
 import { loadPreferences, type DeviceChoices } from '@/shared/preferences/preferences';
 import { LazyThemeProvider } from '@/shared/theme/LazyThemeProvider';
@@ -157,14 +157,15 @@ export function WallApp({
   // FE-11 / FE-19: saved layout by slug, rotating through its playlist.
   const presentation = useWallPresentation({ load: loadLayout, slug: layout, unacknowledgedIncident: unacknowledged });
   const { defaults, customThemes } = useWallSettings(loadWorkspaceDefaults, loadCustomThemes);
-  // FE-06: `?motion=` → layout override → device → workspace default (reduced motion applied by the provider).
-  const motion = resolveAnimationLevel({
-    url: motionFromUrl(search),
-    layout: presentation.animationLevel,
-    device: device.animation,
-    workspace: defaults.animation,
+  // FE-06: reduced motion → `?motion=` → layout override → device (preset + overrides) → workspace default.
+  const motion = resolveMotion({
+    reducedMotion: systemPrefersReducedMotion(),
+    url: parseMotionParam(search),
+    layout: presentation.animationLevel ? { level: presentation.animationLevel } : null,
+    device: device.animation ? { level: device.animation, overrides: device.motion } : null,
+    workspace: defaults.animation ? { level: defaults.animation } : null,
   });
-  const animated = effectiveAnimationLevel(motion.level, systemPrefersReducedMotion()) !== 'off';
+  const animated = motion.level !== 'off';
 
   // FE-20: `?tile=n/2|n/4`, one browser per screen of a video wall.
   const tile = parseTile(search);
@@ -198,7 +199,7 @@ export function WallApp({
   );
 
   return (
-    <AnimationLevelProvider level={motion.level}>
+    <AnimationLevelProvider level={motion.level} settings={motion.settings}>
     <LazyThemeProvider
       search={search}
       layoutThemeId={presentation.themeId}
@@ -208,7 +209,7 @@ export function WallApp({
       animate={animated}
     >
     <MotionProvider>
-      <FxProvider incidentActive={unownedIncident}>
+      <FxProvider level={fxLevelFor(motion.settings, motion.level)} incidentActive={unownedIncident}>
         <FxBackground />
         <div className="fx-layer">
           {phone && snapshot ? (

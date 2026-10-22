@@ -57,7 +57,7 @@ describe('MonitorForm', () => {
     const p = setup();
     await fillSql();
     await userEvent.click(screen.getByRole('button', { name: 'Run preview' }));
-    expect(p.onPreview).toHaveBeenCalledWith({ type: 'SQL', connectionId: 'ora', sql: 'SELECT COUNT(*) QTY FROM QUEUE' });
+    expect(p.onPreview).toHaveBeenCalledWith({ type: 'SQL', connectionId: 'ora', sql: 'SELECT COUNT(*) QTY FROM QUEUE', intervalSeconds: 60 });
     expect(await screen.findByRole('table', { name: 'Preview result' })).toBeInTheDocument();
     const step = screen.getByRole('region', { name: 'Data & display' });
     expect(within(step).getByRole('group', { name: 'QTY' })).toBeInTheDocument();

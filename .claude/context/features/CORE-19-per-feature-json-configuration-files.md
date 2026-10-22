@@ -35,6 +35,7 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 - `frontend/src/app/settings/SettingsScreen/SettingsScreen.tsx`
 - `backend/orbit-config/src/main/java/io/orbit/config/SchemaValidator.java`
 - `backend/orbit-config/src/main/resources/schemas/orbit.<feature>.schema.json` (18 files)
+- `frontend/src/app/console/screens/SettingsRoute/settingsApi.ts`
 
 ## Tests
 - `frontend/src/shared/api/configResources.test.ts`
@@ -45,6 +46,8 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 - `backend/orbit-config/src/test/java/io/orbit/config/ConfigHealthTest.java`
 - `backend/orbit-api/src/test/java/io/orbit/api/web/AuditAndConfigApiTest.java`
 - `frontend/src/app/settings/SettingsScreen/SettingsScreen.test.tsx`
+- `frontend/src/app/console/screens/SettingsRoute/settingsApi.test.ts`
+- `frontend/src/shared/api/consoleEndpoints.test.ts`
 
 ## Decisions and notes
 - `ConfigFile<T>` handles one `orbit.<feature>.json`: `{"version":1,"items":[...]}`, ids required and unique, feature validator on read and write.
@@ -65,6 +68,7 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 - Backend: reload on change — `ConfigReloader` checks every `ConfigFile` bean every 5 s (groups, layouts, variables, themes, status pages, workspaces, customization, terminology, channels, maintenance, escalation) and after an import; settings and monitor definitions keep their reload in `RuntimeLifecycle`. Polling the modification time was kept over `java.nio.file.WatchService` (unreliable on network/WSL/Docker bind mounts, needs a thread per directory; 5 s is enough for hand edits).
 - Backend: `GET /api/config/health` → `[{ file, state: ok|missing|invalid, items, error }]` for every schema file (the shape of the frontend `ConfigFileHealth`); state from the schema plus the domain error of the loaded file; errors are masked and never contain values.
 - Remaining: `orbit.silences.json` is created inside `SilenceService` (AlertingBeans, be-alerting) and is not a bean, so it is not hot-reloaded; `orbit.query-catalog.json` (`QueryCatalog`) is not wired into the app yet. The frontend Settings screen still has to call `/api/config/health` and `/api/settings/defaults`.
+- Frontend: `#/settings` uses `/api/settings` (locale ↔ default language, other fields kept), `/api/config/health` and the BE-37 zip: `GET /api/config/export` downloads `orbit-config-YYYY-MM-DD.zip`, import posts the zip with `dryRun=true`, shows the per-file diff, then `dryRun=false`; config lists accept a plain array or `{version, items}`.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -80,3 +84,4 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 - 2026-10-22 — backend: JSON Schema per config file, validated on read and write; ConfigSchemasTest un-pended (frontend pending tests remain).
 - 2026-10-22 — backend: schema for orbit.workspaces.json; status-pages schema uses `pub`.
 - 2026-10-22 — backend: examples for every config file with a coverage test, customization/terminology schemas, reload of every config file bean, GET /api/config/health; stale pending frontend test entries removed.
+- 2026-10-22 — frontend: settings screen wired to the settings, config health and zip export/import APIs.

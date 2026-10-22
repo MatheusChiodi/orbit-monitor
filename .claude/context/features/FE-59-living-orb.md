@@ -41,7 +41,6 @@ The 3D orb becomes a live map: core = overall health, one ring per group, one sa
 - `frontend/src/domains/wall/components/WallHeader/WallHeader.fx.test.tsx`
 - `frontend/src/app/console/ConsoleApp.fx.test.tsx` (FE-59 case)
 - `frontend/src/domains/workspace/GroupList/GroupList.test.tsx`
-- `frontend/src/app/console/ConsoleApp.theming.test.tsx`
 
 ## Decisions and notes
 - Mapping is pure (`buildOrbModel`) and tested without WebGL; the 3D scene and the SVG read the same model and the same placement formula, so the static and live orbs agree.
@@ -52,7 +51,7 @@ The 3D orb becomes a live map: core = overall health, one ring per group, one sa
 - More than 60 monitors → one satellite per group and state, with a count (tooltip shows "N monitors"; Enter/click do not open an aggregate).
 - Tests resolve the lazy 3D chunk once in `beforeAll`, so no assertion depends on dynamic-import speed under a parallel run.
 - On the wall the orb is passive (no mouse dependency); `interactive` is for the console and touch walls.
-- "Open the monitor" works: GroupList rows carry `id="monitor-<id>"`; the console also scrolls to `index.html#monitor-<id>` once the list has loaded (used by the wall card actions).
+- "Open the monitor" works: GroupList rows carry `id="monitor-<id>"` (orb "open" scrolls to them); the wall card actions open the monitor detail route `#/monitors/<id>`.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).

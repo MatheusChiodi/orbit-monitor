@@ -1,5 +1,6 @@
 import type { FieldFormat } from '@/shared/format';
 import type { DataClass } from '@/shared/privacy/redact';
+import type { CheckTarget, HttpStep, OAuth2Auth } from './monitorTargets';
 
 /**
  * Data contract between the frontend and the Orbit API (REST `/api`, WebSocket `/ws/wall`).
@@ -8,7 +9,7 @@ import type { DataClass } from '@/shared/privacy/redact';
 
 export type Status = 'OK' | 'WARN' | 'DOWN';
 export type Severity = Exclude<Status, 'OK'>;
-export type MonitorType = 'HTTP' | 'SQL' | 'PING' | 'PUSH';
+export type MonitorType = 'HTTP' | 'SQL' | 'TCP' | 'PING' | 'PUSH' | 'DNS' | 'CERT' | 'GRPC' | 'KAFKA';
 
 export type ComparisonOperator = '<' | '<=' | '>' | '>=' | '==' | '!=';
 
@@ -137,6 +138,10 @@ export interface PreviewResult {
   elapsedMs: number;
   /** HTTP status, when the monitor is HTTP. */
   status?: number;
+  /** HTTP response body, already masked by the backend (FE-35 JSON explorer). */
+  body?: string | null;
+  /** BE-14 (SQL): the query is slow for the planned interval; `message` is in the request language. */
+  cost?: { level: 'NONE' | 'WARN' | 'HEAVY'; suggestedIntervalSeconds: number; message: string } | null;
 }
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'HEAD';
@@ -145,6 +150,8 @@ export interface SqlTarget {
   type: 'SQL';
   connectionId: string;
   sql: string;
+  /** Preview only (BE-14): the planned interval, for the cost warning. */
+  intervalSeconds?: number;
 }
 
 export interface HttpTarget {
@@ -153,6 +160,10 @@ export interface HttpTarget {
   url: string;
   headers: Record<string, string>;
   body?: string;
+  /** BE-08 client credentials; not sent with previews. */
+  oauth?: OAuth2Auth;
+  /** BE-07 steps that run before this request (login); not sent with previews. */
+  steps?: HttpStep[];
 }
 
 export type PreviewRequest = SqlTarget | HttpTarget;
@@ -205,7 +216,7 @@ export interface MonitorDefinitionBase {
   fields: FieldDisplay[];
 }
 
-export type MonitorDefinition = MonitorDefinitionBase & (SqlTarget | HttpTarget);
+export type MonitorDefinition = MonitorDefinitionBase & (SqlTarget | HttpTarget | CheckTarget);
 
 export type DatabaseKind = 'ORACLE' | 'POSTGRES' | 'SQLSERVER' | 'MYSQL';
 

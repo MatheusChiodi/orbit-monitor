@@ -4,4 +4,4 @@ export * from './presets';
 export * from './tokens';
 export * from './useMotionPreset';
 export * from './useValueFlash';
-export * from './animationPrecedence';
+export * from './motionSettings';

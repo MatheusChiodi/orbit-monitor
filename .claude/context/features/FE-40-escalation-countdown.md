@@ -28,17 +28,20 @@ updated: 2026-10-22
 - `frontend/src/domains/alerting/escalation/escalationApi.ts`
 - `frontend/src/domains/wall/components/WallScreen/WallScreen.tsx`
 - `frontend/src/app/wall-main.tsx`
+- `frontend/src/app/console/screens/IncidentScreen/IncidentScreen.tsx`
 
 ## Tests
 - `frontend/src/domains/alerting/EscalationCountdown/EscalationCountdown.test.tsx`
 - `frontend/src/domains/wall/components/Hero/Hero.test.tsx`
 - `frontend/src/domains/alerting/escalation/escalationApi.test.ts`
 - `frontend/src/domains/wall/WallApp/WallApp.layout.test.tsx`
+- `frontend/src/domains/alerting/IncidentPage/IncidentPage.actions.test.tsx`
 
 ## Decisions and notes
 - `role=timer` with `aria-live=off` (no per-second announcements); `mm:ss` below one hour, amber in the last minute; hidden once acknowledged; "Escalated to …" after the deadline.
 - Used by the wall hero; the console incident page is FE-39.
 - Next-step name: `useNextEscalationStep` prefers `nextStep.name` on the wall incident (`IncidentView.nextStep = {name, dueAt, onCall}` in the WS snapshot) and otherwise asks `GET /api/incidents/{id}/escalation` (BE-27: `{ incidentId, policyName, stepIndex, stepName, dueAt, … }`, 204 = no further step) once per incident and deadline; acknowledged incidents never fetch. Failures leave the countdown without a name.
+- Console: the incident page reads `GET /api/incidents/{id}/escalation` (204 = nothing pending) and shows the countdown with the next step name.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -49,3 +52,4 @@ updated: 2026-10-22
 - 2026-10-22 — next-step name from the wall payload or the escalation API (status: done).
 - 2026-10-22 — parses the BE-27 escalation payload (stepName, dueAt).
 - 2026-10-22 — uses `IncidentView.nextStep` from the snapshot, REST as fallback.
+- 2026-10-22 — console incident page shows the next escalation step from the API.

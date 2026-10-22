@@ -3,7 +3,7 @@ id: CORE-15
 title: "Internationalization (en / pt-BR)"
 area: full-stack
 group: "Platform"
-status: in-progress
+status: done
 screens: [preferences, wall, settings]
 spec: docs/01-architecture.md, docs/02-features.md, docs/04-data-protection.md
 updated: 2026-10-22
@@ -16,8 +16,8 @@ English default, pt-BR available; i18next on the front, MessageSource + Accept-L
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
-- [ ] All tests green, none pending
+- [x] Implemented
+- [x] All tests green, none pending
 
 ## Screens
 [preferences](../screens/preferences.md), [wall](../screens/wall.md), [settings](../screens/settings.md)
@@ -37,8 +37,14 @@ English default, pt-BR available; i18next on the front, MessageSource + Accept-L
 - `backend/orbit-api/src/main/java/io/orbit/api/web/Messages.java`
 - `backend/orbit-api/src/main/java/io/orbit/api/web/ProblemHandler.java`
 - `backend/orbit-common/src/main/java/io/orbit/common/i18n/Localizable.java`
+- `frontend/src/app/console/locales/en.json`
+- `frontend/src/app/console/locales/pt-BR.json`
+- `frontend/src/domains/monitor/locales/en.json`
+- `frontend/src/domains/monitor/locales/pt-BR.json`
+- `frontend/src/shared/api/client.ts`
 - `backend/orbit-api/src/main/java/io/orbit/api/web/ConfigErrorMessages.java`
 - `backend/orbit-api/src/main/java/io/orbit/api/wall/WallTitles.java`
+- `frontend/src/app/wall-main.tsx`
 
 ## Tests
 - `frontend/src/shared/i18n/i18n.test.ts`
@@ -46,6 +52,8 @@ English default, pt-BR available; i18next on the front, MessageSource + Accept-L
 - `frontend/src/shared/i18n/LanguageSelector/LanguageSelector.test.tsx`
 - `backend/orbit-api/src/test/java/io/orbit/api/web/ProblemI18nTest.java`
 - `backend/orbit-api/src/test/java/io/orbit/api/web/MessageBundlesTest.java`
+- `frontend/src/app/console/locales/locales.test.ts`
+- `frontend/src/shared/api/client.test.ts`
 - `backend/orbit-api/src/test/java/io/orbit/api/web/ConfigErrorMessagesTest.java`
 - `backend/orbit-api/src/test/java/io/orbit/api/wall/WallPublisherI18nTest.java`
 - `backend/orbit-api/src/test/java/io/orbit/api/web/ExtendedMonitorsApiTest.java`
@@ -57,15 +65,19 @@ English default, pt-BR available; i18next on the front, MessageSource + Accept-L
 - Backend: `Accept-Language` picks en (default) or pt-BR (`AcceptHeaderLocaleResolver`); any other language falls back to English; `spring.messages.fallback-to-system-locale=false` so the OS language never leaks in.
 - Backend: Problem Details keep the stable English `code`; `title` and `detail` come from `messages*.properties`. Domain errors (`UnsafeSqlException`, `ConditionSyntaxException`, `SsrfBlockedException`) implement `Localizable` (key + args) and keep an English message as fallback.
 - Backend: `MessageBundlesTest` fails when a key exists in one language only.
+- Frontend: the console sends the UI language as `Accept-Language` (`getLocale`), so Problem Details arrive in en or pt-BR; console screens and monitor-form messages live in their own locale files (`screens.*`, `monitorForm.*`) with a parity test over the merged resources. The wall entry (fe-wall) does not pass `getLocale` yet.
 - Backend: config validation error lists (`errors` of `invalid-config`) follow `Accept-Language`: `ConfigErrorMessages` maps the stable English validator texts to `config.error.*` keys, keeping the item prefix (`tcp_db: `, `step login: `) and values; unknown texts stay English.
 - Backend: wall timeline titles (`wall.timeline.*`), notices (`notice.*`), cost advice (`sql.cost.*`) and the history coverage label (`history.coverage.*`) come from the bundles; the shared wall uses the workspace locale from orbit.settings.json.
 - Backend: notification texts are rendered by the alerting templates (BE-35, en/pt-BR per template, owned by orbit-alerting); nothing hard-coded remains in the runtime/wall path.
 - Frontend: each language is its own chunk (base + theme + historyRange namespaces). Entry points `await loadLocale(locale)` before rendering, `setLocale` loads a language before switching and adds it to the instance, so the wall downloads one language only (~9 KB gzip saved from the first load). Tests load both in `src/test/setup.ts`. `messages(locale)` falls back to any loaded language.
+- Frontend closed: both entries (console and wall) send `Accept-Language`; every new screen, the monitor form kinds and the motion panel ship en + pt-BR with a parity test over the merged resources; backend-produced texts (cost advice, config errors, timeline titles) arrive already localized.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — frontend: i18next infrastructure, en/pt-BR locale files, typed keys and language selector (status: in-progress).
 - 2026-10-18 — frontend: every screen and component now translated; language selector in the console header.
 - 2026-10-18 — backend: API errors translated en/pt-BR via MessageSource and Accept-Language.
+- 2026-10-22 — frontend: Accept-Language from the UI language; console screen and monitor form messages in en/pt-BR.
 - 2026-10-22 — backend: localized config validation errors, wall timeline titles, notices, cost advice and coverage label.
+- 2026-10-22 — frontend gaps closed (wall Accept-Language, console screens, monitor form, motion panel) (status: done).
 - 2026-10-22 — frontend: lazy per-language locale chunks (`loadLocale`).

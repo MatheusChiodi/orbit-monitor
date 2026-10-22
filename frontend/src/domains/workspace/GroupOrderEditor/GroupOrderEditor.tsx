@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { Group, MonitorView } from '@/shared/api/types';
 import { safeText } from '@/shared/privacy/redact';
 import { SafeValue } from '@/shared/privacy/SafeValue';
-import { AnimatedItem, StatusDot } from '@/shared/ui';
+import { AnimatedItem, Button, StatusDot } from '@/shared/ui';
 import { moveBetweenGroups, moveItem, type GroupOrder } from '../reorder/reorder';
 
 export interface GroupOrderEditorProps {
@@ -13,6 +13,8 @@ export interface GroupOrderEditorProps {
   /** Called with the full order (group id → monitor ids) when a move is dropped. */
   onChange: (order: GroupOrder) => void;
   editable?: boolean;
+  /** Group order changes (move up/down); the parent re-renders `groups` in the new order. */
+  onGroupsChange?: (groupIds: string[]) => void;
 }
 
 function initialOrder(groups: readonly Group[], monitors: readonly MonitorView[]): GroupOrder {
@@ -28,7 +30,7 @@ interface Grab {
  * FE-13: monitors as sortable lists per group. Keyboard: Space grabs/drops, ArrowUp/Down move inside the
  * group, ArrowLeft/Right move to the previous/next group, Escape cancels; every move is announced.
  */
-export function GroupOrderEditor({ groups, monitors, onChange, editable = true }: GroupOrderEditorProps) {
+export function GroupOrderEditor({ groups, monitors, onChange, editable = true, onGroupsChange }: GroupOrderEditorProps) {
   const { t } = useTranslation();
   const [order, setOrder] = useState<GroupOrder>(() => initialOrder(groups, monitors));
   const [grab, setGrab] = useState<Grab | null>(null);
@@ -104,16 +106,41 @@ export function GroupOrderEditor({ groups, monitors, onChange, editable = true }
     }
   }
 
+  function moveGroup(index: number, delta: number) {
+    const ids = groups.map((g) => g.id);
+    const [moved] = ids.splice(index, 1);
+    ids.splice(index + delta, 0, moved!);
+    onGroupsChange?.(ids);
+    setAnnouncement(t('layout.dnd.position', { name: safeText(groups[index]!.name), position: index + delta + 1, total: ids.length }));
+  }
+
   return (
     <div ref={root} className="flex flex-col gap-[0.8rem]">
       <p role="status" aria-live="polite" className="sr-only">
         {announcement}
       </p>
-      {groups.map((group) => (
-        <section key={group.id} className="rounded-[0.6rem] border border-line bg-s1 p-[0.6rem]">
-          <h3 className="section-label m-0 mb-[0.4rem]">
-            <SafeValue value={group.name} />
-          </h3>
+      {groups.map((group, index) => (
+        <AnimatedItem as="div" motionKind="reorder" key={group.id} className="rounded-[0.6rem] border border-line bg-s1 p-[0.6rem]">
+          <div className="mb-[0.4rem] flex items-center gap-[0.4rem]">
+            <h3 className="section-label m-0 flex-1">
+              <SafeValue value={group.name} />
+            </h3>
+            {editable && onGroupsChange && (
+              <>
+                <Button variant="ghost" aria-label={t('screens.reorder.up', { name: safeText(group.name) })} disabled={index === 0} onClick={() => moveGroup(index, -1)}>
+                  ↑
+                </Button>
+                <Button
+                  variant="ghost"
+                  aria-label={t('screens.reorder.down', { name: safeText(group.name) })}
+                  disabled={index === groups.length - 1}
+                  onClick={() => moveGroup(index, 1)}
+                >
+                  ↓
+                </Button>
+              </>
+            )}
+          </div>
           <ul
             role="listbox"
             data-group={group.id}
@@ -144,7 +171,7 @@ export function GroupOrderEditor({ groups, monitors, onChange, editable = true }
               })}
             </AnimatePresence>
           </ul>
-        </section>
+        </AnimatedItem>
       ))}
     </div>
   );

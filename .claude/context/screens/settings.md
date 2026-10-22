@@ -27,7 +27,7 @@ Access mode banner (edit / view-only), operator name, workspace defaults, config
 - [CORE-08 · Access policy, vault and audit](../features/CORE-08-access-policy-vault-and-audit.md) — in-progress
 - [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — in-progress
 - [CORE-20 · Local-first runtime](../features/CORE-20-local-first-runtime.md) — in-progress
-- [CORE-15 · Internationalization (en / pt-BR)](../features/CORE-15-internationalization-en-pt-br.md) — in-progress
+- [CORE-15 · Internationalization (en / pt-BR)](../features/CORE-15-internationalization-en-pt-br.md) — done
 - [FE-37 · Onboarding](../features/FE-37-onboarding.md) — done
 - [FE-50 · Device preferences](../features/FE-50-device-preferences.md) — tests-pending
 - [CORE-21 · Customization registry](../features/CORE-21-customization-registry.md) — done
@@ -42,6 +42,8 @@ Access mode banner (edit / view-only), operator name, workspace defaults, config
 - `frontend/src/shared/i18n/LanguageSelector/LanguageSelector.tsx`
 - `frontend/src/app/settings/SettingsScreen/SettingsScreen.tsx`
 - `frontend/src/app/settings/configTransfer.ts`
+- `frontend/src/app/console/screens/SettingsRoute/SettingsRoute.tsx`
+- `frontend/src/app/console/screens/SettingsRoute/settingsApi.ts`
 - frontend/src/domains/customization/CustomizationScreen/CustomizationScreen.tsx
 
 ## Tests
@@ -50,6 +52,7 @@ Access mode banner (edit / view-only), operator name, workspace defaults, config
 - `frontend/src/shared/i18n/LanguageSelector/LanguageSelector.test.tsx`
 - `frontend/src/app/settings/SettingsScreen/SettingsScreen.test.tsx`
 - `frontend/src/app/settings/configTransfer.test.ts`
+- `frontend/src/app/console/screens/SettingsRoute/settingsApi.test.ts`
 - frontend/src/app/console/ConsoleApp.customization.test.tsx
 
 ## Changelog
@@ -58,4 +61,5 @@ Access mode banner (edit / view-only), operator name, workspace defaults, config
 - 2026-10-18 — settings screen with access mode, operator name, defaults, config health and export/import.
 - 2026-10-18 — settings screen with access mode, operator name, defaults, config health and export/import.
 - 2026-10-18 — settings screen with access mode, operator name, defaults, config health and export/import.
+- 2026-10-22 — `#/settings` wired to /api/settings, /api/config/health and the zip export/import with dry-run diff.
 - 2026-10-22 — customization screen (settings, names, profiles) added to the console.

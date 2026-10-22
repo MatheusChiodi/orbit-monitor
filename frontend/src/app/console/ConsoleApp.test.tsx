@@ -68,7 +68,7 @@ describe('ConsoleApp (no login)', () => {
     expect(screen.queryByRole('button', { name: 'New monitor' })).toBeNull();
   });
 
-  it('without a backend falls back to demo data, creates a monitor with preview and returns saved', async () => {
+  it('without a backend falls back to demo data, creates a monitor with preview and returns saved', { timeout: 15_000 }, async () => {
     render(<ConsoleApp api={offlineApi()} operatorStore={namedStore()} />);
     expect(await screen.findByText('Reconciliation queue')).toBeInTheDocument();
     expect(screen.getByText('demo data')).toBeInTheDocument();

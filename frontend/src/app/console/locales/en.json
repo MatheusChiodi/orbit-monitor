@@ -1,0 +1,158 @@
+{
+  "nav": {
+    "label": "Console sections",
+    "monitors": "Monitors",
+    "incidents": "Incidents",
+    "maintenance": "Maintenance",
+    "dependencies": "Dependencies",
+    "reports": "Reports",
+    "statusPages": "Status pages",
+    "audit": "Audit",
+    "settings": "Settings"
+  },
+  "unavailable": "This screen needs an Orbit API that does not answer yet.",
+  "loadError": "Could not load this screen.",
+  "notFound": "Page not found",
+  "backToMonitors": "Back to monitors",
+  "incidents": {
+    "title": "Incidents",
+    "open": "Open",
+    "resolved": "Resolved",
+    "empty": "No incidents in memory.",
+    "openedAt": "Opened {{time}}",
+    "acknowledgedBy": "Acknowledged by {{name}} (self-declared)",
+    "notAcknowledged": "Not acknowledged",
+    "notFound": "Incident not found. It may have left the in-memory window.",
+    "back": "All incidents",
+    "unknownMonitor": "Unknown monitor",
+    "events": {
+      "OPENED": "Opened",
+      "SEVERITY_CHANGED": "Severity changed",
+      "ACKNOWLEDGED": "Acknowledged by {{actor}}",
+      "COMMENTED": "Comment by {{actor}}",
+      "TICKET_LINKED": "Ticket linked by {{actor}}",
+      "RESOLVED": "Resolved",
+      "REOPENED": "Reopened",
+      "FLAPPING_STARTED": "Flapping started",
+      "FLAPPING_STOPPED": "Flapping stopped",
+      "CORRELATED": "Correlated"
+    },
+    "notification": {
+      "opened": "{{monitor}} opened an incident",
+      "resolved": "{{monitor}} recovered",
+      "reopened": "{{monitor}} reopened an incident",
+      "severity": "{{monitor}} changed severity"
+    },
+    "resolve": "Resolve",
+    "reopen": "Reopen",
+    "flapping": "flapping"
+  },
+  "maintenance": {
+    "title": "Maintenance",
+    "previousWeek": "Previous week",
+    "nextWeek": "Next week",
+    "thisWeek": "This week",
+    "saved": "Maintenance window \"{{title}}\" created"
+  },
+  "dependencies": {
+    "title": "Dependencies",
+    "add": "Add dependency",
+    "upstream": "Depends on (upstream)",
+    "downstream": "Dependent (downstream)",
+    "remove": "Remove {{from}} → {{to}}",
+    "invalid": "Choose two different items",
+    "cycle": "This dependency would create a cycle"
+  },
+  "reports": {
+    "title": "SLA reports",
+    "exportPdf": "Export PDF",
+    "pdfTitle": "Orbit SLA report",
+    "pdfPeriod": "Period: {{from}} – {{to}}",
+    "pdfGenerated": "Generated {{at}}. Names are redacted. Uptime excludes maintenance windows.",
+    "groupTable": "Uptime by group"
+  },
+  "statusPages": {
+    "title": "Status pages",
+    "saved": "Status page \"{{title}}\" saved",
+    "existing": "Saved pages",
+    "visibility": "Visibility"
+  },
+  "audit": {
+    "title": "Audit trail",
+    "filters": "Filters",
+    "action": "Action",
+    "target": "Target",
+    "operator": "Operator",
+    "apply": "Apply",
+    "columns": {
+      "at": "When",
+      "operator": "Operator",
+      "action": "Action",
+      "target": "Target",
+      "detail": "Detail"
+    },
+    "empty": "No audit entries match.",
+    "previous": "Previous page",
+    "next": "Next page",
+    "page": "Page {{page}}",
+    "queryHistory": "SELECT history",
+    "showHistory": "Show SELECT history for {{target}}"
+  },
+  "settings": {
+    "importZip": "Import config (.zip)",
+    "imported": "Configuration imported",
+    "noChanges": "The archive matches the current configuration."
+  },
+  "done": "Done",
+  "reorder": {
+    "up": "Move {{name}} up",
+    "down": "Move {{name}} down",
+    "toggle": "Reorder",
+    "done": "Done reordering",
+    "saved": "Order saved"
+  },
+  "monitor": {
+    "title": "Monitor",
+    "back": "All monitors",
+    "type": "Type",
+    "reading": "Current value",
+    "lastCheck": "Last check",
+    "latency": "Latency p95",
+    "uptime": "Uptime",
+    "conditions": "Conditions",
+    "passed": "passes",
+    "failed": "fails",
+    "incidents": "Incidents",
+    "noIncidents": "No incidents in memory for this monitor.",
+    "openTarget": "Open target",
+    "acknowledged": "Incident acknowledged",
+    "noOpenIncident": "This monitor has no open incident to acknowledge.",
+    "error": "Last error",
+    "acknowledge": "Acknowledge open incident"
+  },
+  "motion": {
+    "title": "Animation settings",
+    "preset": "Preset",
+    "custom": "Custom",
+    "intensity": "Intensity",
+    "speed": "Speed",
+    "transitions": "Component transitions",
+    "feedback": "Status and value feedback",
+    "attention": "Attention signals (DOWN blink, hero glow)",
+    "fx": "3D and visual effects",
+    "fxLevels": {
+      "off": "Off",
+      "low": "Low",
+      "high": "High"
+    },
+    "background": "Animated background",
+    "intros": "Intros and guides",
+    "hover": "Hover and drag effects",
+    "reduce": "Reduce motion",
+    "preview": "Live preview",
+    "play": "Play state change",
+    "simulate": "Simulate incident",
+    "sampleCard": "Sample monitor",
+    "precedence": "Order of precedence: system reduced motion → ?motion= in the URL → wall layout → this device → workspace default."
+  }
+}

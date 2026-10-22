@@ -22,6 +22,11 @@ describe('CORE-19 config resource client (one orbit.<feature>.json per resource)
     },
   );
 
+  it('controllers that answer a plain array (GET /api/groups) are read as { version, items }', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse([{ id: 'grp_pay', name: 'Payments', order: 0 }]));
+    expect(await createConfigClient({ fetch: fetchMock }).list('groups')).toEqual({ version: 1, items: [{ id: 'grp_pay', name: 'Payments', order: 0 }] });
+  });
+
   it('a missing file (404) is an empty list, not an error', async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ title: 'Not found' }, 404));
     expect(await createConfigClient({ fetch: fetchMock }).list('selects')).toEqual(emptyConfigFile());

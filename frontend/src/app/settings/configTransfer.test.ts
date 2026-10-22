@@ -30,6 +30,6 @@ describe('CORE-19 config export / import', () => {
   });
 
   it('export file name carries the date', () => {
-    expect(exportFileName(new Date(2026, 9, 18))).toBe('orbit-config-2026-10-18.json');
+    expect(exportFileName(new Date(2026, 9, 18))).toBe('orbit-config-2026-10-18.zip');
   });
 });

@@ -1,6 +1,6 @@
 import { m, type HTMLMotionProps } from 'motion/react';
-import { motionPreset, staggerDelay } from '@/shared/motion/presets';
-import { useAnimationLevel } from '@/shared/motion/animationLevel';
+import { staggerDelay } from '@/shared/motion/presets';
+import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 
 const ELEMENTS = { li: m.li, tr: m.tr, div: m.div } as const;
 
@@ -18,15 +18,15 @@ export interface AnimatedItemProps extends Omit<HTMLMotionProps<'div'>, 'initial
  * leaves through the parent's `AnimatePresence`, and reorders with an ease-in-out layout transition.
  */
 export function AnimatedItem({ as = 'li', motionKind = 'listItem', index = 0, count = 0, children, ...rest }: AnimatedItemProps) {
-  const level = useAnimationLevel();
-  const item = motionPreset(level, 'listItem');
-  const reorder = motionPreset(level, 'reorder');
-  const delay = staggerDelay(level, index, count);
+  const item = useMotionPreset('listItem');
+  const reorder = useMotionPreset('reorder');
+  const level = item.level;
+  const delay = item.transition.duration === 0 ? 0 : staggerDelay(level, index, count);
   const Element = ELEMENTS[as] as typeof m.div;
   return (
     <Element
       {...rest}
-      layout={motionKind === 'reorder' && level !== 'off' ? 'position' : false}
+      layout={motionKind === 'reorder' && reorder.transition.duration > 0 ? 'position' : false}
       data-motion={motionKind}
       data-motion-level={level}
       initial={item.initial}

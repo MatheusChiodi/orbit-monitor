@@ -5,6 +5,7 @@ import { normalizeOperatorName } from '@/domains/security/operator/operator';
 import { SUPPORTED_LOCALES } from '@/shared/i18n/i18n';
 import { translate, type Message } from '@/shared/i18n/message';
 import { ANIMATION_LEVELS, systemPrefersReducedMotion } from '@/shared/motion/animationLevel';
+import { MotionSettingsPanel } from '../MotionSettingsPanel';
 import { DENSITIES } from '@/shared/preferences/density';
 import {
   exportPreferences,
@@ -73,6 +74,7 @@ export function DevicePreferences({ store }: DevicePreferencesProps) {
   const set = useStore(store, (s) => s.set);
   const replace = useStore(store, (s) => s.replace);
   const reset = useStore(store, (s) => s.reset);
+  const setAnimationPreset = useStore(store, (s) => s.setAnimationPreset);
   const [reducedMotion] = useState(systemPrefersReducedMotion);
   const [operatorDraft, setOperatorDraft] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -82,7 +84,9 @@ export function DevicePreferences({ store }: DevicePreferencesProps) {
   const onSelect =
     <K extends PreferenceKey>(key: K) =>
     (event: ChangeEvent<HTMLSelectElement>) => {
-      set(key, event.target.value as Preferences[K]);
+      // FE-06: a preset sets every animation control at once (device overrides are cleared).
+      if (key === 'animation') setAnimationPreset(event.target.value as Preferences['animation']);
+      else set(key, event.target.value as Preferences[K]);
       setNotice(null);
     };
 
@@ -139,7 +143,6 @@ export function DevicePreferences({ store }: DevicePreferencesProps) {
                   </option>
                 ))}
               </select>
-              {reducedMotion && <p className="m-0 text-[0.78rem] text-warn-text">{t('preferences.reducedMotion')}</p>}
             </>
           )}
         </Field>
@@ -198,6 +201,8 @@ export function DevicePreferences({ store }: DevicePreferencesProps) {
           )}
         </Field>
       </div>
+
+      <MotionSettingsPanel store={store} reducedMotion={reducedMotion} />
 
       <div className="flex flex-wrap items-center gap-[0.6rem]">
         <Button onClick={() => download(exportPreferences(device))}>{t('preferences.export')}</Button>

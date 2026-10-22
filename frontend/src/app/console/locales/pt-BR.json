@@ -1,0 +1,158 @@
+{
+  "nav": {
+    "label": "Seções do console",
+    "monitors": "Monitores",
+    "incidents": "Incidentes",
+    "maintenance": "Manutenção",
+    "dependencies": "Dependências",
+    "reports": "Relatórios",
+    "statusPages": "Páginas de status",
+    "audit": "Auditoria",
+    "settings": "Configurações"
+  },
+  "unavailable": "Esta tela precisa de uma API do Orbit que ainda não responde.",
+  "loadError": "Não foi possível carregar esta tela.",
+  "notFound": "Página não encontrada",
+  "backToMonitors": "Voltar aos monitores",
+  "incidents": {
+    "title": "Incidentes",
+    "open": "Abertos",
+    "resolved": "Resolvidos",
+    "empty": "Nenhum incidente em memória.",
+    "openedAt": "Aberto {{time}}",
+    "acknowledgedBy": "Reconhecido por {{name}} (autodeclarado)",
+    "notAcknowledged": "Não reconhecido",
+    "notFound": "Incidente não encontrado. Ele pode ter saído da janela em memória.",
+    "back": "Todos os incidentes",
+    "unknownMonitor": "Monitor desconhecido",
+    "events": {
+      "OPENED": "Aberto",
+      "SEVERITY_CHANGED": "Severidade alterada",
+      "ACKNOWLEDGED": "Reconhecido por {{actor}}",
+      "COMMENTED": "Comentário de {{actor}}",
+      "TICKET_LINKED": "Chamado vinculado por {{actor}}",
+      "RESOLVED": "Resolvido",
+      "REOPENED": "Reaberto",
+      "FLAPPING_STARTED": "Oscilação iniciada",
+      "FLAPPING_STOPPED": "Oscilação encerrada",
+      "CORRELATED": "Correlacionado"
+    },
+    "notification": {
+      "opened": "{{monitor}} abriu um incidente",
+      "resolved": "{{monitor}} se recuperou",
+      "reopened": "{{monitor}} reabriu um incidente",
+      "severity": "{{monitor}} mudou de severidade"
+    },
+    "resolve": "Resolver",
+    "reopen": "Reabrir",
+    "flapping": "oscilando"
+  },
+  "maintenance": {
+    "title": "Manutenção",
+    "previousWeek": "Semana anterior",
+    "nextWeek": "Próxima semana",
+    "thisWeek": "Esta semana",
+    "saved": "Janela de manutenção \"{{title}}\" criada"
+  },
+  "dependencies": {
+    "title": "Dependências",
+    "add": "Adicionar dependência",
+    "upstream": "Depende de (acima)",
+    "downstream": "Dependente (abaixo)",
+    "remove": "Remover {{from}} → {{to}}",
+    "invalid": "Escolha dois itens diferentes",
+    "cycle": "Esta dependência criaria um ciclo"
+  },
+  "reports": {
+    "title": "Relatórios de SLA",
+    "exportPdf": "Exportar PDF",
+    "pdfTitle": "Relatório de SLA do Orbit",
+    "pdfPeriod": "Período: {{from}} – {{to}}",
+    "pdfGenerated": "Gerado em {{at}}. Nomes mascarados. A disponibilidade exclui janelas de manutenção.",
+    "groupTable": "Disponibilidade por grupo"
+  },
+  "statusPages": {
+    "title": "Páginas de status",
+    "saved": "Página de status \"{{title}}\" salva",
+    "existing": "Páginas salvas",
+    "visibility": "Visibilidade"
+  },
+  "audit": {
+    "title": "Trilha de auditoria",
+    "filters": "Filtros",
+    "action": "Ação",
+    "target": "Alvo",
+    "operator": "Operador",
+    "apply": "Aplicar",
+    "columns": {
+      "at": "Quando",
+      "operator": "Operador",
+      "action": "Ação",
+      "target": "Alvo",
+      "detail": "Detalhe"
+    },
+    "empty": "Nenhum registro de auditoria encontrado.",
+    "previous": "Página anterior",
+    "next": "Próxima página",
+    "page": "Página {{page}}",
+    "queryHistory": "Histórico do SELECT",
+    "showHistory": "Mostrar histórico do SELECT de {{target}}"
+  },
+  "settings": {
+    "importZip": "Importar configuração (.zip)",
+    "imported": "Configuração importada",
+    "noChanges": "O arquivo é igual à configuração atual."
+  },
+  "done": "Concluir",
+  "reorder": {
+    "up": "Mover {{name}} para cima",
+    "down": "Mover {{name}} para baixo",
+    "toggle": "Reordenar",
+    "done": "Concluir reordenação",
+    "saved": "Ordem salva"
+  },
+  "monitor": {
+    "title": "Monitor",
+    "back": "Todos os monitores",
+    "type": "Tipo",
+    "reading": "Valor atual",
+    "lastCheck": "Última verificação",
+    "latency": "Latência p95",
+    "uptime": "Disponibilidade",
+    "conditions": "Condições",
+    "passed": "passa",
+    "failed": "falha",
+    "incidents": "Incidentes",
+    "noIncidents": "Nenhum incidente em memória para este monitor.",
+    "openTarget": "Abrir alvo",
+    "acknowledged": "Incidente reconhecido",
+    "noOpenIncident": "Este monitor não tem incidente aberto para reconhecer.",
+    "error": "Último erro",
+    "acknowledge": "Reconhecer incidente aberto"
+  },
+  "motion": {
+    "title": "Configurações de animação",
+    "preset": "Predefinição",
+    "custom": "Personalizado",
+    "intensity": "Intensidade",
+    "speed": "Velocidade",
+    "transitions": "Transições de componentes",
+    "feedback": "Retorno de status e valores",
+    "attention": "Sinais de atenção (piscar em DOWN, brilho do destaque)",
+    "fx": "3D e efeitos visuais",
+    "fxLevels": {
+      "off": "Desligado",
+      "low": "Baixo",
+      "high": "Alto"
+    },
+    "background": "Fundo animado",
+    "intros": "Introduções e guias",
+    "hover": "Efeitos de hover e arrasto",
+    "reduce": "Reduzir movimento",
+    "preview": "Prévia ao vivo",
+    "play": "Simular mudança de estado",
+    "simulate": "Simular incidente",
+    "sampleCard": "Monitor de exemplo",
+    "precedence": "Ordem de precedência: movimento reduzido do sistema → ?motion= na URL → layout da parede → este dispositivo → padrão do workspace."
+  }
+}

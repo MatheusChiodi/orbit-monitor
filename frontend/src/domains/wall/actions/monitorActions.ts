@@ -9,8 +9,8 @@ export interface MonitorActionHosts {
 /**
  * FE-55 card actions on the wall. `acknowledge` acknowledges the monitor's open, unacknowledged
  * incident (view-only LAN clients may acknowledge). The wall carries no check target or detail page,
- * so `open-detail` and `open-target` open the console: the incident page when there is an open
- * incident, otherwise the monitor's row in the monitor list.
+ * so `open-detail` and `open-target` open the console: the incident page (`#/incidents/<id>`) when there
+ * is an open incident, otherwise the monitor detail page (`#/monitors/<id>`).
  */
 export function createMonitorActionHandler(snapshot: WallSnapshot, hosts: MonitorActionHosts) {
   return (action: CardAction, monitorId: string): void => {
@@ -21,7 +21,7 @@ export function createMonitorActionHandler(snapshot: WallSnapshot, hosts: Monito
     }
     if (action === 'open-detail' || action === 'open-target') {
       hosts.navigate(
-        incident ? `/index.html#/incidents/${encodeURIComponent(incident.id)}` : `/index.html#monitor-${encodeURIComponent(monitorId)}`,
+        incident ? `/index.html#/incidents/${encodeURIComponent(incident.id)}` : `/index.html#/monitors/${encodeURIComponent(monitorId)}`,
       );
     }
   };

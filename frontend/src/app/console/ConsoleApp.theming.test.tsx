@@ -11,6 +11,7 @@ import type { ConsoleApi } from './consoleSource';
 function api(mode: 'edit' | 'view-only' = 'edit'): ConsoleApi {
   return {
     getAccess: vi.fn().mockResolvedValue({ mode, client: mode === 'edit' ? 'loopback' : 'lan' }),
+    getWorkspaceDefaults: vi.fn().mockResolvedValue({ theme: 'nord', animation: 'standard' }),
     listGroups: vi.fn().mockResolvedValue([]),
     listMonitors: vi.fn().mockResolvedValue([]),
     listConnections: vi.fn().mockResolvedValue([]),
@@ -41,7 +42,7 @@ const exec: WallLayout = { id: 'l-exec', slug: 'exec', name: 'Executive', blocks
 
 function setup(props: Partial<ConsoleAppProps> = {}) {
   const preferences = createPreferencesStore();
-  const defaultsApi = { load: vi.fn().mockResolvedValue({ theme: 'nord', animation: 'standard' }), save: vi.fn(async (d: { theme?: string }) => d) };
+  const defaultsApi = { save: vi.fn(async (d: { theme?: string }) => d) };
   const layoutsApi = { list: vi.fn().mockResolvedValue([noc, exec]), save: vi.fn(async (l: WallLayout) => l) };
   const configClient = themesClient([custom]);
   render(
@@ -49,7 +50,7 @@ function setup(props: Partial<ConsoleAppProps> = {}) {
       api={api()}
       operatorStore={namedStore()}
       preferencesStore={preferences}
-      defaultsApi={defaultsApi}
+      saveDefaults={defaultsApi.save}
       layoutsApi={layoutsApi}
       configClient={configClient}
       {...props}
@@ -73,9 +74,8 @@ afterEach(() => {
 
 describe('FE-03 / FE-50 / BE-40 console theme', () => {
   it('workspace defaults from /api/settings/defaults feed the preferences and apply when the device has no choice', async () => {
-    const { preferences, defaultsApi } = setup();
+    const { preferences } = setup();
     await waitFor(() => expect(preferences.getState().defaults.theme).toBe('nord'));
-    expect(defaultsApi.load).toHaveBeenCalled();
     await waitFor(() => expect(document.documentElement.dataset.theme).toBe('nord'));
   });
 
@@ -170,15 +170,3 @@ describe('FE-11 console route for the layout editor', () => {
   });
 });
 
-describe('FE-59 / FE-55 links into the monitor list', () => {
-  it('`index.html#monitor-<id>` (wall card action) scrolls to that monitor once the list has loaded', async () => {
-    window.location.hash = '#monitor-m1';
-    const scroll = vi.fn();
-    Object.defineProperty(Element.prototype, 'scrollIntoView', { configurable: true, value: scroll });
-    const monitor = { id: 'm1', name: 'Web portal', groupId: 'g', type: 'HTTP', status: 'OK', value: 120, unit: 'ms', since: new Date().toISOString() };
-    const withMonitor = { ...api(), listGroups: vi.fn().mockResolvedValue([{ id: 'g', name: 'Web' }]), listMonitors: vi.fn().mockResolvedValue([monitor]) };
-    setup({ api: withMonitor });
-    await waitFor(() => expect(scroll).toHaveBeenCalled());
-    expect(scroll.mock.contexts[0]).toBe(document.getElementById('monitor-m1'));
-  });
-});

@@ -9,11 +9,14 @@ import type {
 import { msg, type Message } from '@/shared/i18n/message';
 import type { EvaluationContext } from '../conditions';
 import { checkSelect } from '../sql';
+import { buildMonitorTarget, initialKindFields, isPreviewable, parseHeaders, validateKind, type KindFields, type MonitorKind } from './targets';
 
-export interface MonitorFormState {
+export { parseHeaders };
+
+export interface MonitorFormState extends KindFields {
   name: string;
   groupId: string;
-  type: 'SQL' | 'HTTP';
+  type: MonitorKind;
   intervalSeconds: number;
   timeoutSeconds: number;
   retries: number;
@@ -43,19 +46,8 @@ export function initialFormState(): MonitorFormState {
     body: '',
     conditions: [],
     fields: [],
+    ...initialKindFields(),
   };
-}
-
-/** One header per line, as `Name: value`. */
-export function parseHeaders(text: string): Record<string, string> {
-  const headers: Record<string, string> = {};
-  for (const line of text.split('\n')) {
-    const index = line.indexOf(':');
-    if (index <= 0) continue;
-    const name = line.slice(0, index).trim();
-    if (name) headers[name] = line.slice(index + 1).trim();
-  }
-  return headers;
 }
 
 export function buildTarget(state: MonitorFormState): PreviewRequest {
@@ -77,9 +69,10 @@ export function validateTarget(state: MonitorFormState): Message[] {
     if (!state.connectionId) errors.push(msg('form.errors.connectionRequired'));
     const sqlError = checkSelect(state.sql);
     if (sqlError) errors.push(sqlError);
-  } else if (!/^https?:\/\/\S+$/i.test(state.url.trim())) {
+  } else if (state.type === 'HTTP' && !/^https?:\/\/\S+$/i.test(state.url.trim())) {
     errors.push(msg('form.errors.urlInvalid'));
   }
+  if (!isPreviewable(state.type) || state.type === 'HTTP') errors.push(...validateKind(state));
   return errors;
 }
 
@@ -102,7 +95,7 @@ export function buildDefinition(state: MonitorFormState): MonitorDefinition {
     retries: state.retries,
     conditions: state.conditions,
     fields: state.fields,
-    ...buildTarget(state),
+    ...buildMonitorTarget(state),
   };
 }
 

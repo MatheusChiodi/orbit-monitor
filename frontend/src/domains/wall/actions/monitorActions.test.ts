@@ -21,12 +21,12 @@ describe('FE-55 card actions on the wall', () => {
     expect(onAcknowledge).not.toHaveBeenCalled();
   });
 
-  it('open-detail and open-target open the incident page in the console, or the monitor list', () => {
+  it('open-detail and open-target open the incident page in the console, or the monitor detail page', () => {
     const navigate = vi.fn();
     const handle = createMonitorActionHandler(snapshot, { onAcknowledge: vi.fn(), navigate });
     handle('open-detail', 'reconciliation');
     expect(navigate).toHaveBeenLastCalledWith('/index.html#/incidents/inc-reconciliation');
     handle('open-target', 'payments-api');
-    expect(navigate).toHaveBeenLastCalledWith('/index.html#monitor-payments-api');
+    expect(navigate).toHaveBeenLastCalledWith('/index.html#/monitors/payments-api');
   });
 });

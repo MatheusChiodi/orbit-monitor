@@ -11,20 +11,17 @@ import type { Group, MonitorView } from '@/shared/api/types';
 import { safeText } from '@/shared/privacy/redact';
 import { findTheme, useTheme } from '@/shared/theme';
 import { Button } from '@/shared/ui';
+import { useConsole } from '../ConsoleContext';
 
-export const LAYOUTS_HASH = '#/layouts';
 export const LAYOUTS_QUERY_KEY = ['config', 'layouts'] as const;
 
 export interface LayoutsPageProps {
   api: Pick<LayoutsApi, 'list' | 'save'>;
   editable: boolean;
+  /** Layout id from the route (`#/layouts/<id>`). */
+  selectedId: string | null;
   monitors: readonly MonitorView[];
   groups: readonly Group[];
-}
-
-function selectedFromHash(): string | null {
-  const match = /^#\/layouts\/(.+)$/.exec(window.location.hash);
-  return match ? decodeURIComponent(match[1]!) : null;
 }
 
 function freeSlug(layouts: readonly WallLayout[]): string {
@@ -37,42 +34,51 @@ function freeSlug(layouts: readonly WallLayout[]): string {
 const settingsOf = (l: WallLayout): LayoutSettingsValue => ({ name: l.name, slug: l.slug, themeId: l.themeId, animationLevel: l.animationLevel, playlist: l.playlist });
 
 /** FE-11 console route (`#/layouts`, `#/layouts/<id>`): saved wall layouts, their settings and the grid editor. */
-export function LayoutsPage({ api, editable, monitors, groups }: LayoutsPageProps) {
+export function LayoutsPage({ api, editable, selectedId: routeId, monitors, groups }: LayoutsPageProps) {
   const { t } = useTranslation();
   const { themes } = useTheme();
   const queryClient = useQueryClient();
   const layouts = useQuery({ queryKey: LAYOUTS_QUERY_KEY, queryFn: api.list });
-  const [selectedId, setSelectedId] = useState<string | null>(selectedFromHash);
+  const { navigate } = useConsole();
   const [draft, setDraft] = useState<WallLayout | null>(null);
   const [settings, setSettings] = useState<LayoutSettingsValue | null>(null);
   const [blockOptions, setBlockOptions] = useState<Record<string, BlockOptions>>({});
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
 
   const all = useMemo(() => [...(layouts.data ?? []), ...(draft ? [draft] : [])], [layouts.data, draft]);
+  // A new layout stays a local draft (not in the URL) until it is saved.
+  const selectedId = draft && (routeId === null || routeId === draft.id) ? draft.id : routeId;
   const selected = all.find((l) => l.id === selectedId) ?? null;
   const current = selected ? { ...selected, ...(settings ?? settingsOf(selected)) } : null;
 
-  function select(layout: WallLayout) {
-    setSelectedId(layout.id);
+  function reset(layout: WallLayout) {
     setSettings(settingsOf(layout));
     setBlockOptions({});
     setNotice(null);
-    window.location.hash = `${LAYOUTS_HASH}/${encodeURIComponent(layout.id)}`;
+  }
+
+  function select(layout: WallLayout) {
+    if (draft && layout.id !== draft.id) setDraft(null);
+    reset(layout);
+    if (layout.id !== draft?.id) navigate({ name: 'layout', id: layout.id });
   }
 
   function create() {
     const slug = freeSlug(layouts.data ?? []);
     const layout: WallLayout = { id: `layout-${Date.now().toString(36)}`, slug, name: slug, blocks: [...(templateById('noc')?.blocks ?? [])] };
     setDraft(layout);
-    select(layout);
+    reset(layout);
   }
 
   const save = useMutation({
     mutationFn: (layout: WallLayout) => api.save(layout),
     onSuccess: async (_, layout) => {
       setNotice({ ok: true, text: t('layout.page.saved', { name: layout.name }) });
-      if (draft?.id === layout.id) setDraft(null);
       await queryClient.invalidateQueries({ queryKey: LAYOUTS_QUERY_KEY });
+      if (draft?.id === layout.id) {
+        setDraft(null);
+        navigate({ name: 'layout', id: layout.id });
+      }
     },
     onError: (error: Error) => setNotice({ ok: false, text: t('layout.page.saveError', { message: error.message }) }),
   });

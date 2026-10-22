@@ -254,3 +254,10 @@ html.wall {
   .wall-timeline { flex: 40 1 0; min-height: 0; }
   .wall-chart { min-height: 8rem; }
 }
+
+/* FE-06: switches from the animation settings (set on <html> by AnimationLevelProvider). */
+:root[data-motion-attention='off'] .anim-blink { animation: none; }
+:root[data-motion-feedback='off'] .anim-flash-up,
+:root[data-motion-feedback='off'] .anim-flash-down,
+:root[data-motion-feedback='off'] .anim-pulse-once,
+:root[data-motion-feedback='off'] .anim-draw { animation: none; }

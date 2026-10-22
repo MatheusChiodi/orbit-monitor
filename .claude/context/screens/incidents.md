@@ -2,9 +2,9 @@
 screen: incidents
 title: "Incident list"
 route: "index.html#/incidents"
-status: planned
+status: done
 spec: docs/02-features.md §4
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # Incident list
@@ -13,7 +13,7 @@ updated: 2026-10-18
 Open/closed incidents, filters, acknowledge, notification center.
 
 ## Layout and components
-_To be filled as the screen is built (component tree, file paths)._
+`ConsoleRoutes` → `IncidentsScreen` (open list, resolved list; each row links to `#/incidents/:id`). The header bell (`NotificationsBell` → `NotificationCenter` + `Toaster`) shows the same incidents as a feed on every console screen.
 
 ## States
 - Loading, empty, error, stale data
@@ -23,13 +23,17 @@ _To be filled as the screen is built (component tree, file paths)._
 
 ## Features on this screen
 - [CORE-06 · Incidents and acknowledgement](../features/CORE-06-incidents-and-acknowledgement.md) — in-progress
-- [FE-38 · Notification center](../features/FE-38-notification-center.md) — in-progress
+- [FE-38 · Notification center](../features/FE-38-notification-center.md) — done
 
 ## Code
-_None yet._
+- `frontend/src/app/console/screens/IncidentsScreen/IncidentsScreen.tsx`
+- `frontend/src/app/console/NotificationsBell/NotificationsBell.tsx`
+- `frontend/src/app/console/ConsoleHeader/ConsoleHeader.tsx`
 
 ## Tests
-_None yet._
+- `frontend/src/app/console/ConsoleApp.routes.test.tsx`
+- `frontend/src/app/console/NotificationsBell/incidentFeed.test.ts`
 
 ## Changelog
 - 2026-10-18 — context file created.
+- 2026-10-22 — incident list route and header notification bell built (status: done).

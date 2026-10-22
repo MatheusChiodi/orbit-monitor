@@ -61,10 +61,10 @@ describe('FE-39 incident page', () => {
     expect(h.onLinkTicket).toHaveBeenCalledWith('inc-reconciliation', 'INC-4821');
   });
 
-  it('view-only clients can acknowledge and comment, but not edit the ticket link', () => {
+  it('view-only clients can acknowledge, but neither comment nor edit the ticket link (BE-26 access rule)', () => {
     setup({}, 'view-only');
     expect(screen.getByRole('button', { name: 'Acknowledge' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Add comment' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Add comment' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Link ticket' })).toBeNull();
   });
 
