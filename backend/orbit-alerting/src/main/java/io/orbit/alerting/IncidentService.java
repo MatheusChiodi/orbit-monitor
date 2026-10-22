@@ -20,6 +20,8 @@ import java.util.function.Predicate;
 public class IncidentService implements StateChangeListener {
 
     public static final Duration RESOLVED_RETENTION = Duration.ofHours(24);
+    /** Replacement for an anonymized operator name; same marker as the audit log. */
+    public static final String ANONYMIZED = "anonymized";
     private static final int MAX_TEXT = 2_000;
 
     private final IncidentRepository repository;
@@ -85,8 +87,17 @@ public class IncidentService implements StateChangeListener {
     }
 
     /** BE-45: replaces a self-declared operator name in acknowledgements and timelines; returns how many changed. */
-    public int anonymize(String operator) {
-        throw new UnsupportedOperationException("BE-45 incident anonymization is not implemented yet");
+    public synchronized int anonymize(String operator) {
+        String name = OperatorName.normalize(operator);
+        int changed = 0;
+        for (Incident incident : repository.findAll()) {
+            Incident anonymized = incident.anonymize(name, ANONYMIZED);
+            if (anonymized != incident) {
+                store(anonymized);
+                changed++;
+            }
+        }
+        return changed;
     }
 
     public Optional<Incident> openIncident(String monitorId) {

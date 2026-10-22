@@ -3,7 +3,6 @@ package io.orbit.alerting;
 import io.orbit.common.MonitorState;
 import io.orbit.common.event.MonitorStateChanged;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
@@ -13,7 +12,6 @@ import java.time.ZoneOffset;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Tag("pending")
 @DisplayName("BE-45 operator name anonymization in incidents")
 class IncidentAnonymizationTest {
 

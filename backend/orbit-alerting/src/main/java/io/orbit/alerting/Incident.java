@@ -74,6 +74,19 @@ public record Incident(
                 newTicket, append(IncidentEventType.TICKET_LINKED, operator, at, newTicket));
     }
 
+    /** BE-45: this incident with {@code operator} replaced by {@code replacement}; the same instance when absent. */
+    Incident anonymize(String operator, String replacement) {
+        boolean inEvents = events.stream().anyMatch(e -> operator.equals(e.actor()));
+        if (!operator.equals(acknowledgedBy) && !inEvents) {
+            return this;
+        }
+        List<IncidentEvent> renamed = events.stream()
+                .map(e -> operator.equals(e.actor()) ? new IncidentEvent(e.type(), replacement, e.at(), e.detail()) : e)
+                .toList();
+        return new Incident(id, monitorId, status, severity, openedAt, resolvedAt,
+                operator.equals(acknowledgedBy) ? replacement : acknowledgedBy, acknowledgedAt, ticket, renamed);
+    }
+
     private List<IncidentEvent> append(IncidentEventType type, String actor, Instant at, String detail) {
         List<IncidentEvent> list = new ArrayList<>(events);
         list.add(new IncidentEvent(type, actor, at, detail));
