@@ -119,6 +119,12 @@
               "null"
             ]
           },
+          "window": {
+            "$ref": "#/$defs/window"
+          },
+          "retry": {
+            "$ref": "#/$defs/retry"
+          },
           "parameters": {
             "type": [
               "object",
@@ -205,6 +211,91 @@
           ]
         }
       }
+    },
+    "window": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "BE-17 execution window; outside it scheduled checks are skipped",
+      "properties": {
+        "days": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "enum": [
+              "MONDAY",
+              "TUESDAY",
+              "WEDNESDAY",
+              "THURSDAY",
+              "FRIDAY",
+              "SATURDAY",
+              "SUNDAY"
+            ]
+          }
+        },
+        "from": {
+          "type": "string",
+          "pattern": "^[0-2][0-9]:[0-5][0-9]$"
+        },
+        "to": {
+          "type": "string",
+          "pattern": "^[0-2][0-9]:[0-5][0-9]$"
+        },
+        "zone": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "from",
+        "to"
+      ]
+    },
+    "retry": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "BE-18 attempts with exponential backoff",
+      "properties": {
+        "attempts": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "initialDelayMs": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 60000
+        },
+        "multiplier": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 10
+        },
+        "maxDelayMs": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 60000
+        }
+      },
+      "required": [
+        "attempts"
+      ]
     }
   }
 }

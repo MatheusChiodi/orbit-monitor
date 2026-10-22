@@ -20,26 +20,28 @@ describe('monitor kinds in the form', () => {
 
   it('DNS, certificate, gRPC and Kafka targets', () => {
     expect(buildMonitorTarget(state({ type: 'DNS', host: 'orbit.dev', recordType: 'MX', expected: 'mx.orbit.dev' }))).toEqual({
-      type: 'DNS', host: 'orbit.dev', recordType: 'MX', expected: 'mx.orbit.dev',
+      type: 'DNS', host: 'orbit.dev', probe: { recordType: 'MX', expected: 'mx.orbit.dev' },
     });
-    expect(buildMonitorTarget(state({ type: 'CERT', host: 'portal.example', port: '' }))).toEqual({ type: 'CERT', host: 'portal.example', port: 443 });
+    expect(buildMonitorTarget(state({ type: 'CERT', host: 'portal.example', port: '' }))).toEqual({
+      type: 'CERT', host: 'portal.example', port: 443, probe: { domain: 'portal.example' },
+    });
     expect(buildMonitorTarget(state({ type: 'GRPC', host: 'svc', port: '50051', service: 'orders', tls: true }))).toEqual({
-      type: 'GRPC', host: 'svc', port: 50051, service: 'orders', tls: true,
+      type: 'GRPC', host: 'svc', port: 50051, probe: { service: 'orders', tls: true },
     });
     expect(buildMonitorTarget(state({ type: 'KAFKA', bootstrapServers: 'k1:9092', consumerGroup: 'billing', topic: '' }))).toEqual({
-      type: 'KAFKA', bootstrapServers: 'k1:9092', consumerGroup: 'billing',
+      type: 'KAFKA', probe: { bootstrapServers: 'k1:9092', consumerGroup: 'billing' },
     });
   });
 
   it('HTTP with OAuth2 carries the client credentials; the secret is omitted when left blank', () => {
     const target = buildMonitorTarget(state({ type: 'HTTP', url: 'https://api/x', auth: 'oauth2', tokenUrl: 'https://idp/token', clientId: 'orbit', clientSecret: 's3cret', scope: '' }));
-    expect(target).toMatchObject({ type: 'HTTP', auth: { kind: 'oauth2', tokenUrl: 'https://idp/token', clientId: 'orbit', clientSecret: 's3cret' } });
+    expect(target).toMatchObject({ type: 'HTTP', oauth: { tokenUrl: 'https://idp/token', clientId: 'orbit', clientSecret: 's3cret' } });
     const kept = buildMonitorTarget(state({ type: 'HTTP', url: 'https://api/x', auth: 'oauth2', tokenUrl: 'https://idp/token', clientId: 'orbit', clientSecret: '' }));
-    expect(kept).toMatchObject({ auth: { kind: 'oauth2', clientId: 'orbit' } });
+    expect(kept).toMatchObject({ oauth: { clientId: 'orbit' } });
     expect(JSON.stringify(kept)).not.toContain('clientSecret');
   });
 
-  it('multi-step HTTP: steps with headers and JSONPath extraction', () => {
+  it('multi-step HTTP: earlier steps run first (BE-07), the last one is the main request', () => {
     const target = buildMonitorTarget(
       state({
         type: 'HTTP_STEPS',
@@ -50,11 +52,11 @@ describe('monitor kinds in the form', () => {
       }),
     );
     expect(target).toEqual({
-      type: 'HTTP_STEPS',
-      steps: [
-        { name: 'login', method: 'POST', url: 'https://api/login', headers: {}, body: '{}', extract: { token: '$.access_token' } },
-        { name: 'orders', method: 'GET', url: 'https://api/orders', headers: { Authorization: 'Bearer ${login.token}' }, extract: {} },
-      ],
+      type: 'HTTP',
+      method: 'GET',
+      url: 'https://api/orders',
+      headers: { Authorization: 'Bearer ${login.token}' },
+      steps: [{ name: 'login', method: 'POST', url: 'https://api/login', headers: {}, body: '{}', extract: { token: '$.access_token' } }],
     });
   });
 

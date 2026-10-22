@@ -42,6 +42,8 @@ English default, pt-BR available; i18next on the front, MessageSource + Accept-L
 - `frontend/src/domains/monitor/locales/en.json`
 - `frontend/src/domains/monitor/locales/pt-BR.json`
 - `frontend/src/shared/api/client.ts`
+- `backend/orbit-api/src/main/java/io/orbit/api/web/ConfigErrorMessages.java`
+- `backend/orbit-api/src/main/java/io/orbit/api/wall/WallTitles.java`
 
 ## Tests
 - `frontend/src/shared/i18n/i18n.test.ts`
@@ -51,6 +53,9 @@ English default, pt-BR available; i18next on the front, MessageSource + Accept-L
 - `backend/orbit-api/src/test/java/io/orbit/api/web/MessageBundlesTest.java`
 - `frontend/src/app/console/locales/locales.test.ts`
 - `frontend/src/shared/api/client.test.ts`
+- `backend/orbit-api/src/test/java/io/orbit/api/web/ConfigErrorMessagesTest.java`
+- `backend/orbit-api/src/test/java/io/orbit/api/wall/WallPublisherI18nTest.java`
+- `backend/orbit-api/src/test/java/io/orbit/api/web/ExtendedMonitorsApiTest.java`
 
 ## Decisions and notes
 - Frontend: Locale order: `?lang=` → `localStorage` (`orbit.locale`) → `navigator.languages` (`pt-*` → `pt-BR`) → `en`.
@@ -61,6 +66,9 @@ English default, pt-BR available; i18next on the front, MessageSource + Accept-L
 - Backend: `MessageBundlesTest` fails when a key exists in one language only.
 - Backend: Pending: config validation error lists, wall timeline titles and notification texts.
 - Frontend: the console sends the UI language as `Accept-Language` (`getLocale`), so Problem Details arrive in en or pt-BR; console screens and monitor-form messages live in their own locale files (`screens.*`, `monitorForm.*`) with a parity test over the merged resources. The wall entry (fe-wall) does not pass `getLocale` yet.
+- Backend: config validation error lists (`errors` of `invalid-config`) follow `Accept-Language`: `ConfigErrorMessages` maps the stable English validator texts to `config.error.*` keys, keeping the item prefix (`tcp_db: `, `step login: `) and values; unknown texts stay English.
+- Backend: wall timeline titles (`wall.timeline.*`), notices (`notice.*`), cost advice (`sql.cost.*`) and the history coverage label (`history.coverage.*`) come from the bundles; the shared wall uses the workspace locale from orbit.settings.json.
+- Backend: notification texts are rendered by the alerting templates (BE-35, en/pt-BR per template, owned by orbit-alerting); nothing hard-coded remains in the runtime/wall path.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -68,3 +76,4 @@ English default, pt-BR available; i18next on the front, MessageSource + Accept-L
 - 2026-10-18 — frontend: every screen and component now translated; language selector in the console header.
 - 2026-10-18 — backend: API errors translated en/pt-BR via MessageSource and Accept-Language.
 - 2026-10-22 — frontend: Accept-Language from the UI language; console screen and monitor form messages in en/pt-BR.
+- 2026-10-22 — backend: localized config validation errors, wall timeline titles, notices, cost advice and coverage label.

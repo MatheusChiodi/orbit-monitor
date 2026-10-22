@@ -111,7 +111,7 @@ class HistoryApiTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
         MvcResult audit = mvc.perform(get("/api/history/audit").param("actor", "Ana")
-                        .param("from", now.minusSeconds(60).toString()).param("to", now.plusSeconds(60).toString()))
+                        .param("entity", "monitor:api-events").param("from", now.minusSeconds(60).toString()).param("to", now.plusSeconds(60).toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andReturn();

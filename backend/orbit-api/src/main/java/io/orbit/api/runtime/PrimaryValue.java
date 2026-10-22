@@ -1,5 +1,7 @@
 package io.orbit.api.runtime;
 
+import io.orbit.common.privacy.DataClass;
+import io.orbit.common.privacy.SensitiveDataRedactor;
 import io.orbit.monitor.condition.Condition;
 import io.orbit.monitor.condition.ConditionResult;
 import io.orbit.monitor.condition.Operand;
@@ -27,6 +29,7 @@ public record PrimaryValue(Double value, Rule rule, String unit) {
 
     private static final Set<Operator> COMPARISONS = Set.of(Operator.LT, Operator.LE, Operator.GT, Operator.GE,
             Operator.EQ, Operator.NE);
+    private static final SensitiveDataRedactor REDACTOR = new SensitiveDataRedactor();
     private static final Set<Placeholder> DURATIONS = Set.of(Placeholder.RESPONSE_TIME, Placeholder.EXEC_TIME);
 
     public static PrimaryValue of(MonitorDef definition, CheckResult check) {
@@ -36,7 +39,9 @@ public record PrimaryValue(Double value, Rule rule, String unit) {
             Condition c = main.get();
             Rule rule = new Rule(c.path() != null ? c.path() : c.placeholder().name(), c.operator().symbol(), limit(c));
             String unit = DURATIONS.contains(c.placeholder()) ? "ms" : null;
-            Double value = check.error() != null ? null : valueOf(check.conditions(), c);
+            // CORE-16: a personal or card field is never shown as the wall value, even when it is numeric.
+            Double value = check.error() != null || c.path() != null && isSensitive(c.path()) ? null
+                    : valueOf(check.conditions(), c);
             return new PrimaryValue(value, rule, unit);
         }
         if (check.error() != null) {
@@ -71,10 +76,21 @@ public record PrimaryValue(Double value, Rule rule, String unit) {
 
     private static Double firstNumber(Object payload) {
         if (payload instanceof ResultPayload result && !result.rows().isEmpty()) {
-            return result.rows().getFirst().stream().map(PrimaryValue::number).filter(v -> v != null).findFirst()
-                    .orElse(null);
+            List<Object> row = result.rows().getFirst();
+            for (int i = 0; i < row.size() && i < result.columns().size(); i++) {
+                Double number = number(row.get(i));
+                if (number != null && !isSensitive(result.columns().get(i).name())) {
+                    return number;
+                }
+            }
         }
         return null;
+    }
+
+    private static boolean isSensitive(String field) {
+        String leaf = field.replaceAll("^.*[.\\[']", "").replace("]", "").replace("'", "");
+        DataClass dataClass = REDACTOR.classifyName(leaf);
+        return dataClass == DataClass.PERSONAL || dataClass == DataClass.PCI_PAN || dataClass == DataClass.PCI_SAD;
     }
 
     private static Double number(Object value) {

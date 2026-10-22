@@ -53,6 +53,11 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `frontend/src/domains/monitor/components/OAuthFields/OAuthFields.tsx`
 - `frontend/src/domains/telemetry/SlaReports/slaPdf.ts`
 - `frontend/src/app/console/screens/NewMonitorScreen/NewMonitorScreen.tsx`
+- `backend/orbit-monitor/src/main/java/io/orbit/monitor/definition/FieldDef.java`
+- `backend/orbit-monitor/src/main/java/io/orbit/monitor/definition/DefinitionValidators.java`
+- `backend/orbit-api/src/main/java/io/orbit/api/runtime/PrimaryValue.java`
+- `backend/orbit-api/src/main/java/io/orbit/api/runtime/SeriesMetrics.java`
+- `backend/orbit-security/src/main/java/io/orbit/security/settings/SvgSanitizer.java`
 
 ## Tests
 - `frontend/src/shared/privacy/redact.test.ts`
@@ -68,7 +73,6 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `frontend/src/domains/wall/components/WallScreen/WallScreen.privacy.test.tsx`
 - `frontend/src/domains/workspace/GroupList/GroupList.privacy.test.tsx`
 - `frontend/src/app/console/ConsoleApp.privacy.test.tsx`
-- `frontend/src/shared/ui/SecretInput/SecretInput.pending.test.tsx`
 - `frontend/src/shared/ui/SecretInput/SecretInput.test.tsx`
 - `backend/orbit-common/src/test/java/io/orbit/common/privacy/SensitiveDataRedactorTest.java`
 - `backend/orbit-monitor/src/test/java/io/orbit/monitor/privacy/PayloadRedactorTest.java`
@@ -82,6 +86,9 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `.githooks/pre-commit.test.sh`
 - `frontend/src/domains/telemetry/SlaReports/slaPdf.test.ts`
 - `frontend/src/domains/monitor/components/MonitorForm/TargetFields.kinds.test.tsx`
+- `backend/orbit-monitor/src/test/java/io/orbit/monitor/definition/ExtendedDefinitionsTest.java`
+- `backend/orbit-api/src/test/java/io/orbit/api/runtime/PrimaryValueTest.java`
+- `backend/orbit-security/src/test/java/io/orbit/security/settings/SvgSanitizerTest.java`
 
 ## Decisions and notes
 - Frontend: `detectSensitive` / `redact` mirror the backend redactor: Luhn PAN 13-19 digits (spaces/hyphens, numbers, inside free text and JSON) → `•••• •••• •••• 1234`; CVV/CVC/track/PIN by field name → `[REDACTED]`; CPF/CNPJ with valid check digits → `•••.•••.•••-12` / `••.•••.•••/••••-81`; e-mail → `j•••@d•••.com`; JWT, Bearer and secret field names → `••••`.
@@ -107,6 +114,8 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - Open: the hook is not enabled in the shared clone (`core.hooksPath` unset).
 - Pending: the rule that PERSONAL fields cannot be unmasked on the wall (backend).
 - Frontend: SLA CSV and PDF exports go through `safeText` (PAN never in the file); the OAuth2 client secret uses `SecretInput` (write-only, omitted on update); a new push monitor's URL is shown once, read-only, kept only in component memory; incident, audit and monitor-detail values render through `SafeValue`; open-target only opens http(s) URLs.
+- Backend (2026-10-22): `FieldDef` stores `masked` and `showOnWall` from the console; saving rejects a card field with `masked: false` and any personal or card field with `showOnWall: true`. The wall value (`PrimaryValue`) never comes from a personal or card column/path, even a numeric one (e.g. a CPF stored as a number); series never keep card fields (`SeriesMetrics`, plus `MetricExtractor`).
+- Backend: the workspace logo (FE-10) is an allowlist-sanitized SVG (`SvgSanitizer`: no DOCTYPE/entities, no scripts, handlers, foreignObject, style, external or javascript references).
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -122,3 +131,4 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - 2026-10-18 — backend: Jackson serialization guard and Logback masking converter implemented.
 - 2026-10-18 — audit: PAN next to other numbers, floating-point PANs, plain strings in the API, stack traces and config files closed; frontend phone and key=value secret masks; end-to-end leak test; pre-commit hook hardened with tests.
 - 2026-10-22 — frontend: redacted CSV/PDF exports, SecretInput for OAuth2, one-time push URL.
+- 2026-10-22 — backend: personal/card fields cannot reach the wall or be unmasked; card fields never become series.

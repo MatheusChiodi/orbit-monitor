@@ -85,6 +85,13 @@ describe('console endpoints', () => {
     expect(await client(json([])).api.queryAudit({})).toEqual({ items: [], total: null });
   });
 
+  it('BE-13 catalog view is normalized to tables with typed columns', async () => {
+    const view = { connectionId: 'ora', tables: [{ schema: 'APP', name: 'ORDERS', columns: ['ID', 'TOTAL'], columnTypes: ['NUMBER', 'NUMBER'] }] };
+    expect(await client(json(view)).api.getCatalog('ora')).toEqual([
+      { schema: 'APP', name: 'ORDERS', columns: [{ name: 'ID', type: 'NUMBER' }, { name: 'TOTAL', type: 'NUMBER' }] },
+    ]);
+  });
+
   it('catalog, history summary and coverage', async () => {
     const { api, call } = client(() => json([]));
     await api.getCatalog('ora core');

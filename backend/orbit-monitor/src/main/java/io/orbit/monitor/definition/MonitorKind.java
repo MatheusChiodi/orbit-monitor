@@ -1,10 +1,17 @@
 package io.orbit.monitor.definition;
 
-/** Monitor types: HTTP requests, SQL SELECTs and the simple checks (TCP port, ping, push). */
+/**
+ * Monitor types: HTTP requests, SQL SELECTs and the checks of orbit.checks.json (TCP port, ping,
+ * push, DNS, gRPC health, Kafka consumer lag, certificate and domain expiry).
+ */
 public enum MonitorKind {
     HTTP,
     SQL,
     TCP,
     PING,
-    PUSH
+    PUSH,
+    DNS,
+    GRPC,
+    KAFKA,
+    CERT
 }

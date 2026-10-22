@@ -12,9 +12,16 @@ import java.util.Locale;
 public class Messages {
 
     private final MessageSource source;
+    private final ConfigErrorMessages configErrors;
 
     public Messages(MessageSource source) {
         this.source = source;
+        this.configErrors = new ConfigErrorMessages(source);
+    }
+
+    /** CORE-15: one configuration validation error in the current request language. */
+    public String configError(String error) {
+        return configErrors.localize(error, LocaleContextHolder.getLocale());
     }
 
     public String get(String key, Locale locale, Object... args) {

@@ -4,6 +4,7 @@ import io.orbit.api.runtime.ConnectionPools;
 import io.orbit.monitor.definition.ConnectionDef;
 import io.orbit.monitor.definition.MonitorDefinitions;
 import io.orbit.monitor.sql.Dialect;
+import io.orbit.probe.sql.CatalogIntrospector;
 import io.orbit.security.audit.AuditLog;
 import io.orbit.security.vault.SecretRef;
 import io.orbit.security.vault.SecretResolver;
@@ -48,9 +49,11 @@ public class ConnectionController {
     private final SecretResolver secrets;
     private final ConnectionPools pools;
     private final AuditLog audit;
+    private final CatalogIntrospector catalog;
 
     public ConnectionController(MonitorDefinitions definitions, SecretResolver secrets, ConnectionPools pools,
-                                AuditLog audit) {
+                                AuditLog audit, CatalogIntrospector catalog) {
+        this.catalog = catalog;
         this.definitions = definitions;
         this.secrets = secrets;
         this.pools = pools;
@@ -71,6 +74,7 @@ public class ConnectionController {
         ConnectionDef saved = definitions.saveConnection(new ConnectionDef(id, body.name(), body.jdbcUrl(),
                 body.username(), password, body.poolSize() == null ? 2 : body.poolSize(), null, null), operator);
         pools.evict(id);
+        catalog.invalidate(id);
         audit.record(operator, "connection.save", id, saved.jdbcUrl(), request.getRemoteAddr());
         return view(saved);
     }
@@ -84,6 +88,7 @@ public class ConnectionController {
             throw new NotFoundException("Connection", id);
         }
         pools.evict(id);
+        catalog.invalidate(id);
         audit.record(operator, "connection.delete", id, null, request.getRemoteAddr());
         return ResponseEntity.noContent().build();
     }

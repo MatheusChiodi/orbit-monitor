@@ -1,4 +1,4 @@
-import type { CheckTarget, DnsRecordType, HttpStep, HttpStepsTarget, OAuth2Auth } from '@/shared/api/monitorTargets';
+import type { CheckProbe, CheckTarget, DnsRecordType, HttpStep, OAuth2Auth } from '@/shared/api/monitorTargets';
 import type { HttpMethod, HttpTarget, MonitorType, SqlTarget } from '@/shared/api/types';
 import { msg, type Message } from '@/shared/i18n/message';
 
@@ -57,7 +57,8 @@ export function initialKindFields(): KindFields {
   };
 }
 
-export const MONITOR_KINDS = ['SQL', 'HTTP', 'HTTP_STEPS', 'TCP', 'PING', 'PUSH', 'DNS', 'CERT', 'GRPC', 'KAFKA'] as const satisfies readonly MonitorType[];
+/** Form kinds: every backend `MonitorType` plus HTTP steps (saved as HTTP with `steps`). */
+export const MONITOR_KINDS = ['SQL', 'HTTP', 'HTTP_STEPS', 'TCP', 'PING', 'PUSH', 'DNS', 'CERT', 'GRPC', 'KAFKA'] as const satisfies readonly (MonitorType | 'HTTP_STEPS')[];
 export type MonitorKind = (typeof MONITOR_KINDS)[number];
 export const DNS_RECORD_TYPES: DnsRecordType[] = ['A', 'AAAA', 'CNAME', 'MX', 'TXT', 'NS'];
 
@@ -115,7 +116,7 @@ export function parseExtract(text: string): Record<string, string> {
 
 function oauth(fields: KindFields): OAuth2Auth | undefined {
   if (fields.auth !== 'oauth2') return undefined;
-  const auth: OAuth2Auth = { kind: 'oauth2', tokenUrl: fields.tokenUrl.trim(), clientId: fields.clientId.trim() };
+  const auth: OAuth2Auth = { tokenUrl: fields.tokenUrl.trim(), clientId: fields.clientId.trim() };
   if (fields.clientSecret) auth.clientSecret = fields.clientSecret;
   if (fields.scope.trim()) auth.scope = fields.scope.trim();
   return auth;
@@ -127,8 +128,6 @@ function step(draft: StepDraft): HttpStep {
   return built;
 }
 
-const optional = <K extends string>(key: K, value: string) => (value.trim() ? { [key]: value.trim() } : {}) as Partial<Record<K, string>>;
-
 export interface TargetSource extends KindFields {
   type: MonitorKind;
   connectionId: string;
@@ -139,7 +138,12 @@ export interface TargetSource extends KindFields {
   body: string;
 }
 
-export function buildMonitorTarget(state: TargetSource): SqlTarget | HttpTarget | HttpStepsTarget | CheckTarget {
+function probe(fields: Partial<Record<keyof CheckProbe, string | boolean | undefined>>): { probe: CheckProbe } {
+  const clean = Object.fromEntries(Object.entries(fields).filter(([, v]) => v !== undefined && v !== '')) as CheckProbe;
+  return { probe: clean };
+}
+
+export function buildMonitorTarget(state: TargetSource): SqlTarget | HttpTarget | CheckTarget {
   const port = state.port.trim() ? Number(state.port) : DEFAULT_PORT[state.type];
   switch (state.type) {
     case 'SQL':
@@ -148,26 +152,33 @@ export function buildMonitorTarget(state: TargetSource): SqlTarget | HttpTarget 
       const target: HttpTarget = { type: 'HTTP', method: state.method, url: state.url.trim(), headers: parseHeaders(state.headersText) };
       if (state.method !== 'GET' && state.method !== 'HEAD' && state.body.trim()) target.body = state.body;
       const auth = oauth(state);
-      if (auth) target.auth = auth;
+      if (auth) target.oauth = auth;
       return target;
     }
     case 'HTTP_STEPS': {
+      // BE-07: earlier steps run before the main request, which is the last step.
+      const built = state.steps.map(step);
+      const main = built.at(-1) ?? step(emptyStep());
+      const target: HttpTarget = { type: 'HTTP', method: main.method, url: main.url, headers: main.headers, steps: built.slice(0, -1) };
+      if (main.body) target.body = main.body;
       const auth = oauth(state);
-      return { type: 'HTTP_STEPS', steps: state.steps.map(step), ...(auth ? { auth } : {}) };
+      if (auth) target.oauth = auth;
+      return target;
     }
     case 'PING':
       return { type: 'PING', host: state.host.trim() };
     case 'PUSH':
       return { type: 'PUSH', maxSilenceSeconds: state.maxSilenceSeconds };
     case 'DNS':
-      return { type: 'DNS', host: state.host.trim(), recordType: state.recordType, ...optional('expected', state.expected) };
+      return { type: 'DNS', host: state.host.trim(), ...probe({ recordType: state.recordType, expected: state.expected.trim() }) };
     case 'GRPC':
-      return { type: 'GRPC', host: state.host.trim(), ...(port ? { port } : {}), ...optional('service', state.service), tls: state.tls };
+      return { type: 'GRPC', host: state.host.trim(), ...(port ? { port } : {}), ...probe({ service: state.service.trim(), tls: state.tls }) };
     case 'KAFKA':
-      return { type: 'KAFKA', bootstrapServers: state.bootstrapServers.trim(), consumerGroup: state.consumerGroup.trim(), ...optional('topic', state.topic) };
-    case 'TCP':
+      return { type: 'KAFKA', ...probe({ bootstrapServers: state.bootstrapServers.trim(), consumerGroup: state.consumerGroup.trim(), topic: state.topic.trim() }) };
     case 'CERT':
-      return { type: state.type, host: state.host.trim(), ...(port ? { port } : {}) };
+      return { type: 'CERT', host: state.host.trim(), ...(port ? { port } : {}), ...probe({ domain: state.host.trim() }) };
+    case 'TCP':
+      return { type: 'TCP', host: state.host.trim(), ...(port ? { port } : {}) };
   }
 }
 

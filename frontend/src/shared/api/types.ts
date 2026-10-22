@@ -1,6 +1,6 @@
 import type { FieldFormat } from '@/shared/format';
 import type { DataClass } from '@/shared/privacy/redact';
-import type { CheckTarget, HttpStepsTarget, OAuth2Auth } from './monitorTargets';
+import type { CheckTarget, HttpStep, OAuth2Auth } from './monitorTargets';
 
 /**
  * Data contract between the frontend and the Orbit API (REST `/api`, WebSocket `/ws/wall`).
@@ -9,7 +9,7 @@ import type { CheckTarget, HttpStepsTarget, OAuth2Auth } from './monitorTargets'
 
 export type Status = 'OK' | 'WARN' | 'DOWN';
 export type Severity = Exclude<Status, 'OK'>;
-export type MonitorType = 'HTTP' | 'SQL' | 'TCP' | 'PING' | 'PUSH' | 'DNS' | 'CERT' | 'GRPC' | 'KAFKA' | 'HTTP_STEPS';
+export type MonitorType = 'HTTP' | 'SQL' | 'TCP' | 'PING' | 'PUSH' | 'DNS' | 'CERT' | 'GRPC' | 'KAFKA';
 
 export type ComparisonOperator = '<' | '<=' | '>' | '>=' | '==' | '!=';
 
@@ -136,8 +136,10 @@ export interface HttpTarget {
   url: string;
   headers: Record<string, string>;
   body?: string;
-  /** FE form: OAuth2 client credentials (BE-08); not sent with previews. */
-  auth?: OAuth2Auth;
+  /** BE-08 client credentials; not sent with previews. */
+  oauth?: OAuth2Auth;
+  /** BE-07 steps that run before this request (login); not sent with previews. */
+  steps?: HttpStep[];
 }
 
 export type PreviewRequest = SqlTarget | HttpTarget;
@@ -190,7 +192,7 @@ export interface MonitorDefinitionBase {
   fields: FieldDisplay[];
 }
 
-export type MonitorDefinition = MonitorDefinitionBase & (SqlTarget | HttpTarget | HttpStepsTarget | CheckTarget);
+export type MonitorDefinition = MonitorDefinitionBase & (SqlTarget | HttpTarget | CheckTarget);
 
 export type DatabaseKind = 'ORACLE' | 'POSTGRES' | 'SQLSERVER' | 'MYSQL';
 

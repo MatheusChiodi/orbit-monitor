@@ -96,4 +96,17 @@ class PrimaryValueTest {
         var check = result(null, List.of(new ConditionResult(condition, true, "•••• •••• •••• 1111", "ok")), 1);
         assertThat(PrimaryValue.of(def, check).value()).isNull();
     }
+
+    @Test
+    @org.junit.jupiter.api.DisplayName("CORE-16: a personal or card column never becomes the wall value")
+    void sensitiveColumnsStayOffTheWall() {
+        var def = select(List.of(new ConditionDef("[COL].CPF > 0", Severity.DOWN)));
+        var condition = parser.parse("[COL].CPF > 0", Severity.DOWN);
+        var check = result(null, List.of(new ConditionResult(condition, true, 12345678909L, "x")), 10);
+        assertThat(PrimaryValue.of(def, check).value()).isNull();
+
+        var rows = new ResultPayload(List.of(new ResultColumn("CARD_NUMBER", ColumnType.NUMBER, "BIGINT")),
+                List.of(List.<Object>of(42L)), 3, false);
+        assertThat(PrimaryValue.of(select(List.of()), result(rows, List.of(), 3)).value()).isNull();
+    }
 }

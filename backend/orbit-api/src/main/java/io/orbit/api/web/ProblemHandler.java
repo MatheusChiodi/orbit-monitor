@@ -35,7 +35,8 @@ public class ProblemHandler {
     ProblemDetail invalidConfig(ConfigValidationException e) {
         ProblemDetail problem = problem(HttpStatus.UNPROCESSABLE_ENTITY, "invalid-config",
                 messages.current("problem.invalid-config.detail"));
-        problem.setProperty("errors", e.errors().stream().map(redactor::redactText).toList());
+        problem.setProperty("errors", e.errors().stream().map(messages::configError).map(redactor::redactText)
+                .toList());
         return problem;
     }
 

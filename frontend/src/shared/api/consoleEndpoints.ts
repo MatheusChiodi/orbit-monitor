@@ -46,6 +46,22 @@ function itemsOf<T>(data: unknown): T[] {
   return [];
 }
 
+interface CatalogViewTable {
+  schema?: string | null;
+  name: string;
+  columns: (string | { name: string; type: string })[];
+  columnTypes?: string[];
+}
+
+function itemsOfCatalog(data: unknown): CatalogTable[] {
+  const tables = data && typeof data === 'object' && 'tables' in data && Array.isArray(data.tables) ? (data.tables as CatalogViewTable[]) : itemsOf<CatalogViewTable>(data);
+  return tables.map((table) => ({
+    schema: table.schema ?? null,
+    name: table.name,
+    columns: table.columns.map((column, i) => (typeof column === 'string' ? { name: column, type: table.columnTypes?.[i] ?? '' } : column)),
+  }));
+}
+
 /** Endpoints used by the console screens; built on the client's JSON and raw requests. */
 export function createConsoleEndpoints(request: JsonRequest, raw: RawRequest, isNotFound: NotFoundCheck) {
   async function list<T>(path: string): Promise<T[]> {
@@ -100,7 +116,11 @@ export function createConsoleEndpoints(request: JsonRequest, raw: RawRequest, is
       return { items: itemsOf<AuditEntry>(await response.json()), total };
     },
 
-    getCatalog: (connectionId: string) => request<CatalogTable[]>(`/api/connections/${enc(connectionId)}/catalog`),
+    /** `SqlCatalogController.CatalogView` (`{connectionId, tables[{schema, name, columns[], columnTypes[]}]}`). */
+    getCatalog: async (connectionId: string): Promise<CatalogTable[]> => {
+      const data = await request<unknown>(`/api/connections/${enc(connectionId)}/catalog`);
+      return itemsOfCatalog(data);
+    },
     getHistorySummary: (monitorId: string, range: { from: string; to: string }) =>
       request<HistorySummary>(`/api/history/${enc(monitorId)}/summary${query(range)}`),
     getHistoryCoverage: () => request<HistoryCoverageInfo>('/api/history/coverage'),
