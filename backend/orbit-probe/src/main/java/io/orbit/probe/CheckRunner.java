@@ -148,7 +148,7 @@ public class CheckRunner {
         return runSql(monitorId, dataSource, dialect, sql, Map.of(), options, conditions, policy);
     }
 
-    /** BE-11: {@code :name} placeholders are bound from {@code params} as JDBC parameters. */
+    /** BE-11 / BE-39: the SELECT with its named parameters, already resolved by the caller. */
     public CheckResult runSql(String monitorId, DataSource dataSource, Dialect dialect, String sql,
                               Map<String, Object> params, SqlProbeOptions options, List<Condition> conditions,
                               CheckPolicy policy) {

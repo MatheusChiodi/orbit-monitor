@@ -4,28 +4,37 @@ import io.orbit.security.vault.SecretRef;
 import io.orbit.security.vault.SecretResolver;
 
 import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * BE-39: workspace variables (orbit.variables.json) referenced as {@code ${var:name}} and secrets as
  * {@code ${vault:name}} in request URLs, headers, bodies and SQL parameters. Substitution is a single
- * pass: a value that itself contains {@code ${...}} is never expanded again. Other references (such
- * as {@code ${env:NAME}}) are left untouched.
+ * pass: a value that itself contains {@code ${...}} is never expanded again. {@code ${env:NAME}} is
+ * resolved only when an environment lookup is given (the runtime); otherwise it is left untouched.
  */
 public class VariableResolver {
 
     public static final String MASK = "••••";
-    private static final Pattern REFERENCE = Pattern.compile("\\$\\{(var|vault):([A-Za-z_][A-Za-z0-9_.-]*)}");
+    private static final Pattern REFERENCE = Pattern.compile("\\$\\{(var|vault|env):([A-Za-z_][A-Za-z0-9_.-]*)}");
 
     private final Map<String, String> variables;
     private final Map<String, SecretRef> secrets;
     private final SecretResolver vault;
+    private final Function<String, String> environment;
 
     public VariableResolver(Map<String, String> variables, Map<String, SecretRef> secrets, SecretResolver vault) {
+        this(variables, secrets, vault, null);
+    }
+
+    /** @param environment lookup for {@code ${env:NAME}}; null leaves those references untouched */
+    public VariableResolver(Map<String, String> variables, Map<String, SecretRef> secrets, SecretResolver vault,
+                            Function<String, String> environment) {
         this.variables = Map.copyOf(variables);
         this.secrets = Map.copyOf(secrets);
         this.vault = vault;
+        this.environment = environment;
     }
 
     /** Replaces every reference; an unknown name is an {@link IllegalArgumentException} naming it. */
@@ -46,7 +55,11 @@ public class VariableResolver {
         StringBuilder out = new StringBuilder();
         while (m.find()) {
             String name = m.group(2);
-            String value = "var".equals(m.group(1)) ? variable(name) : secret(name, masked);
+            String value = switch (m.group(1)) {
+                case "var" -> variable(name);
+                case "vault" -> secret(name, masked);
+                default -> env(m.group(), name, masked);
+            };
             m.appendReplacement(out, Matcher.quoteReplacement(value));
         }
         m.appendTail(out);
@@ -57,6 +70,21 @@ public class VariableResolver {
         String value = variables.get(name);
         if (value == null) {
             throw new IllegalArgumentException("Unknown workspace variable: " + name);
+        }
+        return value;
+    }
+
+    /** Environment values may be secrets: masked in previews, never echoed in errors. */
+    private String env(String reference, String name, boolean masked) {
+        if (environment == null) {
+            return reference;
+        }
+        if (masked) {
+            return MASK;
+        }
+        String value = environment.apply(name);
+        if (value == null) {
+            throw new IllegalArgumentException("Environment variable not set: " + name);
         }
         return value;
     }

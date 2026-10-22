@@ -134,16 +134,27 @@ public class DomainBeans {
         return MonitorDefinitions.open(properties.configDir(), ConfigMapper.create());
     }
 
+    /** A bean so the reloader (CORE-19) and the health report see it. */
     @Bean
-    GroupService groupService(OrbitProperties properties, Clock clock) {
-        return new GroupService(new ConfigFile<>(properties.configDir(), "groups", Group.class, ConfigMapper.create(),
-                GroupService.VALIDATOR), clock);
+    ConfigFile<Group> groupsFile(OrbitProperties properties) {
+        return new ConfigFile<>(properties.configDir(), "groups", Group.class, ConfigMapper.create(),
+                GroupService.VALIDATOR);
     }
 
     @Bean
-    WallLayoutService wallLayoutService(OrbitProperties properties, Clock clock) {
-        return new WallLayoutService(new ConfigFile<>(properties.configDir(), "layouts", WallLayoutService.Layout.class,
-                ConfigMapper.create(), items -> List.of()), clock);
+    GroupService groupService(ConfigFile<Group> groupsFile, Clock clock) {
+        return new GroupService(groupsFile, clock);
+    }
+
+    @Bean
+    ConfigFile<WallLayoutService.Layout> layoutsFile(OrbitProperties properties) {
+        return new ConfigFile<>(properties.configDir(), "layouts", WallLayoutService.Layout.class,
+                ConfigMapper.create(), items -> List.of());
+    }
+
+    @Bean
+    WallLayoutService wallLayoutService(ConfigFile<WallLayoutService.Layout> layoutsFile, Clock clock) {
+        return new WallLayoutService(layoutsFile, clock);
     }
 
     /** Live access policy: orbit.settings.json when it has an access section, application properties otherwise. */

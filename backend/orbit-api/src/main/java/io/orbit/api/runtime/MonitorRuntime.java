@@ -29,6 +29,7 @@ import io.orbit.security.vault.SecretResolver;
 import io.orbit.security.vault.VaultException;
 import io.orbit.telemetry.Heartbeat;
 import io.orbit.telemetry.TelemetryService;
+import io.orbit.workspace.variable.VariableResolver;
 
 import java.net.URI;
 import java.time.Clock;
@@ -41,6 +42,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -63,23 +65,45 @@ public class MonitorRuntime {
     private final RetryPolicy.Sleeper sleeper;
     private final Clock clock;
     private final Map<String, CheckResult> latest = new ConcurrentHashMap<>();
+    private final Supplier<VariableResolver> variables;
 
     public MonitorRuntime(MonitorDefinitions definitions, CheckRunner runner, TelemetryService telemetry,
                           ConnectionPools pools, SecretResolver secrets, ProbeScheduler scheduler, EventBus bus,
                           CircuitBreaker breaker, TargetLimiter limiter, SimpleProbes probes) {
-        this(definitions, runner, telemetry, pools, secrets, scheduler, bus, breaker, limiter, probes, null,
+        this(definitions, runner, telemetry, pools, secrets, scheduler, bus, breaker, limiter, probes,
+                () -> new VariableResolver(Map.of(), Map.of(), secrets));
+    }
+
+    /** @param variables BE-39: current workspace variables, asked once per check run */
+    public MonitorRuntime(MonitorDefinitions definitions, CheckRunner runner, TelemetryService telemetry,
+                          ConnectionPools pools, SecretResolver secrets, ProbeScheduler scheduler, EventBus bus,
+                          CircuitBreaker breaker, TargetLimiter limiter, SimpleProbes probes,
+                          Supplier<VariableResolver> variables) {
+        this(definitions, runner, telemetry, pools, secrets, scheduler, bus, breaker, limiter, probes, variables, null,
                 duration -> Thread.sleep(duration.toMillis()), Clock.systemUTC());
     }
 
-    /**
-     * @param extended DNS, certificate, gRPC, Kafka, multi-step and OAuth2 support; null disables them
-     * @param sleeper  waits between retry attempts (BE-18)
-     * @param clock    decides whether an execution window is open (BE-17)
-     */
+    /** Without workspace variables (tests of windows, retries and the extended checks). */
     public MonitorRuntime(MonitorDefinitions definitions, CheckRunner runner, TelemetryService telemetry,
                           ConnectionPools pools, SecretResolver secrets, ProbeScheduler scheduler, EventBus bus,
                           CircuitBreaker breaker, TargetLimiter limiter, SimpleProbes probes, ExtendedChecks extended,
                           RetryPolicy.Sleeper sleeper, Clock clock) {
+        this(definitions, runner, telemetry, pools, secrets, scheduler, bus, breaker, limiter, probes,
+                () -> new VariableResolver(Map.of(), Map.of(), secrets), extended, sleeper, clock);
+    }
+
+    /**
+     * @param variables BE-39: current workspace variables, asked once per check run
+     * @param extended  DNS, certificate, gRPC, Kafka, multi-step and OAuth2 support; null disables them
+     * @param sleeper   waits between retry attempts (BE-18)
+     * @param clock     decides whether an execution window is open (BE-17)
+     */
+    public MonitorRuntime(MonitorDefinitions definitions, CheckRunner runner, TelemetryService telemetry,
+                          ConnectionPools pools, SecretResolver secrets, ProbeScheduler scheduler, EventBus bus,
+                          CircuitBreaker breaker, TargetLimiter limiter, SimpleProbes probes,
+                          Supplier<VariableResolver> variables, ExtendedChecks extended, RetryPolicy.Sleeper sleeper,
+                          Clock clock) {
+        this.variables = variables;
         this.extended = extended;
         this.sleeper = sleeper;
         this.clock = clock;
@@ -224,17 +248,21 @@ public class MonitorRuntime {
 
     /** HTTP monitor: single request or BE-07 steps, BE-08 OAuth2 token, BE-23 metric paths. */
     private CheckResult runHttp(HttpMonitorDef http, CheckPolicy policy) {
-        Map<String, String> headers = headers(http);
+        VariableResolver resolver = variables.get();
+        Map<String, String> headers = headers(http, resolver);
         List<String> metricPaths = SeriesMetrics.jsonPaths(http);
         CheckResult result;
         if (http.steps().isEmpty()) {
-            result = runner.runHttp(http.id(), request(http, headers), http.parsedConditions(), policy, metricPaths);
+            result = runner.runHttp(http.id(), request(http, headers, resolver), http.parsedConditions(), policy,
+                    metricPaths);
         } else {
             requireExtended();
             List<MultiStepHttpProbe.Step> steps = new ArrayList<>();
-            http.steps().forEach(s -> steps.add(new MultiStepHttpProbe.Step(s.name(), s.method(), s.url(), s.headers(),
-                    s.body(), s.extract())));
-            steps.add(new MultiStepHttpProbe.Step("main", http.method(), http.url(), headers, http.body(), Map.of()));
+            http.steps().forEach(s -> steps.add(new MultiStepHttpProbe.Step(s.name(), s.method(),
+                    resolver.resolve(s.url()), resolveAll(s.headers(), resolver), resolver.resolve(s.body()),
+                    s.extract())));
+            steps.add(new MultiStepHttpProbe.Step("main", http.method(), resolver.resolve(http.url()), headers,
+                    resolver.resolve(http.body()), Map.of()));
             result = runner.runSteps(http.id(), extended.multiStep(Duration.ofMillis(http.timeoutMs())), steps,
                     http.parsedConditions(), policy, metricPaths);
         }
@@ -243,6 +271,14 @@ public class MonitorRuntime {
             extended.rejected(http);
         }
         return result;
+    }
+
+    private static Map<String, String> resolveAll(Map<String, String> values, VariableResolver resolver) {
+        Map<String, String> resolved = new HashMap<>();
+        if (values != null) {
+            values.forEach((name, value) -> resolved.put(name, resolver.resolve(value)));
+        }
+        return resolved;
     }
 
     private void requireExtended() {
@@ -318,12 +354,28 @@ public class MonitorRuntime {
         ConnectionDef con = connection.get();
         SqlProbeOptions options = new SqlProbeOptions(sql.maxRows(), Duration.ofMillis(sql.timeoutMs()), 100);
         return runner.runSql(sql.id(), pools.dataSource(con), Dialect.fromJdbcUrl(con.jdbcUrl()), sql.sql(),
-                sql.parameters(), options, sql.parsedConditions(), policy);
+                parameters(sql), options, sql.parsedConditions(), policy);
     }
 
-    /** Plain headers, vault secrets and the OAuth2 bearer token (which wins over a typed Authorization). */
-    private Map<String, String> headers(HttpMonitorDef http) {
-        Map<String, String> headers = new HashMap<>(http.headers());
+    /** BE-39: text parameters may reference workspace variables; values are bound, never concatenated. */
+    private Map<String, Object> parameters(SqlMonitorDef sql) {
+        if (sql.parameters().isEmpty()) {
+            return Map.of();
+        }
+        VariableResolver resolver = variables.get();
+        Map<String, Object> resolved = new HashMap<>();
+        sql.parameters().forEach((name, value) ->
+                resolved.put(name, value instanceof String text ? resolver.resolve(text) : value));
+        return resolved;
+    }
+
+    /**
+     * Plain headers (BE-39 variables resolved), vault secrets and the OAuth2 bearer token, which wins
+     * over a typed Authorization header (BE-08).
+     */
+    private Map<String, String> headers(HttpMonitorDef http, VariableResolver resolver) {
+        Map<String, String> headers = new HashMap<>();
+        http.headers().forEach((name, value) -> headers.put(name, resolver.resolve(value)));
         http.secretHeaders().forEach((name, ref) -> headers.put(name, secrets.resolve(ref)));
         if (http.oauth() != null) {
             requireExtended();
@@ -333,8 +385,9 @@ public class MonitorRuntime {
         return headers;
     }
 
-    private static HttpProbeRequest request(HttpMonitorDef http, Map<String, String> headers) {
-        return new HttpProbeRequest(http.method(), URI.create(http.url()), headers, http.body(),
-                Duration.ofMillis(http.timeoutMs()), http.followRedirects());
+    private static HttpProbeRequest request(HttpMonitorDef http, Map<String, String> headers,
+                                            VariableResolver resolver) {
+        return new HttpProbeRequest(http.method(), URI.create(resolver.resolve(http.url())), headers,
+                resolver.resolve(http.body()), Duration.ofMillis(http.timeoutMs()), http.followRedirects());
     }
 }

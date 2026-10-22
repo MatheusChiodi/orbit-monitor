@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "sil_portal_deploy",
+      "target": "grp_portal",
+      "reason": "Planned deploy",
+      "createdBy": "Example Operator",
+      "createdAt": "2026-10-18T20:00:00Z",
+      "until": "2026-10-18T21:00:00Z"
+    }
+  ]
+}

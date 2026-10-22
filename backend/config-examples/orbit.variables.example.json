@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "var_store",
+      "name": "store",
+      "value": "SP01",
+      "description": "Store code used by SQL parameters",
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    },
+    {
+      "id": "var_api_token",
+      "name": "apiToken",
+      "secret": "${env:ORBIT_API_TOKEN}",
+      "description": "Credential of the status API, kept in the vault",
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    }
+  ]
+}

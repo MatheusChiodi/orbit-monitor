@@ -12,6 +12,9 @@ import io.orbit.api.wall.WallTitles;
 import io.orbit.security.settings.SettingsService;
 import org.springframework.context.MessageSource;
 import io.orbit.api.wall.WallViewFactory;
+import io.orbit.alerting.suppression.MaintenanceWindow;
+import io.orbit.config.ConfigFile;
+import io.orbit.monitor.definition.MonitorDef;
 import io.orbit.monitor.definition.MonitorDefinitions;
 import io.orbit.telemetry.TelemetryService;
 import io.orbit.workspace.GroupService;
@@ -42,11 +45,18 @@ public class WallBeans {
     WallViewFactory wallViewFactory(MonitorDefinitions definitions, TelemetryService telemetry,
                                     MonitorRuntime runtime, GroupService groups, IncidentService incidents,
                                     WallTimeline timeline, Clock clock, EscalationRunner escalation,
+                                    ConfigFile<MaintenanceWindow> maintenanceFile,
                                     SettingsService settings) {
         WallViewFactory factory = new WallViewFactory(definitions, telemetry, runtime, groups, incidents, timeline,
                 clock, properties.environment());
         factory.setEscalatesAt(escalation::escalatesAt);
         factory.setBranding(new BrandingSource(settings));
+        // CORE-07: a group's state ignores monitors in maintenance (by monitor id or by their group).
+        factory.setInMaintenance(monitorId -> {
+            String groupId = definitions.monitor(monitorId).map(MonitorDef::groupId).orElse(null);
+            return maintenanceFile.items().stream().anyMatch(w -> w.covers(monitorId, clock.instant())
+                    || groupId != null && w.covers(groupId, clock.instant()));
+        });
         return factory;
     }
 

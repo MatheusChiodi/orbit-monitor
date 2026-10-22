@@ -26,7 +26,7 @@ class SettingsBrandingTest {
     }
 
     private static OrbitSettings withBranding(OrbitSettings.Branding branding) {
-        return new OrbitSettings(null, null, "en", null, null, 24, null, null, branding);
+        return new OrbitSettings(null, null, "en", null, null, null, null, 24, null, null, branding);
     }
 
     @Test

@@ -1,6 +1,7 @@
 package io.orbit.workspace.theme;
 
 import io.orbit.config.ConfigItem;
+import io.orbit.security.settings.WorkspaceDefaults;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,9 +21,6 @@ public final class ThemeService {
         public Theme {
             tokens = tokens == null ? Map.of() : Map.copyOf(tokens);
         }
-    }
-
-    public record Defaults(String themeId, String animationLevel, String density, String locale, double scale) {
     }
 
     /** Surfaces every text and state color is measured against. */
@@ -78,9 +76,12 @@ public final class ThemeService {
         return errors;
     }
 
-    /** Built-in defaults: dark theme, full animation, comfortable density, en, scale 1.0. */
-    public static Defaults builtInDefaults() {
-        return new Defaults("dark", "full", "comfortable", "en", 1.0);
+    /**
+     * Built-in workspace defaults, the same as the frontend {@code DEFAULT_PREFERENCES}: Orbit Dark,
+     * standard animation, comfortable density, en and the 3 m viewing distance (FE-08).
+     */
+    public static WorkspaceDefaults builtInDefaults() {
+        return WorkspaceDefaults.BUILT_IN;
     }
 
     private static void check(Theme theme, List<String> tokens, double minimum, List<String> errors) {

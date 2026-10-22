@@ -13,7 +13,8 @@ import java.util.Map;
  * A condition is either {@code expression} or {@code field + operator + value}. TCP and ping
  * monitors use {@code host}/{@code port}; push monitors use {@code maxSilenceSeconds}; DNS, gRPC,
  * Kafka and certificate checks use {@code host}/{@code port} plus {@code probe}. HTTP monitors may add
- * {@code steps} (BE-07) and {@code oauth} (BE-08), SQL monitors {@code parameters} (BE-11); every type
+ * {@code steps} (BE-07) and {@code oauth} (BE-08), SQL monitors {@code parameters} (BE-11, text
+ * values may reference workspace variables, BE-39); every type
  * accepts {@code window} (BE-17) and {@code retry} (BE-18). {@code retries} is the number of failing
  * checks that confirm DOWN.
  */

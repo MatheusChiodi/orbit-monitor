@@ -18,6 +18,7 @@ import io.orbit.probe.schedule.ProbeScheduler;
 import io.orbit.probe.schedule.ProbeWorkers;
 import io.orbit.security.vault.SecretResolver;
 import io.orbit.telemetry.TelemetryService;
+import io.orbit.workspace.variable.VariableService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -49,10 +50,11 @@ public class RuntimeBeans {
     @Bean
     MonitorRuntime monitorRuntime(MonitorDefinitions definitions, CheckRunner runner, TelemetryService telemetry,
                                   ConnectionPools pools, SecretResolver secrets, ProbeScheduler scheduler,
-                                  EventBus bus, Clock clock, SimpleProbes simpleProbes, ExtendedChecks extended) {
+                                  EventBus bus, Clock clock, SimpleProbes simpleProbes, VariableService variables,
+                                  ExtendedChecks extended) {
         return new MonitorRuntime(definitions, runner, telemetry, pools, secrets, scheduler, bus,
-                new CircuitBreaker(clock, 3, Duration.ofMinutes(1)), new TargetLimiter(1), simpleProbes, extended,
-                duration -> Thread.sleep(duration.toMillis()), clock);
+                new CircuitBreaker(clock, 3, Duration.ofMinutes(1)), new TargetLimiter(1), simpleProbes,
+                variables::resolver, extended, duration -> Thread.sleep(duration.toMillis()), clock);
     }
 
     @Bean

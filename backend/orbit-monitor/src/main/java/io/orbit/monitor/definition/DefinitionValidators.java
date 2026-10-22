@@ -93,7 +93,8 @@ final class DefinitionValidators {
                 errors.add(r.id() + ": unsupported method " + r.method());
             }
             try {
-                URI uri = URI.create(r.url());
+                // BE-39: workspace variable references are resolved at run time; check the shape around them.
+                URI uri = URI.create(r.url().replaceAll("\\$\\{(var|vault|env):[A-Za-z_][A-Za-z0-9_.-]*}", "x"));
                 String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase(Locale.ROOT);
                 if (!scheme.equals("http") && !scheme.equals("https") || uri.getHost() == null) {
                     errors.add(r.id() + ": url must be http(s)://host/...");

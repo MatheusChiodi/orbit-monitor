@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "mnt_weekly_patch",
+      "name": "Weekly patch window",
+      "targets": [
+        "grp_payments"
+      ],
+      "cron": "0 2 * * 0",
+      "duration": "PT1H",
+      "zone": "America/Sao_Paulo",
+      "reason": "Database patching",
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    }
+  ]
+}

@@ -40,4 +40,22 @@ class WorkspaceServiceTest {
         assertThat(WorkspaceService.groupState(List.of("m1", "m2"), states::get, Set.of()))
                 .isEqualTo(MonitorState.DOWN);
     }
+
+    @Test
+    @DisplayName("saves are stamped, a group belongs to one workspace and delete works")
+    void lifecycle() {
+        WorkspaceService service = new WorkspaceService(new ConfigFile<>(dir, "workspaces",
+                WorkspaceService.Workspace.class, ConfigMapper.create(), WorkspaceService.VALIDATOR));
+        WorkspaceService.Workspace saved = service.save(new WorkspaceService.Workspace("wks_prod", "Production",
+                List.of("grp_pay")), "Ana");
+
+        assertThat(saved.updatedBy()).isEqualTo("Ana");
+        assertThat(saved.updatedAt()).isNotNull();
+        assertThat(service.find("wks_prod")).isPresent();
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.save(new WorkspaceService.Workspace(
+                "wks_stg", "Staging", List.of("grp_pay")), "Ana"))
+                .isInstanceOf(io.orbit.config.ConfigValidationException.class);
+        assertThat(service.delete("wks_prod")).isTrue();
+        assertThat(service.delete("wks_prod")).isFalse();
+    }
 }
