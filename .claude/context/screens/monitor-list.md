@@ -42,6 +42,7 @@ Groups and monitors with state, filters, saved views, bulk actions.
 - `frontend/src/app/console-main.tsx`
 - `frontend/src/app/console/screens/MonitorsScreen/MonitorsScreen.tsx`
 - `frontend/src/domains/workspace/GroupOrderEditor/GroupOrderEditor.tsx`
+- `frontend/src/app/console/screens/MonitorDetailScreen/MonitorDetailScreen.tsx`
 
 ## Tests
 - `frontend/src/app/console/ConsoleApp.test.tsx`
@@ -55,3 +56,4 @@ Groups and monitors with state, filters, saved views, bulk actions.
 - 2026-10-18 — monitor list with filter, view-only handling and demo fallback; en/pt-BR.
 - 2026-10-22 — Reorder mode (FE-13) persisted through PUT /api/groups/order; console sections in the header.
 - 2026-10-22 — card settings and Customize mode on the monitor list.
+- 2026-10-22 — card actions open #/monitors/:id, acknowledge the open incident or open the target URL.

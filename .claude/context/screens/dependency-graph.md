@@ -2,7 +2,7 @@
 screen: dependency-graph
 title: "Dependency graph"
 route: "index.html#/dependencies"
-status: in-progress
+status: done
 spec: FE-42, BE-30
 updated: 2026-10-22
 ---
@@ -22,7 +22,7 @@ Interactive graph of groups/monitors with impact radius.
 - Privacy: every probe value rendered through `<SafeValue>`
 
 ## Features on this screen
-- [FE-42 · Dependency graph](../features/FE-42-dependency-graph.md) — in-progress
+- [FE-42 · Dependency graph](../features/FE-42-dependency-graph.md) — done
 
 ## Code
 - `frontend/src/app/console/screens/DependenciesScreen/DependenciesScreen.tsx`
@@ -35,3 +35,4 @@ Interactive graph of groups/monitors with impact radius.
 ## Changelog
 - 2026-10-18 — context file created.
 - 2026-10-22 — screen routed and wired to the assumed `/api/dependencies` contract (status: in-progress).
+- 2026-10-22 — verified against the BE-30 API (status: done).

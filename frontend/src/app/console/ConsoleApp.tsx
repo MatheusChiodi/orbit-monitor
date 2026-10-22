@@ -25,6 +25,7 @@ import { ConsoleHeader } from './ConsoleHeader';
 import { ConsolePalette } from './ConsolePalette';
 import { ConsoleProvider } from './ConsoleContext';
 import { ConsoleRoutes } from './ConsoleRoutes';
+import { ScreenTransition } from './ScreenTransition';
 import type { IncidentFeedConnector } from './NotificationsBell';
 import { routeHref, useHashRoute, type ConsoleRoute } from './routes';
 import { DEFAULT_SHORTCUTS, ShortcutsHelp, useShortcuts } from './ShortcutsHelp';
@@ -102,6 +103,7 @@ function Workspace({ api, access, demo, operator, onChangeName, preferences, ope
           {notice && (
             <p className="m-0 rounded-[0.45rem] border border-ok/50 bg-ok/12 px-[0.8rem] py-[0.5rem] text-ok-text">{notice}</p>
           )}
+          <ScreenTransition routeKey={routeHref(route)}>
           <ConsoleRoutes
             route={route}
             preferences={preferences}
@@ -111,6 +113,7 @@ function Workspace({ api, access, demo, operator, onChangeName, preferences, ope
               setNotice(t('console.monitors.saved', { name }));
             }}
           />
+          </ScreenTransition>
         </main>
         <CustomizeLayer />
       </div>

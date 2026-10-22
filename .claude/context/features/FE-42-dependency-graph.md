@@ -3,7 +3,7 @@ id: FE-42
 title: "Dependency graph"
 area: frontend
 group: "Console productivity"
-status: in-progress
+status: done
 screens: [dependency-graph]
 spec: docs/05-extended-features.md
 updated: 2026-10-22
@@ -17,7 +17,7 @@ Interactive graph with impact radius highlight
 ## Status
 - [x] Tests written (pending or active)
 - [x] Implemented
-- [ ] All tests green, none pending
+- [x] All tests green, none pending
 
 ## Screens
 [dependency-graph](../screens/dependency-graph.md)
@@ -36,10 +36,11 @@ Interactive graph with impact radius highlight
 ## Decisions and notes
 - Columns follow each node's longest upstream path; impact radius is breadth-first (cycle-safe) and announced in a status line; labels via `safeText`.
 - Route `#/dependencies`: nodes are the groups/monitors named in the dependency items (group state = worst member), editors add (`upstream` → `downstream`) and remove links; a link that closes a cycle is refused before saving (BE-30 rejects it too).
-- Assumed contract (no controller yet): `GET /api/dependencies` → array or `{version, items}` of `{id, upstream, downstream}` (404 = empty), `PUT|DELETE /api/dependencies/{id}`. Remaining: verify against the backend endpoint once it exists; then done.
+- Verified against BE-30 (developer a9b7741): `GET /api/dependencies` is the item list `{id, upstream, downstream, note}`, `PUT|DELETE /api/dependencies/{id}`; cycles are also rejected by the backend.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
 - 2026-10-18 — dependency graph component (status: in-progress).
 - 2026-10-22 — `#/dependencies` screen with add/remove wired to the assumed `/api/dependencies` contract (status: in-progress until the endpoint exists).
+- 2026-10-22 — wired to the BE-30 dependency API (status: done).

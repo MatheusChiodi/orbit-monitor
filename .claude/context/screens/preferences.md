@@ -42,14 +42,17 @@ Language, animation level, density, viewing distance, night mode, sounds, notifi
 - `frontend/src/shared/preferences/viewingDistance.ts`
 - `frontend/src/app/console/usePreferenceEffects.ts`
 - `frontend/src/app/console/ConsoleApp.tsx`
+- `frontend/src/domains/workspace/MotionSettingsPanel/MotionSettingsPanel.tsx`
 
 ## Tests
 - `frontend/src/domains/workspace/DevicePreferences/DevicePreferences.test.tsx`
 - `frontend/src/shared/preferences/preferences.test.ts`
 - `frontend/src/shared/preferences/density.test.ts`
 - `frontend/src/app/console/ConsoleApp.preferences.test.tsx`
+- `frontend/src/domains/workspace/MotionSettingsPanel/MotionSettingsPanel.test.tsx`
 
 ## Changelog
 - 2026-10-18 — context file created.
 - 2026-10-22 — device preferences screen built and wired into the console (FE-07, FE-08, FE-50).
 - 2026-10-22 — density and animation level are also editable from the customization settings (bridged to the device preferences).
+- 2026-10-22 — FE-06 animation settings panel with live preview embedded.

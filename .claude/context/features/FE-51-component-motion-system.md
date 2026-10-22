@@ -3,10 +3,10 @@ id: FE-51
 title: "Component motion system"
 area: frontend
 group: "Theming and personalization"
-status: in-progress
+status: done
 screens: [wall, monitor-list, monitor-editor-http, monitor-editor-sql, data-and-display, layout-editor, theme-editor, preferences, incidents, incident-detail, settings]
 spec: docs/03-design.md §4.1
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # FE-51 · Component motion system
@@ -16,8 +16,8 @@ Every component animates enter, exit, status change (OK/WARN/DOWN), value change
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
-- [ ] All tests green, none pending
+- [x] Implemented
+- [x] All tests green, none pending
 
 ## Screens
 All screens (see frontmatter).
@@ -41,42 +41,25 @@ All screens (see frontmatter).
 - `frontend/src/domains/wall/components/`
 - `frontend/src/domains/workspace/GroupList/GroupList.tsx`
 - `frontend/src/domains/monitor/components/`
+- `frontend/src/app/console/ScreenTransition/ScreenTransition.tsx`
 
 ## Tests
 - `frontend/src/shared/motion/tokens.test.ts`
 - `frontend/src/shared/motion/presets.test.ts`
 - `frontend/src/shared/motion/useValueFlash.test.tsx`
-- `frontend/src/shared/ui/Badge/Badge.motion.pending.test.tsx`
-- `frontend/src/shared/ui/Button/Button.motion.pending.test.tsx`
-- `frontend/src/shared/ui/Panel/Panel.motion.pending.test.tsx`
-- `frontend/src/shared/ui/Sparkline/Sparkline.motion.pending.test.tsx`
-- `frontend/src/shared/ui/StatusPill/StatusPill.motion.pending.test.tsx`
-- `frontend/src/shared/ui/ThresholdChart/ThresholdChart.motion.pending.test.tsx`
 - `frontend/src/shared/ui/Button/Button.motion.test.tsx`
 - `frontend/src/shared/ui/Panel/Panel.motion.test.tsx`
 - `frontend/src/shared/ui/Badge/Badge.motion.test.tsx`
 - `frontend/src/shared/ui/StatusPill/StatusPill.motion.test.tsx`
 - `frontend/src/shared/ui/Sparkline/Sparkline.motion.test.tsx`
 - `frontend/src/shared/ui/ThresholdChart/ThresholdChart.motion.test.tsx`
-- `frontend/src/domains/wall/components/AcknowledgeButton/AcknowledgeButton.motion.pending.test.tsx`
-- `frontend/src/domains/wall/components/AlsoActive/AlsoActive.motion.pending.test.tsx`
-- `frontend/src/domains/wall/components/Hero/Hero.motion.pending.test.tsx`
-- `frontend/src/domains/wall/components/HeroCalm/HeroCalm.motion.pending.test.tsx`
-- `frontend/src/domains/wall/components/MonitorMatrix/MonitorMatrix.motion.pending.test.tsx`
-- `frontend/src/domains/wall/components/NearLimit/NearLimit.motion.pending.test.tsx`
-- `frontend/src/domains/wall/components/Timeline/Timeline.motion.pending.test.tsx`
-- `frontend/src/domains/wall/components/WallHeader/WallHeader.motion.pending.test.tsx`
-- `frontend/src/domains/wall/components/WallScreen/WallScreen.motion.pending.test.tsx`
 - `frontend/src/shared/ui/FlashValue/FlashValue.test.tsx`
 - `frontend/src/domains/wall/components/*/*.motion.test.tsx`
-- `frontend/src/domains/monitor/components/ConditionEditor/ConditionEditor.motion.pending.test.tsx`
-- `frontend/src/domains/monitor/components/DataDisplayStep/DataDisplayStep.motion.pending.test.tsx`
-- `frontend/src/domains/monitor/components/MonitorForm/MonitorForm.motion.pending.test.tsx`
-- `frontend/src/domains/monitor/components/PreviewTable/PreviewTable.motion.pending.test.tsx`
-- `frontend/src/domains/monitor/components/SqlEditor/SqlEditor.motion.pending.test.tsx`
-- `frontend/src/domains/workspace/GroupList/GroupList.motion.pending.test.tsx`
 - `frontend/src/domains/workspace/GroupList/GroupList.motion.test.tsx`
 - `frontend/src/domains/monitor/components/*/*.motion.test.tsx`
+- `frontend/src/app/console/ScreenTransition/ScreenTransition.motion.test.tsx`
+- `frontend/src/domains/monitor/components/SqlCodeEditor/SqlCodeEditor.safeMode.motion.test.tsx`
+- `frontend/src/shared/motion/motionSettingsContext.test.tsx`
 
 ## Decisions and notes
 - Only `opacity`, `transform` and colors are animated; no springs; translate ≤ 8 px; numbers never count.
@@ -91,6 +74,7 @@ All screens (see frontmatter).
 - `AnimatedItem` renders `li`, `tr` or `div`; console rows (group list, preview, conditions, fields) enter, leave and reorder through it.
 - The preview shows a shimmering skeleton (`role=status`, `aria-busy`) while it runs; the Data & display section expands into view; condition verdicts cross-fade.
 - `entersAnimated` accepts any opacity below 1 so tests do not race Motion's progress in jsdom.
+- Console screens enter with the enter preset on every route change (`ScreenTransition`); new lists (incidents, steps, SLA rows) use `AnimatedItem`; FE-06 switches and speed apply to every preset through `useMotionPreset`.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -101,3 +85,4 @@ All screens (see frontmatter).
 - 2026-10-18 — shared UI components animated (Button, Panel, Badge, StatusPill/StatusDot, Sparkline, ThresholdChart).
 - 2026-10-18 — wall components animated (hero, calm hero, matrix, timeline, also active, near threshold, acknowledge, header, wall screen loading skeleton).
 - 2026-10-18 — console components animated (group list, monitor form, preview table, conditions, data step, SQL editor) (status: in-progress).
+- 2026-10-22 — route transitions, FE-06 settings applied to every preset, stale pending entries removed (status: done).

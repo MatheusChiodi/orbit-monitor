@@ -6,7 +6,7 @@ group: "Privacy"
 status: in-progress
 screens: [wall, monitor-editor-sql, monitor-editor-http, data-and-display]
 spec: docs/01-architecture.md, docs/02-features.md, docs/04-data-protection.md
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # CORE-16 · Sensitive data protection (LGPD / PCI DSS)
@@ -50,6 +50,9 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `backend/orbit-config/src/main/java/io/orbit/config/ConfigFile.java`
 - `.githooks/pre-commit`
 - `backend/orbit-api/src/main/resources/logback-spring.xml`
+- `frontend/src/domains/monitor/components/OAuthFields/OAuthFields.tsx`
+- `frontend/src/domains/telemetry/SlaReports/slaPdf.ts`
+- `frontend/src/app/console/screens/NewMonitorScreen/NewMonitorScreen.tsx`
 
 ## Tests
 - `frontend/src/shared/privacy/redact.test.ts`
@@ -77,6 +80,8 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `backend/orbit-api/src/test/java/io/orbit/api/privacy/CardDataLeakTest.java`
 - `backend/orbit-config/src/test/java/io/orbit/config/ConfigFileTest.java`
 - `.githooks/pre-commit.test.sh`
+- `frontend/src/domains/telemetry/SlaReports/slaPdf.test.ts`
+- `frontend/src/domains/monitor/components/MonitorForm/TargetFields.kinds.test.tsx`
 
 ## Decisions and notes
 - Frontend: `detectSensitive` / `redact` mirror the backend redactor: Luhn PAN 13-19 digits (spaces/hyphens, numbers, inside free text and JSON) → `•••• •••• •••• 1234`; CVV/CVC/track/PIN by field name → `[REDACTED]`; CPF/CNPJ with valid check digits → `•••.•••.•••-12` / `••.•••.•••/••••-81`; e-mail → `j•••@d•••.com`; JWT, Bearer and secret field names → `••••`.
@@ -99,9 +104,9 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - Backend: `CardDataLeakTest` (end to end, H2 + RANDOM_PORT) puts a PAN in a text column, BIGINT, DOUBLE, free text next to another number, JSON text and a column alias, then checks preview, save, run, detail, list, wall snapshot, incidents, audit, `/ws/wall` frames, history events/audit/samples/series, every file under the config and data directories and the whole console output.
 - Hook: `.githooks/pre-commit` now scans test files too (only the well-known public test PANs are allowed; other test numbers are built at runtime), uses the same group-span Luhn search restricted to spans starting with 2-6 (card IINs; avoids Luhn-valid epoch milliseconds), handles paths with spaces, blocks `*.key`, `*.pfx`, `id_rsa`, `id_ed25519` and prints only `****1234` of a match. `sh .githooks/pre-commit.test.sh` runs 12 cases in throwaway repositories; the previous hook failed 2 of them (PAN in a test file, PAN next to another number).
 - Research: log masking via a custom Logback `ClassicConverter`/`ThrowableProxyConverter` (chosen: no dependency, works with Spring Boot's console pattern) vs. logstash-logback-encoder `MaskingJsonGeneratorDecorator` (JSON output only, extra dependency) vs. regex `replace` in the pattern (no Luhn check, would mask every 16-digit number). For the hook, a POSIX awk scan (no runtime needed) vs. gitleaks/detect-secrets (strong for secrets, but they need an extra binary per clone; whether their card rules apply Luhn was not verified). Luhn per ISO/IEC 7812-1.
-- Open: the BE-37 config export is not implemented yet; it reads the same `ConfigFile`s, which can no longer hold a PAN. CSV/PDF exports do not exist yet; when they do they must go through the redactor and get a test in `CardDataLeakTest`.
 - Open: the hook is not enabled in the shared clone (`core.hooksPath` unset).
 - Pending: the rule that PERSONAL fields cannot be unmasked on the wall (backend).
+- Frontend: SLA CSV and PDF exports go through `safeText` (PAN never in the file); the OAuth2 client secret uses `SecretInput` (write-only, omitted on update); a new push monitor's URL is shown once, read-only, kept only in component memory; incident, audit and monitor-detail values render through `SafeValue`; open-target only opens http(s) URLs.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -116,3 +121,4 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - 2026-10-18 — backend: pending tests for the Jackson serialization guard and the Logback masking converter.
 - 2026-10-18 — backend: Jackson serialization guard and Logback masking converter implemented.
 - 2026-10-18 — audit: PAN next to other numbers, floating-point PANs, plain strings in the API, stack traces and config files closed; frontend phone and key=value secret masks; end-to-end leak test; pre-commit hook hardened with tests.
+- 2026-10-22 — frontend: redacted CSV/PDF exports, SecretInput for OAuth2, one-time push URL.

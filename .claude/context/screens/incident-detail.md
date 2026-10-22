@@ -39,3 +39,4 @@ Timeline, comments, acknowledge, ticket link, escalation countdown, postmortem.
 ## Changelog
 - 2026-10-18 — context file created.
 - 2026-10-22 — route `#/incidents/:id` wired to the incident API (status: done).
+- 2026-10-22 — resolve/reopen for editors, comments editor-only (BE-26), next escalation step (FE-40).

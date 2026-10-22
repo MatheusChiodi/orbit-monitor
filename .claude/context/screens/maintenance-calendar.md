@@ -2,7 +2,7 @@
 screen: maintenance-calendar
 title: "Maintenance calendar"
 route: "index.html#/maintenance"
-status: in-progress
+status: done
 spec: FE-41, BE-31
 updated: 2026-10-22
 ---
@@ -22,7 +22,7 @@ Drag on a calendar to create one-off/recurring maintenance windows.
 - Privacy: every probe value rendered through `<SafeValue>`
 
 ## Features on this screen
-- [FE-41 · Maintenance calendar](../features/FE-41-maintenance-calendar.md) — in-progress
+- [FE-41 · Maintenance calendar](../features/FE-41-maintenance-calendar.md) — done
 
 ## Code
 - `frontend/src/app/console/screens/MaintenanceScreen/MaintenanceScreen.tsx`
@@ -35,3 +35,4 @@ Drag on a calendar to create one-off/recurring maintenance windows.
 ## Changelog
 - 2026-10-18 — context file created.
 - 2026-10-22 — screen routed and wired to the assumed `/api/maintenance` contract (status: in-progress).
+- 2026-10-22 — verified against the BE-31 API; cron occurrences shown (status: done).

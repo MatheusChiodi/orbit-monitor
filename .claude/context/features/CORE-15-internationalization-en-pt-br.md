@@ -6,7 +6,7 @@ group: "Platform"
 status: in-progress
 screens: [preferences, wall, settings]
 spec: docs/01-architecture.md, docs/02-features.md, docs/04-data-protection.md
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # CORE-15 · Internationalization (en / pt-BR)
@@ -37,6 +37,11 @@ English default, pt-BR available; i18next on the front, MessageSource + Accept-L
 - `backend/orbit-api/src/main/java/io/orbit/api/web/Messages.java`
 - `backend/orbit-api/src/main/java/io/orbit/api/web/ProblemHandler.java`
 - `backend/orbit-common/src/main/java/io/orbit/common/i18n/Localizable.java`
+- `frontend/src/app/console/locales/en.json`
+- `frontend/src/app/console/locales/pt-BR.json`
+- `frontend/src/domains/monitor/locales/en.json`
+- `frontend/src/domains/monitor/locales/pt-BR.json`
+- `frontend/src/shared/api/client.ts`
 
 ## Tests
 - `frontend/src/shared/i18n/i18n.test.ts`
@@ -44,6 +49,8 @@ English default, pt-BR available; i18next on the front, MessageSource + Accept-L
 - `frontend/src/shared/i18n/LanguageSelector/LanguageSelector.test.tsx`
 - `backend/orbit-api/src/test/java/io/orbit/api/web/ProblemI18nTest.java`
 - `backend/orbit-api/src/test/java/io/orbit/api/web/MessageBundlesTest.java`
+- `frontend/src/app/console/locales/locales.test.ts`
+- `frontend/src/shared/api/client.test.ts`
 
 ## Decisions and notes
 - Frontend: Locale order: `?lang=` → `localStorage` (`orbit.locale`) → `navigator.languages` (`pt-*` → `pt-BR`) → `en`.
@@ -53,9 +60,11 @@ English default, pt-BR available; i18next on the front, MessageSource + Accept-L
 - Backend: Problem Details keep the stable English `code`; `title` and `detail` come from `messages*.properties`. Domain errors (`UnsafeSqlException`, `ConditionSyntaxException`, `SsrfBlockedException`) implement `Localizable` (key + args) and keep an English message as fallback.
 - Backend: `MessageBundlesTest` fails when a key exists in one language only.
 - Backend: Pending: config validation error lists, wall timeline titles and notification texts.
+- Frontend: the console sends the UI language as `Accept-Language` (`getLocale`), so Problem Details arrive in en or pt-BR; console screens and monitor-form messages live in their own locale files (`screens.*`, `monitorForm.*`) with a parity test over the merged resources. The wall entry (fe-wall) does not pass `getLocale` yet.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — frontend: i18next infrastructure, en/pt-BR locale files, typed keys and language selector (status: in-progress).
 - 2026-10-18 — frontend: every screen and component now translated; language selector in the console header.
 - 2026-10-18 — backend: API errors translated en/pt-BR via MessageSource and Accept-Language.
+- 2026-10-22 — frontend: Accept-Language from the UI language; console screen and monitor form messages in en/pt-BR.
