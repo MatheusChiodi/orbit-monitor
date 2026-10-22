@@ -4,6 +4,8 @@ import io.orbit.common.MonitorState;
 import io.orbit.monitor.condition.Condition;
 import io.orbit.monitor.condition.ConditionEngine;
 import io.orbit.monitor.condition.Evaluation;
+import io.orbit.monitor.condition.EvaluationContext;
+import io.orbit.monitor.condition.Placeholder;
 import io.orbit.monitor.http.HttpEvaluationContext;
 import io.orbit.monitor.http.HttpResponseSnapshot;
 import io.orbit.monitor.privacy.PayloadRedactor;
@@ -83,6 +85,27 @@ public class CheckRunner {
     private CheckResult success(String monitorId, Evaluation evaluation, long latencyMs, Object maskedPayload) {
         return new CheckResult(monitorId, evaluation.state(), latencyMs, maskedPayload,
                 evaluation.results().stream().map(redactor::redact).toList(), null, clock.instant());
+    }
+
+    /** Outcome of a TCP, ping or push check: reachable, round-trip time and the reason when not. */
+    public record Reachability(boolean up, long latencyMs, String error) {
+    }
+
+    /** TCP/ping: DOWN when unreachable, otherwise conditions on {@code [RESPONSE_TIME]} decide. */
+    public CheckResult runReachability(String monitorId, Reachability outcome, List<Condition> conditions,
+                                       CheckPolicy policy) {
+        if (!outcome.up()) {
+            return failure(monitorId, outcome.error(), outcome.latencyMs());
+        }
+        EvaluationContext context = (placeholder, path) -> placeholder == Placeholder.RESPONSE_TIME
+                ? java.util.Optional.of(outcome.latencyMs()) : java.util.Optional.empty();
+        Evaluation evaluation = engine.evaluateAll(conditions, context, policy.previousState(), policy.hysteresisRatio());
+        return success(monitorId, evaluation, outcome.latencyMs(), null);
+    }
+
+    /** No data yet (push monitor before its first signal). */
+    public CheckResult unknown(String monitorId) {
+        return new CheckResult(monitorId, MonitorState.UNKNOWN, 0, null, List.of(), null, clock.instant());
     }
 
     /** A check that could not even start (missing secret, unknown connection): DOWN with the reason. */

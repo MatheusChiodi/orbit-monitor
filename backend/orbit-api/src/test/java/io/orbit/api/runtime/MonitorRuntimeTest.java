@@ -19,9 +19,13 @@ import io.orbit.probe.CheckRunner;
 import io.orbit.probe.http.HostResolver;
 import io.orbit.probe.http.HttpProbe;
 import io.orbit.probe.http.SsrfGuard;
+import io.orbit.probe.ping.PingProbe;
+import io.orbit.probe.push.PushRegistry;
 import io.orbit.probe.resilience.CircuitBreaker;
 import io.orbit.probe.resilience.TargetLimiter;
 import io.orbit.probe.schedule.ProbeScheduler;
+import io.orbit.probe.tcp.TcpProbe;
+import io.orbit.monitor.definition.CheckMonitorDef;
 import io.orbit.probe.sql.SqlProbe;
 import io.orbit.security.vault.MasterKey;
 import io.orbit.security.vault.SecretCipher;
@@ -64,6 +68,7 @@ class MonitorRuntimeTest {
     private MonitorRuntime runtime;
     private final List<CheckResult> published = new ArrayList<>();
     private String h2Url;
+    private final PushRegistry push = new PushRegistry(Clock.systemUTC());
 
     @BeforeEach
     void setUp() throws Exception {
@@ -85,7 +90,9 @@ class MonitorRuntimeTest {
         EventBus bus = new EventBus();
         bus.onCheck(published::add);
         runtime = new MonitorRuntime(definitions, runner, telemetry, pools, secrets, scheduler, bus,
-                new CircuitBreaker(clock, 3, Duration.ofMinutes(1)), new TargetLimiter(1));
+                new CircuitBreaker(clock, 3, Duration.ofMinutes(1)), new TargetLimiter(1),
+                new SimpleProbes(new TcpProbe(), new PingProbe((h, t) -> -1, new TcpProbe(), 443), push,
+                        new SsrfGuard(HostResolver.system(), Set.of())));
         definitions.saveConnection(new ConnectionDef("con_h2", "H2", h2Url, "sa", SecretRef.env("H2_PASSWORD"), 1,
                 null, null), "Ana");
     }
@@ -149,6 +156,43 @@ class MonitorRuntimeTest {
 
         assertThat(paused.state()).isEqualTo(MonitorState.DOWN);
         assertThat(paused.error()).contains("No response").contains("paused");
+    }
+
+    private CheckMonitorDef check(String id, CheckMonitorDef.Type type, String host, Integer port) {
+        return new CheckMonitorDef(id, "Check", "grp", type, host, port, null, type == CheckMonitorDef.Type.PUSH ? 600 : null,
+                60, 2_000, 1, 0.1, false, List.of(), List.of(), false, null, null);
+    }
+
+    @Test
+    void tcpCheckIsOkWhenThePortAnswersAndDownWhenRefused() throws Exception {
+        try (java.net.ServerSocket server = new java.net.ServerSocket(0, 1, java.net.InetAddress.getLoopbackAddress())) {
+            definitions.saveCheck(check("tcp_ok", CheckMonitorDef.Type.TCP, "127.0.0.1", server.getLocalPort()), "Ana");
+            assertThat(runtime.runCheck("tcp_ok").orElseThrow().state()).isEqualTo(MonitorState.OK);
+        }
+        int closed;
+        try (java.net.ServerSocket server = new java.net.ServerSocket(0, 1, java.net.InetAddress.getLoopbackAddress())) {
+            closed = server.getLocalPort();
+        }
+        definitions.saveCheck(check("tcp_closed", CheckMonitorDef.Type.TCP, "127.0.0.1", closed), "Ana");
+        CheckResult refused = runtime.runCheck("tcp_closed").orElseThrow();
+        assertThat(refused.state()).isEqualTo(MonitorState.DOWN);
+        assertThat(refused.error()).containsIgnoringCase("refused");
+    }
+
+    @Test
+    void pushIsUnknownUntilTheFirstSignal() {
+        definitions.saveCheck(check("psh_batch", CheckMonitorDef.Type.PUSH, null, null), "Ana");
+        String token = push.register("psh_batch", Duration.ofMinutes(10));
+
+        assertThat(runtime.runCheck("psh_batch").orElseThrow().state()).isEqualTo(MonitorState.UNKNOWN);
+        push.receive(token);
+        assertThat(runtime.runCheck("psh_batch").orElseThrow().state()).isEqualTo(MonitorState.OK);
+    }
+
+    @Test
+    void metadataHostIsRefusedForChecks() {
+        definitions.saveCheck(check("tcp_meta", CheckMonitorDef.Type.TCP, "169.254.169.254", 80), "Ana");
+        assertThat(runtime.runCheck("tcp_meta").orElseThrow().error()).contains("metadata");
     }
 
     @Test

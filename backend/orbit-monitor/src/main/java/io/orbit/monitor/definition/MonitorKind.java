@@ -1,7 +1,10 @@
 package io.orbit.monitor.definition;
 
-/** Monitor types available in the first version (TCP, Ping and Push come later). */
+/** Monitor types: HTTP requests, SQL SELECTs and the simple checks (TCP port, ping, push). */
 public enum MonitorKind {
     HTTP,
-    SQL
+    SQL,
+    TCP,
+    PING,
+    PUSH
 }

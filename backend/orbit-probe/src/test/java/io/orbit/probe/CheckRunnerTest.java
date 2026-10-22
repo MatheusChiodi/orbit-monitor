@@ -149,6 +149,24 @@ class CheckRunnerTest {
     }
 
     @Test
+    void reachabilityChecksEvaluateResponseTime() {
+        var conds = List.of(parser.parse("[RESPONSE_TIME] < 200ms", Severity.WARN));
+
+        CheckResult fast = runner.runReachability("tcp_db", new CheckRunner.Reachability(true, 150, null), conds,
+                CheckPolicy.initial());
+        CheckResult slow = runner.runReachability("tcp_db", new CheckRunner.Reachability(true, 450, null), conds,
+                CheckPolicy.initial());
+        CheckResult refused = runner.runReachability("tcp_db",
+                new CheckRunner.Reachability(false, 2, "Connection refused"), conds, CheckPolicy.initial());
+
+        assertThat(fast.state()).isEqualTo(MonitorState.OK);
+        assertThat(fast.latencyMs()).isEqualTo(150);
+        assertThat(slow.state()).isEqualTo(MonitorState.WARN);
+        assertThat(refused.state()).isEqualTo(MonitorState.DOWN);
+        assertThat(refused.error()).isEqualTo("Connection refused");
+    }
+
+    @Test
     void checkThatCannotStartIsDown() {
         CheckResult r = runner.failed("m", "Environment variable not set: X");
         assertThat(r.state()).isEqualTo(MonitorState.DOWN);

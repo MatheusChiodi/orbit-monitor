@@ -80,6 +80,32 @@ final class DefinitionValidators {
         return errors;
     }
 
+    static List<String> checks(List<CheckMonitorDef> items) {
+        List<String> errors = new ArrayList<>();
+        for (CheckMonitorDef c : items) {
+            common(c, errors);
+            if (c.type() == null) {
+                errors.add(c.id() + ": type must be TCP, PING or PUSH");
+                continue;
+            }
+            switch (c.type()) {
+                case TCP -> {
+                    required(c.id(), "host", c.host(), errors);
+                    if (c.port() == null || c.port() < 1 || c.port() > 65_535) {
+                        errors.add(c.id() + ": port must be between 1 and 65535");
+                    }
+                }
+                case PING -> required(c.id(), "host", c.host(), errors);
+                case PUSH -> {
+                    if (c.maxSilenceSeconds() == null || c.maxSilenceSeconds() < 60) {
+                        errors.add(c.id() + ": maxSilenceSeconds must be at least 60");
+                    }
+                }
+            }
+        }
+        return errors;
+    }
+
     private static void common(MonitorDef m, List<String> errors) {
         id(m.id(), errors);
         required(m.id(), "name", m.name(), errors);

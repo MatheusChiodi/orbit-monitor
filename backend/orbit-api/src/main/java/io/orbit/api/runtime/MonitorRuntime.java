@@ -1,5 +1,7 @@
 package io.orbit.api.runtime;
 
+import io.orbit.common.MonitorState;
+import io.orbit.monitor.definition.CheckMonitorDef;
 import io.orbit.monitor.definition.ConnectionDef;
 import io.orbit.monitor.definition.HttpMonitorDef;
 import io.orbit.monitor.definition.MonitorDef;
@@ -10,6 +12,9 @@ import io.orbit.probe.CheckPolicy;
 import io.orbit.probe.CheckResult;
 import io.orbit.probe.CheckRunner;
 import io.orbit.probe.http.HttpProbeRequest;
+import io.orbit.probe.http.SsrfBlockedException;
+import io.orbit.probe.ping.PingProbe;
+import io.orbit.probe.tcp.TcpProbe;
 import io.orbit.probe.resilience.CircuitBreaker;
 import io.orbit.probe.resilience.TargetLimiter;
 import io.orbit.probe.schedule.ProbeScheduler;
@@ -22,6 +27,7 @@ import io.orbit.telemetry.TelemetryService;
 import java.net.URI;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -43,11 +49,13 @@ public class MonitorRuntime {
     private final EventBus bus;
     private final CircuitBreaker breaker;
     private final TargetLimiter limiter;
+    private final SimpleProbes probes;
     private final Map<String, CheckResult> latest = new ConcurrentHashMap<>();
 
     public MonitorRuntime(MonitorDefinitions definitions, CheckRunner runner, TelemetryService telemetry,
                           ConnectionPools pools, SecretResolver secrets, ProbeScheduler scheduler, EventBus bus,
-                          CircuitBreaker breaker, TargetLimiter limiter) {
+                          CircuitBreaker breaker, TargetLimiter limiter, SimpleProbes probes) {
+        this.probes = probes;
         this.breaker = breaker;
         this.limiter = limiter;
         this.definitions = definitions;
@@ -123,17 +131,50 @@ public class MonitorRuntime {
             return switch (def) {
                 case HttpMonitorDef http -> runner.runHttp(def.id(), request(http), http.parsedConditions(), policy);
                 case SqlMonitorDef sql -> runSql(sql, policy);
+                case CheckMonitorDef check -> runCheckMonitor(check, policy);
                 default -> runner.failed(def.id(), "Unsupported monitor type");
             };
-        } catch (VaultException | IllegalArgumentException e) {
+        } catch (VaultException | IllegalArgumentException | SsrfBlockedException e) {
             return runner.failed(def.id(), e.getMessage());
         }
+    }
+
+    /** BE-01/02/03: TCP connect, ping (ICMP or TCP fallback) and push silence. */
+    private CheckResult runCheckMonitor(CheckMonitorDef check, CheckPolicy policy) {
+        Duration timeout = Duration.ofMillis(check.timeoutMs());
+        CheckRunner.Reachability outcome = switch (check.type()) {
+            case TCP -> {
+                probes.guard().check(URI.create("http://" + check.host()));
+                TcpProbe.TcpResult r = probes.tcp().check(check.host(), check.port(), timeout);
+                yield new CheckRunner.Reachability(r.open(), r.connectMs(),
+                        r.open() ? null : "Connection " + r.failure().name().toLowerCase(Locale.ROOT));
+            }
+            case PING -> {
+                probes.guard().check(URI.create("http://" + check.host()));
+                PingProbe.PingResult r = probes.ping().check(check.host(), timeout);
+                yield new CheckRunner.Reachability(r.reachable(), r.ms(), r.reachable() ? null : "Host unreachable");
+            }
+            case PUSH -> {
+                MonitorState state = probes.push().state(check.id());
+                if (state == MonitorState.UNKNOWN) {
+                    yield null;
+                }
+                yield new CheckRunner.Reachability(state == MonitorState.OK, 0, state == MonitorState.OK ? null
+                        : "No signal for more than " + check.maxSilenceSeconds() / 60 + " min");
+            }
+        };
+        return outcome == null ? runner.unknown(check.id())
+                : runner.runReachability(check.id(), outcome, check.parsedConditions(), policy);
     }
 
     /** SQL monitors share their connection; HTTP monitors share their host. */
     private static String targetOf(MonitorDef def) {
         if (def instanceof SqlMonitorDef sql) {
             return "sql:" + sql.connectionId();
+        }
+        if (def instanceof CheckMonitorDef check) {
+            return check.type() == CheckMonitorDef.Type.PUSH ? "push:" + check.id()
+                    : check.type().name().toLowerCase(Locale.ROOT) + ":" + check.host();
         }
         try {
             return "http:" + URI.create(((HttpMonitorDef) def).url()).getHost();

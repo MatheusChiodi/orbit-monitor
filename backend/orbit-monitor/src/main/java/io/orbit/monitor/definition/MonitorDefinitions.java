@@ -14,22 +14,24 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Monitor configuration owned by the Monitor domain: connections, SELECT monitors and HTTP
- * monitors, each in its own file. Cross-file rules (existing connection, unique monitor ids,
- * connection still in use) are checked here before writing.
+ * Monitor configuration owned by the Monitor domain: connections, SELECT monitors, HTTP monitors
+ * and simple checks (TCP, ping, push), each in its own file. Cross-file rules (existing connection,
+ * unique monitor ids, connection still in use) are checked here before writing.
  */
 public class MonitorDefinitions {
 
     private final ConfigFile<ConnectionDef> connections;
     private final ConfigFile<SqlMonitorDef> selects;
     private final ConfigFile<HttpMonitorDef> requests;
+    private final ConfigFile<CheckMonitorDef> checks;
     private final Clock clock;
 
     public MonitorDefinitions(ConfigFile<ConnectionDef> connections, ConfigFile<SqlMonitorDef> selects,
-                              ConfigFile<HttpMonitorDef> requests, Clock clock) {
+                              ConfigFile<HttpMonitorDef> requests, ConfigFile<CheckMonitorDef> checks, Clock clock) {
         this.connections = connections;
         this.selects = selects;
         this.requests = requests;
+        this.checks = checks;
         this.clock = clock;
     }
 
@@ -38,6 +40,7 @@ public class MonitorDefinitions {
                 new ConfigFile<>(configDir, "connections", ConnectionDef.class, mapper, DefinitionValidators::connections),
                 new ConfigFile<>(configDir, "selects", SqlMonitorDef.class, mapper, DefinitionValidators::selects),
                 new ConfigFile<>(configDir, "requests", HttpMonitorDef.class, mapper, DefinitionValidators::requests),
+                new ConfigFile<>(configDir, "checks", CheckMonitorDef.class, mapper, DefinitionValidators::checks),
                 Clock.systemUTC());
     }
 
@@ -58,7 +61,8 @@ public class MonitorDefinitions {
     }
 
     public List<MonitorDef> monitors() {
-        return Stream.concat(requests.items().stream(), selects.items().stream()).map(m -> (MonitorDef) m).toList();
+        return Stream.of(requests.items(), selects.items(), checks.items()).flatMap(List::stream)
+                .map(m -> (MonitorDef) m).toList();
     }
 
     public Optional<MonitorDef> monitor(String id) {
@@ -76,13 +80,31 @@ public class MonitorDefinitions {
             throw new ConfigValidationException(List.of(select.id() + ": unknown connection " + select.connectionId()));
         }
         requireUniqueMonitorId(select.id(), requests.items());
+        requireUniqueMonitorId(select.id(), checks.items());
         SqlMonitorDef stamped = select.touchedBy(OperatorName.normalize(operator), clock.instant());
         selects.save(replace(selects.items(), stamped));
         return stamped;
     }
 
+    public List<CheckMonitorDef> checks() {
+        return checks.items();
+    }
+
+    public synchronized CheckMonitorDef saveCheck(CheckMonitorDef check, String operator) {
+        requireUniqueMonitorId(check.id(), selects.items());
+        requireUniqueMonitorId(check.id(), requests.items());
+        CheckMonitorDef stamped = check.touchedBy(OperatorName.normalize(operator), clock.instant());
+        checks.save(replace(checks.items(), stamped));
+        return stamped;
+    }
+
+    public synchronized boolean deleteCheck(String id) {
+        return remove(checks, id);
+    }
+
     public synchronized HttpMonitorDef saveRequest(HttpMonitorDef request, String operator) {
         requireUniqueMonitorId(request.id(), selects.items());
+        requireUniqueMonitorId(request.id(), checks.items());
         HttpMonitorDef stamped = request.touchedBy(OperatorName.normalize(operator), clock.instant());
         requests.save(replace(requests.items(), stamped));
         return stamped;
@@ -108,7 +130,8 @@ public class MonitorDefinitions {
         boolean a = connections.reloadIfChanged();
         boolean b = selects.reloadIfChanged();
         boolean c = requests.reloadIfChanged();
-        return a || b || c;
+        boolean d = checks.reloadIfChanged();
+        return a || b || c || d;
     }
 
     private static void requireUniqueMonitorId(String id, List<? extends MonitorDef> otherKind) {
