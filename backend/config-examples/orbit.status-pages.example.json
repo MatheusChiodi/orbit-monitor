@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "stp_public",
+      "slug": "status",
+      "title": "Example status",
+      "pub": true,
+      "groupIds": [
+        "grp_payments",
+        "grp_portal"
+      ],
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    },
+    {
+      "id": "stp_internal",
+      "slug": "internal",
+      "title": "Internal systems",
+      "pub": false,
+      "groupIds": [
+        "grp_core_bank"
+      ],
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    }
+  ]
+}

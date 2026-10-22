@@ -5,8 +5,10 @@
       "id": "default",
       "access": { "editFrom": "loopback", "cidrs": [], "lanAcknowledge": true },
       "locale": "en",
-      "theme": "dark",
-      "animationLevel": "full",
+      "theme": "orbit-dark",
+      "animationLevel": "standard",
+      "density": "comfortable",
+      "scale": "3m",
       "historyHours": 24,
       "updatedAt": "2026-10-18T20:00:00Z",
       "updatedBy": "Example Operator"

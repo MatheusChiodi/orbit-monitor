@@ -1,5 +1,6 @@
 package io.orbit.api.web;
 
+import io.orbit.api.runtime.ConfigReloader;
 import io.orbit.api.runtime.MonitorRuntime;
 import io.orbit.config.ConfigArchive;
 import io.orbit.monitor.definition.MonitorDefinitions;
@@ -30,9 +31,11 @@ public class ConfigTransferController {
     private final MonitorRuntime runtime;
     private final SettingsService settings;
     private final AuditLog audit;
+    private final ConfigReloader reloader;
 
     public ConfigTransferController(ConfigArchive archive, MonitorDefinitions definitions, MonitorRuntime runtime,
-                                    SettingsService settings, AuditLog audit) {
+                                    SettingsService settings, AuditLog audit, ConfigReloader reloader) {
+        this.reloader = reloader;
         this.archive = archive;
         this.definitions = definitions;
         this.runtime = runtime;
@@ -61,6 +64,7 @@ public class ConfigTransferController {
         audit.record(operator, "config.import", null,
                 changes.stream().map(ConfigArchive.FileChange::file).toList().toString(), request.getRemoteAddr());
         settings.reloadIfChanged();
+        reloader.reloadChanged();
         if (definitions.reloadIfChanged()) {
             runtime.syncSchedule();
         }

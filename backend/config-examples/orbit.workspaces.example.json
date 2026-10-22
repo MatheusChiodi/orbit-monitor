@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "wks_production",
+      "name": "Production",
+      "groupIds": [
+        "grp_payments",
+        "grp_portal"
+      ],
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    },
+    {
+      "id": "wks_staging",
+      "name": "Staging",
+      "groupIds": [
+        "grp_staging"
+      ],
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    }
+  ]
+}

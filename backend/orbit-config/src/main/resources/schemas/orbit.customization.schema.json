@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MatheusChiodi/orbit-monitor/schemas/orbit.customization.schema.json",
+  "title": "orbit.customization.json",
+  "description": "Customization values per server-side scope (BE-51, CORE-21): workspace, layout:<id>, instance:<id> and profile:<id>",
+  "type": "object",
+  "required": [
+    "version",
+    "items"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "scope"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "scope": {
+            "enum": [
+              "workspace",
+              "layout",
+              "instance",
+              "profile"
+            ]
+          },
+          "target": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "values": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Setting id (card.monitor.clickAction) to its JSON value"
+          },
+          "updatedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "ISO-8601 instant"
+          },
+          "updatedBy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

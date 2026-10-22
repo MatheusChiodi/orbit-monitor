@@ -14,11 +14,19 @@ import java.util.Map;
  */
 public final class StatusPageBuilder {
 
-    /** @param pub public (anyone on the network) or internal (console only) */
-    public record StatusPage(String id, String slug, String title, List<String> groupIds, boolean pub)
-            implements ConfigItem {
+    /** @param pub public (anyone on the network) or internal (editors only) */
+    public record StatusPage(String id, String slug, String title, List<String> groupIds, boolean pub,
+                             Instant updatedAt, String updatedBy) implements ConfigItem {
         public StatusPage {
             groupIds = groupIds == null ? List.of() : List.copyOf(groupIds);
+        }
+
+        public StatusPage(String id, String slug, String title, List<String> groupIds, boolean pub) {
+            this(id, slug, title, groupIds, pub, null, null);
+        }
+
+        StatusPage stamped(String operator, Instant at) {
+            return new StatusPage(id, slug, title == null ? null : title.strip(), groupIds, pub, at, operator);
         }
     }
 

@@ -12,6 +12,7 @@ import io.orbit.telemetry.Statistics;
 import io.orbit.telemetry.TelemetryService;
 import io.orbit.workspace.Group;
 import io.orbit.workspace.GroupService;
+import io.orbit.workspace.WorkspaceService;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -19,7 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /** Builds the wall views from configuration, telemetry, latest results and incidents. */
@@ -36,6 +39,7 @@ public class WallViewFactory {
     private final Clock clock;
     private final String environment;
     private Function<Incident, Optional<Instant>> escalatesAt = incident -> Optional.empty();
+    private Predicate<String> inMaintenance = monitorId -> false;
 
     public WallViewFactory(MonitorDefinitions definitions, TelemetryService telemetry, MonitorRuntime runtime,
                            GroupService groups, IncidentService incidents, WallTimeline timeline, Clock clock,
@@ -53,6 +57,11 @@ public class WallViewFactory {
     /** BE-27: source of the escalation countdown shown on the wall. */
     public void setEscalatesAt(Function<Incident, Optional<Instant>> escalatesAt) {
         this.escalatesAt = escalatesAt;
+    }
+
+    /** CORE-07: monitors in an active maintenance window (directly or through their group). */
+    public void setInMaintenance(Predicate<String> inMaintenance) {
+        this.inMaintenance = inMaintenance;
     }
 
     public WallViews.MonitorView monitorView(MonitorDef def) {
@@ -75,9 +84,12 @@ public class WallViewFactory {
         Map<String, List<MonitorDef>> byGroup = definitions.monitors().stream()
                 .filter(m -> m.groupId() != null)
                 .collect(Collectors.groupingBy(MonitorDef::groupId));
-        return groups.list().stream().map(g -> new WallViews.GroupView(g.id(), g.name(), g.color(),
-                GroupService.stateOf(byGroup.getOrDefault(g.id(), List.of()).stream().map(MonitorDef::id).toList(),
-                        telemetry::currentState).name())).toList();
+        return groups.list().stream().map(g -> {
+            List<String> members = byGroup.getOrDefault(g.id(), List.of()).stream().map(MonitorDef::id).toList();
+            Set<String> paused = members.stream().filter(inMaintenance).collect(Collectors.toSet());
+            return new WallViews.GroupView(g.id(), g.name(), g.color(),
+                    WorkspaceService.groupState(members, telemetry::currentState, paused).name());
+        }).toList();
     }
 
     public WallViews.IncidentView incidentView(Incident incident) {

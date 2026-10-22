@@ -70,6 +70,16 @@
               "null"
             ]
           },
+          "monitorOrder": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "description": "Manual order of the group's monitors (FE-13)"
+          },
           "updatedAt": {
             "type": [
               "string",

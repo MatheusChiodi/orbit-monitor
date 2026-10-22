@@ -168,4 +168,34 @@ class MonitorDefinitionsTest {
         assertThat(definitions.monitors()).hasSize(2);
         assertThat(definitions.connection("con_core")).isPresent();
     }
+
+    @Test
+    void movesAMonitorToAnotherGroupKeepingEverythingElse() {
+        definitions.saveConnection(connection(), "Ana");
+        definitions.saveSelect(select("con_core"), "Ana");
+        definitions.saveRequest(request(), "Ana");
+
+        assertThat(definitions.moveToGroup("sel_queue", "grp_core", "Bia")).isTrue();
+        assertThat(definitions.moveToGroup(request().id(), null, "Bia")).isTrue();
+        assertThat(definitions.moveToGroup("missing", "grp_core", "Bia")).isFalse();
+
+        MonitorDefinitions reloaded = MonitorDefinitions.open(dir, ConfigMapper.create());
+        assertThat(reloaded.monitor("sel_queue")).hasValueSatisfying(m -> {
+            assertThat(m.groupId()).isEqualTo("grp_core");
+            assertThat(((SqlMonitorDef) m).sql()).isEqualTo(select("con_core").sql());
+            assertThat(((SqlMonitorDef) m).updatedBy()).isEqualTo("Bia");
+        });
+        assertThat(reloaded.monitor(request().id())).hasValueSatisfying(m -> assertThat(m.groupId()).isNull());
+    }
+
+    @Test
+    void requestUrlsMayReferenceWorkspaceVariables() {
+        HttpMonitorDef r = request();
+        HttpMonitorDef withVariables = new HttpMonitorDef(r.id(), r.name(), r.groupId(), r.method(),
+                "https://${var:host}/stores/${var:store}?t=${vault:token}", r.headers(), r.secretHeaders(), r.body(),
+                r.intervalSeconds(), r.timeoutMs(), r.followRedirects(), r.downAfter(), r.hysteresis(), r.openOnWarn(),
+                r.conditions(), r.fields(), r.paused(), null, null);
+
+        assertThat(definitions.saveRequest(withVariables, "Ana").url()).contains("${var:store}");
+    }
 }

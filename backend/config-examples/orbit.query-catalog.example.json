@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "qry_pending_reconciliation",
+      "name": "Pending reconciliation",
+      "connectionId": "con_core_oracle",
+      "sql": "SELECT COUNT(*) AS PENDING_QTY FROM V_RECONCILIATION_PENDING",
+      "description": "Items waiting for reconciliation",
+      "tags": [
+        "payments"
+      ],
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    }
+  ]
+}
