@@ -1,4 +1,5 @@
 import type { Incident, WallSnapshot } from '@/shared/api/types';
+import { ApiError } from '@/shared/api/client';
 import type { ConnectWallOptions, WallConnection } from '@/shared/api/wallSocket';
 import type { Locale } from '@/shared/i18n/i18n';
 import type { WallStore } from '../store';
@@ -48,9 +49,17 @@ export async function acknowledge(
     return;
   }
   try {
-    const incident = await send(incidentId, by);
-    store.getState().receive({ type: 'incident', payload: incident });
-  } catch {
+    const answer = await send(incidentId, by);
+    // The REST answer is the alerting record (no impact or escalation fields): keep the wall view and
+    // take only who acknowledged and when; the `/ws/wall` incident message brings the full view anyway.
+    const current = store.getState().snapshot?.incidents.find((i) => i.id === incidentId);
+    const payload: Incident = current
+      ? { ...current, acknowledgedBy: answer.acknowledgedBy, acknowledgedAt: answer.acknowledgedAt }
+      : { ...answer, impact: answer.impact ?? [], escalatesAt: answer.escalatesAt ?? null };
+    store.getState().receive({ type: 'incident', payload });
+  } catch (error) {
+    // The API answered and refused (403 access policy, 409 already resolved): never fake it locally.
+    if (error instanceof ApiError && error.status >= 400 && error.status < 500) return;
     store.getState().acknowledgeLocal(incidentId, by, new Date(), locale);
   }
 }
