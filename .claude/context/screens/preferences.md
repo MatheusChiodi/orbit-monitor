@@ -26,7 +26,7 @@ Language, animation level, density, viewing distance, night mode, sounds, notifi
 
 ## Features on this screen
 - [CORE-15 · Internationalization (en / pt-BR)](../features/CORE-15-internationalization-en-pt-br.md) — done
-- [FE-06 · Animation level](../features/FE-06-animation-level.md) — in-progress
+- [FE-06 · Animation level](../features/FE-06-animation-level.md) — done
 - [FE-07 · Density](../features/FE-07-density.md) — done
 - [FE-08 · Viewing distance scale](../features/FE-08-viewing-distance-scale.md) — done
 - [FE-09 · Night mode schedule](../features/FE-09-night-mode-schedule.md) — done

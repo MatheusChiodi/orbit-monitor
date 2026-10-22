@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import type { SavedQuery } from '@/shared/api/consoleTypes';
 import type { Connection, HttpMethod } from '@/shared/api/types';
 import { INPUT_CLASS, SELECT_CLASS } from '@/shared/ui';
 import type { MonitorFormState } from '../../form';
@@ -22,10 +23,12 @@ export interface TargetFieldsProps {
   /** FE-33: tables and columns of the chosen connection (BE-13). */
   catalog?: SqlCatalog;
   catalogStatus?: CatalogStatus;
+  /** BE-12: saved queries of the chosen connection. */
+  savedQueries?: readonly SavedQuery[];
 }
 
 /** Target fields per monitor kind: SQL, HTTP (+ OAuth2), HTTP steps or a check target. */
-export function TargetFields({ state, connections, onChange, catalog = EMPTY_CATALOG, catalogStatus = 'idle' }: TargetFieldsProps) {
+export function TargetFields({ state, connections, onChange, catalog = EMPTY_CATALOG, catalogStatus = 'idle', savedQueries = [] }: TargetFieldsProps) {
   const { t } = useTranslation();
   if (state.type === 'HTTP_STEPS') {
     return (
@@ -56,6 +59,28 @@ export function TargetFields({ state, connections, onChange, catalog = EMPTY_CAT
             </select>
           )}
         </FormField>
+        {savedQueries.length > 0 && (
+          <FormField label={t('monitorForm.savedQuery')}>
+            {(id) => (
+              <select
+                id={id}
+                className={SELECT_CLASS}
+                value=""
+                onChange={(e) => {
+                  const chosen = savedQueries.find((q) => q.id === e.target.value);
+                  if (chosen) onChange({ sql: chosen.sql });
+                }}
+              >
+                <option value="">{t('form.choose')}</option>
+                {savedQueries.map((q) => (
+                  <option key={q.id} value={q.id}>
+                    {q.name}
+                  </option>
+                ))}
+              </select>
+            )}
+          </FormField>
+        )}
         <SqlCodeEditor value={state.sql} catalog={catalog} onChange={(sql) => onChange({ sql })} />
         {catalogStatus === 'loading' && <p className="m-0 text-[0.75rem] text-dim">{t('monitorForm.catalogLoading')}</p>}
         {catalogStatus === 'unavailable' && <p className="m-0 text-[0.75rem] text-dim">{t('monitorForm.catalogUnavailable')}</p>}

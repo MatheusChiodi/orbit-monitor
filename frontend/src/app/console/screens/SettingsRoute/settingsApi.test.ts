@@ -5,8 +5,8 @@ import { toSettingsApi } from './settingsApi';
 function source(overrides: Partial<ConsoleSource> = {}) {
   return {
     getAccess: vi.fn().mockResolvedValue({ mode: 'edit', client: 'loopback' }),
-    getSettings: vi.fn().mockResolvedValue({ id: 'default', locale: 'pt-BR', historyHours: 24, access: { editFrom: 'loopback', cidrs: [], lanAcknowledge: true } }),
-    saveSettings: vi.fn().mockResolvedValue({}),
+    getWorkspaceDefaults: vi.fn().mockResolvedValue({ theme: 'nord', animation: 'minimal', density: 'compact', locale: 'pt-BR', scale: '5m' }),
+    saveWorkspaceDefaults: vi.fn().mockResolvedValue({}),
     getConfigHealth: vi.fn().mockResolvedValue([]),
     exportConfig: vi.fn(),
     importConfig: vi.fn().mockResolvedValue([{ file: 'orbit.groups.json', added: [], changed: ['g'], removed: [] }]),
@@ -15,19 +15,17 @@ function source(overrides: Partial<ConsoleSource> = {}) {
 }
 
 describe('CORE-19 settings adapter', () => {
-  it('maps orbit.settings.json (locale) to the workspace defaults (defaultLocale)', async () => {
+  it('reads the workspace defaults from /api/settings/defaults (BE-40)', async () => {
     const file = await toSettingsApi(source()).getSettings();
-    expect(file.items[0]).toMatchObject({ id: 'default', defaultLocale: 'pt-BR', historyHours: 24 });
+    expect(file.items[0]).toMatchObject({ defaultLocale: 'pt-BR', theme: 'nord', animationLevel: 'minimal', density: 'compact' });
   });
 
-  it('saving keeps the fields the screen does not edit (access policy) and writes locale back', async () => {
+  it('saving writes every default back, keeping the ones the screen does not edit (scale)', async () => {
     const s = source();
     const api = toSettingsApi(s);
     await api.getSettings();
-    await api.saveSettings({ id: 'default', defaultLocale: 'en' });
-    expect(s.saveSettings).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'default', locale: 'en', access: { editFrom: 'loopback', cidrs: [], lanAcknowledge: true } }),
-    );
+    await api.saveSettings({ id: 'default', defaultLocale: 'en', animationLevel: 'expressive', density: 'spacious', theme: 'nord' });
+    expect(s.saveWorkspaceDefaults).toHaveBeenCalledWith({ theme: 'nord', animation: 'expressive', density: 'spacious', locale: 'en', scale: '5m' });
   });
 
   it('import preview and apply call the zip endpoint with dryRun true then false', async () => {

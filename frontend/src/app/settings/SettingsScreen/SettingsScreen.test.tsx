@@ -53,6 +53,15 @@ describe('CORE-19 settings and config files', () => {
     expect(a.saveSettings).toHaveBeenCalledWith(expect.objectContaining({ defaultLocale: 'pt-BR' }));
   });
 
+  it('edits the workspace animation level and density defaults (BE-40)', async () => {
+    const a = api();
+    render(<SettingsScreen api={a} operatorStore={operator()} />);
+    await userEvent.selectOptions(await screen.findByLabelText('Default animation level'), 'minimal');
+    await userEvent.selectOptions(screen.getByLabelText('Default density'), 'compact');
+    await userEvent.click(screen.getByRole('button', { name: 'Save defaults' }));
+    expect(a.saveSettings).toHaveBeenCalledWith(expect.objectContaining({ animationLevel: 'minimal', density: 'compact' }));
+  });
+
   it('config file health lists ok, missing (empty, not an error) and invalid files', async () => {
     render(<SettingsScreen api={api()} operatorStore={operator()} />);
     const health = await screen.findByRole('table', { name: 'Config files' });

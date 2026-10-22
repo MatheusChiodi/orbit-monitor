@@ -50,5 +50,6 @@
     "stepInvalid": "Toda etapa precisa de nome e URL http(s)",
     "oauthRequired": "Informe a URL do token (http/https) e o client ID"
   },
-  "useInterval": "Usar {{seconds}} s"
+  "useInterval": "Usar {{seconds}} s",
+  "savedQuery": "Consulta salva"
 }

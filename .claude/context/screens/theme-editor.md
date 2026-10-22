@@ -24,7 +24,7 @@ Create/edit color themes with contrast guard and presets, import/export.
 - Privacy: every probe value rendered through `<SafeValue>`
 
 ## Features on this screen
-- [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — in-progress
+- [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — done
 - [FE-01 · Theme editor](../features/FE-01-theme-editor.md) — in-progress
 - [FE-02 · Contrast guard](../features/FE-02-contrast-guard.md) — done
 - [FE-03 · Theme presets](../features/FE-03-theme-presets.md) — in-progress

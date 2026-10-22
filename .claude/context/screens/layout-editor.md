@@ -27,7 +27,7 @@ updated: 2026-10-22
 - Privacy: every probe value rendered through `<SafeValue>`
 
 ## Features on this screen
-- [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — in-progress
+- [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — done
 - [FE-11 · Wall layout editor](../features/FE-11-wall-layout-editor.md) — done
 - [FE-12 · Keyboard drag and drop](../features/FE-12-keyboard-drag-and-drop.md) — done
 - [FE-15 · Undo/redo](../features/FE-15-undo-redo.md) — done

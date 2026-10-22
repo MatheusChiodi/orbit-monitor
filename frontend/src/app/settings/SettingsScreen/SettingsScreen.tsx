@@ -7,7 +7,10 @@ import { ViewOnlyBanner } from '@/domains/security/ViewOnlyBanner';
 import type { ConfigFile, ConfigItem } from '@/shared/api/configResources';
 import type { AccessInfo } from '@/shared/api/types';
 import { SUPPORTED_LOCALES, isLocale, type Locale } from '@/shared/i18n/i18n';
+import { ANIMATION_LEVELS } from '@/shared/motion/animationLevel';
 import { Button, INPUT_CLASS, LABEL_CLASS, Panel, SELECT_CLASS } from '@/shared/ui';
+
+const DENSITIES = ['compact', 'comfortable', 'spacious'] as const;
 import { exportFileName, type ConfigDiff } from '../configTransfer';
 
 /** `orbit.settings.json` item with the workspace defaults. */
@@ -60,7 +63,7 @@ function download(blob: Blob, name: string): void {
 /** Settings: access mode, operator name, workspace defaults and config files (nothing kept in the browser). */
 export function SettingsScreen({ api, operatorStore }: SettingsScreenProps) {
   const { t } = useTranslation();
-  const ids = { operator: useId(), language: useId(), import: useId() };
+  const ids = { operator: useId(), language: useId(), import: useId(), animation: useId(), density: useId() };
   const operator = useStore(operatorStore, (s) => s.name);
   const setOperator = useStore(operatorStore, (s) => s.setName);
   const [operatorDraft, setOperatorDraft] = useState(operator ?? '');
@@ -156,6 +159,38 @@ export function SettingsScreen({ api, operatorStore }: SettingsScreenProps) {
               {SUPPORTED_LOCALES.map((locale) => (
                 <option key={locale} value={locale}>
                   {t(`app.languages.${locale}`)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={LABEL_CLASS}>
+            <label htmlFor={ids.animation}>{t('screens.settings.defaultAnimation')}</label>
+            <select
+              id={ids.animation}
+              className={SELECT_CLASS}
+              disabled={!editable}
+              value={settings.animationLevel ?? 'standard'}
+              onChange={(e) => setSettings({ ...settings, animationLevel: e.target.value })}
+            >
+              {ANIMATION_LEVELS.map((level) => (
+                <option key={level} value={level}>
+                  {t(`preferences.animationLevels.${level}`)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={LABEL_CLASS}>
+            <label htmlFor={ids.density}>{t('screens.settings.defaultDensity')}</label>
+            <select
+              id={ids.density}
+              className={SELECT_CLASS}
+              disabled={!editable}
+              value={settings.density ?? 'comfortable'}
+              onChange={(e) => setSettings({ ...settings, density: e.target.value })}
+            >
+              {DENSITIES.map((density) => (
+                <option key={density} value={density}>
+                  {t(`preferences.densities.${density}`)}
                 </option>
               ))}
             </select>

@@ -14,6 +14,7 @@ import type {
   MaintenanceOccurrence,
   MonitorDetailRecord,
   OrbitSettingsRecord,
+  SavedQuery,
   StatusPageRecord,
 } from './consoleTypes';
 import type { HistoryResponse } from '@/domains/telemetry/history/historyApi';
@@ -122,6 +123,7 @@ export function createConsoleEndpoints(request: JsonRequest, raw: RawRequest, is
       const data = await request<unknown>(`/api/connections/${enc(connectionId)}/catalog`);
       return itemsOfCatalog(data);
     },
+    listSavedQueries: (connectionId: string) => list<SavedQuery>(`/api/query-catalog${query({ connectionId })}`),
     getHistorySummary: (monitorId: string, range: { from: string; to: string }) =>
       request<HistorySummary>(`/api/history/${enc(monitorId)}/summary${query(range)}`),
     /** BE-52 `GET /api/history/{id}?from&to&resolution` (FE-58 history window). */
@@ -131,6 +133,8 @@ export function createConsoleEndpoints(request: JsonRequest, raw: RawRequest, is
 
     /** BE-40 workspace defaults (theme, animation, density, locale, scale) under each device's choices. */
     getWorkspaceDefaults: () => request<WorkspacePreferenceDefaults>('/api/settings/defaults'),
+    saveWorkspaceDefaults: (defaults: WorkspacePreferenceDefaults) =>
+      request<WorkspacePreferenceDefaults>('/api/settings/defaults', { method: 'PUT', body: defaults }),
     getSettings: () => request<OrbitSettingsRecord>('/api/settings'),
     saveSettings: (settings: OrbitSettingsRecord) => request<OrbitSettingsRecord>('/api/settings', { method: 'PUT', body: settings }),
     /** Assumed contract (CORE-19/BE-50): state of every `orbit.<feature>.json`; 404 = not offered. */

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { translate } from '@/shared/i18n/message';
-import type { CatalogTable } from '@/shared/api/consoleTypes';
+import type { CatalogTable, SavedQuery } from '@/shared/api/consoleTypes';
 import type { MonitorSaveResult } from '@/shared/api/monitorTargets';
 import type { Connection, Group, MonitorDefinition, PreviewRequest, PreviewResult } from '@/shared/api/types';
 import { Button, INPUT_CLASS, SELECT_CLASS } from '@/shared/ui';
@@ -27,7 +27,7 @@ import { DataDisplayStep } from '../DataDisplayStep';
 import { JsonExplorer } from '../JsonExplorer';
 import { PreviewTable } from '../PreviewTable';
 import { FormField, TargetFields } from './TargetFields';
-import { useCatalog } from './useCatalog';
+import { useCatalog, useSavedQueries } from './useCatalog';
 
 function parseJson(body: string | null | undefined): unknown {
   if (!body) return undefined;
@@ -51,6 +51,8 @@ export interface MonitorFormProps {
   initialType?: MonitorKind;
   /** FE-33: tables and columns of a connection for SQL autocomplete (`/api/connections/{id}/catalog`). */
   onLoadCatalog?: (connectionId: string) => Promise<CatalogTable[]>;
+  /** BE-12: saved queries of a connection (`/api/query-catalog?connectionId=`). */
+  onLoadSavedQueries?: (connectionId: string) => Promise<SavedQuery[]>;
 }
 
 interface SectionProps {
@@ -94,7 +96,7 @@ function ErrorList({ errors }: { errors: readonly string[] }) {
 }
 
 /** Monitor form: configuration on the left, live preview on the right. */
-export function MonitorForm({ groups, connections, onPreview, onSave, onCancel, onLoadCatalog, initialType = 'SQL' }: MonitorFormProps) {
+export function MonitorForm({ groups, connections, onPreview, onSave, onCancel, onLoadCatalog, onLoadSavedQueries, initialType = 'SQL' }: MonitorFormProps) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
   const skeletonShimmer = useMotionPreset('enter').level === 'off' ? '' : 'anim-shimmer';
@@ -110,6 +112,7 @@ export function MonitorForm({ groups, connections, onPreview, onSave, onCancel, 
   const previewable = isPreviewable(state.type);
   const fieldNames = previewable ? state.fields.map((f) => f.field) : conditionFieldsFor(state.type);
   const catalog = useCatalog(state.type === 'SQL' ? state.connectionId : '', onLoadCatalog);
+  const savedQueries = useSavedQueries(state.type === 'SQL' ? state.connectionId : '', onLoadSavedQueries);
   const json = state.type === 'HTTP' ? parseJson(preview?.body) : undefined;
 
   function switchType(type: MonitorFormState['type']) {
@@ -207,7 +210,7 @@ export function MonitorForm({ groups, connections, onPreview, onSave, onCancel, 
               )}
             </FormField>
           </div>
-          <TargetFields state={state} connections={connections} onChange={patch} catalog={catalog.catalog} catalogStatus={catalog.status} />
+          <TargetFields state={state} connections={connections} onChange={patch} catalog={catalog.catalog} catalogStatus={catalog.status} savedQueries={savedQueries} />
           {previewable && (
             <div>
               <Button variant="primary" onClick={runPreview} disabled={running || targetErrors.length > 0}>

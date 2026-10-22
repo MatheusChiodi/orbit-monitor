@@ -195,3 +195,13 @@ export interface MonitorDetailRecord {
   latency: { p50: number | null; p95: number | null; p99: number | null; samples: number } | null;
   historySince: string | null;
 }
+
+/** `GET /api/query-catalog?connectionId=` (BE-12 `QueryCatalog.SavedQuery`, orbit.query-catalog.json). */
+export interface SavedQuery {
+  id: string;
+  name: string;
+  connectionId: string;
+  sql: string;
+  owner?: string | null;
+  description?: string | null;
+}

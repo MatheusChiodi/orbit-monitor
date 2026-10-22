@@ -37,6 +37,15 @@ describe('MonitorForm: kinds, catalog, condition builder and JSON explorer', () 
     expect(await screen.findByRole('option', { name: 'ORDERS' })).toBeInTheDocument();
   });
 
+  it('BE-12: saved queries of the chosen connection (orbit.query-catalog.json) fill the editor', async () => {
+    const onLoadSavedQueries = vi.fn().mockResolvedValue([{ id: 'q1', name: 'Pending refunds', connectionId: 'ora', sql: 'SELECT COUNT(*) QTY FROM REFUNDS' }]);
+    setup({ onLoadSavedQueries });
+    await userEvent.selectOptions(screen.getByLabelText('Connection'), 'ora');
+    expect(onLoadSavedQueries).toHaveBeenCalledWith('ora');
+    await userEvent.selectOptions(await screen.findByLabelText('Saved query'), 'q1');
+    expect(screen.getByRole('textbox', { name: 'SQL query' })).toHaveValue('SELECT COUNT(*) QTY FROM REFUNDS');
+  });
+
   it('FE-33: a failing catalog request only disables suggestions', async () => {
     setup({ onLoadCatalog: vi.fn().mockRejectedValue(new Error('404')) });
     await userEvent.selectOptions(screen.getByLabelText('Connection'), 'ora');

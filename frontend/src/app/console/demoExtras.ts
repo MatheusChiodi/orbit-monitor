@@ -9,6 +9,7 @@ import type {
   StatusPageRecord,
 } from '@/shared/api/consoleTypes';
 import type { WallSnapshot } from '@/shared/api/types';
+import type { WorkspacePreferenceDefaults } from '@/shared/preferences/preferences';
 
 const minutesAgo = (now: Date, minutes: number) => new Date(now.getTime() - minutes * 60_000).toISOString();
 
@@ -82,6 +83,7 @@ export function createDemoExtras(snapshot: WallSnapshot, now: Date = new Date())
   );
   const pages = new Map<string, StatusPageRecord>();
   let settings: OrbitSettingsRecord = { id: 'default', locale: 'en', historyHours: 24 };
+  let defaults: WorkspacePreferenceDefaults = { locale: 'en', animation: 'standard', density: 'comfortable' };
 
   function update(id: string, change: (incident: IncidentRecord, at: string) => IncidentRecord): IncidentRecord {
     const current = incidents.get(id);
@@ -175,7 +177,12 @@ export function createDemoExtras(snapshot: WallSnapshot, now: Date = new Date())
       return { ...range, samples: 1440, down, uptimePercent: ((1440 - down) / 1440) * 100, p50: 120, p95: 340, p99: 610 };
     },
     getConfigHealth: async () => [],
-    getWorkspaceDefaults: async () => ({}),
+    listSavedQueries: async () => [],
+    getWorkspaceDefaults: async () => defaults,
+    saveWorkspaceDefaults: async (next) => {
+      defaults = next;
+      return next;
+    },
     getSettings: async () => settings,
     saveSettings: async (next) => {
       settings = next;

@@ -101,7 +101,9 @@
   "settings": {
     "importZip": "Importar configuração (.zip)",
     "imported": "Configuração importada",
-    "noChanges": "O arquivo é igual à configuração atual."
+    "noChanges": "O arquivo é igual à configuração atual.",
+    "defaultAnimation": "Nível de animação padrão",
+    "defaultDensity": "Densidade padrão"
   },
   "done": "Concluir",
   "reorder": {

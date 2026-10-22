@@ -69,6 +69,7 @@ export function NewMonitorScreen({ kind, onSaved }: NewMonitorScreenProps) {
         connections={connections.data ?? []}
         onPreview={source.previewMonitor}
         onLoadCatalog={source.getCatalog}
+        onLoadSavedQueries={source.listSavedQueries}
         onSave={async (definition): Promise<MonitorSaveResult | void> => {
           await create.mutateAsync(definition);
         }}

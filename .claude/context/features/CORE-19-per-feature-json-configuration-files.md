@@ -3,7 +3,7 @@ id: CORE-19
 title: "Per-feature JSON configuration files"
 area: backend
 group: "Platform"
-status: in-progress
+status: done
 screens: [settings, monitor-editor-http, monitor-editor-sql, admin-connections, layout-editor, theme-editor]
 spec: docs/01-architecture.md, docs/02-features.md, docs/04-data-protection.md
 updated: 2026-10-22
@@ -17,7 +17,7 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 ## Status
 - [x] Tests written (pending or active)
 - [x] Implemented
-- [ ] All tests green, none pending
+- [x] All tests green, none pending
 
 ## Screens
 [settings](../screens/settings.md), [monitor-editor-http](../screens/monitor-editor-http.md), [monitor-editor-sql](../screens/monitor-editor-sql.md), [admin-connections](../screens/admin-connections.md), [layout-editor](../screens/layout-editor.md), [theme-editor](../screens/theme-editor.md)
@@ -36,6 +36,7 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 - `backend/orbit-config/src/main/java/io/orbit/config/SchemaValidator.java`
 - `backend/orbit-config/src/main/resources/schemas/orbit.<feature>.schema.json` (18 files)
 - `frontend/src/app/console/screens/SettingsRoute/settingsApi.ts`
+- `frontend/src/domains/monitor/components/MonitorForm/useCatalog.ts`
 
 ## Tests
 - `frontend/src/shared/api/configResources.test.ts`
@@ -48,17 +49,17 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 - `frontend/src/app/settings/SettingsScreen/SettingsScreen.test.tsx`
 - `frontend/src/app/console/screens/SettingsRoute/settingsApi.test.ts`
 - `frontend/src/shared/api/consoleEndpoints.test.ts`
+- `frontend/src/domains/monitor/components/MonitorForm/MonitorForm.kinds.test.tsx`
 
 ## Decisions and notes
 - `ConfigFile<T>` handles one `orbit.<feature>.json`: `{"version":1,"items":[...]}`, ids required and unique, feature validator on read and write.
 - Writes go to `.tmp` (fsync), the previous file is copied to `.bak`, then an atomic rename; owner-only permissions where POSIX is available.
 - `reloadIfChanged()` detects external edits by modification time; an invalid file keeps the last valid copy serving and reports `lastError()` without overwriting it.
 - Unknown fields are ignored (forward compatibility); other versions are rejected until migrations exist.
-- Pending: JSON Schema files, example files with the secret/card scan test, encrypted secrets (vault), wiring of each feature file.
 - Frontend: One typed client for every per-feature resource (`/api/<resource>` ↔ `orbit.<resource>.json`), payload `{ version, items }`; a 404 (file not created yet) is an empty list.
 - Frontend: Encrypted secrets (`{ enc }`) are replaced by `{ vault: true }` before reaching components; nothing is stored in the browser.
-- Frontend: Frontend: export strips encrypted values, `${env:…}` references and vault markers; import shows a dry-run diff (added / changed / removed ids per file) before applying.
-- Frontend: Frontend: Settings screen shows the access mode, the operator name (device only), workspace defaults from `orbit.settings.json`, the health of every config file (`missing` = not created yet, not an error) and Export / Import with a dry-run diff; view-only clients cannot change defaults or import.
+- Frontend: export strips encrypted values, `${env:…}` references and vault markers; import shows a dry-run diff (added / changed / removed ids per file) before applying.
+- Frontend: Settings screen shows the access mode, the operator name (device only), workspace defaults (`/api/settings/defaults`: language, animation level, density), the health of every config file (`missing` = not created yet, not an error) and Export / Import with a dry-run diff; view-only clients cannot change defaults or import.
 - Backend: one JSON Schema (draft 2020-12) per feature under `orbit-config/src/main/resources/schemas/`; `ConfigFile` validates the whole document against it on write (throws `ConfigValidationException`) and on load (keeps the last valid copy, `lastError()`). Secrets must be `{"enc":"v1:..."}`, `${env:NAME}` or null, so plain-text passwords are violations. Violations name the path and rule, never the value.
 - Backend: validator choice: in-house subset (`SchemaValidator`: type, required, properties, additionalProperties, items, enum, const, min/max, minLength, minItems, pattern, anyOf, oneOf, local `$ref`) over networknt json-schema-validator (Apache-2.0, maintained, Jackson-based) and everit (org.json based, less active). The schemas only need these keywords and the project avoids new runtime dependencies; the files stay standard so external tools can use them. Revisit if schemas need `if/then`, `format` or remote refs.
 - Backend: schemas are deliberately permissive on unknown fields (forward compatibility) and leave value rules (e.g. `editFrom` values) to each domain validator. Only version 1 exists, so no migration yet.
@@ -67,8 +68,8 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 - Backend: every feature with a schema has an example in `backend/config-examples/` and `ConfigExamplesTest` fails when a schema has no example (or an example no schema); all examples are scanned for secrets, card numbers and CPFs and validated against their schema. A new config file must ship both.
 - Backend: reload on change — `ConfigReloader` checks every `ConfigFile` bean every 5 s (groups, layouts, variables, themes, status pages, workspaces, customization, terminology, channels, maintenance, escalation) and after an import; settings and monitor definitions keep their reload in `RuntimeLifecycle`. Polling the modification time was kept over `java.nio.file.WatchService` (unreliable on network/WSL/Docker bind mounts, needs a thread per directory; 5 s is enough for hand edits).
 - Backend: `GET /api/config/health` → `[{ file, state: ok|missing|invalid, items, error }]` for every schema file (the shape of the frontend `ConfigFileHealth`); state from the schema plus the domain error of the loaded file; errors are masked and never contain values.
-- Remaining: `orbit.silences.json` is created inside `SilenceService` (AlertingBeans, be-alerting) and is not a bean, so it is not hot-reloaded; `orbit.query-catalog.json` (`QueryCatalog`) is not wired into the app yet. The frontend Settings screen still has to call `/api/config/health` and `/api/settings/defaults`.
-- Frontend: `#/settings` uses `/api/settings` (locale ↔ default language, other fields kept), `/api/config/health` and the BE-37 zip: `GET /api/config/export` downloads `orbit-config-YYYY-MM-DD.zip`, import posts the zip with `dryRun=true`, shows the per-file diff, then `dryRun=false`; config lists accept a plain array or `{version, items}`.
+- Verified (developer d240cc9): `orbit.silences.json` is a `ConfigFile` bean (AlertingBeans) covered by the 5 s `ConfigReloader` (AlertingReloadTest); `orbit.query-catalog.json` is served by `/api/query-catalog` (SqlCatalogController reloads it on every read) and the monitor form lists a connection's saved queries to fill the SQL editor.
+- Frontend: `#/settings` reads and writes the workspace defaults through `GET|PUT /api/settings/defaults` (language, animation level and density; other fields such as scale are kept), shows `/api/config/health`, downloads the BE-37 zip (`orbit-config-YYYY-MM-DD.zip`) and imports it with a `dryRun=true` per-file diff before `dryRun=false`; config lists accept a plain array or `{version, items}`.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -85,3 +86,4 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 - 2026-10-22 — backend: schema for orbit.workspaces.json; status-pages schema uses `pub`.
 - 2026-10-22 — backend: examples for every config file with a coverage test, customization/terminology schemas, reload of every config file bean, GET /api/config/health; stale pending frontend test entries removed.
 - 2026-10-22 — frontend: settings screen wired to the settings, config health and zip export/import APIs.
+- 2026-10-22 — silences reload and query-catalog wiring verified; Settings edits the workspace defaults through /api/settings/defaults; saved queries in the SQL target; stale notes removed (status: done).

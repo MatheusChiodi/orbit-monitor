@@ -101,7 +101,9 @@
   "settings": {
     "importZip": "Import config (.zip)",
     "imported": "Configuration imported",
-    "noChanges": "The archive matches the current configuration."
+    "noChanges": "The archive matches the current configuration.",
+    "defaultAnimation": "Default animation level",
+    "defaultDensity": "Default density"
   },
   "done": "Done",
   "reorder": {

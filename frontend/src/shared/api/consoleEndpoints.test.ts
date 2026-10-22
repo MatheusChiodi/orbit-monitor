@@ -94,14 +94,16 @@ describe('console endpoints', () => {
 
   it('catalog, history summary and coverage', async () => {
     const { api, call } = client(() => json([]));
+    await api.listSavedQueries('ora');
+    expect(call(0).url).toBe('/api/query-catalog?connectionId=ora');
     await api.getCatalog('ora core');
-    expect(call(0).url).toBe('/api/connections/ora%20core/catalog');
+    expect(call(1).url).toBe('/api/connections/ora%20core/catalog');
     await api.getHistorySummary('m1', { from: '2026-10-01T00:00:00Z', to: '2026-10-02T00:00:00Z' });
-    expect(call(1).url).toBe('/api/history/m1/summary?from=2026-10-01T00%3A00%3A00Z&to=2026-10-02T00%3A00%3A00Z');
+    expect(call(2).url).toBe('/api/history/m1/summary?from=2026-10-01T00%3A00%3A00Z&to=2026-10-02T00%3A00%3A00Z');
     await api.getHistoryCoverage();
-    expect(call(2).url).toBe('/api/history/coverage');
+    expect(call(3).url).toBe('/api/history/coverage');
     await api.getHistory('m1', { from: 'a', to: 'b' }, '1h');
-    expect(call(3).url).toBe('/api/history/m1?from=a&to=b&resolution=1h');
+    expect(call(4).url).toBe('/api/history/m1?from=a&to=b&resolution=1h');
   });
 
   it('config export downloads the zip; import posts the zip with dryRun', async () => {
@@ -128,5 +130,7 @@ describe('console endpoints', () => {
     await api.saveSettings({ locale: 'pt-BR' });
     expect(call(1)).toMatchObject({ url: '/api/settings', method: 'PUT' });
     expect(await client(json({}, 404)).api.getConfigHealth()).toEqual([]);
+    await api.saveWorkspaceDefaults({ density: 'compact' });
+    expect(call(2)).toMatchObject({ url: '/api/settings/defaults', method: 'PUT' });
   });
 });

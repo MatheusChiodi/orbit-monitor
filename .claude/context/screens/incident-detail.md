@@ -22,7 +22,7 @@ Timeline, comments, acknowledge, ticket link, escalation countdown, postmortem.
 - Privacy: every probe value rendered through `<SafeValue>`
 
 ## Features on this screen
-- [CORE-06 · Incidents and acknowledgement](../features/CORE-06-incidents-and-acknowledgement.md) — in-progress
+- [CORE-06 · Incidents and acknowledgement](../features/CORE-06-incidents-and-acknowledgement.md) — done
 - [FE-39 · Incident page](../features/FE-39-incident-page.md) — done
 - [FE-40 · Escalation countdown](../features/FE-40-escalation-countdown.md) — in-progress
 
@@ -40,3 +40,4 @@ Timeline, comments, acknowledge, ticket link, escalation countdown, postmortem.
 - 2026-10-18 — context file created.
 - 2026-10-22 — route `#/incidents/:id` wired to the incident API (status: done).
 - 2026-10-22 — resolve/reopen for editors, comments editor-only (BE-26), next escalation step (FE-40).
+- 2026-10-22 — FE-58 history window around the incident.

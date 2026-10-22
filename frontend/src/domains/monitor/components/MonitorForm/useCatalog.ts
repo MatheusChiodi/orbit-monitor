@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { CatalogTable } from '@/shared/api/consoleTypes';
+import type { CatalogTable, SavedQuery } from '@/shared/api/consoleTypes';
 import type { SqlCatalog } from '../SqlCodeEditor';
 import type { CatalogStatus } from './TargetFields';
 
@@ -29,4 +29,21 @@ export function useCatalog(connectionId: string, load?: (connectionId: string) =
   }, [connectionId, load]);
 
   return state.id === connectionId ? state : { catalog: { tables: [] }, status: 'idle' as const };
+}
+
+/** BE-12: saved queries of the chosen connection; none when the API does not answer. */
+export function useSavedQueries(connectionId: string, load?: (connectionId: string) => Promise<SavedQuery[]>): SavedQuery[] {
+  const [state, setState] = useState<{ id: string; queries: SavedQuery[] }>({ id: '', queries: [] });
+  useEffect(() => {
+    if (!connectionId || !load) return;
+    let alive = true;
+    load(connectionId).then(
+      (queries) => alive && setState({ id: connectionId, queries }),
+      () => alive && setState({ id: connectionId, queries: [] }),
+    );
+    return () => {
+      alive = false;
+    };
+  }, [connectionId, load]);
+  return state.id === connectionId ? state.queries : [];
 }

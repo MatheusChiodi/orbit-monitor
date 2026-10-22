@@ -22,7 +22,7 @@ _To be filled as the screen is built (component tree, file paths)._
 - Privacy: every probe value rendered through `<SafeValue>`
 
 ## Features on this screen
-- [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — in-progress
+- [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — done
 
 ## Code
 _None yet._

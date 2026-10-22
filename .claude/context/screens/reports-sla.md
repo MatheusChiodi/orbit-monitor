@@ -39,3 +39,4 @@ Uptime per group/monitor, MTTA/MTTR, CSV/PDF export.
 ## Changelog
 - 2026-10-18 — context file created.
 - 2026-10-22 — route `#/reports` wired to the history API with CSV and PDF export (status: done).
+- 2026-10-22 — FE-58 history range picker is the single period control, with the coverage indicator.

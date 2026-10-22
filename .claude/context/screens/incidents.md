@@ -22,7 +22,7 @@ Open/closed incidents, filters, acknowledge, notification center.
 - Privacy: every probe value rendered through `<SafeValue>`
 
 ## Features on this screen
-- [CORE-06 · Incidents and acknowledgement](../features/CORE-06-incidents-and-acknowledgement.md) — in-progress
+- [CORE-06 · Incidents and acknowledgement](../features/CORE-06-incidents-and-acknowledgement.md) — done
 - [FE-38 · Notification center](../features/FE-38-notification-center.md) — done
 
 ## Code

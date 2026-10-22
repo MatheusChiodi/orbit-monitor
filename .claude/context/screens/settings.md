@@ -25,7 +25,7 @@ Access mode banner (edit / view-only), operator name, workspace defaults, config
 
 ## Features on this screen
 - [CORE-08 · Access policy, vault and audit](../features/CORE-08-access-policy-vault-and-audit.md) — in-progress
-- [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — in-progress
+- [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — done
 - [CORE-20 · Local-first runtime](../features/CORE-20-local-first-runtime.md) — in-progress
 - [CORE-15 · Internationalization (en / pt-BR)](../features/CORE-15-internationalization-en-pt-br.md) — done
 - [FE-37 · Onboarding](../features/FE-37-onboarding.md) — done
@@ -63,3 +63,4 @@ Access mode banner (edit / view-only), operator name, workspace defaults, config
 - 2026-10-18 — settings screen with access mode, operator name, defaults, config health and export/import.
 - 2026-10-22 — `#/settings` wired to /api/settings, /api/config/health and the zip export/import with dry-run diff.
 - 2026-10-22 — customization screen (settings, names, profiles) added to the console.
+- 2026-10-22 — workspace defaults (language, animation level, density) through /api/settings/defaults.
