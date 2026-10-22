@@ -5,7 +5,6 @@ import io.orbit.security.vault.SecretCipher;
 import io.orbit.security.vault.SecretResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -15,7 +14,6 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@Tag("pending")
 @DisplayName("BE-39 workspace variables")
 class VariableResolverTest {
 

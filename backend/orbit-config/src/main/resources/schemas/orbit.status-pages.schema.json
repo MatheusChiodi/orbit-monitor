@@ -36,9 +36,9 @@
               "null"
             ]
           },
-          "visibility": {
+          "pub": {
             "type": [
-              "string",
+              "boolean",
               "null"
             ]
           },

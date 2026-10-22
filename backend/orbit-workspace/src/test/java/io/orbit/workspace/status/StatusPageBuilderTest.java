@@ -3,7 +3,6 @@ package io.orbit.workspace.status;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.orbit.common.MonitorState;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -12,7 +11,6 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Tag("pending")
 @DisplayName("BE-42 status page API")
 class StatusPageBuilderTest {
 

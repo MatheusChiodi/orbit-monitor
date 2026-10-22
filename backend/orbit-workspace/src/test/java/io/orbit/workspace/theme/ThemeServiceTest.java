@@ -1,7 +1,6 @@
 package io.orbit.workspace.theme;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -9,7 +8,6 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
-@Tag("pending")
 @DisplayName("BE-40 workspace defaults and themes API")
 class ThemeServiceTest {
 

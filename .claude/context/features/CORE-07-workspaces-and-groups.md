@@ -6,7 +6,7 @@ group: "Workspace"
 status: in-progress
 screens: [monitor-list, wall]
 spec: docs/01-architecture.md, docs/02-features.md, docs/04-data-protection.md
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # CORE-07 · Workspaces and groups
@@ -16,7 +16,7 @@ Group state = worst monitor state; color, icon, owner, tags.
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
+- [x] Implemented
 - [ ] All tests green, none pending
 
 ## Screens
@@ -39,6 +39,7 @@ Group state = worst monitor state; color, icon, owner, tags.
 - Backend: Pending: workspaces as a separate entity, maintenance windows excluded from the state, REST endpoints.
 - Frontend: Groups load from `/api/groups` (`orbit.groups.json`, `{ version, items }`) in their configured order; a missing file means no groups.
 - Frontend: Group state = worst state of its monitors; a group in maintenance is `MAINTENANCE`, an empty one `EMPTY`.
+- Backend: `WorkspaceService` stores workspaces in `orbit.workspaces.json` (id, name, groupIds; schema in orbit-config); a group belongs to at most one workspace; `groupState` ignores monitors in maintenance (worst of the rest, UNKNOWN when none). REST endpoints still pending.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -46,3 +47,4 @@ Group state = worst monitor state; color, icon, owner, tags.
 - 2026-10-18 — frontend: pending test suite written.
 - 2026-10-18 — frontend: groups loader and group state rule.
 - 2026-10-18 — backend: pending tests for workspaces and maintenance-aware group state.
+- 2026-10-22 — backend: workspaces store and maintenance-aware group state; WorkspaceServiceTest un-pended.

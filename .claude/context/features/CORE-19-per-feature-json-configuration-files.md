@@ -55,6 +55,7 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 - Backend: one JSON Schema (draft 2020-12) per feature under `orbit-config/src/main/resources/schemas/`; `ConfigFile` validates the whole document against it on write (throws `ConfigValidationException`) and on load (keeps the last valid copy, `lastError()`). Secrets must be `{"enc":"v1:..."}`, `${env:NAME}` or null, so plain-text passwords are violations. Violations name the path and rule, never the value.
 - Backend: validator choice: in-house subset (`SchemaValidator`: type, required, properties, additionalProperties, items, enum, const, min/max, minLength, minItems, pattern, anyOf, oneOf, local `$ref`) over networknt json-schema-validator (Apache-2.0, maintained, Jackson-based) and everit (org.json based, less active). The schemas only need these keywords and the project avoids new runtime dependencies; the files stay standard so external tools can use them. Revisit if schemas need `if/then`, `format` or remote refs.
 - Backend: schemas are deliberately permissive on unknown fields (forward compatibility) and leave value rules (e.g. `editFrom` values) to each domain validator. Only version 1 exists, so no migration yet.
+- Backend: `orbit.workspaces.schema.json` added (CORE-07).
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -68,3 +69,4 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 - 2026-10-18 — frontend: frontend: settings screen.
 - 2026-10-18 — frontend: frontend: settings screen.
 - 2026-10-22 — backend: JSON Schema per config file, validated on read and write; ConfigSchemasTest un-pended (frontend pending tests remain).
+- 2026-10-22 — backend: schema for orbit.workspaces.json; status-pages schema uses `pub`.

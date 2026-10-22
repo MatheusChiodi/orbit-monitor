@@ -4,7 +4,6 @@ import io.orbit.common.MonitorState;
 import io.orbit.config.ConfigFile;
 import io.orbit.config.ConfigMapper;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -15,7 +14,6 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Tag("pending")
 @DisplayName("CORE-07 workspaces and maintenance-aware group state")
 class WorkspaceServiceTest {
 
