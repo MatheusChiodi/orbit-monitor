@@ -25,6 +25,7 @@ describe('console hash routes', () => {
     ['#/admin/audit', { name: 'audit' }],
     ['#/settings', { name: 'settings' }],
     ['#/settings/preferences', { name: 'preferences' }],
+    ['#/settings/customization', { name: 'customization' }],
     ['#/nope', { name: 'not-found' }],
   ])('%s', (hash, route) => {
     expect(parseRoute(hash)).toEqual(route);

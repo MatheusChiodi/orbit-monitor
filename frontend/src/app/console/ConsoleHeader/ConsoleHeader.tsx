@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { CustomizeToggle } from '@/domains/customization/CustomizeToggle';
 import { LanguageSelector } from '@/shared/i18n/LanguageSelector';
 import { Button } from '@/shared/ui';
 import { useConsole } from '../ConsoleContext';
@@ -35,12 +36,20 @@ export function ConsoleHeader({ route, onChangeName, connectFeed }: ConsoleHeade
         <div className="ml-auto flex flex-wrap items-center gap-[0.8rem] text-[0.9rem]">
           <NotificationsBell connect={connectFeed} />
           <LanguageSelector />
+          <CustomizeToggle />
           <Button
             variant="ghost"
             aria-current={route.name === 'preferences' ? 'page' : undefined}
             onClick={() => navigate({ name: 'preferences' })}
           >
             {t('preferences.title')}
+          </Button>
+          <Button
+            variant="ghost"
+            aria-current={route.name === 'customization' ? 'page' : undefined}
+            onClick={() => navigate({ name: 'customization' })}
+          >
+            {t('customization.title')}
           </Button>
           <a href="/wall.html" className="text-info hover:underline">
             {t('console.openWall')}

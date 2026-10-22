@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { CustomizationScreen } from '@/domains/customization/CustomizationScreen';
 import type { OperatorStore } from '@/domains/security/operator';
 import { DevicePreferences } from '@/domains/workspace/DevicePreferences';
 import type { PreferencesStore } from '@/shared/preferences/preferences';
@@ -51,6 +52,13 @@ export function ConsoleRoutes({ route, preferences, operatorStore, onMonitorSave
         <>
           <ScreenTitle>{t('preferences.title')}</ScreenTitle>
           <DevicePreferences store={preferences} />
+        </>
+      );
+    case 'customization':
+      return (
+        <>
+          <ScreenTitle>{t('customization.title')}</ScreenTitle>
+          <CustomizationScreen editable={editable} />
         </>
       );
     case 'not-found':

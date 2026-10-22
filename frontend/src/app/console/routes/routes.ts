@@ -14,6 +14,7 @@ export type ConsoleRoute =
   | { name: 'audit' }
   | { name: 'settings' }
   | { name: 'preferences' }
+  | { name: 'customization' }
   | { name: 'not-found' };
 
 export type ConsoleRouteName = ConsoleRoute['name'];
@@ -31,6 +32,7 @@ const STATIC: Record<string, ConsoleRoute> = {
   'admin/audit': { name: 'audit' },
   settings: { name: 'settings' },
   'settings/preferences': { name: 'preferences' },
+  'settings/customization': { name: 'customization' },
 };
 
 function decode(segment: string): string | null {
@@ -67,6 +69,8 @@ export function routeHref(route: ConsoleRoute): string {
       return `#/incidents/${encodeURIComponent(route.id)}`;
     case 'preferences':
       return '#/settings/preferences';
+    case 'customization':
+      return '#/settings/customization';
     default:
       return `#/${route.name}`;
   }

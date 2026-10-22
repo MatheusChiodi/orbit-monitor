@@ -6,12 +6,19 @@ import { canEdit } from '@/domains/security/access';
 import type { OperatorStore } from '@/domains/security/operator';
 import { OperatorPrompt } from '@/domains/security/OperatorPrompt';
 import { ViewOnlyBanner } from '@/domains/security/ViewOnlyBanner';
+import { CustomizationRuntime } from '@/domains/customization/CustomizationRuntime';
+import { CustomizeLayer } from '@/domains/customization/CustomizeLayer';
+import { CustomizeModeProvider } from '@/domains/customization/CustomizeModeProvider';
 import type { AccessInfo } from '@/shared/api/types';
 import { FxBackground } from '@/shared/fx/FxBackground';
 import { FxDowngradeNotice } from '@/shared/fx/FxDowngradeNotice';
 import { FxProvider } from '@/shared/fx/FxProvider';
 import { OrbitIntro } from '@/shared/fx/OrbitIntro';
 import { AnimationLevelProvider } from '@/shared/motion/animationLevel';
+import type { CustomizationApi } from '@/shared/customization/api';
+import { createCustomizationStore, type CustomizationStore } from '@/shared/customization/store';
+import { createTerminologyStore } from '@/shared/customization/terminology';
+import { useAppearance } from '@/shared/customization/useAppearance';
 import { createPreferencesStore, type PreferencesStore } from '@/shared/preferences/preferences';
 import { ConsoleHeader } from './ConsoleHeader';
 import { ConsolePalette } from './ConsolePalette';
@@ -31,10 +38,15 @@ export interface ConsoleAppProps {
   preferencesStore?: PreferencesStore;
   /** FE-38: live incident changes (the wall WebSocket); polling only when omitted. */
   connectFeed?: IncidentFeedConnector;
+  /** CORE-21: `orbit.customization.json` / `orbit.terminology.json` (BE-51); device-only when omitted. */
+  customizationApi?: CustomizationApi;
+  customizationStore?: CustomizationStore;
 }
 
 /** `index.html#/settings/preferences` opens the device preferences screen. */
 export const PREFERENCES_HASH = routeHref({ name: 'preferences' });
+/** `index.html#/settings/customization` opens the customization screen (CORE-21). */
+export const CUSTOMIZATION_HASH = routeHref({ name: 'customization' });
 
 /** Probe data stays in memory only: no persisted query cache, short garbage collection. */
 function createQueryClient(): QueryClient {
@@ -73,6 +85,7 @@ function Workspace({ api, access, demo, operator, onChangeName, preferences, ope
   useShortcuts({ 'monitor.new': openNew });
 
   return (
+    <CustomizeModeProvider editable={editable}>
     <ConsoleProvider value={context}>
       <div className="min-h-screen">
         <ConsoleHeader route={route} onChangeName={onChangeName} connectFeed={connectFeed} />
@@ -93,8 +106,10 @@ function Workspace({ api, access, demo, operator, onChangeName, preferences, ope
             }}
           />
         </main>
+        <CustomizeLayer />
       </div>
     </ConsoleProvider>
+    </CustomizeModeProvider>
   );
 }
 
@@ -145,17 +160,22 @@ function Shell({ api, operatorStore, preferences, connectFeed }: ShellProps) {
 }
 
 /** Console: no login; the operator declares a name once and the API decides edit vs. view-only. */
-export function ConsoleApp({ api, operatorStore, queryClient, preferencesStore, connectFeed }: ConsoleAppProps) {
+export function ConsoleApp({ api, operatorStore, queryClient, preferencesStore, connectFeed, customizationApi, customizationStore }: ConsoleAppProps) {
   const [client] = useState(() => queryClient ?? createQueryClient());
   const [preferences] = useState(() => preferencesStore ?? createPreferencesStore());
+  const [customization] = useState(() => customizationStore ?? createCustomizationStore({ api: customizationApi, preferences }));
+  const [terminology] = useState(() => createTerminologyStore(customizationApi));
   const effective = usePreferenceEffects(preferences, operatorStore);
+  useAppearance(customization);
   return (
     <QueryClientProvider client={client}>
       <AnimationLevelProvider level={effective.animation}>
         <FxProvider>
           <FxBackground />
           <div className="fx-layer">
-            <Shell api={api} operatorStore={operatorStore} preferences={preferences} connectFeed={connectFeed} />
+            <CustomizationRuntime store={customization} terminology={terminology}>
+              <Shell api={api} operatorStore={operatorStore} preferences={preferences} connectFeed={connectFeed} />
+            </CustomizationRuntime>
           </div>
           <FxDowngradeNotice />
         </FxProvider>
