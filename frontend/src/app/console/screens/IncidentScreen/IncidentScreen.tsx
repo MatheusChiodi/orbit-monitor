@@ -8,7 +8,10 @@ import { routeHref } from '../../routes';
 import { ScreenStatus } from '../ScreenStatus';
 import { toIncidentDetail } from './incidentDetail';
 
-type Action = { kind: 'ack' } | { kind: 'comment'; text: string } | { kind: 'ticket'; ticket: string };
+type Action =
+  | { kind: 'ack' | 'resolve' | 'reopen' }
+  | { kind: 'comment'; text: string }
+  | { kind: 'ticket'; ticket: string };
 
 /** FE-39: `#/incidents/:id` — timeline, comments, acknowledge, ticket link and postmortem from the incident API. */
 export function IncidentScreen({ id }: { id: string }) {
@@ -17,6 +20,13 @@ export function IncidentScreen({ id }: { id: string }) {
   const queryClient = useQueryClient();
   const key = ['incident', demo, id];
   const incident = useQuery({ queryKey: key, queryFn: () => source.getIncident(id), refetchInterval: 15_000 });
+  const open = incident.data?.status === 'OPEN';
+  // FE-40: next escalation step; the API answers 204 (null) once acknowledged or resolved.
+  const escalation = useQuery({
+    queryKey: ['incident-escalation', demo, id, incident.data?.acknowledgedBy ?? null],
+    queryFn: () => source.getIncidentEscalation(id),
+    enabled: open,
+  });
   const monitors = useMonitors();
   const groups = useGroups();
   const [now, setNow] = useState(() => new Date());
@@ -29,8 +39,11 @@ export function IncidentScreen({ id }: { id: string }) {
   const act = useMutation({
     mutationFn: (action: Action): Promise<IncidentRecord> => {
       if (action.kind === 'ack') return source.acknowledgeIncidentRecord(id, operator);
+      if (action.kind === 'resolve') return source.resolveIncident(id, operator);
+      if (action.kind === 'reopen') return source.reopenIncident(id, operator);
       if (action.kind === 'comment') return source.commentIncident(id, operator, action.text);
-      return source.linkIncidentTicket(id, operator, action.ticket);
+      if (action.kind === 'ticket') return source.linkIncidentTicket(id, operator, action.ticket);
+      throw new Error(`unknown action ${action.kind}`);
     },
     onSuccess: async (record) => {
       queryClient.setQueryData(key, record);
@@ -59,7 +72,13 @@ export function IncidentScreen({ id }: { id: string }) {
       {incident.data && (
         <IncidentPage
           key={incident.data.id}
-          incident={toIncidentDetail(incident.data, monitors.data ?? [], groups.data ?? [], t)}
+          incident={{
+            ...toIncidentDetail(incident.data, monitors.data ?? [], groups.data ?? [], t),
+            ...(escalation.data ? { escalatesAt: escalation.data.dueAt } : {}),
+          }}
+          nextStep={escalation.data?.stepName ?? null}
+          onResolve={() => act.mutate({ kind: 'resolve' })}
+          onReopen={() => act.mutate({ kind: 'reopen' })}
           now={now}
           mode={access.mode}
           onAcknowledge={() => act.mutate({ kind: 'ack' })}

@@ -1,17 +1,29 @@
 import { describe, expect, it } from 'vitest';
-import { newMaintenanceItem, startOfWeek, toCalendarWindows } from './maintenanceItems';
+import { fromOccurrences, newMaintenanceItem, startOfWeek, toCalendarWindows } from './maintenanceItems';
 
 describe('FE-41 maintenance items', () => {
   it('maps orbit.maintenance.json items to calendar windows (one-off windows only)', () => {
     expect(
       toCalendarWindows([
         { id: 'a', name: 'Deploy', targets: ['payments'], start: '2026-10-22T10:00:00Z', end: '2026-10-22T11:00:00Z' },
-        { id: 'b', name: 'Nightly', targets: ['core'], cron: '0 2 * * *', duration: 'PT1H' },
+        { id: 'b', name: 'Nightly', targets: ['core'], cron: '0 2 * * *', durationMinutes: 60 },
         { id: 'c', name: null, targets: null, start: '2026-10-22T12:00:00Z', end: '2026-10-22T13:00:00Z' },
       ]),
     ).toEqual([
       { id: 'a', title: 'Deploy', groupId: 'payments', start: '2026-10-22T10:00:00Z', end: '2026-10-22T11:00:00Z' },
       { id: 'c', title: 'c', groupId: '', start: '2026-10-22T12:00:00Z', end: '2026-10-22T13:00:00Z' },
+    ]);
+  });
+
+  it('recurring windows come from /api/maintenance/occurrences, one calendar block per occurrence', () => {
+    expect(
+      fromOccurrences([
+        { windowId: 'n', name: 'Nightly', targets: ['core'], reason: null, start: '2026-10-20T02:00:00Z', end: '2026-10-20T03:00:00Z' },
+        { windowId: 'n', name: 'Nightly', targets: ['core'], reason: null, start: '2026-10-21T02:00:00Z', end: '2026-10-21T03:00:00Z' },
+      ]),
+    ).toEqual([
+      { id: 'n@2026-10-20T02:00:00Z', title: 'Nightly', groupId: 'core', start: '2026-10-20T02:00:00Z', end: '2026-10-20T03:00:00Z' },
+      { id: 'n@2026-10-21T02:00:00Z', title: 'Nightly', groupId: 'core', start: '2026-10-21T02:00:00Z', end: '2026-10-21T03:00:00Z' },
     ]);
   });
 

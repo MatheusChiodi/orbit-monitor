@@ -5,16 +5,20 @@ import { MaintenanceCalendar } from '@/domains/alerting/MaintenanceCalendar';
 import { Button } from '@/shared/ui';
 import { useConsole, useGroups } from '../../ConsoleContext';
 import { ScreenStatus, ScreenTitle } from '../ScreenStatus';
-import { addWeeks, newMaintenanceItem, startOfWeek, toCalendarWindows } from './maintenanceItems';
+import { addWeeks, fromOccurrences, newMaintenanceItem, startOfWeek } from './maintenanceItems';
 
-/** FE-41: `#/maintenance` — week calendar backed by `/api/maintenance` (orbit.maintenance.json). */
+/** FE-41: `#/maintenance` — week calendar of `/api/maintenance/occurrences` (one-off and cron); new windows are PUT. */
 export function MaintenanceScreen() {
   const { t } = useTranslation();
   const { source, demo, access } = useConsole();
   const queryClient = useQueryClient();
   const groups = useGroups();
-  const windows = useQuery({ queryKey: ['maintenance', demo], queryFn: source.listMaintenance });
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
+  const range = { from: weekStart.toISOString(), to: addWeeks(weekStart, 1).toISOString() };
+  const windows = useQuery({
+    queryKey: ['maintenance', demo, range.from],
+    queryFn: () => source.listMaintenanceOccurrences(range),
+  });
   const [notice, setNotice] = useState<string | null>(null);
 
   const create = useMutation({
@@ -44,7 +48,7 @@ export function MaintenanceScreen() {
       <ScreenStatus pending={windows.isPending || groups.isPending} error={windows.error ?? groups.error} />
       {windows.data && groups.data && (
         <MaintenanceCalendar
-          windows={toCalendarWindows(windows.data)}
+          windows={fromOccurrences(windows.data)}
           groups={groups.data}
           weekStart={weekStart}
           mode={access.mode}

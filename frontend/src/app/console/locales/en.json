@@ -32,14 +32,20 @@
       "COMMENTED": "Comment by {{actor}}",
       "TICKET_LINKED": "Ticket linked by {{actor}}",
       "RESOLVED": "Resolved",
-      "REOPENED": "Reopened"
+      "REOPENED": "Reopened",
+      "FLAPPING_STARTED": "Flapping started",
+      "FLAPPING_STOPPED": "Flapping stopped",
+      "CORRELATED": "Correlated"
     },
     "notification": {
       "opened": "{{monitor}} opened an incident",
       "resolved": "{{monitor}} recovered",
       "reopened": "{{monitor}} reopened an incident",
       "severity": "{{monitor}} changed severity"
-    }
+    },
+    "resolve": "Resolve",
+    "reopen": "Reopen",
+    "flapping": "flapping"
   },
   "maintenance": {
     "title": "Maintenance",

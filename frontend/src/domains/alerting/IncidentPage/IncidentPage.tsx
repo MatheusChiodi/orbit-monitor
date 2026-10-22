@@ -32,10 +32,15 @@ export interface IncidentPageProps {
   onAcknowledge: (incidentId: string) => void;
   onComment: (incidentId: string, text: string) => void;
   onLinkTicket: (incidentId: string, ticket: string) => void;
+  /** Editors only (BE-26): view-only clients may only acknowledge. */
+  onResolve?: (incidentId: string) => void;
+  onReopen?: (incidentId: string) => void;
+  /** FE-40: name of the next escalation step (`/api/incidents/{id}/escalation`). */
+  nextStep?: string | null;
 }
 
 /** FE-39: incident timeline, comments, acknowledge, ticket link and the postmortem once resolved. */
-export function IncidentPage({ incident, now, mode, onAcknowledge, onComment, onLinkTicket }: IncidentPageProps) {
+export function IncidentPage({ incident, now, mode, onAcknowledge, onComment, onLinkTicket, onResolve, onReopen, nextStep = null }: IncidentPageProps) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
   const ids = { comment: useId(), ticket: useId() };
@@ -43,6 +48,7 @@ export function IncidentPage({ incident, now, mode, onAcknowledge, onComment, on
   const [ticket, setTicket] = useState(incident.ticket ?? '');
   const resolved = Boolean(incident.resolvedAt);
   const opened = Date.parse(incident.openedAt);
+  const editable = mode === 'edit';
 
   return (
     <div className="flex flex-col gap-[1rem]">
@@ -65,8 +71,14 @@ export function IncidentPage({ incident, now, mode, onAcknowledge, onComment, on
         </span>
         {!resolved && (
           <span className="flex flex-wrap items-center gap-[0.8rem]">
-            <EscalationCountdown escalatesAt={incident.escalatesAt} nextStep={null} now={now} acknowledged={Boolean(incident.acknowledgedBy)} />
+            <EscalationCountdown escalatesAt={incident.escalatesAt} nextStep={nextStep} now={now} acknowledged={Boolean(incident.acknowledgedBy)} />
             <AcknowledgeButton incident={incident} onAcknowledge={onAcknowledge} />
+            {editable && onResolve && <Button onClick={() => onResolve(incident.id)}>{t('screens.incidents.resolve')}</Button>}
+          </span>
+        )}
+        {resolved && editable && onReopen && (
+          <span>
+            <Button onClick={() => onReopen(incident.id)}>{t('screens.incidents.reopen')}</Button>
           </span>
         )}
       </header>
@@ -115,6 +127,8 @@ export function IncidentPage({ incident, now, mode, onAcknowledge, onComment, on
             </li>
           ))}
         </ul>
+        {editable && (
+        <>
         <div className={`${LABEL_CLASS} mt-[0.6rem]`}>
           <label htmlFor={ids.comment}>{t('incident.comment')}</label>
           <textarea id={ids.comment} className={`${INPUT_CLASS} h-auto min-h-[4rem] py-[0.4rem]`} value={comment} onChange={(e) => setComment(e.target.value)} />
@@ -130,6 +144,8 @@ export function IncidentPage({ incident, now, mode, onAcknowledge, onComment, on
             {t('incident.addComment')}
           </Button>
         </div>
+        </>
+        )}
         <div className="mt-[0.8rem] flex flex-wrap items-end gap-[0.5rem]">
           <div className={LABEL_CLASS}>
             <label htmlFor={ids.ticket}>{t('incident.ticket')}</label>

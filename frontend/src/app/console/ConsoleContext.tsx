@@ -38,5 +38,5 @@ export function useMonitors() {
 
 export function useIncidents() {
   const { source, demo } = useConsole();
-  return useQuery({ queryKey: ['incidents', demo], queryFn: source.listIncidents, refetchInterval: 15_000 });
+  return useQuery({ queryKey: ['incidents', demo], queryFn: () => source.listIncidents(), refetchInterval: 15_000 });
 }

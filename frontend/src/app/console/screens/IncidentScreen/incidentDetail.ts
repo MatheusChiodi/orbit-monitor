@@ -15,7 +15,11 @@ function kindOf(event: IncidentEventRecord, severity: Severity): TimelineKind {
       return 'ACK';
     case 'TICKET_LINKED':
     case 'COMMENTED':
+    case 'CORRELATED':
+    case 'FLAPPING_STOPPED':
       return 'INFO';
+    case 'FLAPPING_STARTED':
+      return 'WARN';
     default:
       return severity;
   }

@@ -15,7 +15,10 @@ export type IncidentEventType =
   | 'COMMENTED'
   | 'TICKET_LINKED'
   | 'RESOLVED'
-  | 'REOPENED';
+  | 'REOPENED'
+  | 'FLAPPING_STARTED'
+  | 'FLAPPING_STOPPED'
+  | 'CORRELATED';
 
 export interface IncidentEventRecord {
   type: IncidentEventType;
@@ -36,6 +39,10 @@ export interface IncidentRecord {
   acknowledgedBy: string | null;
   acknowledgedAt: string | null;
   ticket: string | null;
+  /** BE-25: one incident is kept while the monitor flaps. */
+  flapping?: boolean;
+  /** BE-30: upstream incident this one is correlated to. */
+  parentId?: string | null;
   events: IncidentEventRecord[];
   /** Optional extras some backends add (BE-27 escalation, BE-30 blast radius). */
   escalatesAt?: string | null;
@@ -51,9 +58,19 @@ export interface MaintenanceItem {
   start?: string | null;
   end?: string | null;
   cron?: string | null;
-  duration?: string | number | null;
+  durationMinutes?: number | null;
   zone?: string | null;
   reason?: string | null;
+}
+
+/** `GET /api/maintenance/occurrences?from&to` (MaintenanceSchedule.Scheduled). */
+export interface MaintenanceOccurrence {
+  windowId: string;
+  name: string | null;
+  targets: string[] | null;
+  reason: string | null;
+  start: string;
+  end: string;
 }
 
 /** Item of `orbit.dependencies.json` (BE-30): `downstream` depends on `upstream` (monitor or group ids). */
@@ -61,6 +78,17 @@ export interface DependencyItem {
   id: string;
   upstream: string;
   downstream: string;
+  note?: string | null;
+}
+
+/** `GET /api/incidents/{id}/escalation` (EscalationRunner.Upcoming); 204 = nothing pending. */
+export interface EscalationStep {
+  incidentId: string;
+  policyName?: string | null;
+  stepIndex?: number;
+  stepName: string;
+  dueAt: string;
+  onCall?: string | null;
 }
 
 /** Item of `orbit.status-pages.json` (BE-42). */

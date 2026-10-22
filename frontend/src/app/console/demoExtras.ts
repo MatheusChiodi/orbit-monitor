@@ -93,15 +93,29 @@ export function createDemoExtras(snapshot: WallSnapshot, now: Date = new Date())
   const append = (incident: IncidentRecord, event: IncidentEventRecord) => [...incident.events, event];
 
   return {
-    listIncidents: async () => [...incidents.values()],
+    listIncidents: async (filter = {}) =>
+      [...incidents.values()].filter((i) => (!filter.status || i.status === filter.status) && (!filter.monitorId || i.monitorId === filter.monitorId)),
     getIncident: async (id) => update(id, (i) => i),
     acknowledgeIncidentRecord: async (id, by) =>
       update(id, (i, at) => ({ ...i, acknowledgedBy: by, acknowledgedAt: at, events: append(i, { type: 'ACKNOWLEDGED', actor: by, at, detail: null }) })),
+    resolveIncident: async (id, by) =>
+      update(id, (i, at) => ({ ...i, status: 'RESOLVED', resolvedAt: at, events: append(i, { type: 'RESOLVED', actor: by, at, detail: null }) })),
+    reopenIncident: async (id, by) =>
+      update(id, (i, at) => ({ ...i, status: 'OPEN', resolvedAt: null, events: append(i, { type: 'REOPENED', actor: by, at, detail: null }) })),
+    getIncidentEscalation: async (id) => {
+      const incident = incidents.get(id);
+      if (!incident?.escalatesAt || incident.acknowledgedBy || incident.status === 'RESOLVED') return null;
+      return { incidentId: id, stepName: 'On-call DBA', dueAt: incident.escalatesAt };
+    },
     commentIncident: async (id, by, text) =>
       update(id, (i, at) => ({ ...i, events: append(i, { type: 'COMMENTED', actor: by, at, detail: text }) })),
     linkIncidentTicket: async (id, by, ticket) =>
       update(id, (i, at) => ({ ...i, ticket, events: append(i, { type: 'TICKET_LINKED', actor: by, at, detail: ticket }) })),
     listMaintenance: async () => [...maintenance.values()],
+    listMaintenanceOccurrences: async ({ from, to }) =>
+      [...maintenance.values()]
+        .filter((m) => m.start && m.end && m.end > from && m.start < to)
+        .map((m) => ({ windowId: m.id, name: m.name ?? null, targets: m.targets ?? null, reason: m.reason ?? null, start: m.start!, end: m.end! })),
     saveMaintenance: async (item) => {
       maintenance.set(item.id, item);
       return item;

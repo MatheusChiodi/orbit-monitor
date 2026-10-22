@@ -101,6 +101,27 @@ describe('console routes', () => {
     expect(a.linkIncidentTicket).toHaveBeenCalledWith('inc-1', 'M. Chiodi', 'OPS-9');
   });
 
+  it('BE-26: editors resolve from the incident page; the next escalation step is shown; a 409 is reported', async () => {
+    const resolveIncident = vi.fn().mockRejectedValue(new Error('Incident inc-1 is already resolved'));
+    const getIncidentEscalation = vi.fn().mockResolvedValue({ incidentId: 'inc-1', stepName: 'Page the DBA', dueAt: iso(-5) });
+    render(<ConsoleApp api={api({ resolveIncident, getIncidentEscalation })} operatorStore={operator()} />);
+    await screen.findByText('Web portal');
+    await go('#/incidents/inc-1');
+    expect(await screen.findByText(/Page the DBA/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Resolve' }));
+    expect(resolveIncident).toHaveBeenCalledWith('inc-1', 'M. Chiodi');
+    expect(await screen.findByText('Incident inc-1 is already resolved')).toBeInTheDocument();
+  });
+
+  it('view-only clients see the incident with Acknowledge only', async () => {
+    render(<ConsoleApp api={api({ getAccess: vi.fn().mockResolvedValue({ mode: 'view-only', client: 'lan' }) })} operatorStore={operator()} />);
+    await screen.findByText('Web portal');
+    await go('#/incidents/inc-1');
+    expect(await screen.findByRole('button', { name: /Acknowledge/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Resolve' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Add comment' })).toBeNull();
+  });
+
   it('FE-38: the bell in the header shows the incident feed and links to the incident', async () => {
     render(<ConsoleApp api={api()} operatorStore={operator()} />);
     const bell = await screen.findByRole('button', { name: 'Notifications (1 unread)' });

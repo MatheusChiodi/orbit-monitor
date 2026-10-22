@@ -48,8 +48,8 @@ export type ConsoleApi = CoreApi & Partial<ConsoleEndpoints>;
 export type ConsoleSource = CoreApi & ConsoleEndpoints;
 
 const EXTENDED_KEYS = [
-  'listIncidents', 'getIncident', 'acknowledgeIncidentRecord', 'commentIncident', 'linkIncidentTicket',
-  'listMaintenance', 'saveMaintenance', 'deleteMaintenance', 'listDependencies', 'saveDependency', 'deleteDependency',
+  'listIncidents', 'getIncident', 'acknowledgeIncidentRecord', 'resolveIncident', 'reopenIncident', 'getIncidentEscalation', 'commentIncident', 'linkIncidentTicket',
+  'listMaintenance', 'listMaintenanceOccurrences', 'saveMaintenance', 'deleteMaintenance', 'listDependencies', 'saveDependency', 'deleteDependency',
   'listStatusPages', 'saveStatusPage', 'saveGroupOrder', 'queryAudit', 'getCatalog', 'getHistorySummary',
   'getHistoryCoverage', 'getSettings', 'saveSettings', 'getConfigHealth', 'exportConfig', 'importConfig',
 ] as const satisfies readonly (keyof ConsoleEndpoints)[];

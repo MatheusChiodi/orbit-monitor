@@ -31,6 +31,20 @@ describe('console endpoints', () => {
     expect(call(4)).toMatchObject({ url: '/api/incidents/i1/ack', method: 'POST' });
   });
 
+  it('BE-26/27: resolve, reopen, status filter and the next escalation step (204 = none)', async () => {
+    const { api, call } = client(() => json({}));
+    await api.resolveIncident('i1', 'Ana');
+    expect(call(0)).toMatchObject({ url: '/api/incidents/i1/resolve', method: 'POST' });
+    expect(JSON.parse(String(call(0).body))).toEqual({ by: 'Ana' });
+    await api.reopenIncident('i1', 'Ana');
+    expect(call(1)).toMatchObject({ url: '/api/incidents/i1/reopen', method: 'POST' });
+    await api.listIncidents({ status: 'OPEN' });
+    expect(call(2).url).toBe('/api/incidents?status=OPEN');
+    const step = { incidentId: 'i1', stepName: 'Call DBA', dueAt: '2026-10-22T10:00:00Z' };
+    expect(await client(json(step)).api.getIncidentEscalation('i1')).toMatchObject(step);
+    expect(await client(new Response(null, { status: 204 })).api.getIncidentEscalation('i1')).toBeNull();
+  });
+
   it('config lists accept a plain array or a {version, items} file and treat 404 as empty', async () => {
     expect(await client(json([{ id: 'm1' }])).api.listMaintenance()).toEqual([{ id: 'm1' }]);
     expect(await client(json({ version: 1, items: [{ id: 'd1', upstream: 'a', downstream: 'b' }] })).api.listDependencies()).toEqual([
@@ -49,6 +63,8 @@ describe('console endpoints', () => {
     expect(call(2)).toMatchObject({ url: '/api/dependencies/dep', method: 'PUT' });
     await api.deleteMaintenance('mw-1');
     expect(call(3)).toMatchObject({ url: '/api/maintenance/mw-1', method: 'DELETE' });
+    await api.listMaintenanceOccurrences({ from: 'a', to: 'b' });
+    expect(call(4).url).toBe('/api/maintenance/occurrences?from=a&to=b');
   });
 
   it('FE-13: the order is persisted with one PUT /api/groups/order {groupIds, monitors}', async () => {

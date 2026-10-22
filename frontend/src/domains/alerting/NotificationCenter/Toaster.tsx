@@ -2,7 +2,9 @@ import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { useAnimationLevel, type AnimationLevel } from '@/shared/motion/animationLevel';
+import { applyMotionSettings, settingsFor } from '@/shared/motion/motionSettings';
 import { motionPreset } from '@/shared/motion/presets';
+import { useMotionSettings } from '@/shared/motion/useMotionPreset';
 import { SafeValue } from '@/shared/privacy/SafeValue';
 import { StatusDot } from '@/shared/ui';
 import type { AppNotification } from './NotificationCenter';
@@ -15,7 +17,9 @@ export interface ToasterProps {
 }
 
 function Toast({ toast, onDismiss, level, durationMs }: { toast: AppNotification; onDismiss: (id: string) => void; level: AnimationLevel; durationMs: number }) {
-  const preset = motionPreset(level, 'toast');
+  const contextSettings = useMotionSettings();
+  const settings = level === 'off' ? settingsFor('off') : contextSettings;
+  const preset = applyMotionSettings(motionPreset(level, 'toast'), 'toast', settings, level);
   useEffect(() => {
     const timer = setTimeout(() => onDismiss(toast.id), durationMs);
     return () => clearTimeout(timer);

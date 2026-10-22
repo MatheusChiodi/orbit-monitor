@@ -32,14 +32,20 @@
       "COMMENTED": "Comentário de {{actor}}",
       "TICKET_LINKED": "Chamado vinculado por {{actor}}",
       "RESOLVED": "Resolvido",
-      "REOPENED": "Reaberto"
+      "REOPENED": "Reaberto",
+      "FLAPPING_STARTED": "Oscilação iniciada",
+      "FLAPPING_STOPPED": "Oscilação encerrada",
+      "CORRELATED": "Correlacionado"
     },
     "notification": {
       "opened": "{{monitor}} abriu um incidente",
       "resolved": "{{monitor}} se recuperou",
       "reopened": "{{monitor}} reabriu um incidente",
       "severity": "{{monitor}} mudou de severidade"
-    }
+    },
+    "resolve": "Resolver",
+    "reopen": "Reabrir",
+    "flapping": "oscilando"
   },
   "maintenance": {
     "title": "Manutenção",

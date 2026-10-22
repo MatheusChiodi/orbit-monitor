@@ -6,10 +6,12 @@ import type {
   ConfigFileChange,
   ConfigFileHealthRecord,
   DependencyItem,
+  EscalationStep,
   HistoryCoverageInfo,
   HistorySummary,
   IncidentRecord,
   MaintenanceItem,
+  MaintenanceOccurrence,
   OrbitSettingsRecord,
   StatusPageRecord,
 } from './consoleTypes';
@@ -57,16 +59,25 @@ export function createConsoleEndpoints(request: JsonRequest, raw: RawRequest, is
   const remove = (resource: string, id: string) => request<void>(`/api/${resource}/${enc(id)}`, { method: 'DELETE' });
 
   return {
-    listIncidents: () => request<IncidentRecord[]>('/api/incidents'),
+    listIncidents: (filter: { status?: 'OPEN' | 'RESOLVED'; monitorId?: string } = {}) =>
+      request<IncidentRecord[]>(`/api/incidents${query(filter)}`),
     getIncident: (id: string) => request<IncidentRecord>(`/api/incidents/${enc(id)}`),
     acknowledgeIncidentRecord: (id: string, by: string) =>
       request<IncidentRecord>(`/api/incidents/${enc(id)}/ack`, { method: 'POST', body: { by } }),
+    resolveIncident: (id: string, by: string) =>
+      request<IncidentRecord>(`/api/incidents/${enc(id)}/resolve`, { method: 'POST', body: { by } }),
+    reopenIncident: (id: string, by: string) =>
+      request<IncidentRecord>(`/api/incidents/${enc(id)}/reopen`, { method: 'POST', body: { by } }),
+    getIncidentEscalation: async (id: string) =>
+      (await request<EscalationStep | undefined>(`/api/incidents/${enc(id)}/escalation`)) ?? null,
     commentIncident: (id: string, by: string, text: string) =>
       request<IncidentRecord>(`/api/incidents/${enc(id)}/comments`, { method: 'POST', body: { by, text } }),
     linkIncidentTicket: (id: string, by: string, ticket: string) =>
       request<IncidentRecord>(`/api/incidents/${enc(id)}/ticket`, { method: 'POST', body: { by, ticket } }),
 
     listMaintenance: () => list<MaintenanceItem>('/api/maintenance'),
+    listMaintenanceOccurrences: (range: { from: string; to: string }) =>
+      request<MaintenanceOccurrence[]>(`/api/maintenance/occurrences${query(range)}`),
     saveMaintenance: (item: MaintenanceItem) => put('maintenance', item),
     deleteMaintenance: (id: string) => remove('maintenance', id),
     listDependencies: () => list<DependencyItem>('/api/dependencies'),

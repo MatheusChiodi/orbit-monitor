@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, type ReactNode } from 'react';
+import { settingsFor, type MotionSettings } from './motionSettings';
 import { motionPreset, type MotionKind } from './presets';
 
 /** FE-06: `prefers-reduced-motion` is a hard ceiling that forces `off`. */
@@ -38,20 +39,42 @@ export function transitionFor(level: AnimationLevel, kind: MotionKind): Transiti
 }
 
 const LevelContext = createContext<AnimationLevel>(DEFAULT_ANIMATION_LEVEL);
+const SettingsContext = createContext<MotionSettings | null>(null);
 
 export interface AnimationLevelProviderProps {
   level: AnimationLevel;
+  /** FE-06 controls for this level (device overrides applied); defaults to the level's preset. */
+  settings?: MotionSettings;
   /** Defaults to the system setting. */
   prefersReducedMotion?: boolean;
   children: ReactNode;
 }
 
-export function AnimationLevelProvider({ level, prefersReducedMotion, children }: AnimationLevelProviderProps) {
+const onOff = (value: boolean) => (value ? 'on' : 'off');
+
+export function AnimationLevelProvider({ level, settings, prefersReducedMotion, children }: AnimationLevelProviderProps) {
   const effective = effectiveAnimationLevel(level, prefersReducedMotion ?? systemPrefersReducedMotion());
+  const resolved = effective === 'off' ? settingsFor('off') : (settings ?? settingsFor(effective));
   useEffect(() => {
-    document.documentElement.dataset.animation = effective;
-  }, [effective]);
-  return <LevelContext.Provider value={effective}>{children}</LevelContext.Provider>;
+    const root = document.documentElement;
+    root.dataset.animation = effective;
+    // CSS-only signals (blink, flashes, hover lift) read these; theme.css turns them off.
+    root.dataset.motionAttention = onOff(resolved.attention);
+    root.dataset.motionFeedback = onOff(resolved.feedback);
+    root.dataset.motionHover = onOff(resolved.hover);
+    root.style.setProperty('--motion-speed', String(resolved.speed));
+  }, [effective, resolved.attention, resolved.feedback, resolved.hover, resolved.speed]);
+  return (
+    <LevelContext.Provider value={effective}>
+      <SettingsContext.Provider value={resolved}>{children}</SettingsContext.Provider>
+    </LevelContext.Provider>
+  );
+}
+
+/** FE-06 single source of truth; without a provider, the preset of the current level. */
+export function useMotionSettings(): MotionSettings {
+  const level = useContext(LevelContext);
+  return useContext(SettingsContext) ?? settingsFor(level);
 }
 
 export interface AnimationLevelScopeProps {
