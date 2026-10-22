@@ -66,6 +66,9 @@ public class EscalationRunner {
     }
 
     private Optional<EscalationPolicy> policyFor(Incident incident) {
+        if (incident.parentId() != null) {
+            return Optional.empty();
+        }
         Optional<String> group = groupOfMonitor.apply(incident.monitorId());
         return group.flatMap(g -> policies.get().stream().filter(p -> p.groupIds().contains(g)).findFirst());
     }

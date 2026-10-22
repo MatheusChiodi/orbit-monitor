@@ -144,4 +144,41 @@ class NotificationDispatcherTest {
             assertThat(p.body()).contains("Escalation", "Card queue");
         });
     }
+
+    @Test
+    @DisplayName("BE-30: a downstream incident collapsed into its upstream one sends nothing of its own")
+    void cascadeChildIsQuiet() {
+        down("sel_bus");
+        String upstream = incidents.openIncident("sel_bus").orElseThrow().id();
+        posts.clear();
+        incidents.setUpstream(id -> id.equals("sel_cards") ? Optional.of(upstream) : Optional.empty());
+
+        down("sel_cards");
+
+        assertThat(incidents.openIncident("sel_cards").orElseThrow().parentId()).isEqualTo(upstream);
+        assertThat(posts).isEmpty();
+    }
+
+    @Test
+    @DisplayName("BE-25: flapping is notified once; the changes while flapping are not")
+    void flappingNotifiedOnce() {
+        incidents.setFlapping(new IncidentService.Flapping() {
+            @Override
+            public boolean observe(MonitorStateChanged change) {
+                return true;
+            }
+
+            @Override
+            public boolean isFlapping(String monitorId, Instant now) {
+                return true;
+            }
+        });
+        down("sel_cards");
+        posts.clear();
+        incidents.onStateChanged(new MonitorStateChanged("sel_cards", MonitorState.DOWN, MonitorState.OK, T0, T0));
+        incidents.onStateChanged(new MonitorStateChanged("sel_cards", MonitorState.OK, MonitorState.DOWN, T0, T0));
+
+        assertThat(posts).isNotEmpty().allSatisfy(p -> assertThat(p.body()).containsIgnoringCase("flapping"));
+        assertThat(posts).hasSize(2);
+    }
 }

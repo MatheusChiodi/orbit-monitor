@@ -6,7 +6,7 @@ group: "Alerting"
 status: in-progress
 screens: [wall, incidents, incident-detail]
 spec: docs/01-architecture.md, docs/02-features.md, docs/04-data-protection.md
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # CORE-06 · Incidents and acknowledgement
@@ -37,6 +37,8 @@ Open on DOWN (or WARN if configured), auto-close on recovery, acknowledge with n
 - `backend/orbit-common/src/test/java/io/orbit/common/OperatorNameTest.java`
 - `frontend/src/domains/wall/components/AcknowledgeButton/AcknowledgeButton.test.tsx`
 - `frontend/src/domains/wall/feed/wallFeed.test.ts`
+- `backend/orbit-alerting/src/test/java/io/orbit/alerting/IncidentLifecycleTest.java`
+- `backend/orbit-api/src/test/java/io/orbit/api/web/IncidentApiTest.java`
 
 ## Decisions and notes
 - Frontend: Acknowledge is the only wall action: solid red for DOWN, neutral for WARN; it becomes "M. Chiodi acknowledged at 17:04" / "M. Chiodi reconheceu às 17:04".
@@ -45,9 +47,11 @@ Open on DOWN (or WARN if configured), auto-close on recovery, acknowledge with n
 - Backend: Acknowledge is idempotent (first acknowledgement wins) and rejected on resolved incidents (409); comments and ticket links go to the timeline with the self-declared operator name.
 - Backend: REST: `GET /api/incidents`, `GET /api/incidents/{id}`, `POST /api/incidents/{id}/ack {by}`, `/comments {by,text}`, `/ticket {by,ticket}`; changes are pushed on `/ws/wall` as `incident` messages.
 - Backend: Incidents live in memory; resolved ones are dropped 24 h after resolution.
+- Backend: complete. REST adds `POST /api/incidents/{id}/resolve|reopen`, `GET /api/incidents?status=&monitorId=`, `GET /api/incidents/{id}/postmortem` and `GET /api/incidents/summary` (BE-34); shapes in BE-26 / BE-34. LAN clients may only acknowledge.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — backend: incident lifecycle domain (open, severity, resolve, reopen, acknowledge, comment, ticket).
 - 2026-10-18 — frontend: acknowledge button and optimistic acknowledgement.
 - 2026-10-18 — backend: REST endpoints and wall push for incidents.
+- 2026-10-22 — backend: resolve/reopen, filters, postmortem and summary endpoints; acknowledgement is the only LAN action.

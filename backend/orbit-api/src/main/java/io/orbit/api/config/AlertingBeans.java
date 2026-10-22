@@ -10,6 +10,7 @@ import io.orbit.alerting.suppression.MaintenanceWindow;
 import io.orbit.alerting.suppression.SilenceService;
 import io.orbit.api.runtime.EventBus;
 import io.orbit.api.runtime.MonitorRuntime;
+import io.orbit.common.event.MonitorStateChanged;
 import io.orbit.config.ConfigFile;
 import io.orbit.config.ConfigMapper;
 import io.orbit.monitor.condition.ConditionResult;
@@ -19,6 +20,7 @@ import io.orbit.probe.CheckResult;
 import io.orbit.probe.http.HostResolver;
 import io.orbit.probe.http.SsrfGuard;
 import io.orbit.security.vault.SecretResolver;
+import io.orbit.telemetry.FlappingDetector;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -27,6 +29,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -93,6 +96,24 @@ public class AlertingBeans {
                 properties.publicUrl(), clock);
         bus.onIncident(dispatcher);
         return dispatcher;
+    }
+
+    /** BE-25: 4 confirmed changes within 10 minutes = flapping; the incident service keeps one incident. */
+    @Bean
+    FlappingDetector flappingDetector(IncidentService incidents) {
+        FlappingDetector detector = new FlappingDetector(4, Duration.ofMinutes(10));
+        incidents.setFlapping(new IncidentService.Flapping() {
+            @Override
+            public boolean observe(MonitorStateChanged change) {
+                return detector.observe(change);
+            }
+
+            @Override
+            public boolean isFlapping(String monitorId, Instant now) {
+                return detector.isFlapping(monitorId, now);
+            }
+        });
+        return detector;
     }
 
     @Bean

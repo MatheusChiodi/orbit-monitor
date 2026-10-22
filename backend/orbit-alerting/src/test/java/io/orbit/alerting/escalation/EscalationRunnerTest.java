@@ -93,4 +93,17 @@ class EscalationRunnerTest {
         runner.tick();
         assertThat(sent).noneMatch(s -> s.startsWith("other"));
     }
+
+    @Test
+    @DisplayName("BE-30: an incident collapsed into an upstream incident does not escalate")
+    void childIncidentsDoNotEscalate() {
+        String upstream = incidents.openIncident("pay_api").orElseThrow().id();
+        incidents.setUpstream(id -> id.equals("pay_web") ? Optional.of(upstream) : Optional.empty());
+        incidents.onStateChanged(new MonitorStateChanged("pay_web", MonitorState.OK, MonitorState.DOWN, T0, T0));
+
+        runner.tick();
+
+        assertThat(sent).containsExactly("pay_api->chn_team");
+        assertThat(runner.escalatesAt(incidents.openIncident("pay_web").orElseThrow())).isEmpty();
+    }
 }

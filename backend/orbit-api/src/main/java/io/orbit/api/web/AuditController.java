@@ -1,5 +1,6 @@
 package io.orbit.api.web;
 
+import io.orbit.alerting.IncidentService;
 import io.orbit.security.audit.AuditEntry;
 import io.orbit.security.audit.AuditLog;
 import io.orbit.security.audit.AuditQuery;
@@ -20,13 +21,16 @@ public class AuditController {
     public record AnonymizeRequest(String name) {
     }
 
-    public record AnonymizeResponse(int auditEntries) {
+    /** @param incidents BE-45: incidents whose acknowledgement or timeline carried the name */
+    public record AnonymizeResponse(int auditEntries, int incidents) {
     }
 
     private final AuditLog audit;
+    private final IncidentService incidents;
 
-    public AuditController(AuditLog audit) {
+    public AuditController(AuditLog audit, IncidentService incidents) {
         this.audit = audit;
+        this.incidents = incidents;
     }
 
     @GetMapping("/api/audit")
@@ -42,7 +46,8 @@ public class AuditController {
                                        HttpServletRequest request) {
         String operator = Operators.require(header, null);
         int changed = audit.anonymize(body.name());
+        int changedIncidents = incidents.anonymize(body.name());
         audit.record(operator, "operator.anonymize", "operator", null, request.getRemoteAddr());
-        return new AnonymizeResponse(changed);
+        return new AnonymizeResponse(changed, changedIncidents);
     }
 }

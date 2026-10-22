@@ -31,7 +31,7 @@ public class NotificationDispatcher implements IncidentListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(NotificationDispatcher.class);
     private static final Set<IncidentEventType> NOTIFY = Set.of(IncidentEventType.OPENED, IncidentEventType.REOPENED,
-            IncidentEventType.SEVERITY_CHANGED, IncidentEventType.RESOLVED);
+            IncidentEventType.SEVERITY_CHANGED, IncidentEventType.RESOLVED, IncidentEventType.FLAPPING_STARTED);
 
     /** HTTP POST port (java.net.http in production). */
     @FunctionalInterface
@@ -71,7 +71,8 @@ public class NotificationDispatcher implements IncidentListener {
     @Override
     public void onIncident(Incident incident) {
         IncidentEvent last = incident.events().getLast();
-        if (!NOTIFY.contains(last.type()) || suppressed.test(incident.monitorId())) {
+        // BE-30: a downstream incident collapsed into its upstream one is told through the upstream incident.
+        if (!NOTIFY.contains(last.type()) || incident.parentId() != null || suppressed.test(incident.monitorId())) {
             return;
         }
         MonitorInfo info = monitors.apply(incident.monitorId())
@@ -118,6 +119,7 @@ public class NotificationDispatcher implements IncidentListener {
         String title = switch (type) {
             case RESOLVED -> info.name() + " resolved";
             case SEVERITY_CHANGED -> info.name() + " is now " + incident.severity();
+            case FLAPPING_STARTED -> info.name() + " is flapping";
             default -> incident.severity() == MonitorState.DOWN ? info.name() + " is down" : info.name() + " needs attention";
         };
         String severity = type == IncidentEventType.RESOLVED ? "OK" : incident.severity().name();
