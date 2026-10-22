@@ -25,7 +25,7 @@ Pick fields to store, label/format/unit, series or not, display mode via visuali
 - [CORE-03 · SQL probe and result payload](../features/CORE-03-sql-probe-and-result-payload.md) — in-progress
 - [CORE-10 · Data & display step](../features/CORE-10-data-display-step.md) — done
 - [CORE-12 · Value formatting](../features/CORE-12-value-formatting.md) — done
-- [CORE-16 · Sensitive data protection (LGPD / PCI DSS)](../features/CORE-16-sensitive-data-protection-lgpd-pci-dss.md) — in-progress
+- [CORE-16 · Sensitive data protection (LGPD / PCI DSS)](../features/CORE-16-sensitive-data-protection-lgpd-pci-dss.md) — done
 - [FE-14 · Reorder fields and columns](../features/FE-14-reorder-fields-and-columns.md) — done
 - [FE-21 · Visualization picker](../features/FE-21-visualization-picker.md) — done
 - [FE-22 · Compatibility rules](../features/FE-22-compatibility-rules.md) — done

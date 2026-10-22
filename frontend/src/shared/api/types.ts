@@ -120,6 +120,8 @@ export interface PreviewResult {
   status?: number;
   /** HTTP response body, already masked by the backend (FE-35 JSON explorer). */
   body?: string | null;
+  /** BE-14 (SQL): the query is slow for the planned interval; `message` is in the request language. */
+  cost?: { level: 'NONE' | 'WARN' | 'HEAVY'; suggestedIntervalSeconds: number; message: string } | null;
 }
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'HEAD';
@@ -128,6 +130,8 @@ export interface SqlTarget {
   type: 'SQL';
   connectionId: string;
   sql: string;
+  /** Preview only (BE-14): the planned interval, for the cost warning. */
+  intervalSeconds?: number;
 }
 
 export interface HttpTarget {

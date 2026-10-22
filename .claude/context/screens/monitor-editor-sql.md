@@ -26,8 +26,8 @@ Connection, SQL editor with guards, preview with detected types, read mode sugge
 - [CORE-02 · SQL validator and row-limit wrapper](../features/CORE-02-sql-validator-and-row-limit-wrapper.md) — done
 - [CORE-03 · SQL probe and result payload](../features/CORE-03-sql-probe-and-result-payload.md) — in-progress
 - [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — in-progress
-- [CORE-16 · Sensitive data protection (LGPD / PCI DSS)](../features/CORE-16-sensitive-data-protection-lgpd-pci-dss.md) — in-progress
-- [FE-33 · SQL editor](../features/FE-33-sql-editor.md) — in-progress
+- [CORE-16 · Sensitive data protection (LGPD / PCI DSS)](../features/CORE-16-sensitive-data-protection-lgpd-pci-dss.md) — done
+- [FE-33 · SQL editor](../features/FE-33-sql-editor.md) — done
 - [FE-34 · Condition builder](../features/FE-34-condition-builder.md) — done
 
 ## Code

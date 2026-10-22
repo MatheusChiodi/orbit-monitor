@@ -49,5 +49,6 @@
     "kafkaRequired": "Enter the bootstrap servers and the consumer group",
     "stepInvalid": "Every step needs a name and an http(s) URL",
     "oauthRequired": "Enter the token URL (http/https) and the client ID"
-  }
+  },
+  "useInterval": "Use {{seconds}} s"
 }

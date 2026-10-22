@@ -123,7 +123,8 @@ export function MonitorForm({ groups, connections, onPreview, onSave, onCancel, 
     setPreviewError(null);
     try {
       if (state.type !== 'SQL' && state.type !== 'HTTP') return;
-      const result = await onPreview(buildTarget(state));
+      const target = buildTarget(state);
+      const result = await onPreview(target.type === 'SQL' ? { ...target, intervalSeconds: state.intervalSeconds } : target);
       setPreview(result);
       patch({ fields: suggestFields(result, state.type, locale) });
     } catch (e) {
@@ -235,7 +236,19 @@ export function MonitorForm({ groups, connections, onPreview, onSave, onCancel, 
           {!previewable ? (
             <p className="m-0 text-[0.85rem] text-muted">{t('monitorForm.noPreview')}</p>
           ) : preview ? (
-            <PreviewTable preview={preview} />
+            <>
+              {preview.cost && preview.cost.level !== 'NONE' && (
+                <div role="note" className="flex flex-wrap items-center gap-[0.6rem] rounded-[0.45rem] border border-warn/50 bg-warn/12 px-[0.7rem] py-[0.4rem] text-[0.85rem] text-warn-text">
+                  <span>{preview.cost.message}</span>
+                  {preview.cost.suggestedIntervalSeconds > state.intervalSeconds && (
+                    <Button variant="ghost" onClick={() => patch({ intervalSeconds: preview.cost!.suggestedIntervalSeconds })}>
+                      {t('monitorForm.useInterval', { seconds: preview.cost.suggestedIntervalSeconds })}
+                    </Button>
+                  )}
+                </div>
+              )}
+              <PreviewTable preview={preview} />
+            </>
           ) : (
             !previewError && !running && <p className="m-0 text-[0.85rem] text-muted">{t('form.previewEmpty')}</p>
           )}

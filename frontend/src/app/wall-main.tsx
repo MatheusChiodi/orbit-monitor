@@ -29,7 +29,8 @@ const nightMode = scheduleFromSearch(window.location.search);
 const operator = operatorName(window.location.search, loadOperator());
 saveOperator(normalizeOperatorName(operator));
 
-const api = createApiClient({ getOperator: () => operator });
+// CORE-15: Problem Details in the wall's language (`i18n` is created below; read lazily per request).
+const api = createApiClient({ getOperator: () => operator, getLocale: () => i18n.language });
 // CORE-21: the wall only reads customization (workspace, this layout, this device).
 const customizationApi = createCustomizationApi();
 const customization = createCustomizationStore({ api: customizationApi });

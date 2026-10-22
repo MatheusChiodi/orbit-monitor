@@ -25,7 +25,7 @@ Request config left, live preview right (status, time, headers, body), condition
 - [CORE-01 · Gatus-style conditions](../features/CORE-01-gatus-style-conditions.md) — done
 - [CORE-04 · HTTP probe with SSRF protection](../features/CORE-04-http-probe-with-ssrf-protection.md) — in-progress
 - [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — in-progress
-- [CORE-16 · Sensitive data protection (LGPD / PCI DSS)](../features/CORE-16-sensitive-data-protection-lgpd-pci-dss.md) — in-progress
+- [CORE-16 · Sensitive data protection (LGPD / PCI DSS)](../features/CORE-16-sensitive-data-protection-lgpd-pci-dss.md) — done
 - [FE-34 · Condition builder](../features/FE-34-condition-builder.md) — done
 - [FE-35 · JSON explorer](../features/FE-35-json-explorer.md) — done
 

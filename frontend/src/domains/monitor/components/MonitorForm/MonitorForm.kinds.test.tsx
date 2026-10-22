@@ -90,6 +90,23 @@ describe('MonitorForm: kinds, catalog, condition builder and JSON explorer', () 
     expect(p.onSave).not.toHaveBeenCalled();
   });
 
+  it('BE-14: a slow SELECT shows the cost warning and offers the suggested interval', async () => {
+    const onPreview = vi.fn().mockResolvedValue({
+      columns: [{ name: 'QTY', type: 'number' }],
+      rows: [{ QTY: 1 }],
+      elapsedMs: 4200,
+      cost: { level: 'WARN', suggestedIntervalSeconds: 300, message: 'This query took 4.2 s; run it every 300 s or more.' },
+    });
+    setup({ onPreview });
+    await userEvent.selectOptions(screen.getByLabelText('Connection'), 'ora');
+    fireEvent.change(screen.getByRole('textbox', { name: 'SQL query' }), { target: { value: 'SELECT COUNT(*) QTY FROM Q' } });
+    await userEvent.click(screen.getByRole('button', { name: 'Run preview' }));
+    expect(onPreview).toHaveBeenCalledWith({ type: 'SQL', connectionId: 'ora', sql: 'SELECT COUNT(*) QTY FROM Q', intervalSeconds: 60 });
+    expect(await screen.findByText('This query took 4.2 s; run it every 300 s or more.')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Use 300 s' }));
+    expect(screen.getByLabelText('Interval (s)')).toHaveValue(300);
+  });
+
   it('starts on the kind given by the route', () => {
     setup({ initialType: 'HTTP' });
     expect(screen.getByRole('radio', { name: 'HTTP' })).toBeChecked();
