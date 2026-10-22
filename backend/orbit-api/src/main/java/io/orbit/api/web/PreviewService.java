@@ -1,5 +1,6 @@
 package io.orbit.api.web;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.orbit.api.runtime.ConnectionPools;
@@ -9,6 +10,8 @@ import io.orbit.monitor.http.HttpResponseSnapshot;
 import io.orbit.monitor.privacy.PayloadRedactor;
 import io.orbit.monitor.sql.ColumnType;
 import io.orbit.monitor.sql.Dialect;
+import io.orbit.monitor.sql.QueryCostAdvisor;
+import io.orbit.monitor.sql.SqlParameters;
 import io.orbit.monitor.sql.ReadModeSuggester;
 import io.orbit.monitor.sql.ResultPayload;
 import io.orbit.probe.http.HttpProbe;
@@ -38,9 +41,15 @@ public class PreviewService {
     public record PreviewColumn(String name, String type) {
     }
 
+    /** BE-14: NONE, WARN or HEAVY, the interval to use and the localized advice. */
+    public record CostView(String level, int suggestedIntervalSeconds, String message) {
+    }
+
+    /** @param cost SQL only: is the query too slow for the planned interval (BE-14) */
     public record PreviewResult(List<PreviewColumn> columns, List<Map<String, Object>> rows, long elapsedMs,
                                 Integer status, boolean truncated, ReadModeSuggester.Suggestion suggestion,
-                                Map<String, List<String>> headers, String body) {
+                                Map<String, List<String>> headers, String body,
+                                @JsonInclude(JsonInclude.Include.NON_NULL) CostView cost) {
     }
 
     private final MonitorDefinitions definitions;
@@ -51,8 +60,11 @@ public class PreviewService {
     private final ObjectMapper json = new ObjectMapper();
     private final ReadModeSuggester suggester = new ReadModeSuggester();
 
+    private final Messages messages;
+
     public PreviewService(MonitorDefinitions definitions, ConnectionPools pools, SqlProbe sqlProbe,
-                          HttpProbe httpProbe, PayloadRedactor redactor) {
+                          HttpProbe httpProbe, PayloadRedactor redactor, Messages messages) {
+        this.messages = messages;
         this.definitions = definitions;
         this.pools = pools;
         this.sqlProbe = sqlProbe;
@@ -61,10 +73,20 @@ public class PreviewService {
     }
 
     public PreviewResult sql(String connectionId, String sql) {
+        return sql(connectionId, sql, Map.of(), 60);
+    }
+
+    /** BE-11 parameters are bound like in the monitor; BE-14 compares the time with the interval. */
+    public PreviewResult sql(String connectionId, String sql, Map<String, Object> parameters, int intervalSeconds) {
         ConnectionDef connection = definitions.connection(connectionId)
                 .orElseThrow(() -> new NotFoundException("Connection", connectionId));
+        Map<String, Object> params = parameters == null ? Map.of() : parameters;
+        if (sql != null && params.isEmpty() && !SqlParameters.names(sql).isEmpty()) {
+            SqlParameters.bind(sql, params); // names every :param without a value (sql.missing-parameter)
+        }
         ResultPayload raw = sqlProbe.execute(pools.dataSource(connection), Dialect.fromJdbcUrl(connection.jdbcUrl()),
-                sql, new SqlProbeOptions(PREVIEW_ROWS, Duration.ofSeconds(30), PREVIEW_ROWS));
+                sql, params,
+                new SqlProbeOptions(PREVIEW_ROWS, Duration.ofSeconds(30), PREVIEW_ROWS));
         ResultPayload masked = redactor.redact(raw);
         List<Map<String, Object>> rows = new ArrayList<>();
         for (int i = 0; i < masked.rowCount(); i++) {
@@ -72,8 +94,11 @@ public class PreviewService {
         }
         List<PreviewColumn> columns = masked.columns().stream()
                 .map(c -> new PreviewColumn(c.name(), typeName(c.type()))).toList();
+        QueryCostAdvisor.Advice advice = QueryCostAdvisor.advise(Duration.ofMillis(masked.ms()), intervalSeconds);
+        CostView cost = new CostView(advice.level().name(), advice.suggestedIntervalSeconds(),
+                messages.current(advice.messageKey(), advice.suggestedIntervalSeconds()));
         return new PreviewResult(columns, rows, masked.ms(), null, masked.truncated(), suggester.suggest(masked),
-                null, null);
+                null, null, cost);
     }
 
     public PreviewResult http(String method, String url, Map<String, String> headers, String body) {
@@ -92,7 +117,7 @@ public class PreviewService {
         }
         flattenJson(masked.body(), row, columns);
         return new PreviewResult(columns, List.of(row), masked.responseTimeMs(), masked.status(), false, null,
-                masked.headers(), masked.body());
+                masked.headers(), masked.body(), null);
     }
 
     /** Lists JSON leaves as {@code $.a.b} fields so the operator can pick them in "Data and display". */

@@ -150,4 +150,25 @@ class ExtendedDefinitionsTest {
                     null), "Ana")).isInstanceOf(ConfigValidationException.class).hasMessageContaining("reserved");
         }
     }
+
+    @Test
+    @DisplayName("CORE-16: personal and card fields cannot be shown on the wall; card fields cannot be unmasked")
+    void sensitiveFields() {
+        definitions.saveConnection(new ConnectionDef("con_core", "Core", "jdbc:h2:mem:x", "sa", null, 2, null, null),
+                "Ana");
+        FieldDef emailOnWall = new FieldDef("EMAIL", "E-mail", "text", null, null, false, "text", true, true);
+        FieldDef cpfOnWall = new FieldDef("CPF", "CPF", "text", null, null, false, "text", true, true);
+        FieldDef panUnmasked = new FieldDef("CARD_NUMBER", "Card", "text", null, null, false, "text", false, false);
+        FieldDef emailMaskedOff = new FieldDef("EMAIL", "E-mail", "text", null, null, false, "text", false, false);
+        for (FieldDef bad : List.of(emailOnWall, cpfOnWall, panUnmasked)) {
+            SqlMonitorDef sql = new SqlMonitorDef("sel_f", "F", "grp", "con_core", "SELECT 1 AS N", 60, 30_000, 500,
+                    1, 0.1, false, List.of(), List.of(bad), false, null, null);
+            assertThatThrownBy(() -> definitions.saveSelect(sql, "Ana"))
+                    .isInstanceOf(ConfigValidationException.class).hasMessageContaining(bad.key());
+        }
+        definitions.saveSelect(new SqlMonitorDef("sel_ok", "F", "grp", "con_core", "SELECT 1 AS N", 60, 30_000, 500,
+                1, 0.1, false, List.of(), List.of(emailMaskedOff), false, null, null), "Ana");
+        assertThat(MonitorDefinitions.open(dir, ConfigMapper.create()).selects().getFirst().fields().getFirst()
+                .showOnWall()).isFalse();
+    }
 }

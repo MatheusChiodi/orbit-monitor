@@ -61,12 +61,17 @@ public record MonitorRequest(
     }
 
     public record FieldRequest(String field, Boolean selected, String label, String format, String unit,
-                               Integer decimals, Boolean storeAsSeries, String display) {
+                               Integer decimals, Boolean storeAsSeries, String display, Boolean masked,
+                               Boolean showOnWall) {
     }
 
-    /** Body of POST /api/monitors/preview: a SQL or HTTP target that is not stored. */
+    /**
+     * Body of POST /api/monitors/preview: a SQL or HTTP target that is not stored. SQL may carry
+     * {@code parameters} (BE-11) and the planned {@code intervalSeconds} for the cost warning (BE-14).
+     */
     public record PreviewRequest(String type, String connectionId, String sql, String method, String url,
-                                 Map<String, String> headers, String body) {
+                                 Map<String, String> headers, String body, Map<String, Object> parameters,
+                                 Integer intervalSeconds) {
     }
 
     /** Body of POST /api/conditions/validate. */

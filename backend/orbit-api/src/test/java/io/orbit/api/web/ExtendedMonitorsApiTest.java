@@ -170,4 +170,15 @@ class ExtendedMonitorsApiTest {
                 .content("{\"type\":\"TCP\",\"name\":\"Bad retry\",\"host\":\"127.0.0.1\",\"port\":1,"
                         + "\"retry\":{\"attempts\":9}}")).andExpect(status().isUnprocessableEntity());
     }
+
+    @Test
+    @DisplayName("CORE-15: validation errors follow Accept-Language")
+    void localizedErrors() throws Exception {
+        mvc.perform(post("/api/monitors").header(Operators.HEADER, "Ana").header("Accept-Language", "pt-BR")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"id\":\"tcp_pt\",\"type\":\"TCP\",\"name\":\"Porta\",\"host\":\"db\","
+                                + "\"port\":70000}"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.errors[0]").value("tcp_pt: a porta deve estar entre 1 e 65535"));
+    }
 }

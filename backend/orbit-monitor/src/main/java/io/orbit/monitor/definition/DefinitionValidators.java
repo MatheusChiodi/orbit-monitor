@@ -157,8 +157,16 @@ final class DefinitionValidators {
         }
         for (FieldDef f : m.fields()) {
             DataClass dataClass = REDACTOR.classifyName(f.key());
-            if (f.series() && (dataClass == DataClass.PCI_PAN || dataClass == DataClass.PCI_SAD)) {
+            boolean card = dataClass == DataClass.PCI_PAN || dataClass == DataClass.PCI_SAD;
+            if (f.series() && card) {
                 errors.add(m.id() + ": card field " + f.key() + " cannot be stored as a series");
+            }
+            // CORE-16 (docs/04): card data is never unmasked; personal and card data never go to the wall.
+            if (card && Boolean.FALSE.equals(f.masked())) {
+                errors.add(m.id() + ": card field " + f.key() + " cannot be unmasked");
+            }
+            if ((card || dataClass == DataClass.PERSONAL) && f.showOnWall()) {
+                errors.add(m.id() + ": sensitive field " + f.key() + " cannot be shown on the wall");
             }
         }
         if (m.window() != null) {

@@ -194,7 +194,8 @@ public class MonitorController {
         boolean sql = "SQL".equalsIgnoreCase(body.type());
         audit.record(operator, sql ? "select.preview" : "request.preview", sql ? body.connectionId() : body.url(),
                 sql ? body.sql() : body.method() + " " + body.url(), request.getRemoteAddr());
-        return sql ? preview.sql(body.connectionId(), body.sql())
+        return sql ? preview.sql(body.connectionId(), body.sql(), body.parameters(),
+                body.intervalSeconds() == null ? 60 : body.intervalSeconds())
                 : preview.http(body.method(), body.url(), body.headers(), body.body());
     }
 

@@ -157,7 +157,7 @@ public class MonitorRequestMapper {
         }
         return r.fields().stream().filter(f -> f.selected() == null || f.selected())
                 .map(f -> new FieldDef(f.field(), f.label(), f.format(), f.unit(), f.decimals(),
-                        Boolean.TRUE.equals(f.storeAsSeries()), f.display()))
+                        Boolean.TRUE.equals(f.storeAsSeries()), f.display(), f.masked(), f.showOnWall()))
                 .toList();
     }
 
