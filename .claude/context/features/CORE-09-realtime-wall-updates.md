@@ -6,7 +6,7 @@ group: "Realtime"
 status: in-progress
 screens: [wall]
 spec: docs/01-architecture.md, docs/02-features.md, docs/04-data-protection.md
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # CORE-09 · Realtime wall updates
@@ -51,9 +51,12 @@ WebSocket `/ws/wall` feeding a Zustand store; no polling.
 - Frontend: `/ws/wall?layout=<slug>` with messages `snapshot | monitor | incident | event`; unknown or malformed messages are dropped.
 - Frontend: Reconnects with exponential backoff (1 s doubling, max 30 s); the store reducer is pure (`applyMessage`).
 - Frontend: Without a backend the wall loads a deterministic demo snapshot and acknowledges locally.
-- Frontend: No wall token: the layout comes from the path `/wall/<slug>` (default `noc`).
+- Frontend: No wall token: the layout comes from `?layout=<slug>` or the path `/wall/<slug>` (default `noc`).
+- Frontend (resume, assumed BE-38 contract): every message may carry `seq`; the feed keeps the last one and every (re)connect opens `/ws/wall?layout=<slug>&since=<seq>`, so the server can replay only the missed deltas (or send a fresh `snapshot`). Messages with `seq` ≤ the last one are dropped (replays); a jump (`seq` > last + 1) reloads `GET /api/wall/snapshot`. Messages without `seq` are applied as before.
+- Remaining (backend, be-runtime): honor `since` with a replay buffer. Today the handler's counter is shared by all clients and each new client's snapshot increments it, so other walls see a gap and reload the snapshot over REST (correct, but extra requests).
 
 ## Changelog
 - 2026-10-18 — context file created (status: in-progress).
 - 2026-10-18 — backend: WebSocket /ws/wall with snapshot + deltas and sequence numbers.
 - 2026-10-18 — frontend: WebSocket client, Zustand store and feed with demo fallback.
+- 2026-10-22 — frontend: `?layout=`, sequence tracking, `since=` on reconnect, gap → snapshot reload.

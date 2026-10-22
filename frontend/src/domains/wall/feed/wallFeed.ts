@@ -1,4 +1,4 @@
-import type { Incident, WallSnapshot } from '@/shared/api/types';
+import type { Incident, WallMessage, WallSnapshot } from '@/shared/api/types';
 import type { ConnectWallOptions, WallConnection } from '@/shared/api/wallSocket';
 import type { Locale } from '@/shared/i18n/i18n';
 import type { WallStore } from '../store';
@@ -25,12 +25,39 @@ export async function startWallFeed(store: WallStore, options: WallFeedOptions):
     setConnection('mock');
     return { stop() {} };
   }
+  // CORE-09 / BE-38: remember the last sequence number, resume from it, reload on a gap.
+  let lastSeq: number | null = null;
+  let stopped = false;
+  const reload = () =>
+    options
+      .loadSnapshot()
+      .then((snapshot) => !stopped && receive({ type: 'snapshot', payload: snapshot }))
+      .catch(() => {});
+  const onMessage = (message: WallMessage) => {
+    const { seq } = message;
+    if (seq === undefined) return receive(message);
+    if (message.type === 'snapshot') {
+      lastSeq = seq;
+      return receive(message);
+    }
+    if (lastSeq !== null && seq <= lastSeq) return;
+    const gap = lastSeq !== null && seq > lastSeq + 1;
+    lastSeq = seq;
+    if (gap) void reload();
+    else receive(message);
+  };
   const connection = options.connect({
     url: options.url,
-    onMessage: receive,
+    onMessage,
     onStatus: setConnection,
+    since: () => lastSeq,
   });
-  return { stop: () => connection.close() };
+  return {
+    stop: () => {
+      stopped = true;
+      connection.close();
+    },
+  };
 }
 
 /** Acknowledges an incident; in demo mode or when the API fails, marks it locally so the wall never gets stuck. */

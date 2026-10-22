@@ -50,6 +50,8 @@ export interface Incident {
   acknowledgedAt: string | null;
   impact: string[];
   escalatesAt: string | null;
+  /** FE-40: name of the next escalation step, when the backend sends it with the incident (BE-27). */
+  nextStepName?: string | null;
 }
 
 export type TimelineKind = 'DOWN' | 'WARN' | 'OK' | 'ACK' | 'INFO';
@@ -83,11 +85,13 @@ export interface WorkspaceBranding {
   logoSvg?: string;
 }
 
-export type WallMessage =
+/** `seq` increases per message (BE-38); clients resume with `?since=<seq>` after a reconnect. */
+export type WallMessage = (
   | { type: 'snapshot'; payload: WallSnapshot }
   | { type: 'monitor'; payload: MonitorView }
   | { type: 'incident'; payload: Incident }
-  | { type: 'event'; payload: TimelineEvent };
+  | { type: 'event'; payload: TimelineEvent }
+) & { seq?: number };
 
 // ---------- Console ----------
 

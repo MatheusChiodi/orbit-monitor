@@ -26,15 +26,30 @@ export function parseWallMessage(data: unknown): WallMessage | null {
   if (!('type' in parsed) || !('payload' in parsed)) return null;
   if (typeof parsed.type !== 'string' || !MESSAGE_TYPES.has(parsed.type)) return null;
   if (!parsed.payload || typeof parsed.payload !== 'object') return null;
-  return parsed as WallMessage;
+  const message = parsed as WallMessage;
+  if ('seq' in parsed && (typeof parsed.seq !== 'number' || !Number.isFinite(parsed.seq))) delete message.seq;
+  return message;
 }
 
 export const DEFAULT_WALL_LAYOUT = 'noc';
 
-/** The wall has no token: it is addressed by layout slug (`/wall/noc`); `wall.html` means the default layout. */
-export function wallLayoutSlug(pathname: string): string {
+const SLUG = /^[a-z0-9][a-z0-9-]{0,63}$/;
+
+/**
+ * The wall has no token: it is addressed by layout slug (`/wall/noc` or `wall.html?layout=noc`);
+ * `wall.html` alone means the default layout.
+ */
+export function wallLayoutSlug(pathname: string, search = ''): string {
+  const fromQuery = new URLSearchParams(search).get('layout')?.toLowerCase();
+  if (fromQuery && SLUG.test(fromQuery)) return fromQuery;
   const match = /^\/wall\/([a-z0-9][a-z0-9-]{0,63})\/?$/i.exec(pathname);
   return match ? match[1]!.toLowerCase() : DEFAULT_WALL_LAYOUT;
+}
+
+/** Adds `since=<seq>` so the server replays only what this client missed (BE-38). */
+export function resumeUrl(url: string, since: number | null): string {
+  if (since === null) return url;
+  return `${url}${url.includes('?') ? '&' : '?'}since=${since}`;
 }
 
 export function wallSocketUrl(location: { protocol: string; host: string }, layout?: string): string {
@@ -49,6 +64,8 @@ export interface ConnectWallOptions {
   onStatus?: (status: ConnectionStatus) => void;
   createSocket?: (url: string) => SocketLike;
   reconnectMs?: number;
+  /** Last sequence number received, sent as `since` on every (re)connect. */
+  since?: () => number | null;
 }
 
 export interface WallConnection {
@@ -66,7 +83,7 @@ export function connectWall(options: ConnectWallOptions): WallConnection {
 
   function open(): void {
     options.onStatus?.('connecting');
-    const current = createSocket(options.url);
+    const current = createSocket(resumeUrl(options.url, options.since?.() ?? null));
     socket = current;
     current.onopen = () => {
       attempts = 0;

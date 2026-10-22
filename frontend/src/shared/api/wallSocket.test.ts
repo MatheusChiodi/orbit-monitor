@@ -97,3 +97,25 @@ describe('connectWall', () => {
     expect(onStatus).toHaveBeenLastCalledWith('closed');
   });
 });
+
+describe('CORE-09 / BE-38 resume by sequence', () => {
+  it('keeps the sequence number of each message', () => {
+    expect(parseWallMessage(JSON.stringify({ type: 'event', seq: 12, payload: { id: 'e1' } }))?.seq).toBe(12);
+    expect(parseWallMessage(JSON.stringify({ type: 'event', seq: 'x', payload: { id: 'e1' } }))?.seq).toBeUndefined();
+  });
+
+  it('`?layout=` also selects the layout (wall.html?layout=exec)', () => {
+    expect(wallLayoutSlug('/wall.html', '?layout=exec')).toBe('exec');
+    expect(wallLayoutSlug('/wall/noc', '?layout=Bad Slug')).toBe('noc');
+  });
+
+  it('reconnects with `since=<last seq>` so the server replays only the missed deltas', () => {
+    let last: number | null = null;
+    connectWall({ url: 'ws://x/ws/wall?layout=noc', onMessage: vi.fn(), createSocket: (u) => new FakeSocket(u), reconnectMs: 10, since: () => last });
+    expect(FakeSocket.instances[0]?.url).toBe('ws://x/ws/wall?layout=noc');
+    last = 41;
+    FakeSocket.instances[0]?.onclose?.();
+    vi.advanceTimersByTime(10);
+    expect(FakeSocket.instances[1]?.url).toBe('ws://x/ws/wall?layout=noc&since=41');
+  });
+});
