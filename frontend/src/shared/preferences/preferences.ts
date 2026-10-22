@@ -3,6 +3,7 @@ import { normalizeOperatorName } from '@/domains/security/operator/operator';
 import { isLocale, type Locale } from '@/shared/i18n/i18n';
 import type { Message } from '@/shared/i18n/message';
 import { DEFAULT_ANIMATION_LEVEL, isAnimationLevel, type AnimationLevel } from '@/shared/motion/animationLevel';
+import { sanitizeMotionOverrides, type MotionSettings } from '@/shared/motion/motionSettings';
 import { THEME_ID_PATTERN } from '@/shared/theme/types';
 import { DEFAULT_DENSITY, isDensity, type Density } from './density';
 import { DEFAULT_VIEWING_DISTANCE, isViewingDistance, type ViewingDistance } from './viewingDistance';
@@ -19,6 +20,8 @@ export interface Preferences {
   locale: Locale;
   scale: ViewingDistance;
   operatorName: string | null;
+  /** FE-06: controls changed on this device on top of the animation preset (absent = the preset). */
+  motion?: Partial<MotionSettings>;
 }
 
 export type PreferenceKey = keyof Preferences;
@@ -45,6 +48,10 @@ const VALIDATORS: { [K in PreferenceKey]: (value: unknown) => Preferences[K] | u
   locale: (v) => (isLocale(v) ? v : undefined),
   scale: (v) => (isViewingDistance(v) ? v : undefined),
   operatorName: (v) => (typeof v === 'string' ? (normalizeOperatorName(v) ?? undefined) : undefined),
+  motion: (v) => {
+    const clean = sanitizeMotionOverrides(v);
+    return Object.keys(clean).length > 0 ? clean : undefined;
+  },
 };
 
 const KEYS = Object.keys(VALIDATORS) as PreferenceKey[];
@@ -119,6 +126,10 @@ export interface PreferencesState {
   /** Clears the device choices: the workspace defaults apply again. */
   reset: () => void;
   setWorkspaceDefaults: (defaults: WorkspacePreferenceDefaults) => void;
+  /** FE-06: merges control overrides (the preset becomes "custom"). */
+  setMotion: (patch: Partial<MotionSettings>) => void;
+  /** FE-06: a preset sets every control at once, so device overrides are cleared. */
+  setAnimationPreset: (level: AnimationLevel) => void;
 }
 
 export function createPreferencesStore(defaults: WorkspacePreferenceDefaults = {}) {
@@ -137,6 +148,11 @@ export function createPreferencesStore(defaults: WorkspacePreferenceDefaults = {
       replace: (device) => commit(device),
       reset: () => commit({}),
       setWorkspaceDefaults: (next) => setState({ defaults: next, effective: mergeWithWorkspaceDefaults(get().device, next) }),
+      setMotion: (patch) => commit({ ...get().device, motion: { ...get().device.motion, ...patch } }),
+      setAnimationPreset: (level) => {
+        const { motion: _cleared, ...rest } = get().device;
+        commit({ ...rest, animation: level });
+      },
     };
   });
 }

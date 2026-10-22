@@ -109,5 +109,49 @@
     "toggle": "Reordenar",
     "done": "Concluir reordenação",
     "saved": "Ordem salva"
+  },
+  "monitor": {
+    "title": "Monitor",
+    "back": "Todos os monitores",
+    "type": "Tipo",
+    "reading": "Valor atual",
+    "lastCheck": "Última verificação",
+    "latency": "Latência p95",
+    "uptime": "Disponibilidade",
+    "conditions": "Condições",
+    "passed": "passa",
+    "failed": "falha",
+    "incidents": "Incidentes",
+    "noIncidents": "Nenhum incidente em memória para este monitor.",
+    "openTarget": "Abrir alvo",
+    "acknowledged": "Incidente reconhecido",
+    "noOpenIncident": "Este monitor não tem incidente aberto para reconhecer.",
+    "error": "Último erro",
+    "acknowledge": "Reconhecer incidente aberto"
+  },
+  "motion": {
+    "title": "Configurações de animação",
+    "preset": "Predefinição",
+    "custom": "Personalizado",
+    "intensity": "Intensidade",
+    "speed": "Velocidade",
+    "transitions": "Transições de componentes",
+    "feedback": "Retorno de status e valores",
+    "attention": "Sinais de atenção (piscar em DOWN, brilho do destaque)",
+    "fx": "3D e efeitos visuais",
+    "fxLevels": {
+      "off": "Desligado",
+      "low": "Baixo",
+      "high": "Alto"
+    },
+    "background": "Fundo animado",
+    "intros": "Introduções e guias",
+    "hover": "Efeitos de hover e arrasto",
+    "reduce": "Reduzir movimento",
+    "preview": "Prévia ao vivo",
+    "play": "Simular mudança de estado",
+    "simulate": "Simular incidente",
+    "sampleCard": "Monitor de exemplo",
+    "precedence": "Ordem de precedência: movimento reduzido do sistema → ?motion= na URL → layout da parede → este dispositivo → padrão do workspace."
   }
 }

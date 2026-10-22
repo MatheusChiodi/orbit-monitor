@@ -5,6 +5,7 @@ import { MONITOR_KINDS, type MonitorKind } from '@/domains/monitor/form';
 export type ConsoleRoute =
   | { name: 'monitors' }
   | { name: 'new-monitor'; kind?: MonitorKind }
+  | { name: 'monitor'; id: string }
   | { name: 'incidents' }
   | { name: 'incident'; id: string }
   | { name: 'maintenance' }
@@ -50,6 +51,11 @@ export function parseRoute(hash: string): ConsoleRoute {
   const kind = /^monitors\/new\/([a-z-]+)$/.exec(path)?.[1]?.toUpperCase().replace(/-/g, '_');
   const match = MONITOR_KINDS.find((k) => k === kind);
   if (match) return { name: 'new-monitor', kind: match };
+  const monitor = /^monitors\/([^/]+)$/.exec(path);
+  if (monitor && monitor[1] !== 'new') {
+    const id = decode(monitor[1]!);
+    if (id) return { name: 'monitor', id };
+  }
   const incident = /^incidents\/([^/]+)$/.exec(path);
   if (incident) {
     const id = decode(incident[1]!);
@@ -67,6 +73,8 @@ export function routeHref(route: ConsoleRoute): string {
       return route.kind ? `#/monitors/new/${route.kind.toLowerCase().replace(/_/g, '-')}` : '#/monitors/new';
     case 'incident':
       return `#/incidents/${encodeURIComponent(route.id)}`;
+    case 'monitor':
+      return `#/monitors/${encodeURIComponent(route.id)}`;
     case 'preferences':
       return '#/settings/preferences';
     case 'customization':

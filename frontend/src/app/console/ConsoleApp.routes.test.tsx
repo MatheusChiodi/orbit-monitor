@@ -211,3 +211,27 @@ describe('FE-13 reorder in the console', () => {
     expect(screen.queryByRole('button', { name: 'Reorder' })).toBeNull();
   });
 });
+
+describe('FE-55 card actions in the console', () => {
+  it('#/monitors/:id shows the monitor with its incidents and acknowledges the open one', async () => {
+    const getMonitor = vi.fn().mockResolvedValue({
+      definition: { id: 'm', name: 'Web portal', type: 'HTTP', url: 'https://portal.example/health' },
+      status: { id: 'm', name: 'Web portal', groupId: 'g', type: 'HTTP', status: 'DOWN', value: 812, unit: 'ms', since: iso(5) },
+      lastResult: { state: 'DOWN', latencyMs: 812, conditions: [{ expression: '[STATUS] == 200', level: 'DOWN', passed: false, actual: 503, message: null }], error: null, checkedAt: iso(1) },
+      uptime: { ratio: 0.9912, samples: 1440, coverageFrom: iso(1440) },
+      latency: { p50: 120, p95: 640, p99: 900, samples: 1440 },
+      historySince: iso(1440),
+    });
+    const a = api({ getMonitor });
+    render(<ConsoleApp api={a} operatorStore={operator()} />);
+    await screen.findByText('Web portal');
+    await go('#/monitors/m');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Web portal' })).toBeInTheDocument();
+    expect(screen.getByText('640 ms')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Open target' })).toHaveAttribute('href', 'https://portal.example/health');
+    expect(screen.getByRole('link', { name: 'Open target' })).toHaveAttribute('rel', 'noopener noreferrer');
+    await userEvent.click(await screen.findByRole('button', { name: 'Acknowledge open incident' }));
+    expect(a.acknowledgeIncidentRecord).toHaveBeenCalledWith('inc-1', 'M. Chiodi');
+    expect(await screen.findByText('Incident acknowledged')).toBeInTheDocument();
+  });
+});

@@ -15,6 +15,7 @@ describe('console hash routes', () => {
     ['#/monitors/new/http-steps', { name: 'new-monitor', kind: 'HTTP_STEPS' }],
     ['#/monitors/new/smtp', { name: 'not-found' }],
     ['#/incidents', { name: 'incidents' }],
+    ['#/monitors/recon%2Fq', { name: 'monitor', id: 'recon/q' }],
     ['#/incidents/inc-1', { name: 'incident', id: 'inc-1' }],
     ['#/incidents/a%20b', { name: 'incident', id: 'a b' }],
     ['#/maintenance', { name: 'maintenance' }],

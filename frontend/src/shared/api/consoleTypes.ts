@@ -179,3 +179,19 @@ export interface ConfigFileHealthRecord {
   items: number;
   error?: string;
 }
+
+/** `GET /api/monitors/{id}` (MonitorController.MonitorDetail); secrets in `definition` come back masked. */
+export interface MonitorDetailRecord {
+  definition: Record<string, unknown>;
+  status: import('./types').MonitorView;
+  lastResult: {
+    state: string;
+    latencyMs: number;
+    conditions: { expression: string; level: string; passed: boolean; actual: unknown; message: string | null }[];
+    error: string | null;
+    checkedAt: string;
+  } | null;
+  uptime: { ratio: number; samples: number; coverageFrom: string | null } | null;
+  latency: { p50: number | null; p95: number | null; p99: number | null; samples: number } | null;
+  historySince: string | null;
+}

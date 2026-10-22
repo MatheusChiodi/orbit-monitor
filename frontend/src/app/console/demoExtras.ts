@@ -93,6 +93,11 @@ export function createDemoExtras(snapshot: WallSnapshot, now: Date = new Date())
   const append = (incident: IncidentRecord, event: IncidentEventRecord) => [...incident.events, event];
 
   return {
+    getMonitor: async (id) => {
+      const status = snapshot.monitors.find((m) => m.id === id);
+      if (!status) throw new Error(`Monitor ${id} not found`);
+      return { definition: { id, name: status.name, type: status.type }, status, lastResult: null, uptime: null, latency: null, historySince: null };
+    },
     listIncidents: async (filter = {}) =>
       [...incidents.values()].filter((i) => (!filter.status || i.status === filter.status) && (!filter.monitorId || i.monitorId === filter.monitorId)),
     getIncident: async (id) => update(id, (i) => i),
@@ -159,6 +164,7 @@ export function createDemoExtras(snapshot: WallSnapshot, now: Date = new Date())
       return { ...range, samples: 1440, down, uptimePercent: ((1440 - down) / 1440) * 100, p50: 120, p95: 340, p99: 610 };
     },
     getConfigHealth: async () => [],
+    getWorkspaceDefaults: async () => ({}),
     getSettings: async () => settings,
     saveSettings: async (next) => {
       settings = next;

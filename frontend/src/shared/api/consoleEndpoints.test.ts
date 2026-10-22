@@ -40,6 +40,8 @@ describe('console endpoints', () => {
     expect(call(1)).toMatchObject({ url: '/api/incidents/i1/reopen', method: 'POST' });
     await api.listIncidents({ status: 'OPEN' });
     expect(call(2).url).toBe('/api/incidents?status=OPEN');
+    await api.getMonitor('m 1');
+    expect(call(3).url).toBe('/api/monitors/m%201');
     const step = { incidentId: 'i1', stepName: 'Call DBA', dueAt: '2026-10-22T10:00:00Z' };
     expect(await client(json(step)).api.getIncidentEscalation('i1')).toMatchObject(step);
     expect(await client(new Response(null, { status: 204 })).api.getIncidentEscalation('i1')).toBeNull();

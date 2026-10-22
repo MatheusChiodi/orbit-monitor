@@ -12,9 +12,11 @@ import type {
   IncidentRecord,
   MaintenanceItem,
   MaintenanceOccurrence,
+  MonitorDetailRecord,
   OrbitSettingsRecord,
   StatusPageRecord,
 } from './consoleTypes';
+import type { WorkspacePreferenceDefaults } from '@/shared/preferences/preferences';
 import type { Group } from './types';
 
 /** Body of `PUT /api/groups/order`. */
@@ -59,6 +61,7 @@ export function createConsoleEndpoints(request: JsonRequest, raw: RawRequest, is
   const remove = (resource: string, id: string) => request<void>(`/api/${resource}/${enc(id)}`, { method: 'DELETE' });
 
   return {
+    getMonitor: (id: string) => request<MonitorDetailRecord>(`/api/monitors/${enc(id)}`),
     listIncidents: (filter: { status?: 'OPEN' | 'RESOLVED'; monitorId?: string } = {}) =>
       request<IncidentRecord[]>(`/api/incidents${query(filter)}`),
     getIncident: (id: string) => request<IncidentRecord>(`/api/incidents/${enc(id)}`),
@@ -102,6 +105,8 @@ export function createConsoleEndpoints(request: JsonRequest, raw: RawRequest, is
       request<HistorySummary>(`/api/history/${enc(monitorId)}/summary${query(range)}`),
     getHistoryCoverage: () => request<HistoryCoverageInfo>('/api/history/coverage'),
 
+    /** BE-40 workspace defaults (theme, animation, density, locale, scale) under each device's choices. */
+    getWorkspaceDefaults: () => request<WorkspacePreferenceDefaults>('/api/settings/defaults'),
     getSettings: () => request<OrbitSettingsRecord>('/api/settings'),
     saveSettings: (settings: OrbitSettingsRecord) => request<OrbitSettingsRecord>('/api/settings', { method: 'PUT', body: settings }),
     /** Assumed contract (CORE-19/BE-50): state of every `orbit.<feature>.json`; 404 = not offered. */

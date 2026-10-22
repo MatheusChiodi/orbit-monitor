@@ -10,6 +10,7 @@ import { DependenciesScreen } from '../screens/DependenciesScreen';
 import { IncidentScreen } from '../screens/IncidentScreen';
 import { IncidentsScreen } from '../screens/IncidentsScreen';
 import { MaintenanceScreen } from '../screens/MaintenanceScreen';
+import { MonitorDetailScreen } from '../screens/MonitorDetailScreen';
 import { MonitorsScreen } from '../screens/MonitorsScreen';
 import { NewMonitorScreen } from '../screens/NewMonitorScreen';
 import { ReportsScreen } from '../screens/ReportsScreen';
@@ -31,6 +32,8 @@ export function ConsoleRoutes({ route, preferences, operatorStore, onMonitorSave
   switch (route.name) {
     case 'new-monitor':
       return editable ? <NewMonitorScreen kind={route.kind} onSaved={onMonitorSaved} /> : <MonitorsScreen />;
+    case 'monitor':
+      return <MonitorDetailScreen id={route.id} />;
     case 'incidents':
       return <IncidentsScreen />;
     case 'incident':

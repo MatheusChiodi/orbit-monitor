@@ -80,12 +80,18 @@ export function useMotionSettings(): MotionSettings {
 export interface AnimationLevelScopeProps {
   /** Already-effective level (callers apply `prefers-reduced-motion` first). */
   level: AnimationLevel;
+  /** FE-06 controls for the subtree (live preview); defaults to the level's preset. */
+  settings?: MotionSettings;
   children: ReactNode;
 }
 
 /** Overrides the level for a subtree only (e.g. static previews); no side effect on the document. */
-export function AnimationLevelScope({ level, children }: AnimationLevelScopeProps) {
-  return <LevelContext.Provider value={level}>{children}</LevelContext.Provider>;
+export function AnimationLevelScope({ level, settings, children }: AnimationLevelScopeProps) {
+  return (
+    <LevelContext.Provider value={level}>
+      <SettingsContext.Provider value={level === 'off' ? settingsFor('off') : (settings ?? settingsFor(level))}>{children}</SettingsContext.Provider>
+    </LevelContext.Provider>
+  );
 }
 
 export function useAnimationLevel(): AnimationLevel {

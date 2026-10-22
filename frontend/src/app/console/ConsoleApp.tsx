@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useStore } from 'zustand';
@@ -14,7 +14,8 @@ import { FxBackground } from '@/shared/fx/FxBackground';
 import { FxDowngradeNotice } from '@/shared/fx/FxDowngradeNotice';
 import { FxProvider } from '@/shared/fx/FxProvider';
 import { OrbitIntro } from '@/shared/fx/OrbitIntro';
-import { AnimationLevelProvider } from '@/shared/motion/animationLevel';
+import { AnimationLevelProvider, systemPrefersReducedMotion } from '@/shared/motion/animationLevel';
+import { fxLevelFor, parseMotionParam, resolveMotion } from '@/shared/motion/motionSettings';
 import type { CustomizationApi } from '@/shared/customization/api';
 import { createCustomizationStore, type CustomizationStore } from '@/shared/customization/store';
 import { createTerminologyStore } from '@/shared/customization/terminology';
@@ -67,6 +68,11 @@ interface WorkspaceProps {
 function Workspace({ api, access, demo, operator, onChangeName, preferences, operatorStore, connectFeed }: WorkspaceProps) {
   const { t } = useTranslation();
   const source = useMemo(() => createConsoleSource(api, demo), [api, demo]);
+  // FE-50: workspace defaults (`/api/settings/defaults`, BE-40) sit under this device's own choices.
+  const defaults = useQuery({ queryKey: ['settings-defaults', demo], queryFn: source.getWorkspaceDefaults, enabled: !demo });
+  useEffect(() => {
+    if (defaults.data) preferences.getState().setWorkspaceDefaults(defaults.data);
+  }, [defaults.data, preferences]);
   const [route, navigate] = useHashRoute();
   const [notice, setNotice] = useState<string | null>(null);
   const editable = canEdit(access.mode);
@@ -167,10 +173,17 @@ export function ConsoleApp({ api, operatorStore, queryClient, preferencesStore, 
   const [terminology] = useState(() => createTerminologyStore(customizationApi));
   const effective = usePreferenceEffects(preferences, operatorStore);
   useAppearance(customization);
+  // FE-06 precedence: reduced motion → ?motion= → this device (preset + overrides; workspace defaults are merged in).
+  const [url] = useState(() => (typeof window === 'undefined' ? null : parseMotionParam(window.location.search)));
+  const motion = resolveMotion({
+    reducedMotion: systemPrefersReducedMotion(),
+    url,
+    device: { level: effective.animation, overrides: effective.motion },
+  });
   return (
     <QueryClientProvider client={client}>
-      <AnimationLevelProvider level={effective.animation}>
-        <FxProvider>
+      <AnimationLevelProvider level={motion.level} settings={motion.settings}>
+        <FxProvider level={fxLevelFor(motion.settings, motion.level)}>
           <FxBackground />
           <div className="fx-layer">
             <CustomizationRuntime store={customization} terminology={terminology}>

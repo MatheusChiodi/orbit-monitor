@@ -48,10 +48,10 @@ export type ConsoleApi = CoreApi & Partial<ConsoleEndpoints>;
 export type ConsoleSource = CoreApi & ConsoleEndpoints;
 
 const EXTENDED_KEYS = [
-  'listIncidents', 'getIncident', 'acknowledgeIncidentRecord', 'resolveIncident', 'reopenIncident', 'getIncidentEscalation', 'commentIncident', 'linkIncidentTicket',
+  'getMonitor', 'listIncidents', 'getIncident', 'acknowledgeIncidentRecord', 'resolveIncident', 'reopenIncident', 'getIncidentEscalation', 'commentIncident', 'linkIncidentTicket',
   'listMaintenance', 'listMaintenanceOccurrences', 'saveMaintenance', 'deleteMaintenance', 'listDependencies', 'saveDependency', 'deleteDependency',
   'listStatusPages', 'saveStatusPage', 'saveGroupOrder', 'queryAudit', 'getCatalog', 'getHistorySummary',
-  'getHistoryCoverage', 'getSettings', 'saveSettings', 'getConfigHealth', 'exportConfig', 'importConfig',
+  'getHistoryCoverage', 'getWorkspaceDefaults', 'getSettings', 'saveSettings', 'getConfigHealth', 'exportConfig', 'importConfig',
 ] as const satisfies readonly (keyof ConsoleEndpoints)[];
 
 const unavailable = () => Promise.reject(new Error('unavailable'));
