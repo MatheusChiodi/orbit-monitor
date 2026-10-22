@@ -31,7 +31,7 @@ class NotificationTemplateApiTest {
     MockMvc mvc;
 
     private ResultActions send(MockHttpServletRequestBuilder builder, String body) throws Exception {
-        return mvc.perform(builder.header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON).content(body));
+        return mvc.perform(builder.contentType(MediaType.APPLICATION_JSON).content(body));
     }
 
     @Test
@@ -61,11 +61,11 @@ class NotificationTemplateApiTest {
         send(post("/api/notification-templates/incident.down/preview"), "{\"locale\":\"pt-BR\"}")
                 .andExpect(jsonPath("$.title").value("Fila de pagamentos está fora do ar"));
 
-        mvc.perform(delete("/api/notification-templates/incident.down").header(Operators.HEADER, "Ana"))
+        mvc.perform(delete("/api/notification-templates/incident.down"))
                 .andExpect(status().isNoContent());
         mvc.perform(get("/api/notification-templates"))
                 .andExpect(jsonPath("$.templates[?(@.id == 'incident.down')].custom").value(false));
-        mvc.perform(delete("/api/notification-templates/incident.down").header(Operators.HEADER, "Ana"))
+        mvc.perform(delete("/api/notification-templates/incident.down"))
                 .andExpect(status().isNotFound());
     }
 }

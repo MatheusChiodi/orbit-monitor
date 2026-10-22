@@ -64,7 +64,7 @@ class AlertingApiTest {
     }
 
     private ResultActions send(MockHttpServletRequestBuilder builder, String body) throws Exception {
-        return mvc.perform(builder.header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON).content(body));
+        return mvc.perform(builder.contentType(MediaType.APPLICATION_JSON).content(body));
     }
 
     private void brokenMonitor(String id) throws Exception {
@@ -119,13 +119,13 @@ class AlertingApiTest {
         brokenMonitor("sel_quiet");
         send(post("/api/silences"), "{\"target\":\"sel_quiet\",\"reason\":\"Known issue\",\"minutes\":60}")
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.createdBy").value("Ana"));
+                .andExpect(jsonPath("$.createdBy").value("loopback"));
 
         send(post("/api/monitors/sel_quiet/run"), "").andExpect(jsonPath("$.state").value("DOWN"));
 
         assertThat(received).isEmpty();
         mvc.perform(get("/api/incidents")).andExpect(jsonPath("$[?(@.monitorId == 'sel_quiet')]").exists());
         mvc.perform(get("/api/silences")).andExpect(jsonPath("$[0].target").value("sel_quiet"));
-        mvc.perform(delete("/api/channels/chn_hook2").header(Operators.HEADER, "Ana")).andExpect(status().isNoContent());
+        mvc.perform(delete("/api/channels/chn_hook2")).andExpect(status().isNoContent());
     }
 }

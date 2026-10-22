@@ -1,6 +1,5 @@
 package io.orbit.api.wall;
 
-import io.orbit.api.web.Operators;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,7 @@ class WallBrandingTest {
         mvc.perform(get("/api/wall/snapshot")).andExpect(status().isOk())
                 .andExpect(jsonPath("$.branding").doesNotExist());
 
-        mvc.perform(put("/api/settings").header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(put("/api/settings").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"locale\":\"en\",\"branding\":{\"name\":\"Acme NOC\",\"logoSvg\":"
                                 + "\"<svg xmlns='http://www.w3.org/2000/svg' onload='x()'><circle r='4'/></svg>\"}}"))
                 .andExpect(status().isOk());

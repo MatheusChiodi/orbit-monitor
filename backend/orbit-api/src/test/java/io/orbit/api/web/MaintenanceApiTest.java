@@ -36,7 +36,7 @@ class MaintenanceApiTest {
     TelemetryService telemetry;
 
     private ResultActions send(MockHttpServletRequestBuilder builder, String body) throws Exception {
-        return mvc.perform(builder.header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON).content(body));
+        return mvc.perform(builder.contentType(MediaType.APPLICATION_JSON).content(body));
     }
 
     @Test
@@ -66,8 +66,8 @@ class MaintenanceApiTest {
         mvc.perform(get("/api/maintenance/occurrences").param("from", now.toString())
                 .param("to", now.plus(90, ChronoUnit.DAYS).toString())).andExpect(status().isBadRequest());
 
-        mvc.perform(delete("/api/maintenance/mnt_weekly").header(Operators.HEADER, "Ana")).andExpect(status().isNoContent());
-        mvc.perform(delete("/api/maintenance/mnt_weekly").header(Operators.HEADER, "Ana")).andExpect(status().isNotFound());
+        mvc.perform(delete("/api/maintenance/mnt_weekly")).andExpect(status().isNoContent());
+        mvc.perform(delete("/api/maintenance/mnt_weekly")).andExpect(status().isNotFound());
     }
 
     @Test

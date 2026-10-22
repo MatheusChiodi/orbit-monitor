@@ -37,7 +37,7 @@ class MessageBundlesTest {
     void everyProblemCodeHasATitle() throws IOException {
         Properties en = load("messages.properties");
         for (String code : new String[]{"invalid-config", "unsafe-sql", "invalid-condition", "ssrf-blocked",
-                "secret-error", "target-error", "not-found", "conflict", "operator-required", "bad-request",
+                "secret-error", "target-error", "not-found", "conflict", "bad-request",
                 "access-denied"}) {
             assertThat(en.getProperty("problem." + code + ".title")).as(code).isNotBlank();
         }

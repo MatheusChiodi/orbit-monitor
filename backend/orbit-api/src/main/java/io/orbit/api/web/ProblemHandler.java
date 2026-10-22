@@ -75,11 +75,6 @@ public class ProblemHandler {
         return problem(HttpStatus.CONFLICT, "conflict", e.getMessage());
     }
 
-    @ExceptionHandler(Operators.OperatorRequiredException.class)
-    ProblemDetail operator(Operators.OperatorRequiredException e) {
-        return problem(HttpStatus.BAD_REQUEST, "operator-required", messages.current("problem.operator-required.detail"));
-    }
-
     @ExceptionHandler({IllegalArgumentException.class, HttpMessageNotReadableException.class})
     ProblemDetail badRequest(Exception e) {
         String detail = e instanceof HttpMessageNotReadableException

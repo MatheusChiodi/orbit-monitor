@@ -56,7 +56,7 @@ Frontend ──▶ <SafeValue> re-applies redaction before anything reaches the 
 | Security | Vault encryption, masking, network access policy, bind to `127.0.0.1` by default, security headers, no sensitive data in browser storage |
 | Prevention | Automatic detection warns the operator when a query returns personal or card data |
 | Transparency and accountability | Audit trail, retention policy, documented data map (this file) |
-| Data subject rights (art. 18) | Orbit keeps no user accounts; the only personal data it creates is the self-declared operator name, which can be anonymized across incidents and audit entries through an endpoint |
+| Data subject rights (art. 18) | Orbit keeps no user accounts and asks for no names; changes record only the client kind. An anonymization endpoint removes operator names written by older versions from incidents and audit entries |
 
 **Retention**: Orbit has no database. History (check results, selected series, events and audit) is kept for up to **30 days** in local log files and then purged automatically; it never contains SELECT rows, HTTP bodies or secrets ([08-logs-and-history.md](08-logs-and-history.md)). Configuration files store only what the operator configured. Application logs are rotated after 30 days with a size cap.
 

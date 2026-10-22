@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -54,9 +53,8 @@ public class ConfigTransferController {
     @PostMapping(value = "/api/config/import", consumes = {"application/zip", MediaType.APPLICATION_OCTET_STREAM_VALUE})
     public List<ConfigArchive.FileChange> importArchive(@RequestBody byte[] body,
                                                         @RequestParam(defaultValue = "true") boolean dryRun,
-                                                        @RequestHeader(value = Operators.HEADER, required = false)
-                                                        String header, HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+                                                        HttpServletRequest request) {
+        String operator = Actors.current();
         if (dryRun) {
             return archive.diff(body);
         }

@@ -86,7 +86,7 @@ class ExtendedMonitorsApiTest {
     }
 
     private String save(String json) throws Exception {
-        return mvc.perform(post("/api/monitors").header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON)
+        return mvc.perform(post("/api/monitors").contentType(MediaType.APPLICATION_JSON)
                 .content(json)).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
     }
 
@@ -99,7 +99,7 @@ class ExtendedMonitorsApiTest {
         String id = JsonPath.read(created, "$.definition.id");
         assertThat(id).startsWith("cert_");
 
-        mvc.perform(post("/api/monitors/" + id + "/run").header(Operators.HEADER, "Ana"))
+        mvc.perform(post("/api/monitors/" + id + "/run"))
                 .andExpect(jsonPath("$.state").value("OK"))
                 .andExpect(jsonPath("$.payload.DOMAIN_DAYS_LEFT").isNumber())
                 .andExpect(jsonPath("$.conditions[0].passed").value(true));
@@ -109,21 +109,21 @@ class ExtendedMonitorsApiTest {
     @Test
     @DisplayName("BE-04/09/10: DNS, gRPC and Kafka checks are created with their settings")
     void dnsGrpcKafka() throws Exception {
-        mvc.perform(post("/api/monitors").header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/api/monitors").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"type\":\"DNS\",\"name\":\"API A record\",\"host\":\"api.example.com\","
                                 + "\"probe\":{\"recordType\":\"A\",\"expected\":\"93.184.216.34\"},"
                                 + "\"intervalSeconds\":60}"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.definition.probe.recordType").value("A"));
-        mvc.perform(post("/api/monitors").header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/api/monitors").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"type\":\"GRPC\",\"name\":\"Orders\",\"host\":\"127.0.0.1\",\"port\":50051,"
                                 + "\"probe\":{\"service\":\"orders.v1.Orders\"},\"intervalSeconds\":60}"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.status.type").value("GRPC"));
-        mvc.perform(post("/api/monitors").header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/api/monitors").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"type\":\"KAFKA\",\"name\":\"Billing lag\",\"probe\":{\"bootstrapServers\":"
                                 + "\"127.0.0.1:9092\",\"consumerGroup\":\"billing\",\"topic\":\"invoices\"},"
                                 + "\"intervalSeconds\":60,\"conditions\":[{\"expression\":\"[COL].LAG < 1000\"}]}"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.definition.probe.topic").value("invoices"));
-        mvc.perform(post("/api/monitors").header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/api/monitors").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"type\":\"DNS\",\"name\":\"Bad\",\"host\":\"x\",\"probe\":{\"recordType\":\"SOA\"}}"))
                 .andExpect(status().isUnprocessableEntity());
     }
@@ -145,7 +145,7 @@ class ExtendedMonitorsApiTest {
         assertThat(Files.readString(properties.configDir().resolve("orbit.requests.json")))
                 .doesNotContain("client-s3cret");
 
-        mvc.perform(post("/api/monitors/" + id + "/run").header(Operators.HEADER, "Ana"))
+        mvc.perform(post("/api/monitors/" + id + "/run"))
                 .andExpect(jsonPath("$.state").value("OK"));
         assertThat(SEEN).anyMatch(s -> s.startsWith("token Basic "));
         assertThat(SEEN).contains("api Bearer oauth-tok sess-42");
@@ -154,7 +154,7 @@ class ExtendedMonitorsApiTest {
                 + "/api/orders\",\"oauth\":{\"tokenUrl\":\"" + base() + "/token\",\"clientId\":\"orbit\","
                 + "\"clientSecret\":\"•••• (vault)\"}}");
         assertThat(JsonPath.<String>read(again, "$.definition.oauth.clientSecret")).isEqualTo("•••• (vault)");
-        mvc.perform(post("/api/monitors/" + id + "/run").header(Operators.HEADER, "Ana"))
+        mvc.perform(post("/api/monitors/" + id + "/run"))
                 .andExpect(jsonPath("$.state").value("OK"));
     }
 
@@ -166,7 +166,7 @@ class ExtendedMonitorsApiTest {
                 + "\"zone\":\"America/Sao_Paulo\"},\"retry\":{\"attempts\":2,\"initialDelayMs\":0}}");
         assertThat(JsonPath.<String>read(created, "$.definition.window.zone")).isEqualTo("America/Sao_Paulo");
         assertThat(JsonPath.<Integer>read(created, "$.definition.retry.attempts")).isEqualTo(2);
-        mvc.perform(post("/api/monitors").header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/api/monitors").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"type\":\"TCP\",\"name\":\"Bad retry\",\"host\":\"127.0.0.1\",\"port\":1,"
                         + "\"retry\":{\"attempts\":9}}")).andExpect(status().isUnprocessableEntity());
     }
@@ -174,7 +174,7 @@ class ExtendedMonitorsApiTest {
     @Test
     @DisplayName("CORE-15: validation errors follow Accept-Language")
     void localizedErrors() throws Exception {
-        mvc.perform(post("/api/monitors").header(Operators.HEADER, "Ana").header("Accept-Language", "pt-BR")
+        mvc.perform(post("/api/monitors").header("Accept-Language", "pt-BR")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"id\":\"tcp_pt\",\"type\":\"TCP\",\"name\":\"Porta\",\"host\":\"db\","
                                 + "\"port\":70000}"))

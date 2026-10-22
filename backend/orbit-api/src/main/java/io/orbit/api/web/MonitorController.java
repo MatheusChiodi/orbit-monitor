@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -104,9 +103,8 @@ public class MonitorController {
 
     @PostMapping("/api/monitors")
     public MonitorDetail save(@RequestBody MonitorRequest body,
-                              @RequestHeader(value = Operators.HEADER, required = false) String header,
                               HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         if (SelfMonitor.ID.equals(body.id())) {
             throw new IllegalArgumentException(SelfMonitor.ID + " is reserved for Orbit's own health");
         }
@@ -165,9 +163,8 @@ public class MonitorController {
 
     @DeleteMapping("/api/monitors/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id,
-                                       @RequestHeader(value = Operators.HEADER, required = false) String header,
                                        HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         if (!definitions.deleteSelect(id) && !definitions.deleteRequest(id) && !definitions.deleteCheck(id)) {
             throw new NotFoundException("Monitor", id);
         }
@@ -188,9 +185,8 @@ public class MonitorController {
 
     @PostMapping("/api/monitors/preview")
     public PreviewService.PreviewResult preview(@RequestBody MonitorRequest.PreviewRequest body,
-                                                @RequestHeader(value = Operators.HEADER, required = false) String header,
                                                 HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         boolean sql = "SQL".equalsIgnoreCase(body.type());
         audit.record(operator, sql ? "select.preview" : "request.preview", sql ? body.connectionId() : body.url(),
                 sql ? body.sql() : body.method() + " " + body.url(), request.getRemoteAddr());

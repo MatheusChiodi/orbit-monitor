@@ -36,22 +36,24 @@ class AuditAndConfigApiTest {
     @Test
     @DisplayName("audit pages carry the total; time range and operator filters apply")
     void auditPaging() throws Exception {
-        Instant before = Instant.now().minusSeconds(1);
+        Instant before = Instant.now();
         for (int i = 0; i < 3; i++) {
-            mvc.perform(put("/api/groups/grp_audit_" + i).header(Operators.HEADER, "Paging Operator")
+            mvc.perform(put("/api/groups/grp_audit_" + i)
                     .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"Audit " + i + "\"}"))
                     .andExpect(status().isOk());
         }
 
-        mvc.perform(get("/api/audit").param("operator", "paging operator").param("from", before.toString())
+        mvc.perform(get("/api/audit").param("operator", "loopback").param("action", "group.").param("from", before.toString())
                         .param("limit", "2"))
                 .andExpect(status().isOk())
                 .andExpect(header().string("X-Total-Count", "3"))
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].target").value("grp_audit_2"));
-        mvc.perform(get("/api/audit").param("operator", "paging operator").param("offset", "2"))
+        mvc.perform(get("/api/audit").param("operator", "loopback").param("action", "group.").param("from", before.toString())
+                        .param("offset", "2"))
                 .andExpect(jsonPath("$[0].target").value("grp_audit_0"));
-        mvc.perform(get("/api/audit").param("operator", "paging operator").param("to", before.toString()))
+        mvc.perform(get("/api/audit").param("operator", "loopback").param("action", "group.").param("from", before.toString())
+                        .param("to", before.toString()))
                 .andExpect(header().string("X-Total-Count", "0"));
         mvc.perform(get("/api/audit").param("from", "yesterday"))
                 .andExpect(status().isBadRequest())

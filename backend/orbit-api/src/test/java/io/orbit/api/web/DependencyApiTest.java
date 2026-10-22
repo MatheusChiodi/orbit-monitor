@@ -35,7 +35,7 @@ class DependencyApiTest {
     IncidentService incidents;
 
     private ResultActions send(MockHttpServletRequestBuilder builder, String body) throws Exception {
-        return mvc.perform(builder.header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON).content(body));
+        return mvc.perform(builder.contentType(MediaType.APPLICATION_JSON).content(body));
     }
 
     private void down(String monitorId) {
@@ -67,8 +67,8 @@ class DependencyApiTest {
         mvc.perform(get("/api/dependencies/impact/grp_dep_bus"))
                 .andExpect(jsonPath("$.impacted.length()").value(2));
 
-        mvc.perform(delete("/api/dependencies/dep_b").header(Operators.HEADER, "Ana")).andExpect(status().isNoContent());
-        mvc.perform(delete("/api/dependencies/dep_b").header(Operators.HEADER, "Ana")).andExpect(status().isNotFound());
+        mvc.perform(delete("/api/dependencies/dep_b")).andExpect(status().isNoContent());
+        mvc.perform(delete("/api/dependencies/dep_b")).andExpect(status().isNotFound());
     }
 
     @Test

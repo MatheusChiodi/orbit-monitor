@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -64,9 +63,8 @@ public class OnCallController {
 
     @PutMapping("/{id}")
     public synchronized OnCallView save(@PathVariable String id, @RequestBody OnCallRequest body,
-                                        @RequestHeader(value = Operators.HEADER, required = false) String header,
                                         HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         int hours = body.shiftHours() == null ? 24 : body.shiftHours();
         if (hours < 1 || hours > 24 * 31) {
             throw new IllegalArgumentException("shiftHours must be between 1 and 744");
@@ -84,9 +82,8 @@ public class OnCallController {
 
     @DeleteMapping("/{id}")
     public synchronized ResponseEntity<Void> delete(@PathVariable String id,
-                                                    @RequestHeader(value = Operators.HEADER, required = false)
-                                                    String header, HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+                                                    HttpServletRequest request) {
+        String operator = Actors.current();
         List<OnCallSchedule> remaining = file.items().stream().filter(s -> !s.id().equals(id)).toList();
         if (remaining.size() == file.items().size()) {
             throw new NotFoundException("On-call schedule", id);

@@ -193,7 +193,7 @@ Presets map to these controls:
 | FE-47 | **Sound alerts** | Per-severity sounds and volume, muted by default |
 | FE-48 | **Desktop notifications** | Opt-in browser notifications for new incidents |
 | FE-49 | **Mobile on-call view** | Hero, active incidents and a full-width Acknowledge button |
-| FE-50 | **Device preferences** | Theme, animation level, density, language, scale and operator name saved on the device, with workspace defaults from the server and JSON export/import |
+| FE-50 | **Device preferences** | Theme, animation level, density, language and scale saved on the device, with workspace defaults from the server and JSON export/import |
 
 ## 2. Backend (BE)
 
@@ -265,7 +265,7 @@ Presets map to these controls:
 | ID | Feature | Acceptance highlights |
 |---|---|---|
 | BE-44 | **Network access policy** | No login; mutations only from loopback by default, `lan` or CIDR allowlist configurable, view-only otherwise; `403` Problem Details |
-| BE-45 | **Operator identity** | Self-declared `X-Orbit-Operator` name recorded on acknowledgements, comments and audit; anonymization endpoint |
+| BE-45 | **Operator identity** | *Retired 2026-10-22:* no operator name; changes record the client kind (`loopback`/`lan`). The anonymization endpoint stays for names written by older versions |
 | BE-46 | **Audit query API** | Filters, SELECT change diff, never stores probe results |
 | BE-47 | **Rate limiting** | Per client IP on API and Push endpoints |
 | BE-48 | **Secret rotation** | Rotate connection credentials without recreating monitors |

@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,7 +35,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/incidents")
 public class IncidentController {
 
-    /** {@code by} is the self-declared operator name (the header works too). */
+    /** The actor is the client kind ({@link Actors}); a {@code by} field in the body is ignored. */
     public record AckRequest(String by) {
     }
 
@@ -128,9 +127,8 @@ public class IncidentController {
 
     @PostMapping("/{id}/ack")
     public Incident acknowledge(@PathVariable String id, @RequestBody(required = false) AckRequest body,
-                                @RequestHeader(value = Operators.HEADER, required = false) String header,
                                 HttpServletRequest request) {
-        String operator = Operators.require(header, body == null ? null : body.by());
+        String operator = Actors.current();
         Incident incident = incidents.acknowledge(id, operator);
         audit.record(operator, "incident.ack", id, null, request.getRemoteAddr());
         return incident;
@@ -138,9 +136,8 @@ public class IncidentController {
 
     @PostMapping("/{id}/resolve")
     public Incident resolve(@PathVariable String id, @RequestBody(required = false) AckRequest body,
-                            @RequestHeader(value = Operators.HEADER, required = false) String header,
                             HttpServletRequest request) {
-        String operator = Operators.require(header, body == null ? null : body.by());
+        String operator = Actors.current();
         Incident incident = incidents.resolve(id, operator);
         audit.record(operator, "incident.resolve", id, null, request.getRemoteAddr());
         return incident;
@@ -148,9 +145,8 @@ public class IncidentController {
 
     @PostMapping("/{id}/reopen")
     public Incident reopen(@PathVariable String id, @RequestBody(required = false) AckRequest body,
-                           @RequestHeader(value = Operators.HEADER, required = false) String header,
                            HttpServletRequest request) {
-        String operator = Operators.require(header, body == null ? null : body.by());
+        String operator = Actors.current();
         Incident incident = incidents.reopen(id, operator);
         audit.record(operator, "incident.reopen", id, null, request.getRemoteAddr());
         return incident;
@@ -158,9 +154,8 @@ public class IncidentController {
 
     @PostMapping("/{id}/comments")
     public Incident comment(@PathVariable String id, @RequestBody CommentRequest body,
-                            @RequestHeader(value = Operators.HEADER, required = false) String header,
                             HttpServletRequest request) {
-        String operator = Operators.require(header, body.by());
+        String operator = Actors.current();
         Incident incident = incidents.comment(id, operator, body.text());
         audit.record(operator, "incident.comment", id, body.text(), request.getRemoteAddr());
         return incident;
@@ -168,9 +163,8 @@ public class IncidentController {
 
     @PostMapping("/{id}/ticket")
     public Incident ticket(@PathVariable String id, @RequestBody TicketRequest body,
-                           @RequestHeader(value = Operators.HEADER, required = false) String header,
                            HttpServletRequest request) {
-        String operator = Operators.require(header, body.by());
+        String operator = Actors.current();
         Incident incident = incidents.linkTicket(id, operator, body.ticket());
         audit.record(operator, "incident.ticket", id, body.ticket(), request.getRemoteAddr());
         return incident;

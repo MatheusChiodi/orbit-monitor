@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -33,9 +32,8 @@ public class SettingsController {
 
     @PutMapping("/api/settings")
     public OrbitSettings save(@RequestBody OrbitSettings body,
-                              @RequestHeader(value = Operators.HEADER, required = false) String header,
                               HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         OrbitSettings saved = settings.save(body, operator);
         String access = saved.access() == null ? "default" : saved.access().editFrom();
         audit.record(operator, "settings.save", OrbitSettings.ID, "editFrom=" + access, request.getRemoteAddr());
@@ -51,9 +49,8 @@ public class SettingsController {
     /** BE-40: replaces the workspace defaults; null fields go back to the built-in value. */
     @PutMapping("/api/settings/defaults")
     public WorkspaceDefaults saveDefaults(@RequestBody WorkspaceDefaults body,
-                                          @RequestHeader(value = Operators.HEADER, required = false) String header,
                                           HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         WorkspaceDefaults saved = settings.saveDefaults(body, operator);
         audit.record(operator, "settings.defaults", OrbitSettings.ID, "theme=" + saved.theme() + " animation="
                 + saved.animation() + " density=" + saved.density() + " locale=" + saved.locale() + " scale="

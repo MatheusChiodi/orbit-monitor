@@ -30,7 +30,7 @@ Settings (environment variables or `--orbit.*`): `ORBIT_CONFIG_DIR`, `ORBIT_MAST
 (default `127.0.0.1`), `ORBIT_PORT`, `orbit.access.mode` (`LOOPBACK` | `LAN` | `CIDR`), `orbit.http.allowlist`
 (hosts/CIDRs the HTTP probe may reach although internal), `orbit.wall.allowed-origins`.
 
-Changes need the `X-Orbit-Operator: <your name>` header. OpenAPI: `/v3/api-docs`, UI at `/swagger-ui.html`.
+There is no login and no operator name: changes are recorded with the client kind (`loopback`, `lan`). OpenAPI: `/v3/api-docs`, UI at `/swagger-ui.html`.
 Example config files: `config-examples/` (never commit real `orbit.*.json` files or `master.key`).
 
 ## Test

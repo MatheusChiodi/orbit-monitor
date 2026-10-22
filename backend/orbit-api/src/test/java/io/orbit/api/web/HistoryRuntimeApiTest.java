@@ -41,12 +41,12 @@ class HistoryRuntimeApiTest {
     @Test
     @DisplayName("every audited mutation also reaches the 30-day audit trail on disk")
     void auditForwarded() throws Exception {
-        mvc.perform(put("/api/groups/grp_forwarded").header(Operators.HEADER, "Forwarding Tester")
+        mvc.perform(put("/api/groups/grp_forwarded")
                 .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"Forwarded\"}"))
                 .andExpect(status().isOk());
         store.flush().join();
 
-        mvc.perform(get("/api/history/audit").param("actor", "Forwarding Tester")
+        mvc.perform(get("/api/history/audit").param("actor", "loopback").param("entity", "grp_forwarded")
                         .param("from", now.minusSeconds(60).toString()).param("to", now.plusSeconds(60).toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))

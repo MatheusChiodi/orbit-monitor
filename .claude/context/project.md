@@ -1,6 +1,6 @@
 ---
 title: "Orbit Monitor — project context"
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # Orbit Monitor — Project Context
@@ -10,7 +10,7 @@ Monitoring for websites, APIs and databases with a TV wall that changes shape by
 
 ## Product shape (decided 2026-10-18)
 - **Local-first**: runs entirely on the operator's machine; the only outbound traffic is the configured checks (HTTP requests, SELECTs, pings) and notifications. Binds to `127.0.0.1` by default.
-- **No login**: no users, passwords, roles or 2FA. Edits only from loopback by default; LAN clients (the TV) are view-only and may acknowledge. Self-declared operator name.
+- **No login**: no users, passwords, roles or 2FA. Edits only from loopback by default; LAN clients (the TV) are view-only and may acknowledge. No operator name (retired 2026-10-22): changes record the client kind.
 - **No Orbit database**: the only DB access is SELECTs on monitored databases. Configuration lives in **one JSON file per feature** (`~/.orbit/config/orbit.<feature>.json`), filled as the operator registers data, **never committed**. Runtime history lives in memory (24 h default).
 
 ## Repository
@@ -41,6 +41,7 @@ Monitoring for websites, APIs and databases with a TV wall that changes shape by
 Full-stack `CORE-*` files: each agent edits only its own section (`## Code` / `## Tests` lines for its folder) and appends its own changelog line.
 
 ## Timeline
+- 2026-10-22 — operator name retired (no prompt, no `X-Orbit-Operator`); actor = client kind. Demo data only with `?demo`.
 - 2026-10-18 — logo deferred until the product is ready; four concept rounds explored (orb with something inside is the preferred direction; faceted/Obsidian-like rejected). Use the `logo-design` skill when resuming. Until then the UI uses the plain "Orbit" wordmark.
 - 2026-10-18 — illustrated README: animated architecture and check-flow diagrams plus one SVG per feature area (docs/assets/readme).
 - 2026-10-18 — no login, no Orbit database, per-feature JSON config files, local-first runtime; pre-commit hook.

@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.charset.StandardCharsets;
@@ -86,27 +85,23 @@ public class StatusPageController {
 
     @PostMapping("/api/status-pages")
     public ResponseEntity<StatusPageBuilder.StatusPage> create(@RequestBody StatusPageRequest body,
-                                                               @RequestHeader(value = Operators.HEADER,
-                                                                       required = false) String header,
                                                                HttpServletRequest request) {
         if (body.id() != null && pages.find(body.id()).isPresent()) {
             throw new IllegalStateException("Status page already exists: " + body.id());
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(save(body.id(), body, header, request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(save(body.id(), body, request));
     }
 
     @PutMapping("/api/status-pages/{id}")
     public StatusPageBuilder.StatusPage update(@PathVariable String id, @RequestBody StatusPageRequest body,
-                                               @RequestHeader(value = Operators.HEADER, required = false) String header,
                                                HttpServletRequest request) {
-        return save(id, body, header, request);
+        return save(id, body, request);
     }
 
     @DeleteMapping("/api/status-pages/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id,
-                                       @RequestHeader(value = Operators.HEADER, required = false) String header,
                                        HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         if (!pages.delete(id)) {
             throw new NotFoundException("Status page", id);
         }
@@ -114,9 +109,9 @@ public class StatusPageController {
         return ResponseEntity.noContent().build();
     }
 
-    private StatusPageBuilder.StatusPage save(String id, StatusPageRequest body, String header,
+    private StatusPageBuilder.StatusPage save(String id, StatusPageRequest body,
                                               HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         StatusPageBuilder.StatusPage saved = pages.save(new StatusPageBuilder.StatusPage(id, body.slug(), body.title(),
                 body.groupIds(), Boolean.TRUE.equals(body.pub())), operator);
         audit.record(operator, "status-page.save", id, saved.slug() + (saved.pub() ? " (public)" : " (internal)"),

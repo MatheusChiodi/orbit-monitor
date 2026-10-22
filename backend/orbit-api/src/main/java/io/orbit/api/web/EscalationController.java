@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -58,9 +57,8 @@ public class EscalationController {
 
     @PutMapping("/{id}")
     public synchronized EscalationPolicy save(@PathVariable String id, @RequestBody PolicyRequest body,
-                                              @RequestHeader(value = Operators.HEADER, required = false) String header,
                                               HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         List<EscalationPolicy.Step> steps = (body.steps() == null ? List.<StepRequest>of() : body.steps()).stream()
                 .map(s -> new EscalationPolicy.Step(Duration.ofMinutes(s.afterMinutes()), s.channelIds(),
                         blankToNull(s.name()), blankToNull(s.onCallScheduleId())))
@@ -75,9 +73,8 @@ public class EscalationController {
 
     @DeleteMapping("/{id}")
     public synchronized ResponseEntity<Void> delete(@PathVariable String id,
-                                                    @RequestHeader(value = Operators.HEADER, required = false)
-                                                    String header, HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+                                                    HttpServletRequest request) {
+        String operator = Actors.current();
         List<EscalationPolicy> remaining = file.items().stream().filter(p -> !p.id().equals(id)).toList();
         if (remaining.size() == file.items().size()) {
             throw new NotFoundException("Escalation policy", id);

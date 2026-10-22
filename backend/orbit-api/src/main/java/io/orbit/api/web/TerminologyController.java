@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -48,9 +47,8 @@ public class TerminologyController {
 
     @PutMapping("/{locale}")
     public TerminologyService.Terms save(@PathVariable String locale, @RequestBody TermsRequest body,
-                                         @RequestHeader(value = Operators.HEADER, required = false) String header,
                                          HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         TerminologyService.Terms saved = terminology.save(locale, body.terms(), operator);
         audit.record(operator, "terminology.save", locale, saved.terms().size() + " terms", request.getRemoteAddr());
         return saved;
@@ -58,9 +56,8 @@ public class TerminologyController {
 
     @DeleteMapping("/{locale}")
     public ResponseEntity<Void> reset(@PathVariable String locale,
-                                      @RequestHeader(value = Operators.HEADER, required = false) String header,
                                       HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         requireLocale(locale);
         if (!terminology.delete(locale)) {
             throw new NotFoundException("Terminology", locale);

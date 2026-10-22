@@ -1,7 +1,7 @@
 package io.orbit.common;
 
 /**
- * Self-declared operator name (there is no login). It is recorded on acknowledgements,
+ * Actor recorded on changes (there is no login): the client kind, or a name written by older versions. It is recorded on acknowledgements,
  * comments and audit entries, so it is normalized and bounded.
  */
 public final class OperatorName {

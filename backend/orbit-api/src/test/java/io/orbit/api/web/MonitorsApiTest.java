@@ -46,7 +46,7 @@ class MonitorsApiTest {
     OrbitProperties properties;
 
     private ResultActions send(MockHttpServletRequestBuilder builder, String body) throws Exception {
-        return mvc.perform(builder.header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON).content(body));
+        return mvc.perform(builder.contentType(MediaType.APPLICATION_JSON).content(body));
     }
 
     @BeforeEach
@@ -116,7 +116,7 @@ class MonitorsApiTest {
                 .andExpect(jsonPath("$.status.value").value(347.0))
                 .andExpect(jsonPath("$.lastResult.payload.rows[0][0]").value(347));
 
-        mvc.perform(delete("/api/monitors/" + id).header(Operators.HEADER, "Ana")).andExpect(status().isNoContent());
+        mvc.perform(delete("/api/monitors/" + id)).andExpect(status().isNoContent());
         mvc.perform(get("/api/monitors/" + id)).andExpect(status().isNotFound());
     }
 

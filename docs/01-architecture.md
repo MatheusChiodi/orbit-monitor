@@ -33,7 +33,7 @@ Each domain is its own Maven module (`orbit-<domain>`), with an internal API thr
 
 | Domain | Subdomains | Responsibility | Config files / runtime |
 |---|---|---|---|
-| **Security** | access, vault, audit, privacy | **No login.** Network access policy (who may edit vs. only view), self-declared operator name, credential vault (AES-256-GCM, key in `~/.orbit/master.key`, outside the config directory), audit trail of every mutation, sensitive data redaction | `orbit.settings.json`; audit in memory + JSON log |
+| **Security** | access, vault, audit, privacy | **No login.** Network access policy (who may edit vs. only view), credential vault (AES-256-GCM, key in `~/.orbit/master.key`, outside the config directory), audit trail of every mutation, sensitive data redaction | `orbit.settings.json`; audit in memory + JSON log |
 | **Workspace** | group, tag, layout | Groups, tags, ordering and **wall layout** (what appears, where and how) | `orbit.groups.json`, `orbit.dependencies.json`, `orbit.layouts.json`, `orbit.themes.json`, `orbit.variables.json` |
 | **Monitor** | http, sql, condition | Definition of each monitor and its health conditions; SELECT validation; column discovery | `orbit.requests.json`, `orbit.selects.json`, `orbit.checks.json`, `orbit.connections.json`, `orbit.query-catalog.json` |
 | **Probe** | scheduler, executor, sandbox | Schedules and runs checks with isolation, timeout and a per-target circuit breaker | in memory |
@@ -86,7 +86,7 @@ Implemented as small `ConditionEvaluator`s registered in a `Map<Operator, Evalua
 src/
   app/            routing, providers, theme
   domains/
-    security/     operator name, access mode (edit / view-only)
+    security/     access mode (edit / view-only)
     workspace/    groups, tags, wall layout editor
     monitor/      HTTP and SQL forms, SELECT preview, conditions
     telemetry/    charts, series, uptime
@@ -108,11 +108,11 @@ src/
 
 * **Orbit has no login**: no users, passwords, sessions, roles, 2FA or SSO. Access is controlled by the network.
 * **Access policy** (`orbit.access.*`): read endpoints, the wall and acknowledgements are open to allowed clients; **mutations** (monitors, connections, secrets, layouts, themes, settings) are accepted only from **loopback by default**. `orbit.access.edit-from` accepts `loopback` (default), `lan` or a CIDR allowlist; `orbit.access.view-from` defaults to private ranges. Requests outside the policy get `403` with a Problem Details body.
-* **Operator name**: the console asks for a display name once and keeps it on the device; it is sent as `X-Orbit-Operator` and recorded on acknowledgements, comments and the audit trail, flagged as *self-declared* (not authenticated).
+* **No operator name**: Orbit does not ask who you are; acknowledgements, comments and the audit trail record the client kind (`loopback` = the machine running Orbit, `lan`).
 * Bind address defaults to `127.0.0.1`; exposing Orbit to the LAN (for the TV) is an explicit setting. Never expose it to the internet.
 * Secrets never come back from the API; the frontend only sees `•••• (vault)`.
 * Orbit database user on each target: `GRANT SELECT` only on the required views/tables; for heavy queries, creating **one view per query** on the target database is recommended.
-* Auditing: which operator name and client (loopback/LAN) created/changed each SELECT, with a diff.
+* Auditing: which client (loopback/LAN) created/changed each SELECT, with a diff.
 * Wall screen: read-only, no customer personal data.
 
 ## 4. Local-first execution

@@ -49,7 +49,7 @@ class WorkspaceConfigApiTest {
     }
 
     private ResultActions send(MockHttpServletRequestBuilder request, String body) throws Exception {
-        return mvc.perform(request.header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON).content(body));
+        return mvc.perform(request.contentType(MediaType.APPLICATION_JSON).content(body));
     }
 
     @Test
@@ -72,13 +72,13 @@ class WorkspaceConfigApiTest {
                 .andExpect(content().string(not(containsString("\"enc\""))));
         mvc.perform(get("/api/audit").param("action", "variable."))
                 .andExpect(content().string(not(containsString("s3cr3t-value"))));
-        mvc.perform(put("/api/variables/var_lan").with(from("192.168.0.5")).header(Operators.HEADER, "TV")
+        mvc.perform(put("/api/variables/var_lan").with(from("192.168.0.5"))
                         .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"lan\",\"value\":\"x\"}"))
                 .andExpect(status().isForbidden());
         send(post("/api/variables"), "{\"name\":\"bad name!\",\"value\":\"x\"}")
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.code").value("invalid-config"));
-        mvc.perform(delete("/api/variables/var_region").header(Operators.HEADER, "Ana"))
+        mvc.perform(delete("/api/variables/var_region"))
                 .andExpect(status().isNoContent());
     }
 
@@ -87,7 +87,7 @@ class WorkspaceConfigApiTest {
     void themes() throws Exception {
         send(post("/api/themes"), THEME.formatted("harbor-api", "#eef2f7"))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.updatedBy").value("Ana"))
+                .andExpect(jsonPath("$.updatedBy").value("loopback"))
                 .andExpect(jsonPath("$.category").value("custom"));
         send(post("/api/themes"), THEME.formatted("harbor-api", "#eef2f7")).andExpect(status().isConflict());
         mvc.perform(get("/api/themes").with(from("192.168.0.5")))
@@ -96,7 +96,7 @@ class WorkspaceConfigApiTest {
         send(put("/api/themes/harbor-api"), THEME.formatted("ignored", "#1a1f26"))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.errors[0]").value(containsString("text on bg")));
-        mvc.perform(delete("/api/themes/harbor-api").header(Operators.HEADER, "Ana")).andExpect(status().isNoContent());
+        mvc.perform(delete("/api/themes/harbor-api")).andExpect(status().isNoContent());
     }
 
     @Test
@@ -112,7 +112,7 @@ class WorkspaceConfigApiTest {
                 .andExpect(jsonPath("$.animation").value("minimal"));
         mvc.perform(get("/api/settings/defaults")).andExpect(jsonPath("$.scale").value("5m"));
         send(put("/api/settings/defaults"), "{\"animation\":\"wild\"}").andExpect(status().isUnprocessableEntity());
-        mvc.perform(put("/api/settings/defaults").with(from("192.168.0.5")).header(Operators.HEADER, "TV")
+        mvc.perform(put("/api/settings/defaults").with(from("192.168.0.5"))
                 .contentType(MediaType.APPLICATION_JSON).content("{}")).andExpect(status().isForbidden());
         send(put("/api/settings/defaults"), "{}").andExpect(jsonPath("$.animation").value("standard"));
     }
@@ -122,12 +122,12 @@ class WorkspaceConfigApiTest {
     void workspaces() throws Exception {
         send(post("/api/workspaces"), "{\"id\":\"wks_api_prod\",\"name\":\"Production\",\"groupIds\":[\"grp_api_pay\"]}")
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.updatedBy").value("Ana"));
+                .andExpect(jsonPath("$.updatedBy").value("loopback"));
         send(put("/api/workspaces/wks_api_stg"), "{\"name\":\"Staging\",\"groupIds\":[\"grp_api_pay\"]}")
                 .andExpect(status().isUnprocessableEntity());
         mvc.perform(get("/api/workspaces")).andExpect(jsonPath("$.items[*].id", hasItem("wks_api_prod")));
         mvc.perform(get("/api/workspaces/wks_api_prod")).andExpect(jsonPath("$.name").value("Production"));
-        mvc.perform(delete("/api/workspaces/wks_api_prod").header(Operators.HEADER, "Ana"))
+        mvc.perform(delete("/api/workspaces/wks_api_prod"))
                 .andExpect(status().isNoContent());
         mvc.perform(get("/api/workspaces/wks_api_prod")).andExpect(status().isNotFound());
     }
@@ -146,7 +146,7 @@ class WorkspaceConfigApiTest {
         send(put("/api/groups/order"), "{\"groupIds\":[\"grp_ord_b\"],\"monitors\":{\"grp_ord_b\":[\"mon_missing\"]}}")
                 .andExpect(status().isUnprocessableEntity());
         send(put("/api/groups/order"), "{\"groupIds\":[\"grp_nope\"]}").andExpect(status().isUnprocessableEntity());
-        mvc.perform(put("/api/groups/order").with(from("192.168.0.5")).header(Operators.HEADER, "TV")
+        mvc.perform(put("/api/groups/order").with(from("192.168.0.5"))
                 .contentType(MediaType.APPLICATION_JSON).content("{\"groupIds\":[]}")).andExpect(status().isForbidden());
     }
 }

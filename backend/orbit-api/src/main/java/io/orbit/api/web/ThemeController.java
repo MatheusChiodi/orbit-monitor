@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,9 +43,8 @@ public class ThemeController {
     /** Creates a theme; the id comes from the body and must be new. */
     @PostMapping
     public ResponseEntity<ThemeStore.CustomTheme> create(@RequestBody ThemeStore.CustomTheme body,
-                                                         @RequestHeader(value = Operators.HEADER, required = false)
-                                                         String header, HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+                                                         HttpServletRequest request) {
+        String operator = Actors.current();
         if (body.id() != null && themes.find(body.id()).isPresent()) {
             throw new IllegalStateException("Theme already exists: " + body.id());
         }
@@ -57,9 +55,8 @@ public class ThemeController {
 
     @PutMapping("/{id}")
     public ThemeStore.CustomTheme save(@PathVariable String id, @RequestBody ThemeStore.CustomTheme body,
-                                       @RequestHeader(value = Operators.HEADER, required = false) String header,
                                        HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         ThemeStore.CustomTheme saved = themes.save(new ThemeStore.CustomTheme(id, body.name(), body.mode(),
                 body.category(), body.colors(), body.chart(), body.syntax(), body.fx(), body.basedOn(), null, null),
                 operator);
@@ -69,9 +66,8 @@ public class ThemeController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id,
-                                       @RequestHeader(value = Operators.HEADER, required = false) String header,
                                        HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         if (!themes.delete(id)) {
             throw new NotFoundException("Theme", id);
         }

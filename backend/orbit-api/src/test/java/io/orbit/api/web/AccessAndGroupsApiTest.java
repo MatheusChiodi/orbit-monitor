@@ -47,7 +47,7 @@ class AccessAndGroupsApiTest {
 
     @Test
     void lanClientsCannotChangeConfiguration() throws Exception {
-        mvc.perform(put("/api/groups/grp_lan").with(from("192.168.0.5")).header(Operators.HEADER, "Ana")
+        mvc.perform(put("/api/groups/grp_lan").with(from("192.168.0.5"))
                         .contentType(MediaType.APPLICATION_JSON).content(GROUP))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("access-denied"));
@@ -62,19 +62,29 @@ class AccessAndGroupsApiTest {
     }
 
     @Test
-    void changesNeedAnOperatorName() throws Exception {
-        mvc.perform(put("/api/groups/grp_x").contentType(MediaType.APPLICATION_JSON).content(GROUP))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("operator-required"));
+    void changesNeedNoNameAndAreRecordedByClientKind() throws Exception {
+        mvc.perform(put("/api/groups/grp_noname").contentType(MediaType.APPLICATION_JSON).content(GROUP))
+                .andExpect(status().isOk());
+        mvc.perform(get("/api/audit").param("target", "grp_noname"))
+                .andExpect(jsonPath("$[0].operator").value("loopback"));
+    }
+
+    @Test
+    void aSentOperatorHeaderIsIgnored() throws Exception {
+        mvc.perform(put("/api/groups/grp_header").header("X-Orbit-Operator", "Ana")
+                        .contentType(MediaType.APPLICATION_JSON).content(GROUP))
+                .andExpect(status().isOk());
+        mvc.perform(get("/api/audit").param("target", "grp_header"))
+                .andExpect(jsonPath("$[0].operator").value("loopback"));
     }
 
     @Test
     void groupLifecycleFromLoopback() throws Exception {
-        mvc.perform(put("/api/groups/grp_payments").header(Operators.HEADER, "Ana")
+        mvc.perform(put("/api/groups/grp_payments")
                         .contentType(MediaType.APPLICATION_JSON).content(GROUP))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("grp_payments"))
-                .andExpect(jsonPath("$.updatedBy").value("Ana"));
+                .andExpect(jsonPath("$.updatedBy").value("loopback"));
 
         mvc.perform(get("/api/groups"))
                 .andExpect(status().isOk())
@@ -84,11 +94,11 @@ class AccessAndGroupsApiTest {
         mvc.perform(get("/api/audit").param("action", "group."))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].action").value("group.save"))
-                .andExpect(jsonPath("$[0].operator").value("Ana"));
+                .andExpect(jsonPath("$[0].operator").value("loopback"));
 
-        mvc.perform(delete("/api/groups/grp_payments").header(Operators.HEADER, "Ana"))
+        mvc.perform(delete("/api/groups/grp_payments"))
                 .andExpect(status().isNoContent());
-        mvc.perform(delete("/api/groups/grp_payments").header(Operators.HEADER, "Ana"))
+        mvc.perform(delete("/api/groups/grp_payments"))
                 .andExpect(status().isNotFound());
     }
 
@@ -106,16 +116,8 @@ class AccessAndGroupsApiTest {
     }
 
     @Test
-    void percentEncodedOperatorNameIsDecoded() throws Exception {
-        mvc.perform(put("/api/groups/grp_utf8").header(Operators.HEADER, "Jo%C3%A3o%20Silva")
-                        .contentType(MediaType.APPLICATION_JSON).content(GROUP))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.updatedBy").value("João Silva"));
-    }
-
-    @Test
     void invalidGroupIsUnprocessable() throws Exception {
-        mvc.perform(put("/api/groups/grp_bad").header(Operators.HEADER, "Ana")
+        mvc.perform(put("/api/groups/grp_bad")
                         .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"X\",\"color\":\"blue\"}"))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.code").value("invalid-config"))

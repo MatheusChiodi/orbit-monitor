@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -45,26 +44,23 @@ public class WorkspaceController {
 
     @PostMapping
     public ResponseEntity<WorkspaceService.Workspace> create(@RequestBody WorkspaceRequest body,
-                                                             @RequestHeader(value = Operators.HEADER, required = false)
-                                                             String header, HttpServletRequest request) {
+                                                             HttpServletRequest request) {
         if (body.id() != null && workspaces.find(body.id()).isPresent()) {
             throw new IllegalStateException("Workspace already exists: " + body.id());
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(save(body.id(), body, header, request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(save(body.id(), body, request));
     }
 
     @PutMapping("/{id}")
     public WorkspaceService.Workspace update(@PathVariable String id, @RequestBody WorkspaceRequest body,
-                                             @RequestHeader(value = Operators.HEADER, required = false) String header,
                                              HttpServletRequest request) {
-        return save(id, body, header, request);
+        return save(id, body, request);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id,
-                                       @RequestHeader(value = Operators.HEADER, required = false) String header,
                                        HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         if (!workspaces.delete(id)) {
             throw new NotFoundException("Workspace", id);
         }
@@ -72,9 +68,9 @@ public class WorkspaceController {
         return ResponseEntity.noContent().build();
     }
 
-    private WorkspaceService.Workspace save(String id, WorkspaceRequest body, String header,
+    private WorkspaceService.Workspace save(String id, WorkspaceRequest body,
                                             HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         WorkspaceService.Workspace saved = workspaces.save(new WorkspaceService.Workspace(id, body.name(),
                 body.groupIds()), operator);
         audit.record(operator, "workspace.save", id, saved.name(), request.getRemoteAddr());

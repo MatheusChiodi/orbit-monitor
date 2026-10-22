@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -69,33 +68,29 @@ public class CustomizationController {
 
     @PutMapping("/workspace")
     public CustomizationService.Entry saveWorkspace(@RequestBody ScopeRequest body,
-                                                    @RequestHeader(value = Operators.HEADER, required = false)
-                                                    String header, HttpServletRequest request) {
-        return save("workspace", null, body, header, request);
+                                                    HttpServletRequest request) {
+        return save("workspace", null, body, request);
     }
 
     @PutMapping("/{scope}/{target}")
     public CustomizationService.Entry saveScope(@PathVariable String scope, @PathVariable String target,
                                                 @RequestBody ScopeRequest body,
-                                                @RequestHeader(value = Operators.HEADER, required = false)
-                                                String header, HttpServletRequest request) {
+                                                HttpServletRequest request) {
         if ("workspace".equals(scope)) {
             throw new IllegalArgumentException("The workspace scope has no target: use /api/customization/workspace");
         }
-        return save(scope, target, body, header, request);
+        return save(scope, target, body, request);
     }
 
     @DeleteMapping("/workspace")
-    public ResponseEntity<Void> resetWorkspace(@RequestHeader(value = Operators.HEADER, required = false) String header,
-                                               HttpServletRequest request) {
-        return delete("workspace", null, header, request);
+    public ResponseEntity<Void> resetWorkspace(HttpServletRequest request) {
+        return delete("workspace", null, request);
     }
 
     @DeleteMapping("/{scope}/{target}")
     public ResponseEntity<Void> resetScope(@PathVariable String scope, @PathVariable String target,
-                                           @RequestHeader(value = Operators.HEADER, required = false) String header,
                                            HttpServletRequest request) {
-        return delete(scope, target, header, request);
+        return delete(scope, target, request);
     }
 
     /** FE-57: a profile as a portable JSON file (no secrets, no workspace ids). */
@@ -111,26 +106,25 @@ public class CustomizationController {
     @PostMapping("/profiles/{id}/import")
     public CustomizationService.Entry importProfile(@PathVariable String id,
                                                     @RequestBody CustomizationService.ProfileFile body,
-                                                    @RequestHeader(value = Operators.HEADER, required = false)
-                                                    String header, HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+                                                    HttpServletRequest request) {
+        String operator = Actors.current();
         CustomizationService.Entry saved = customization.importProfile(id, body, operator);
         audit.record(operator, "customization.import", saved.id(), saved.values().size() + " settings",
                 request.getRemoteAddr());
         return saved;
     }
 
-    private CustomizationService.Entry save(String scope, String target, ScopeRequest body, String header,
+    private CustomizationService.Entry save(String scope, String target, ScopeRequest body,
                                             HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         CustomizationService.Entry saved = customization.save(scope, target, body.name(), body.values(), operator);
         audit.record(operator, "customization.save", saved.id(), saved.values().size() + " settings",
                 request.getRemoteAddr());
         return saved;
     }
 
-    private ResponseEntity<Void> delete(String scope, String target, String header, HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+    private ResponseEntity<Void> delete(String scope, String target, HttpServletRequest request) {
+        String operator = Actors.current();
         if (!customization.delete(scope, target)) {
             throw new NotFoundException("Customization", CustomizationService.idOf(scope, target));
         }

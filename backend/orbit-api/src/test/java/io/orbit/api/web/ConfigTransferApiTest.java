@@ -35,7 +35,7 @@ class ConfigTransferApiTest {
     @Test
     @DisplayName("export omits sealed secrets; import is a dry run unless asked otherwise")
     void exportAndImport() throws Exception {
-        mvc.perform(put("/api/connections/con_xfer").header(Operators.HEADER, "Ana")
+        mvc.perform(put("/api/connections/con_xfer")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"Xfer\",\"jdbcUrl\":\"jdbc:h2:mem:xfer\",\"username\":\"sa\",\"password\":\"pw\","
                         + "\"poolSize\":1}")).andExpect(status().isOk());
@@ -47,14 +47,14 @@ class ConfigTransferApiTest {
         String connections = entry(zip, "orbit.connections.json");
         assertThat(connections).contains("con_xfer").doesNotContain("\"enc\"");
 
-        mvc.perform(post("/api/config/import").header(Operators.HEADER, "Ana")
+        mvc.perform(post("/api/config/import")
                         .contentType("application/zip").content(zip))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[?(@.file == 'orbit.connections.json')].changed.length()").value(0));
-        mvc.perform(post("/api/config/import").param("dryRun", "false").header(Operators.HEADER, "Ana")
+        mvc.perform(post("/api/config/import").param("dryRun", "false")
                 .contentType("application/zip").content(zip)).andExpect(status().isOk());
         assertThat(Files.readString(properties.configDir().resolve("orbit.connections.json"))).contains("\"enc\"");
-        mvc.perform(post("/api/connections/con_xfer/test").header(Operators.HEADER, "Ana"))
+        mvc.perform(post("/api/connections/con_xfer/test"))
                 .andExpect(jsonPath("$.ok").value(true));
     }
 

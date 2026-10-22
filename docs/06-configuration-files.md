@@ -63,7 +63,7 @@ The directory and the master key are created with permissions restricted to the 
 
 - `version` drives migrations; older files are migrated on load and rewritten.
 - Every file has a JSON Schema (`orbit.<feature>.schema.json`), validated on read and on write. An invalid file is never overwritten: Orbit keeps serving the last valid copy and reports the error in the console.
-- `updatedBy` is the self-declared operator name.
+- `updatedBy` is the client kind that made the change (`loopback`, `lan`).
 
 ## 4. Writing safely
 

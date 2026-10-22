@@ -28,7 +28,7 @@ class SecretRotationApiTest {
     MonitorDefinitions definitions;
 
     private void putConnection(String password) throws Exception {
-        mvc.perform(put("/api/connections/con_rot").header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(put("/api/connections/con_rot").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"Rot\",\"jdbcUrl\":\"" + URL + "\",\"username\":\"sa\",\"password\":\""
                                 + password + "\",\"poolSize\":1}"))
                 .andExpect(status().isOk());
@@ -38,7 +38,7 @@ class SecretRotationApiTest {
     @DisplayName("a new password replaces the sealed secret and the pool; monitors keep their reference")
     void rotates() throws Exception {
         putConnection("first");
-        mvc.perform(post("/api/monitors").header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/api/monitors").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"id\":\"sel_rot\",\"type\":\"SQL\",\"name\":\"Rot\",\"connectionId\":\"con_rot\","
                         + "\"sql\":\"SELECT 1 AS ONE\",\"intervalSeconds\":60,\"timeoutSeconds\":5,\"retries\":1}"))
                 .andExpect(status().isOk());
@@ -48,7 +48,7 @@ class SecretRotationApiTest {
 
         assertThat(definitions.connection("con_rot").orElseThrow().password()).isNotEqualTo(before);
         assertThat(definitions.selects()).anyMatch(s -> s.id().equals("sel_rot") && s.connectionId().equals("con_rot"));
-        mvc.perform(post("/api/connections/con_rot/test").header(Operators.HEADER, "Ana"))
+        mvc.perform(post("/api/connections/con_rot/test"))
                 .andExpect(jsonPath("$.ok").value(true));
     }
 }

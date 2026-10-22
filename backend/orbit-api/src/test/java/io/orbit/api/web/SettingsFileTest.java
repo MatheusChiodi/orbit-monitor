@@ -32,7 +32,7 @@ class SettingsFileTest {
     @Test
     @DisplayName("switching edit access to LAN from loopback is saved and applied at once")
     void lanEditing() throws Exception {
-        mvc.perform(put("/api/settings").header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(put("/api/settings").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"access\":{\"editFrom\":\"lan\"},\"locale\":\"pt-BR\",\"historyHours\":24}"))
                 .andExpect(status().isOk());
 
@@ -49,7 +49,7 @@ class SettingsFileTest {
         mvc.perform(put("/api/settings").with(r -> {
                     r.setRemoteAddr("192.168.0.5");
                     return r;
-                }).header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON)
+                }).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"access\":{\"editFrom\":\"lan\"}}")).andExpect(status().isForbidden());
     }
 }

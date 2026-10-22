@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,9 +42,8 @@ public class SilenceController {
 
     @PostMapping
     public SilenceService.Silence create(@RequestBody SilenceRequest body,
-                                         @RequestHeader(value = Operators.HEADER, required = false) String header,
                                          HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         int minutes = body.minutes() == null ? 60 : body.minutes();
         if (minutes < 1 || minutes > 7 * 24 * 60) {
             throw new IllegalArgumentException("minutes must be between 1 and 10080");
@@ -58,9 +56,8 @@ public class SilenceController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> lift(@PathVariable String id,
-                                     @RequestHeader(value = Operators.HEADER, required = false) String header,
                                      HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         if (!silences.lift(id, operator)) {
             throw new NotFoundException("Silence", id);
         }

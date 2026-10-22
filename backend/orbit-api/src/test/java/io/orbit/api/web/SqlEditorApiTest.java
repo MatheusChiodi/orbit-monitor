@@ -46,7 +46,7 @@ class SqlEditorApiTest {
     }
 
     private ResultActions send(MockHttpServletRequestBuilder request, String body) throws Exception {
-        return mvc.perform(request.header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON).content(body));
+        return mvc.perform(request.contentType(MediaType.APPLICATION_JSON).content(body));
     }
 
     @Test
@@ -65,13 +65,13 @@ class SqlEditorApiTest {
     void savedQueries() throws Exception {
         send(put("/api/query-catalog/q_pending"), "{\"name\":\"Pending orders\",\"connectionId\":\"con_editor\","
                 + "\"sql\":\"SELECT COUNT(*) AS N FROM ORDERS WHERE STATUS = :status\",\"description\":\"queue\"}")
-                .andExpect(status().isOk()).andExpect(jsonPath("$.updatedBy").value("Ana"));
+                .andExpect(status().isOk()).andExpect(jsonPath("$.updatedBy").value("loopback"));
         mvc.perform(get("/api/query-catalog").param("connectionId", "con_editor")).andExpect(status().isOk())
                 .andExpect(jsonPath("$[?(@.id == 'q_pending')].name", hasItem("Pending orders")));
         mvc.perform(get("/api/query-catalog/q_pending")).andExpect(jsonPath("$.description").value("queue"));
         send(put("/api/query-catalog/q_bad"), "{\"name\":\"Bad\",\"connectionId\":\"con_editor\",\"sql\":\"DELETE FROM ORDERS\"}")
                 .andExpect(status().isUnprocessableEntity());
-        mvc.perform(delete("/api/query-catalog/q_pending").header(Operators.HEADER, "Ana"))
+        mvc.perform(delete("/api/query-catalog/q_pending"))
                 .andExpect(status().isNoContent());
         mvc.perform(get("/api/query-catalog/q_pending")).andExpect(status().isNotFound());
         mvc.perform(get("/api/audit").param("action", "query-catalog.")).andExpect(status().isOk())

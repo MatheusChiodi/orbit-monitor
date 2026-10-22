@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * A system or team (Payments, Customer Portal, Core Bank) that gathers monitors of any type.
- * Stored in {@code orbit.groups.json}; {@code updatedBy} is the self-declared operator name.
+ * Stored in {@code orbit.groups.json}; {@code updatedBy} is the client kind that made the change.
  * {@code monitorOrder} is the manual order of the group's monitors (FE-13); membership itself is the
  * monitor's {@code groupId}.
  */

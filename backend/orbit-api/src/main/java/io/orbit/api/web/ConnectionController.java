@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -67,9 +66,8 @@ public class ConnectionController {
 
     @PutMapping("/{id}")
     public ConnectionView save(@PathVariable String id, @RequestBody ConnectionRequest body,
-                               @RequestHeader(value = Operators.HEADER, required = false) String header,
                                HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         SecretRef password = password(id, body);
         ConnectionDef saved = definitions.saveConnection(new ConnectionDef(id, body.name(), body.jdbcUrl(),
                 body.username(), password, body.poolSize() == null ? 2 : body.poolSize(), null, null), operator);
@@ -81,9 +79,8 @@ public class ConnectionController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id,
-                                       @RequestHeader(value = Operators.HEADER, required = false) String header,
                                        HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         if (!definitions.deleteConnection(id)) {
             throw new NotFoundException("Connection", id);
         }

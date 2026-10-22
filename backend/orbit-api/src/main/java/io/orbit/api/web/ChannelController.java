@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -78,9 +77,8 @@ public class ChannelController {
 
     @PutMapping("/{id}")
     public synchronized ChannelView save(@PathVariable String id, @RequestBody ChannelRequest body,
-                                         @RequestHeader(value = Operators.HEADER, required = false) String header,
                                          HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         Optional<ChannelDef> current = find(id);
         ChannelDef channel = new ChannelDef(id, body.name(), body.type(),
                 secret(body.url(), current.map(ChannelDef::url)),
@@ -98,9 +96,8 @@ public class ChannelController {
     /** Sends a test message now (no retries) so the operator can check the channel. */
     @PostMapping("/{id}/test")
     public TestResult test(@PathVariable String id,
-                           @RequestHeader(value = Operators.HEADER, required = false) String header,
                            HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         ChannelDef channel = find(id).orElseThrow(() -> new NotFoundException("Channel", id));
         audit.record(operator, "channel.test", id, null, request.getRemoteAddr());
         try {
@@ -114,9 +111,8 @@ public class ChannelController {
 
     @DeleteMapping("/{id}")
     public synchronized ResponseEntity<Void> delete(@PathVariable String id,
-                                                    @RequestHeader(value = Operators.HEADER, required = false)
-                                                    String header, HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+                                                    HttpServletRequest request) {
+        String operator = Actors.current();
         List<ChannelDef> remaining = file.items().stream().filter(c -> !c.id().equals(id)).toList();
         if (remaining.size() == file.items().size()) {
             throw new NotFoundException("Channel", id);

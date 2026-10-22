@@ -31,9 +31,9 @@ class StatusPagesApiTest {
     MockMvc mvc;
 
     private void create(String id, String slug, boolean pub) throws Exception {
-        mvc.perform(put("/api/groups/grp_stp_pay").header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(put("/api/groups/grp_stp_pay").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"Payments\",\"color\":\"#3b9eff\"}")).andExpect(status().isOk());
-        mvc.perform(post("/api/status-pages").header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/api/status-pages").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"id\":\"%s\",\"slug\":\"%s\",\"title\":\"Example status\",\"pub\":%s,\"groupIds\":[\"grp_stp_pay\"]}"
                                 .formatted(id, slug, pub)))
                 .andExpect(status().isCreated());
@@ -77,14 +77,14 @@ class StatusPagesApiTest {
     @Test
     @DisplayName("only editors manage definitions; slugs are validated")
     void management() throws Exception {
-        mvc.perform(post("/api/status-pages").with(from("192.168.0.5")).header(Operators.HEADER, "TV")
+        mvc.perform(post("/api/status-pages").with(from("192.168.0.5"))
                         .contentType(MediaType.APPLICATION_JSON).content("{\"id\":\"stp_lan\",\"slug\":\"lan\",\"title\":\"x\"}"))
                 .andExpect(status().isForbidden());
-        mvc.perform(put("/api/status-pages/stp_bad").header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(put("/api/status-pages/stp_bad").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"slug\":\"Bad Slug\",\"title\":\"x\"}"))
                 .andExpect(status().isUnprocessableEntity());
         create("stp_api_del", "api-del", true);
-        mvc.perform(delete("/api/status-pages/stp_api_del").header(Operators.HEADER, "Ana"))
+        mvc.perform(delete("/api/status-pages/stp_api_del"))
                 .andExpect(status().isNoContent());
         mvc.perform(get("/api/status/api-del")).andExpect(status().isNotFound());
     }

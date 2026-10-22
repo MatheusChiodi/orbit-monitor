@@ -29,7 +29,7 @@ class CustomizationApiTest {
     MockMvc mvc;
 
     private ResultActions send(MockHttpServletRequestBuilder request, String body) throws Exception {
-        return mvc.perform(request.header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON).content(body));
+        return mvc.perform(request.contentType(MediaType.APPLICATION_JSON).content(body));
     }
 
     @Test
@@ -38,7 +38,7 @@ class CustomizationApiTest {
         send(put("/api/customization/workspace"), "{\"values\":{\"card.monitor.clickAction\":\"expand\",\"a.b\":1}}")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("workspace"))
-                .andExpect(jsonPath("$.updatedBy").value("Ana"));
+                .andExpect(jsonPath("$.updatedBy").value("loopback"));
         send(put("/api/customization/layout/api-noc"), "{\"values\":{\"card.monitor.clickAction\":\"none\"}}")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("layout:api-noc"));
@@ -48,12 +48,12 @@ class CustomizationApiTest {
                 .andExpect(jsonPath("$.values['card.monitor.clickAction']").value("none"))
                 .andExpect(jsonPath("$.values['a.b']").value(1));
         mvc.perform(get("/api/customization")).andExpect(jsonPath("$.items[*].id", hasItem("layout:api-noc")));
-        mvc.perform(put("/api/customization/workspace").with(from("192.168.0.5")).header(Operators.HEADER, "TV")
+        mvc.perform(put("/api/customization/workspace").with(from("192.168.0.5"))
                 .contentType(MediaType.APPLICATION_JSON).content("{\"values\":{}}")).andExpect(status().isForbidden());
         send(put("/api/customization/workspace"), "{\"values\":{\"privacy.showFullPan\":true}}")
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.code").value("invalid-config"));
-        mvc.perform(delete("/api/customization/layout/api-noc").header(Operators.HEADER, "Ana"))
+        mvc.perform(delete("/api/customization/layout/api-noc"))
                 .andExpect(status().isNoContent());
         mvc.perform(get("/api/customization/layout/api-noc")).andExpect(status().isNotFound());
     }
@@ -91,6 +91,6 @@ class CustomizationApiTest {
         send(put("/api/terminology/en"), "{\"terms\":{\"status.DOWN\":\"<b>Off</b>\"}}")
                 .andExpect(status().isUnprocessableEntity());
         mvc.perform(get("/api/terminology/fr")).andExpect(status().isBadRequest());
-        mvc.perform(delete("/api/terminology/pt-BR").header(Operators.HEADER, "Ana")).andExpect(status().isNoContent());
+        mvc.perform(delete("/api/terminology/pt-BR")).andExpect(status().isNoContent());
     }
 }

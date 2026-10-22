@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -73,9 +72,8 @@ public class GroupController {
     /** FE-13: persists the group order and, when given, the monitors of each group in order. */
     @PutMapping("/order")
     public List<GroupResponse> order(@RequestBody OrderRequest body,
-                                     @RequestHeader(value = Operators.HEADER, required = false) String operatorHeader,
                                      HttpServletRequest request) {
-        String operator = Operators.require(operatorHeader, null);
+        String operator = Actors.current();
         Map<String, List<String>> monitors = body.monitors() == null ? Map.of() : body.monitors();
         List<String> unknown = monitors.values().stream().flatMap(List::stream)
                 .filter(id -> definitions.monitor(id).isEmpty()).toList();
@@ -94,9 +92,8 @@ public class GroupController {
 
     @PutMapping("/{id}")
     public GroupResponse save(@PathVariable String id, @RequestBody GroupRequest body,
-                              @RequestHeader(value = Operators.HEADER, required = false) String operatorHeader,
                               HttpServletRequest request) {
-        String operator = Operators.require(operatorHeader, null);
+        String operator = Actors.current();
         List<String> monitorOrder = groups.find(id).map(Group::monitorOrder).orElse(List.of());
         Group saved = groups.save(new Group(id, body.name(), body.color(), body.icon(), body.description(),
                 body.owner(), body.tags(), body.order() == null ? 0 : body.order(), null, null, monitorOrder), operator);
@@ -106,9 +103,8 @@ public class GroupController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id,
-                                       @RequestHeader(value = Operators.HEADER, required = false) String operatorHeader,
                                        HttpServletRequest request) {
-        String operator = Operators.require(operatorHeader, null);
+        String operator = Actors.current();
         if (!groups.delete(id)) {
             throw new NotFoundException("Group", id);
         }

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,9 +43,8 @@ public class LayoutController {
 
     @PutMapping("/{id}")
     public WallLayoutService.Layout save(@PathVariable String id, @RequestBody LayoutRequest body,
-                                         @RequestHeader(value = Operators.HEADER, required = false) String header,
                                          HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         WallLayoutService.Layout saved = layouts.save(new WallLayoutService.Layout(id, body.slug(), body.name(), 0,
                 body.blocks(), null, null, body.themeId(), body.animationLevel(), body.playlist()), operator);
         audit.record(operator, "layout.save", id, body.slug() + " v" + saved.version(), request.getRemoteAddr());
@@ -55,9 +53,8 @@ public class LayoutController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id,
-                                       @RequestHeader(value = Operators.HEADER, required = false) String header,
                                        HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         if (!layouts.delete(id)) {
             throw new NotFoundException("Layout", id);
         }

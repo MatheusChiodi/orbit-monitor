@@ -43,11 +43,11 @@ class LayoutApiTest {
     @Test
     @DisplayName("saved layouts are versioned and readable by slug; the TV cannot edit them")
     void saveAndRead() throws Exception {
-        mvc.perform(put("/api/layouts/lay_pay").header(Operators.HEADER, "Ana")
+        mvc.perform(put("/api/layouts/lay_pay")
                         .contentType(MediaType.APPLICATION_JSON).content(LAYOUT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.version").value(1));
-        mvc.perform(put("/api/layouts/lay_pay").header(Operators.HEADER, "Ana")
+        mvc.perform(put("/api/layouts/lay_pay")
                         .contentType(MediaType.APPLICATION_JSON).content(LAYOUT))
                 .andExpect(jsonPath("$.version").value(2));
 
@@ -55,14 +55,14 @@ class LayoutApiTest {
         mvc.perform(put("/api/layouts/lay_pay").with(r -> {
                     r.setRemoteAddr("192.168.0.50");
                     return r;
-                }).header(Operators.HEADER, "TV").contentType(MediaType.APPLICATION_JSON).content(LAYOUT))
+                }).contentType(MediaType.APPLICATION_JSON).content(LAYOUT))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @DisplayName("blocks that overflow the grid are rejected")
     void invalid() throws Exception {
-        mvc.perform(put("/api/layouts/lay_bad").header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(put("/api/layouts/lay_bad").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"slug\":\"bad\",\"name\":\"Bad\",\"blocks\":[{\"type\":\"hero\",\"x\":10,\"y\":0,\"w\":6,\"h\":2}]}"))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.code").value("invalid-config"));
@@ -77,7 +77,7 @@ class LayoutApiTest {
                  "blocks":[{"id":"s1","type":"series","x":0,"y":0,"w":6,"h":3,"source":"mon_api","range":"7d"},
                            {"id":"n1","type":"text","x":6,"y":0,"w":6,"h":3,"text":"Call the on-call SRE"}]}
                 """;
-        mvc.perform(put("/api/layouts/lay_rot").header(Operators.HEADER, "Ana")
+        mvc.perform(put("/api/layouts/lay_rot")
                         .contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isOk());
         mvc.perform(get("/api/layouts/rotation"))

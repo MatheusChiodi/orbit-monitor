@@ -2,7 +2,6 @@ package io.orbit.api.privacy;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.orbit.api.web.Operators;
 import io.orbit.history.store.HistoryStore;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -165,7 +164,7 @@ class CardDataLeakTest {
     }
 
     private static MockHttpServletRequestBuilder json(MockHttpServletRequestBuilder builder, String body) {
-        return builder.header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON).content(body);
+        return builder.contentType(MediaType.APPLICATION_JSON).content(body);
     }
 
     private WebSocketSession connectWall(BlockingQueue<String> inbox) throws Exception {

@@ -128,7 +128,7 @@ The user builds **what appears, where and how**, with no code:
 ## 6. Administration
 
 * **No login and no user accounts.** Editing is allowed from the machine running Orbit (loopback) by default; other devices on the network get a view-only console and the wall, and can acknowledge incidents. The policy is configurable (loopback / LAN / CIDR allowlist).
-* The operator types a display name once per device; it identifies acknowledgements, comments and audit entries (self-declared).
+* Orbit does not ask for a name: acknowledgements, comments and audit entries record the client kind (`loopback`, `lan`).
 * Database connections and secrets are managed from the console (edit access required); connection test; password rotation without recreating monitors.
 * Complete, filterable audit trail.
 * No Orbit database: configuration is saved in one JSON file per feature on the local machine (see [06-configuration-files.md](06-configuration-files.md)); history (checks, series, incidents, audit) is kept for **30 days** in compact local log files ([08-logs-and-history.md](08-logs-and-history.md)).

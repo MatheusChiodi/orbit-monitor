@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -81,9 +80,8 @@ public class SqlCatalogController {
 
     @PutMapping("/api/query-catalog/{id}")
     public QueryCatalog.SavedQuery save(@PathVariable String id, @RequestBody SavedQueryRequest body,
-                                        @RequestHeader(value = Operators.HEADER, required = false) String header,
                                         HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         QueryCatalog.SavedQuery saved = catalog.save(new QueryCatalog.SavedQuery(id, body.name(), body.connectionId(),
                 body.sql(), body.owner(), body.description(), null, null), operator);
         audit.record(operator, "query-catalog.save", id, saved.sql(), request.getRemoteAddr());
@@ -92,9 +90,8 @@ public class SqlCatalogController {
 
     @DeleteMapping("/api/query-catalog/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id,
-                                       @RequestHeader(value = Operators.HEADER, required = false) String header,
                                        HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         if (!catalog.delete(id)) {
             throw new NotFoundException("Saved query", id);
         }

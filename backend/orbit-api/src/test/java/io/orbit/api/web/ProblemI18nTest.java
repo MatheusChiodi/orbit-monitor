@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -23,25 +23,12 @@ class ProblemI18nTest {
     MockMvc mvc;
 
     @Test
-    void operatorRequiredInBothLanguages() throws Exception {
-        mvc.perform(put("/api/groups/grp_x").contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"X\"}"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("operator-required"))
-                .andExpect(jsonPath("$.title").value("Operator name required"));
-        mvc.perform(put("/api/groups/grp_x").header("Accept-Language", "pt-BR")
-                        .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"X\"}"))
-                .andExpect(jsonPath("$.code").value("operator-required"))
-                .andExpect(jsonPath("$.title").value("Nome do operador obrigatório"))
-                .andExpect(jsonPath("$.detail", containsString("X-Orbit-Operator")));
-    }
-
-    @Test
     void domainMessagesAreTranslatedWithArguments() throws Exception {
         String body = "{\"expression\":\"[NOPE] == 1\"}";
-        mvc.perform(post("/api/conditions/validate").header(Operators.HEADER, "Ana")
+        mvc.perform(post("/api/conditions/validate")
                         .contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(jsonPath("$.detail").value("Unknown placeholder: [NOPE]"));
-        mvc.perform(post("/api/conditions/validate").header(Operators.HEADER, "Ana").header("Accept-Language", "pt-BR")
+        mvc.perform(post("/api/conditions/validate").header("Accept-Language", "pt-BR")
                         .contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(jsonPath("$.code").value("invalid-condition"))
                 .andExpect(jsonPath("$.detail").value("Placeholder desconhecido: [NOPE]"));
@@ -60,8 +47,8 @@ class ProblemI18nTest {
 
     @Test
     void unsupportedLanguageFallsBackToEnglish() throws Exception {
-        mvc.perform(put("/api/groups/grp_x").header("Accept-Language", "fr-FR")
-                        .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"X\"}"))
-                .andExpect(jsonPath("$.title").value("Operator name required"));
+        mvc.perform(get("/api/monitors/does-not-exist").header("Accept-Language", "fr-FR"))
+                .andExpect(jsonPath("$.code").value("not-found"))
+                .andExpect(jsonPath("$.title").value("Not found"));
     }
 }

@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -74,9 +73,8 @@ public class MaintenanceController {
 
     @PutMapping("/{id}")
     public synchronized MaintenanceView save(@PathVariable String id, @RequestBody MaintenanceRequest body,
-                                             @RequestHeader(value = Operators.HEADER, required = false) String header,
                                              HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         MaintenanceWindow window = new MaintenanceWindow(id, body.name(), body.targets(), body.start(), body.end(),
                 body.cron() == null || body.cron().isBlank() ? null : body.cron().strip(),
                 body.durationMinutes() == null ? null : Duration.ofMinutes(body.durationMinutes()), zone(body.zone()),
@@ -90,9 +88,8 @@ public class MaintenanceController {
 
     @DeleteMapping("/{id}")
     public synchronized ResponseEntity<Void> delete(@PathVariable String id,
-                                                    @RequestHeader(value = Operators.HEADER, required = false)
-                                                    String header, HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+                                                    HttpServletRequest request) {
+        String operator = Actors.current();
         List<MaintenanceWindow> remaining = file.items().stream().filter(w -> !w.id().equals(id)).toList();
         if (remaining.size() == file.items().size()) {
             throw new NotFoundException("Maintenance window", id);

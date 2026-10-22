@@ -44,29 +44,26 @@ class IncidentApiTest {
         return incidents.openIncident(monitorId).orElseThrow().id();
     }
 
-    private org.springframework.test.web.servlet.ResultActions action(String id, String action, String operator)
-            throws Exception {
-        return mvc.perform(post("/api/incidents/" + id + "/" + action).header(Operators.HEADER, operator)
+    private org.springframework.test.web.servlet.ResultActions action(String id, String action) throws Exception {
+        return mvc.perform(post("/api/incidents/" + id + "/" + action)
                 .contentType(MediaType.APPLICATION_JSON).content("{}"));
     }
 
     @Test
-    @DisplayName("resolve and reopen record the operator; a second resolve is a conflict")
+    @DisplayName("resolve and reopen record the client kind; a second resolve is a conflict")
     void resolveAndReopen() throws Exception {
         String id = open("api_resolve");
-        action(id, "ack", "Ana").andExpect(jsonPath("$.acknowledgedBy").value("Ana"));
-        action(id, "resolve", "Bia").andExpect(status().isOk())
+        action(id, "ack").andExpect(jsonPath("$.acknowledgedBy").value("loopback"));
+        action(id, "resolve").andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("RESOLVED"))
                 .andExpect(jsonPath("$.events[2].type").value("RESOLVED"))
-                .andExpect(jsonPath("$.events[2].actor").value("Bia"));
-        action(id, "resolve", "Bia").andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("conflict"));
-        action(id, "reopen", "Caio").andExpect(status().isOk())
+                .andExpect(jsonPath("$.events[2].actor").value("loopback"));
+        action(id, "resolve").andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("conflict"));
+        action(id, "reopen").andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("OPEN"))
                 .andExpect(jsonPath("$.acknowledgedBy").doesNotExist())
                 .andExpect(jsonPath("$.events[3].type").value("REOPENED"))
-                .andExpect(jsonPath("$.events[3].actor").value("Caio"));
-        action(id, "resolve", "").andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("operator-required"));
+                .andExpect(jsonPath("$.events[3].actor").value("loopback"));
     }
 
     @Test
@@ -110,7 +107,7 @@ class IncidentApiTest {
     @DisplayName("LAN clients may acknowledge but not resolve, reopen or link tickets")
     void lanPolicy() throws Exception {
         String id = open("api_lan");
-        mvc.perform(post("/api/incidents/" + id + "/resolve").with(from("192.168.0.5")).header(Operators.HEADER, "TV")
+        mvc.perform(post("/api/incidents/" + id + "/resolve").with(from("192.168.0.5"))
                 .contentType(MediaType.APPLICATION_JSON).content("{}")).andExpect(status().isForbidden());
         mvc.perform(post("/api/incidents/" + id + "/ack").with(from("192.168.0.5"))
                 .contentType(MediaType.APPLICATION_JSON).content("{\"by\":\"TV\"}")).andExpect(status().isOk());
@@ -121,7 +118,7 @@ class IncidentApiTest {
     void anonymize() throws Exception {
         String id = open("api_anon");
         incidents.acknowledge(id, "Dora Lima");
-        mvc.perform(post("/api/operators/anonymize").header(Operators.HEADER, "Admin")
+        mvc.perform(post("/api/operators/anonymize")
                         .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"Dora Lima\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.incidents").value(1));

@@ -36,7 +36,7 @@ class OnCallApiTest {
     IncidentService incidents;
 
     private ResultActions send(MockHttpServletRequestBuilder builder, String body) throws Exception {
-        return mvc.perform(builder.header(Operators.HEADER, "Ana").contentType(MediaType.APPLICATION_JSON).content(body));
+        return mvc.perform(builder.contentType(MediaType.APPLICATION_JSON).content(body));
     }
 
     @Test
@@ -58,7 +58,7 @@ class OnCallApiTest {
                 .andExpect(jsonPath("$[0].person").value("Ana"))
                 .andExpect(jsonPath("$[0].shiftEndsAt").value(start.plus(24, ChronoUnit.HOURS).toString()));
         mvc.perform(get("/api/oncall")).andExpect(jsonPath("$[0].people[1]").value("Bia"));
-        mvc.perform(delete("/api/oncall/onc_ops").header(Operators.HEADER, "Ana")).andExpect(status().isNoContent());
+        mvc.perform(delete("/api/oncall/onc_ops")).andExpect(status().isNoContent());
         mvc.perform(get("/api/oncall/now")).andExpect(jsonPath("$.length()").value(0));
     }
 

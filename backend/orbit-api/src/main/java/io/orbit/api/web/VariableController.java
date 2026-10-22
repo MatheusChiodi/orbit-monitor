@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -53,9 +52,8 @@ public class VariableController {
     /** Creates a variable; without an id one is derived from the name ({@code var_<name>}). */
     @PostMapping
     public ResponseEntity<VariableService.View> create(@RequestBody VariableRequest body,
-                                                       @RequestHeader(value = Operators.HEADER, required = false)
-                                                       String header, HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+                                                       HttpServletRequest request) {
+        String operator = Actors.current();
         String id = body.id() != null && !body.id().isBlank() ? body.id() : idFrom(body.name());
         if (variables.find(id).isPresent()) {
             throw new IllegalStateException("Variable already exists: " + id);
@@ -65,16 +63,14 @@ public class VariableController {
 
     @PutMapping("/{id}")
     public VariableService.View update(@PathVariable String id, @RequestBody VariableRequest body,
-                                       @RequestHeader(value = Operators.HEADER, required = false) String header,
                                        HttpServletRequest request) {
-        return save(id, body, Operators.require(header, null), request);
+        return save(id, body, Actors.current(), request);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id,
-                                       @RequestHeader(value = Operators.HEADER, required = false) String header,
                                        HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         if (!variables.delete(id)) {
             throw new NotFoundException("Variable", id);
         }

@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -97,9 +96,8 @@ public class DependencyController {
 
     @PutMapping("/{id}")
     public synchronized Dependency save(@PathVariable String id, @RequestBody DependencyRequest body,
-                                        @RequestHeader(value = Operators.HEADER, required = false) String header,
                                         HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+        String operator = Actors.current();
         Dependency dependency = new Dependency(id, trim(body.upstream()), trim(body.downstream()), body.note());
         List<Dependency> items = new ArrayList<>(file.items().stream().filter(d -> !d.id().equals(id)).toList());
         items.add(dependency);
@@ -111,9 +109,8 @@ public class DependencyController {
 
     @DeleteMapping("/{id}")
     public synchronized ResponseEntity<Void> delete(@PathVariable String id,
-                                                    @RequestHeader(value = Operators.HEADER, required = false)
-                                                    String header, HttpServletRequest request) {
-        String operator = Operators.require(header, null);
+                                                    HttpServletRequest request) {
+        String operator = Actors.current();
         List<Dependency> remaining = file.items().stream().filter(d -> !d.id().equals(id)).toList();
         if (remaining.size() == file.items().size()) {
             throw new NotFoundException("Dependency", id);
