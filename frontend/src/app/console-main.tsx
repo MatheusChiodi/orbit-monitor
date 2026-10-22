@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { I18nextProvider } from 'react-i18next';
 import { createOperatorStore } from '@/domains/security/operator';
 import { createApiClient } from '@/shared/api/client';
+import { createCustomizationApi } from '@/shared/customization/api';
 import { createI18n, detectLocale } from '@/shared/i18n/i18n';
 import { MotionProvider } from '@/shared/motion';
 import { ConsoleApp } from './console';
@@ -10,6 +11,7 @@ import './theme.css';
 
 const operatorStore = createOperatorStore();
 const api = createApiClient({ getOperator: () => operatorStore.getState().name });
+const customizationApi = createCustomizationApi({ getOperator: () => operatorStore.getState().name });
 const locale = detectLocale();
 const i18n = createI18n(locale);
 document.documentElement.lang = locale;
@@ -20,7 +22,7 @@ if (root) {
     <StrictMode>
       <I18nextProvider i18n={i18n}>
         <MotionProvider>
-          <ConsoleApp api={api} operatorStore={operatorStore} />
+          <ConsoleApp api={api} operatorStore={operatorStore} customizationApi={customizationApi} />
         </MotionProvider>
       </I18nextProvider>
     </StrictMode>,
