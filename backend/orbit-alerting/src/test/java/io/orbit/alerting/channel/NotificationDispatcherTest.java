@@ -181,4 +181,13 @@ class NotificationDispatcherTest {
         assertThat(posts).isNotEmpty().allSatisfy(p -> assertThat(p.body()).containsIgnoringCase("flapping"));
         assertThat(posts).hasSize(2);
     }
+
+    @Test
+    @DisplayName("BE-33: an escalation step names who is on call")
+    void escalationNamesOnCall() {
+        down("sel_cards");
+        posts.clear();
+        dispatcher.escalate(incidents.openIncident("sel_cards").orElseThrow(), List.of("chn_hook"), "Bia Souza");
+        assertThat(posts).singleElement().satisfies(p -> assertThat(p.body()).contains("Bia Souza"));
+    }
 }

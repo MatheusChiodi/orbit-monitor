@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "onc_payments",
+      "name": "Payments on call",
+      "people": [
+        "Payments engineer A",
+        "Payments engineer B"
+      ],
+      "start": "2026-10-19T12:00:00Z",
+      "shift": "PT168H",
+      "overrides": [
+        {
+          "person": "Payments engineer B",
+          "from": "2026-10-24T00:00:00Z",
+          "until": "2026-10-25T00:00:00Z"
+        }
+      ]
+    }
+  ]
+}

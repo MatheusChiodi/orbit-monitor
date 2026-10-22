@@ -106,4 +106,34 @@ class EscalationRunnerTest {
         assertThat(sent).containsExactly("pay_api->chn_team");
         assertThat(runner.escalatesAt(incidents.openIncident("pay_web").orElseThrow())).isEmpty();
     }
+
+    @Test
+    @DisplayName("BE-33: a step names the on-call person and the upcoming list shows the next step for the countdown")
+    void upcomingWithOnCall() {
+        List<String> calls = new ArrayList<>();
+        EscalationPolicy policy = new EscalationPolicy("esc_pay", "Payments", List.of(
+                new EscalationPolicy.Step(Duration.ZERO, List.of("chn_team"), "Team", null),
+                new EscalationPolicy.Step(Duration.ofMinutes(15), List.of("chn_manager"), "On-call manager",
+                        "onc_managers")), List.of("grp_pay"));
+        EscalationRunner withOnCall = new EscalationRunner(() -> List.of(policy), incidents,
+                monitorId -> Optional.of("grp_pay"),
+                (incident, step, onCall) -> calls.add(step.name() + "|" + onCall),
+                scheduleId -> scheduleId.equals("onc_managers") ? Optional.of("Bia") : Optional.empty(), clock);
+
+        withOnCall.tick();
+        Incident incident = incidents.openIncident("pay_api").orElseThrow();
+        assertThat(withOnCall.upcoming()).singleElement().satisfies(u -> {
+            assertThat(u.incidentId()).isEqualTo(incident.id());
+            assertThat(u.stepIndex()).isEqualTo(1);
+            assertThat(u.stepName()).isEqualTo("On-call manager");
+            assertThat(u.dueAt()).isEqualTo(T0.plus(Duration.ofMinutes(15)));
+            assertThat(u.onCall()).isEqualTo("Bia");
+            assertThat(u.policyName()).isEqualTo("Payments");
+        });
+
+        now = T0.plus(Duration.ofMinutes(15));
+        withOnCall.tick();
+        assertThat(calls).containsExactly("Team|null", "On-call manager|Bia");
+        assertThat(withOnCall.upcoming()).isEmpty();
+    }
 }

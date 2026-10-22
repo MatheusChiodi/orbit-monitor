@@ -95,6 +95,11 @@ public class NotificationDispatcher implements IncidentListener {
 
     /** BE-27: sends an escalation step to its channels (unless the monitor is silenced or in maintenance). */
     public void escalate(Incident incident, List<String> channelIds) {
+        escalate(incident, channelIds, null);
+    }
+
+    /** BE-27/BE-33: an escalation step; {@code onCall} (may be null) is named in the message. */
+    public void escalate(Incident incident, List<String> channelIds, String onCall) {
         if (suppressed.test(incident.monitorId())) {
             return;
         }
@@ -103,7 +108,7 @@ public class NotificationDispatcher implements IncidentListener {
         ChannelPayloads.Notification base = notification(incident, IncidentEventType.OPENED, info);
         ChannelPayloads.Notification escalation = new ChannelPayloads.Notification(base.incidentId(),
                 base.monitorName(), base.severity(), "Escalation: " + base.title() + " (not acknowledged)",
-                base.text(), base.link());
+                onCall == null ? base.text() : base.text() + "\nOn call: " + redactor.redactText(onCall), base.link());
         for (ChannelDef channel : channels.get()) {
             if (channel.enabled() && channelIds.contains(channel.id())) {
                 sender.send(channel.id(), payload(channel, escalation));

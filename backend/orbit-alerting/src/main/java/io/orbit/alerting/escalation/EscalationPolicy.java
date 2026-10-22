@@ -16,8 +16,20 @@ import java.util.Optional;
  */
 public record EscalationPolicy(String id, String name, List<Step> steps, List<String> groupIds) implements ConfigItem {
 
-    /** @param channelIds channels notified when the step is reached */
-    public record Step(Duration after, List<String> channelIds) {
+    /**
+     * @param channelIds       channels notified when the step is reached
+     * @param name             shown in the countdown ("Escalates to On-call manager in 08:12"); defaults to "Step n"
+     * @param onCallScheduleId BE-33: schedule whose current person is named in the escalation message
+     */
+    public record Step(Duration after, List<String> channelIds, String name, String onCallScheduleId) {
+
+        public Step {
+            channelIds = channelIds == null ? List.of() : List.copyOf(channelIds);
+        }
+
+        public Step(Duration after, List<String> channelIds) {
+            this(after, channelIds, null, null);
+        }
     }
 
     public EscalationPolicy {
@@ -47,15 +59,26 @@ public record EscalationPolicy(String id, String name, List<Step> steps, List<St
 
     /** When the next step fires (shown as a countdown on the wall); empty when acknowledged or done. */
     public Optional<Instant> nextEscalationAt(Incident incident, List<Integer> alreadySent) {
+        return nextStepIndex(incident, alreadySent).map(i -> incident.openedAt().plus(steps.get(i).after()));
+    }
+
+    /** Index of the next step not sent yet; empty when acknowledged, resolved or done. */
+    public Optional<Integer> nextStepIndex(Incident incident, List<Integer> alreadySent) {
         if (stopped(incident)) {
             return Optional.empty();
         }
         for (int i = 0; i < steps.size(); i++) {
             if (!alreadySent.contains(i)) {
-                return Optional.of(incident.openedAt().plus(steps.get(i).after()));
+                return Optional.of(i);
             }
         }
         return Optional.empty();
+    }
+
+    /** Display name of step {@code index} ("Step 2" when it has none). */
+    public String stepName(int index) {
+        String name = steps.get(index).name();
+        return name == null || name.isBlank() ? "Step " + (index + 1) : name;
     }
 
     private static boolean stopped(Incident incident) {

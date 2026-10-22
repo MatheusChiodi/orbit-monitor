@@ -5,6 +5,7 @@ import io.orbit.alerting.channel.ChannelDef;
 import io.orbit.alerting.channel.NotificationDispatcher;
 import io.orbit.alerting.escalation.EscalationPolicy;
 import io.orbit.alerting.escalation.EscalationRunner;
+import io.orbit.alerting.oncall.OnCallSchedule;
 import io.orbit.alerting.suppression.AlertDeduplicator;
 import io.orbit.alerting.suppression.CascadeResolver;
 import io.orbit.alerting.suppression.Dependency;
@@ -169,11 +170,23 @@ public class AlertingBeans {
                         .toList());
     }
 
+    /** BE-33: rotations of people; who is on call now feeds escalation steps and the wall clock block. */
+    @Bean
+    ConfigFile<OnCallSchedule> onCallFile(OrbitProperties properties) {
+        return new ConfigFile<>(properties.configDir(), "oncall", OnCallSchedule.class, ConfigMapper.create(),
+                items -> items.stream().flatMap(s -> s.problems().stream()).toList());
+    }
+
     @Bean
     EscalationRunner escalationRunner(ConfigFile<EscalationPolicy> escalationFile, IncidentService incidents,
-                                      MonitorDefinitions definitions, NotificationDispatcher dispatcher, Clock clock) {
+                                      MonitorDefinitions definitions, NotificationDispatcher dispatcher,
+                                      ConfigFile<OnCallSchedule> onCallFile, Clock clock) {
         return new EscalationRunner(escalationFile::items, incidents,
-                monitorId -> definitions.monitor(monitorId).map(MonitorDef::groupId), dispatcher::escalate, clock);
+                monitorId -> definitions.monitor(monitorId).map(MonitorDef::groupId),
+                (incident, step, onCall) -> dispatcher.escalate(incident, step.channelIds(), onCall),
+                scheduleId -> onCallFile.items().stream().filter(s -> s.id().equals(scheduleId)).findFirst()
+                        .flatMap(s -> s.onCall(clock.instant())),
+                clock);
     }
 
     /** Silenced or in maintenance, by monitor id or by its group. */

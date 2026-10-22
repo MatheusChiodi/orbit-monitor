@@ -4,11 +4,13 @@ import io.orbit.alerting.Incident;
 import io.orbit.alerting.IncidentEvent;
 import io.orbit.alerting.IncidentService;
 import io.orbit.alerting.IncidentStatus;
+import io.orbit.alerting.escalation.EscalationRunner;
 import io.orbit.alerting.report.PostmortemReport;
 import io.orbit.monitor.definition.MonitorDef;
 import io.orbit.monitor.definition.MonitorDefinitions;
 import io.orbit.security.audit.AuditLog;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,11 +64,14 @@ public class IncidentController {
 
     private final IncidentService incidents;
     private final MonitorDefinitions definitions;
+    private final EscalationRunner escalation;
     private final AuditLog audit;
 
-    public IncidentController(IncidentService incidents, MonitorDefinitions definitions, AuditLog audit) {
+    public IncidentController(IncidentService incidents, MonitorDefinitions definitions, EscalationRunner escalation,
+                              AuditLog audit) {
         this.incidents = incidents;
         this.definitions = definitions;
+        this.escalation = escalation;
         this.audit = audit;
     }
 
@@ -84,6 +89,12 @@ public class IncidentController {
     @GetMapping("/{id}")
     public Incident get(@PathVariable String id) {
         return require(id);
+    }
+
+    /** BE-27/FE-40: the next escalation step; 204 when acknowledged, resolved or without a policy. */
+    @GetMapping("/{id}/escalation")
+    public ResponseEntity<EscalationRunner.Upcoming> escalation(@PathVariable String id) {
+        return escalation.next(require(id)).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());
     }
 
     @GetMapping("/{id}/postmortem")
