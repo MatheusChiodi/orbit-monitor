@@ -59,7 +59,7 @@ updated: 2026-10-22
 - Wall rendering: `wall.html?layout=<slug>` or `/wall/<slug>` loads `GET /api/layouts/{slug}` (404/offline = built-in NOC blocks). The built-in arrangement keeps the hand-tuned classic wall; any other layout renders `LayoutGrid` (12 columns at ≥ 1100 px and wider than 4:3, one column in reading order otherwise), loaded lazily so the classic wall stays within budget. Every block kind renders: hero, also active, near limit, ranking (near-limit list, 10 items), matrix, timeline, clock (with BE-33 `GET /api/oncall/now`, refreshed every 5 min), uptime, value, series (live 60 min or a FE-58 history range), indicators, live table (monitor name/state/value only; the snapshot never carries result rows) and text (plain text through the redactor).
 - API normalization (`normalizeLayout`): accepts the BE-41 list shape (plain array) or `{ version, items }`, blocks as `{ type }` or `{ kind }` with optional `id`; unknown kinds and invalid overrides are dropped. Saves send `type` next to `kind` so the backend record keeps the block. Optional fields `themeId`, `animationLevel`, `playlist` and per-block `source`, `range`, `text` are the assumed BE-41 contract (orbit.layouts.json).
 - Console route `index.html#/layouts` / `#/layouts/<id>` (`routes.ts` `layouts`/`layout`, rendered by `ConsoleRoutes` → `LayoutsPage`): list, new layout (free `layout-N` slug), settings (name, slug, theme, animation, playlist), per-block options (source, series range, text), themed preview of the grid, "Open on the wall", read-only for view-only clients. Clock blocks take on-call from `WallSnapshot.onCall` (REST `/api/oncall/now` only for older backends).
-- Backend gap (be-workspace): BE-41 still stores layouts as `{id, slug, name, version, blocks[{type,x,y,w,h,source,field,display}]}`: `themeId`, `animationLevel`, `playlist` and block `id`/`range`/`text` are dropped on save by the backend. Grid, kinds, positions and `source` persist today.
+- BE-41 now keeps block `id`, `range` and `text` too (and the layout `themeId`, `animationLevel`, `playlist`).
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -67,3 +67,4 @@ updated: 2026-10-22
 - 2026-10-18 — layout editor, grid and layouts API client (status: in-progress).
 - 2026-10-22 — wall renders saved layouts by slug (LayoutGrid, all block kinds, on-call clock).
 - 2026-10-22 — console route for the layout editor; block options (status: done; extra fields need BE-41).
+- 2026-10-22 — block options persisted by BE-41.

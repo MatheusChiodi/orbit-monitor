@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ApiError, createApiClient } from './client';
+import { ApiError } from './client';
+import { createApiClient } from './apiClient';
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {

@@ -44,9 +44,10 @@ describe('Hero', () => {
     expect(within(region).getByRole('button', { name: 'Reconhecer' })).toBeInTheDocument();
   });
 
-  it('shows the threshold chart, impact and escalation', () => {
+  it('shows the threshold chart, impact and escalation', async () => {
     render(<Hero selection={selection()} now={now} onAcknowledge={vi.fn()} />);
-    expect(screen.getByRole('img', { name: /Last 60 min of QTY/ })).toBeInTheDocument();
+    // The chart is a lazy chunk (wall budget); the text around it renders at once.
+    expect(await screen.findByRole('img', { name: /Last 60 min of QTY/ })).toBeInTheDocument();
     expect(screen.getByText('Checkout')).toBeInTheDocument();
     expect(screen.getByRole('timer', { name: 'Escalation' })).toHaveTextContent('Escalates in 11:00');
   });

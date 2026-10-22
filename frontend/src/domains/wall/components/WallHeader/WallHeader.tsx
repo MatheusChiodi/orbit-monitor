@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { globalPhrase, statusFromCounts, tabTitle, type StatusCounts } from '@/domains/monitor/status';
 import { formatClock, formatRelative } from '@/shared/format';
@@ -7,10 +7,13 @@ import { translate } from '@/shared/i18n/message';
 import { useAnimationLevel } from '@/shared/motion/animationLevel';
 import type { Group, WorkspaceBranding } from '@/shared/api/types';
 import { OrbitMark, WorkspaceBrand } from '@/domains/workspace/WorkspaceBrand';
-import { MiniOrb, type OrbMonitor } from '@/shared/fx/LivingOrb';
+import type { OrbMonitor } from '@/shared/fx/LivingOrb/orbModel';
 import { Button, FlashValue, StatusPill } from '@/shared/ui';
 import type { WallConnectionState } from '../../store';
 import { StaleBadge } from '../StaleBadge';
+
+/** FE-59 header mini orb: decorative (the status pill says the same), so it loads after first paint. */
+const MiniOrb = lazy(() => import('@/shared/fx/LivingOrb/MiniOrb').then((mod) => ({ default: mod.MiniOrb })));
 
 export interface WallHeaderProps {
   environment: string;
@@ -63,7 +66,11 @@ export function WallHeader({ environment, counts, now, updatedAt, connection, on
       </div>
 
       <div role="status" aria-live="polite" className="flex items-center gap-[0.5rem]">
-        {orb && <MiniOrb monitors={orb.monitors} groups={orb.groups} uptime24h={orb.uptime24h} />}
+        {orb && (
+          <Suspense fallback={null}>
+            <MiniOrb monitors={orb.monitors} groups={orb.groups} uptime24h={orb.uptime24h} />
+          </Suspense>
+        )}
         <StatusPill status={statusFromCounts(counts)}>{translate(t, globalPhrase(counts))}</StatusPill>
       </div>
 

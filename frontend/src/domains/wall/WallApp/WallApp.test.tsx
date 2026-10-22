@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderWithLocale } from '@/test/renderWithLocale';
@@ -91,7 +91,8 @@ describe('FE-45 / FE-47 / FE-48 wall runtime controls', () => {
     const api = { getWallSnapshot: vi.fn().mockRejectedValue(new Error('offline')), acknowledgeIncident: vi.fn() };
     render(<WallApp api={api} connect={vi.fn()} operator="Ana" kiosk mock={() => mockSnapshot('incident', now)} />);
     await screen.findByText('demo data');
-    expect(request).toHaveBeenCalledWith('screen');
+    // Kiosk code is a lazy chunk (wall budget).
+    await waitFor(() => expect(request).toHaveBeenCalledWith('screen'));
     Object.defineProperty(navigator, 'wakeLock', { value: undefined, configurable: true });
   });
 });

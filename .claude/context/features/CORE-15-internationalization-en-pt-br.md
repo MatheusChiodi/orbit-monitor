@@ -71,6 +71,7 @@ English default, pt-BR available; i18next on the front, MessageSource + Accept-L
 - Backend: notification texts are rendered by the alerting templates (BE-35, en/pt-BR per template, owned by orbit-alerting); nothing hard-coded remains in the runtime/wall path.
 - Frontend: each language is its own chunk (base + theme + historyRange namespaces). Entry points `await loadLocale(locale)` before rendering, `setLocale` loads a language before switching and adds it to the instance, so the wall downloads one language only (~9 KB gzip saved from the first load). Tests load both in `src/test/setup.ts`. `messages(locale)` falls back to any loaded language.
 - Frontend closed: both entries (console and wall) send `Accept-Language`; every new screen, the monitor form kinds and the motion panel ship en + pt-BR with a parity test over the merged resources; backend-produced texts (cost advice, config errors, timeline titles) arrive already localized.
+- Frontend: namespaces load per page: the wall asks only for `customization` and `historyRange` (`WALL_NAMESPACES`), the console for all; `setLocale` reuses the page set.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -81,3 +82,4 @@ English default, pt-BR available; i18next on the front, MessageSource + Accept-L
 - 2026-10-22 — backend: localized config validation errors, wall timeline titles, notices, cost advice and coverage label.
 - 2026-10-22 — frontend gaps closed (wall Accept-Language, console screens, monitor form, motion panel) (status: done).
 - 2026-10-22 — frontend: lazy per-language locale chunks (`loadLocale`).
+- 2026-10-22 — frontend: wall loads only its namespaces.

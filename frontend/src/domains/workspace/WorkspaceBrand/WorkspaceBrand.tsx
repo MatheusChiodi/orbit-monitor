@@ -1,6 +1,5 @@
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { sanitizeSvg, svgDataUrl } from '../branding/sanitizeSvg';
 
 /** Provisional mark: blue→green gradient ring with a dark core (docs/03-design.md, section 8). */
 export function OrbitMark() {
@@ -25,11 +24,20 @@ export interface WorkspaceBrandProps {
 /** FE-10: Orbit mark and name, then the workspace logo and name. */
 export function WorkspaceBrand({ name, logoSvg }: WorkspaceBrandProps) {
   const { t } = useTranslation();
-  const logoUrl = useMemo(() => {
-    if (!logoSvg) return null;
-    const result = sanitizeSvg(logoSvg);
-    return result.ok ? svgDataUrl(result.svg) : null;
+  // The sanitizer loads only when there is a logo (wall budget); the name shows at once.
+  const [logo, setLogo] = useState<{ svg: string; url: string | null } | null>(null);
+  useEffect(() => {
+    if (!logoSvg) return;
+    let current = true;
+    void import('../branding/sanitizeSvg').then(({ sanitizeSvg, svgDataUrl }) => {
+      const result = sanitizeSvg(logoSvg);
+      if (current) setLogo({ svg: logoSvg, url: result.ok ? svgDataUrl(result.svg) : null });
+    });
+    return () => {
+      current = false;
+    };
   }, [logoSvg]);
+  const logoUrl = logoSvg && logo?.svg === logoSvg ? logo.url : null;
 
   return (
     <div className="flex min-w-0 items-center gap-[0.55rem]">

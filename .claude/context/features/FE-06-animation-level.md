@@ -50,6 +50,7 @@ Settings → Animation: preset level (off/minimal/standard/expressive/custom), i
 - Console: `?motion=` and the workspace defaults (`/api/settings/defaults`) feed the resolution; the 3D/FX control maps to the FX layer level (off → minimal, low → standard, high → expressive).
 - Remaining (outside this scope): the FX layer (`shared/fx`, orbit-fx) does not yet read the background/intros switches or the intensity value separately from its level.
 - Wall: `WallApp` resolves with the same `resolveMotion` (reduced motion → `?motion=` → layout `animationLevel` → device level + overrides → BE-40 workspace default) and passes the settings and the FX level down. The layout editor sets the layout override ("Animation on this wall"). The earlier wall-only `animationPrecedence.ts` was removed in favour of `motionSettings.ts`.
+- The wall layout override is stored by BE-41 (`animationLevel`) and applied by `WallApp` through `resolveMotion`; the wall part of FE-06 is complete.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -59,3 +60,4 @@ Settings → Animation: preset level (off/minimal/standard/expressive/custom), i
 - 2026-10-18 — animation level provider and resolution (status: in-progress).
 - 2026-10-22 — full animation settings panel and model wired into the console (status: in-progress until the FX layer and wall layouts consume the remaining controls).
 - 2026-10-22 — wall uses `resolveMotion` with the layout override from the layout editor.
+- 2026-10-22 — layout animation override persisted by BE-41.

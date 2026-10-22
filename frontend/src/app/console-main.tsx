@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { I18nextProvider } from 'react-i18next';
 import { createOperatorStore } from '@/domains/security/operator';
-import { createApiClient } from '@/shared/api/client';
+import { createApiClient } from '@/shared/api/apiClient';
 import { connectWall, wallSocketUrl } from '@/shared/api/wallSocket';
 import { createCustomizationApi } from '@/shared/customization/api';
 import { createI18n, detectLocale, loadLocale } from '@/shared/i18n/i18n';

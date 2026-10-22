@@ -1,4 +1,4 @@
-import { ApiError, createApiClient, type ApiClientOptions } from './client';
+import { ApiError, createApiCore, type ApiClientOptions } from './client';
 
 /**
  * Configuration lives in one `orbit.<feature>.json` per feature, managed by the backend
@@ -59,7 +59,7 @@ function scrubSecrets(value: unknown): unknown {
 }
 
 export function createConfigClient(options: ApiClientOptions = {}) {
-  const { request } = createApiClient(options);
+  const { request } = createApiCore(options);
   const path = (resource: ConfigResource, id?: string) =>
     id === undefined ? `/api/${resource}` : `/api/${resource}/${encodeURIComponent(id)}`;
 

@@ -1,4 +1,4 @@
-import { ApiError, createApiClient, type ApiClientOptions } from '@/shared/api/client';
+import { ApiError, createApiCore, type ApiClientOptions } from '@/shared/api/client';
 import { isAnimationLevel, type AnimationLevel } from '@/shared/motion/animationLevel';
 import { THEME_ID_PATTERN } from '@/shared/theme/types';
 import type { Playlist } from '@/domains/wall/playlist/playlist';
@@ -82,7 +82,7 @@ function toRequest(layout: WallLayout): WallLayout {
 
 /** FE-11: layouts are read and written only through `/api/layouts`; nothing is kept in the browser. */
 export function createLayoutsApi(options: ApiClientOptions = {}) {
-  const { request } = createApiClient(options);
+  const { request } = createApiCore(options);
   return {
     async list(): Promise<WallLayout[]> {
       try {

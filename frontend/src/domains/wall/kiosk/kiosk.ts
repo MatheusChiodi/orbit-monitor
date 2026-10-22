@@ -4,10 +4,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 export const CURSOR_IDLE_MS = 3000;
 const HIDDEN_CLASS = 'kiosk-cursor-hidden';
 
-export function isKioskRequested(search: string): boolean {
-  return new URLSearchParams(search).get('kiosk') === '1';
-}
-
 interface WakeLockSentinelLike {
   release: () => Promise<void>;
 }

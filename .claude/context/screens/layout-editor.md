@@ -2,7 +2,7 @@
 screen: layout-editor
 title: "Wall layout editor"
 route: "index.html#/layouts/:id"
-status: in-progress
+status: done
 spec: docs/05-extended-features.md FE-11..FE-20
 updated: 2026-10-22
 ---
@@ -28,14 +28,14 @@ updated: 2026-10-22
 
 ## Features on this screen
 - [CORE-19 · Per-feature JSON configuration files](../features/CORE-19-per-feature-json-configuration-files.md) — in-progress
-- [FE-11 · Wall layout editor](../features/FE-11-wall-layout-editor.md) — in-progress
+- [FE-11 · Wall layout editor](../features/FE-11-wall-layout-editor.md) — done
 - [FE-12 · Keyboard drag and drop](../features/FE-12-keyboard-drag-and-drop.md) — done
 - [FE-15 · Undo/redo](../features/FE-15-undo-redo.md) — done
 - [FE-16 · Layout templates](../features/FE-16-layout-templates.md) — done
 - [FE-17 · Incident simulator](../features/FE-17-incident-simulator.md) — done
 - [FE-18 · Screen previews](../features/FE-18-screen-previews.md) — done
-- [FE-19 · Layout playlist](../features/FE-19-layout-playlist.md) — in-progress
-- [FE-20 · Video wall tiling](../features/FE-20-video-wall-tiling.md) — in-progress
+- [FE-19 · Layout playlist](../features/FE-19-layout-playlist.md) — done
+- [FE-20 · Video wall tiling](../features/FE-20-video-wall-tiling.md) — done
 
 ## Code
 - `frontend/src/app/console/LayoutsPage/LayoutsPage.tsx`
@@ -50,3 +50,4 @@ updated: 2026-10-22
 ## Changelog
 - 2026-10-18 — context file created.
 - 2026-10-22 — console route, layout settings (theme, animation, playlist), block settings and themed preview.
+- 2026-10-22 — routes via `routes.ts` (`#/layouts`, `#/layouts/<id>`); settings persisted by BE-41.

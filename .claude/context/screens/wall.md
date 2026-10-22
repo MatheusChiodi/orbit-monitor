@@ -23,6 +23,7 @@ Header with global status and clock, hero (incident / all operational), also act
 - Saved layouts (FE-11): `WallScreen` keeps the classic arrangement for the built-in NOC blocks and otherwise renders the lazy `LayoutGrid`; layouts of a playlist (FE-19) cross-fade inside `.wall-stage`
 - TV overrides: `?theme=` (FE-05, `LazyThemeProvider`), `?motion=` (FE-06), `?tile=n/2|n/4` (FE-20, `TiledWall`)
 - Hero countdown names the next escalation step (FE-40); clock blocks show who is on call (BE-33)
+- Budget: first load 149.8 KB gzip; `app/wall.css` (wall-only Tailwind sources) and lazy chunks for orb, chart, controls, kiosk, night overlay, notifications, layout grid and API clients; only the wall's locale namespaces load
 - `WallCustomization` (wall-main) reads workspace, layout and device customization, applies the look and renamed labels; Customize mode (FE-53) loads lazily for clients with edit access; `MonitorMatrix` tiles follow the FE-55 card settings and show a text state label for WARN/DOWN
 
 ## States
@@ -57,10 +58,10 @@ Header with global status and clock, hero (incident / all operational), also act
 - [FE-26 · Chart annotations](../features/FE-26-chart-annotations.md) — done
 - [FE-27 · Zoom and synced crosshair](../features/FE-27-zoom-and-synced-crosshair.md) — done
 - [FE-40 · Escalation countdown](../features/FE-40-escalation-countdown.md) — done
-- [FE-11 · Wall layout editor](../features/FE-11-wall-layout-editor.md) — in-progress
-- [FE-19 · Layout playlist](../features/FE-19-layout-playlist.md) — in-progress
+- [FE-11 · Wall layout editor](../features/FE-11-wall-layout-editor.md) — done
+- [FE-19 · Layout playlist](../features/FE-19-layout-playlist.md) — done
 - [FE-20 · Video wall tiling](../features/FE-20-video-wall-tiling.md) — done
-- [FE-05 · Per-layout theme](../features/FE-05-per-layout-theme.md) — in-progress
+- [FE-05 · Per-layout theme](../features/FE-05-per-layout-theme.md) — done
 - [FE-45 · Kiosk mode](../features/FE-45-kiosk-mode.md) — done
 - [FE-46 · Stale data indicator](../features/FE-46-stale-data-indicator.md) — done
 - [FE-47 · Sound alerts](../features/FE-47-sound-alerts.md) — done
@@ -106,3 +107,4 @@ Header with global status and clock, hero (incident / all operational), also act
 - 2026-10-22 — night mode overlay (FE-09), viewing distance scale (FE-08) and workspace brand in the header (FE-10).
 - 2026-10-22 — saved layouts by slug, playlist cross-fade, `?theme=`/`?motion=`/`?tile=`, escalation step name, on-call clock, lazy chunks for the budget.
 - 2026-10-22 — customization (look, labels, card settings, Customize mode for editors) on the wall.
+- 2026-10-22 — first load under the 150 KB gzip budget; BE-41 persists layout theme, animation and playlist.

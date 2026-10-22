@@ -1,4 +1,4 @@
-import { ApiError, createApiClient, type ApiClientOptions } from '@/shared/api/client';
+import { ApiError, createApiCore, type ApiClientOptions } from '@/shared/api/client';
 import { SUPPORTED_LOCALES, isLocale, type Locale } from '@/shared/i18n/i18n';
 import type { Message } from '@/shared/i18n/message';
 import { sanitizeSettings } from './registry';
@@ -118,7 +118,7 @@ export interface CustomizationApi {
 }
 
 export function createCustomizationApi(options: ApiClientOptions = {}): CustomizationApi {
-  const { request } = createApiClient(options);
+  const { request } = createApiCore(options);
   /** `workspace` → `/api/customization/workspace`; `layout:noc` → `/api/customization/layout/noc`. */
   const entryPath = (id: string) => {
     if (id === 'workspace') return '/api/customization/workspace';

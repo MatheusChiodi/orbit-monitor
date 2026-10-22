@@ -1,5 +1,5 @@
 import { mockSnapshot } from '@/domains/wall/mock';
-import type { ApiClient } from '@/shared/api/client';
+import type { ApiClient } from '@/shared/api/apiClient';
 import type { ConsoleEndpoints } from '@/shared/api/consoleEndpoints';
 import { createDemoExtras } from './demoExtras';
 import type { AccessInfo, Connection, MonitorDefinition, PreviewRequest, PreviewResult } from '@/shared/api/types';

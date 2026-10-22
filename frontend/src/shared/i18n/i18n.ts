@@ -48,8 +48,15 @@ const NAMESPACES: Record<Namespace, Record<Locale, Loader>> = {
   monitorForm: { en: () => import('@/domains/monitor/locales/en.json'), 'pt-BR': () => import('@/domains/monitor/locales/pt-BR.json') },
 };
 
-async function loadAll(locale: Locale): Promise<Messages> {
-  const names = Object.keys(NAMESPACES) as Namespace[];
+export const ALL_NAMESPACES = Object.keys(NAMESPACES) as Namespace[];
+/** The wall renders no console screens, monitor form or theme editor: it skips those namespaces. */
+export const WALL_NAMESPACES: readonly Namespace[] = ['customization', 'historyRange'];
+export type { Namespace as LocaleNamespace };
+
+/** Namespaces this page loads for every language (`loadLocale` sets it; `setLocale` reuses it). */
+let pageNamespaces: readonly Namespace[] = ALL_NAMESPACES;
+
+async function loadAll(locale: Locale, names: readonly Namespace[] = ALL_NAMESPACES): Promise<Messages> {
   const [base, ...parts] = await Promise.all([BASE[locale](), ...names.map((name) => NAMESPACES[name][locale]())]);
   const messages: Record<string, unknown> = { ...base!.default };
   names.forEach((name, i) => (messages[name] = parts[i]!.default));
@@ -58,16 +65,18 @@ async function loadAll(locale: Locale): Promise<Messages> {
 
 const RESOURCES: Partial<Record<Locale, Messages>> = {};
 
-export function loadLocaleMessages(locale: Locale): Promise<Messages> {
-  return loadAll(locale);
+export function loadLocaleMessages(locale: Locale, namespaces: readonly Namespace[] = ALL_NAMESPACES): Promise<Messages> {
+  return loadAll(locale, namespaces);
 }
 
 export function isLocaleLoaded(locale: Locale): boolean {
   return RESOURCES[locale] !== undefined;
 }
 
-export async function loadLocale(locale: Locale): Promise<void> {
-  RESOURCES[locale] ??= await loadLocaleMessages(locale);
+/** Loads a language (base messages plus `namespaces`, all by default) before it is rendered. */
+export async function loadLocale(locale: Locale, namespaces: readonly Namespace[] = pageNamespaces): Promise<void> {
+  pageNamespaces = namespaces;
+  RESOURCES[locale] ??= await loadLocaleMessages(locale, namespaces);
 }
 
 export function isLocale(value: unknown): value is Locale {

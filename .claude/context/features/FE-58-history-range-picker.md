@@ -40,9 +40,10 @@ updated: 2026-10-22
 - Coverage text: "History available: last N days" from `GET /api/history/coverage`; when the period starts before the oldest stored data it adds "Covers X% of this period, since …" and a `role="meter"`; low-disk mode adds "only summaries are being recorded".
 - Uses its own `fetch` helpers instead of extending `shared/api/client.ts` (owned by orbit-frontend). The CORE-20 in-memory helpers (`historyCoverage`, `clampPeriod`, `HistoryNotice`) stay as they are; screens can switch to `CoverageIndicator` once they read from the 30-day store.
 - Motion: no animation of its own; buttons use the shared `Button`, which follows the animation level (FE-06).
-- Wall: series blocks with a `range` (24h/7d/30d, chosen in the layout editor) load `GET /api/history/{id}` with the backend resolution rule, draw it and show `CoverageIndicator`; history code loads on demand. Remaining: BE-41 must persist block `range`; the SLA and incident screens (fe-console) still have to place the picker.
+- Wall: series blocks with a `range` (24h/7d/30d, chosen in the layout editor) load `GET /api/history/{id}` with the backend resolution rule, draw it and show `CoverageIndicator`; history code loads on demand. BE-41 now persists the block `range`. Remaining (fe-console): the SLA screen uses FE-43's own period selector and the incident page shows no history window yet, so FE-58's picker/coverage indicator is not placed there.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — range picker, coverage indicator, range logic and BE-52 API helpers with tests, en + pt-BR (status: in-progress until placed on the screens).
 - 2026-10-22 — history window on wall series blocks with coverage indicator.
+- 2026-10-22 — wall series range persisted by BE-41; SLA/incident placement still open.

@@ -6,7 +6,7 @@ const now = new Date(2026, 9, 18, 17, 10, 0);
 const counts = { down: 1, warn: 0, ok: 1, total: 2 };
 
 describe('FE-59 WallHeader mini orb', () => {
-  it('shows the global state as a mini orb next to the status pill', () => {
+  it('shows the global state as a mini orb next to the status pill', async () => {
     render(
       <WallHeader
         environment="Production"
@@ -24,7 +24,7 @@ describe('FE-59 WallHeader mini orb', () => {
         }}
       />,
     );
-    expect(screen.getByTestId('mini-orb')).toHaveAttribute('data-core', 'DOWN');
+    expect(await screen.findByTestId('mini-orb')).toHaveAttribute('data-core', 'DOWN');
     expect(screen.getByRole('status')).toHaveTextContent('1 monitor down');
   });
 

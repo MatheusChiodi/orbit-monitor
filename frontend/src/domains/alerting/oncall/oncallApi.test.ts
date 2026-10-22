@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createOnCallApi, useOnCallNow, ONCALL_REFRESH_MS } from './oncallApi';
+import { useOnCallNow, ONCALL_REFRESH_MS } from './oncallApi';
+import { createOnCallApi } from './oncallClient';
 
 const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 

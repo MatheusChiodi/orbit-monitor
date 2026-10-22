@@ -79,6 +79,7 @@ All screens (see frontmatter).
 - Bundle: components use `m.*` and `MotionProvider` wraps `LazyMotion` whose features (`domMax`: animations, exit, layout) load in their own chunk after first paint. Full `motion.*` pulled every feature into the wall's first load (≈ 28 KB gzip). Alternatives: `LazyMotion` with sync `domAnimation` (smaller saving, no layout animations) or keeping `motion` and missing the 150 KB wall budget. Source: https://motion.dev/docs/react-reduce-bundle-size. Guard: `motion.lazy.test.tsx` fails when a component imports `motion` (shared/viz excluded: its dev gallery has no provider). Tests resolve `m` to `motion` in `src/test/setup.ts` because components are mounted without the provider.
 - New wall blocks (layout grid, clock, metric, series, indicators, table, text) reuse the animated `Panel`, `FlashValue`, `Sparkline` and `NearLimit`; layouts of a playlist cross-fade with the hero preset.
 - Console screens enter with the enter preset on every route change (`ScreenTransition`); new lists (incidents, steps, SLA rows) use `AnimatedItem`; FE-06 switches and speed apply to every preset through `useMotionPreset`.
+- Wall budget (2026-10-22): first load of `wall.html` is 149.8 KB gzip (static imports + CSS, the `wall-performance` e2e measure, now enabled). Off the critical path: Motion features, the living orb and header mini orb, the hero threshold chart, the layout grid, header controls, kiosk, night overlay, desktop notifications, demo data, feature API clients and the logo sanitizer. `package.json` declares `sideEffects: ["**/*.css"]` so unused barrel exports drop out, React/i18next share one `runtime` chunk, and the wall uses its own Tailwind entry (`app/wall.css` → `app/base.css`).
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -92,3 +93,4 @@ All screens (see frontmatter).
 - 2026-10-22 — `m` components + `LazyMotion` (features chunk after first paint) to fit the wall budget.
 - 2026-10-22 — every listed component animated, no pending tests (status: done).
 - 2026-10-22 — route transitions, FE-06 settings applied to every preset, stale pending entries removed (status: done).
+- 2026-10-22 — wall first load 149.8 KB gzip (lazy chunks, runtime chunk, wall-only CSS).

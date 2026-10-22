@@ -1,0 +1,13 @@
+/*
+ * Wall entry: Tailwind scans only the code the wall can render, so console-only utilities stay out of
+ * its first load (150 KB gzip budget). Lazy wall chunks (layout grid, customize controls) are under
+ * these folders too.
+ */
+@import 'tailwindcss' source(none);
+@source '../domains/wall';
+@source '../domains/alerting';
+@source '../domains/workspace/WorkspaceBrand';
+@source '../domains/customization';
+@source '../domains/telemetry/history';
+@source '../shared';
+@import './base.css';

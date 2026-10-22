@@ -23,6 +23,13 @@ export default defineConfig(({ mode }) => ({
         console: resolve(__dirname, 'index.html'),
         wall: resolve(__dirname, 'wall.html'),
       },
+      output: {
+        // One runtime chunk for the libraries every page needs: fewer, larger files gzip better
+        // and keep the wall's first load inside its budget (docs/03-design.md §5).
+        codeSplitting: {
+          groups: [{ name: 'runtime', test: /node_modules[\\/](react|react-dom|scheduler|i18next|react-i18next|zustand|use-sync-external-store)[\\/]/ }],
+        },
+      },
     },
   },
   test: {

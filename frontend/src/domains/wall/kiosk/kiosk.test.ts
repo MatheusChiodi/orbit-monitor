@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { CURSOR_IDLE_MS, isKioskRequested, useKiosk } from './kiosk';
+import { CURSOR_IDLE_MS, useKiosk } from './kiosk';
+import { isKioskRequested } from './kioskRequest';
 
 let release: ReturnType<typeof vi.fn>;
 let request: ReturnType<typeof vi.fn>;

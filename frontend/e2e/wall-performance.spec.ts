@@ -31,8 +31,7 @@ async function initialAssets(request: APIRequestContext): Promise<Asset[]> {
 }
 
 test.describe('wall performance (production build)', () => {
-  test.fixme(`initial load stays under the ${WALL_BUDGET_KB} KB gzip budget`, async ({ request }) => {
-    // Bug (frontend-agent): 166.9 KB at 53cbc38; the shared chunk bundles react-dom, motion and i18next.
+  test(`initial load stays under the ${WALL_BUDGET_KB} KB gzip budget`, async ({ request }) => {
     const assets = await initialAssets(request);
     const total = assets.reduce((sum, a) => sum + a.gzipKb, 0);
     const breakdown = assets.map((a) => `${a.path} ${a.gzipKb.toFixed(1)} KB`).join('\n');

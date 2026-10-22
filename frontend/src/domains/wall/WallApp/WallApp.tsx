@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { useStore } from 'zustand';
 import { useLocale } from '@/shared/i18n/useLocale';
-import type { ApiClient } from '@/shared/api/client';
+import type { ApiCore } from '@/shared/api/client';
 import type { WallSnapshot } from '@/shared/api/types';
 import { connectWall, wallSocketUrl, type ConnectWallOptions, type WallConnection } from '@/shared/api/wallSocket';
 import { FxBackground } from '@/shared/fx/FxBackground';
@@ -19,11 +19,10 @@ import { useWallPresentation, type LoadLayout } from '../layout/useWallLayouts';
 import { useWallSettings, type LoadCustomThemes, type LoadWorkspaceDefaults } from '../layout/useWallSettings';
 import { parseTile } from '../tiling';
 import type { LoadHistory } from '../components/SeriesBlock';
-import { notifyIncident } from '@/domains/alerting/desktopNotifications';
+import type { Incident, MonitorView } from '@/shared/api/types';
+import type { Locale } from '@/shared/i18n/i18n';
 import { useWallAlerts } from '../alerts';
-import { WallControls } from '../components/WallControls';
-import { NightModeOverlay, type NightSchedule } from '../display/nightMode';
-import { useKiosk } from '../kiosk';
+import type { NightSchedule } from '../display/nightSchedule';
 import { createSoundPlayer, loadSoundSettings, saveSoundSettings, type SoundSettings } from '../sound';
 import { WallScreen } from '../components/WallScreen';
 import { useMediaQuery } from '@/shared/hooks/useMediaQuery';
@@ -32,7 +31,7 @@ import { useNow } from '../hooks';
 import { createWallStore } from '../store';
 
 export interface WallAppProps {
-  api: Pick<ApiClient, 'getWallSnapshot' | 'acknowledgeIncident'>;
+  api: Pick<ApiCore, 'getWallSnapshot' | 'acknowledgeIncident'>;
   connect?: (options: ConnectWallOptions) => WallConnection;
   operator: string;
   mock?: () => WallSnapshot | Promise<WallSnapshot>;
@@ -58,6 +57,21 @@ export interface WallAppProps {
 }
 
 const NO_LAYOUT: LoadLayout = async () => null;
+
+/** FE-48: the notification code loads with the first incident that needs it (wall budget). */
+function notifyIncident(incident: Incident, monitor: MonitorView, locale: Locale): boolean {
+  void import('@/domains/alerting/desktopNotifications/desktopNotifications').then((mod) => mod.notifyIncident(incident, monitor, locale));
+  return true;
+}
+
+/** FE-09 overlay, loaded only when `?night=` is set (wall budget). */
+const NightModeOverlay = lazy(() => import('../display/nightMode').then((mod) => ({ default: mod.NightModeOverlay })));
+
+/** Header controls (sound, notifications, playlist status) render right after first paint (wall budget). */
+const WallControls = lazy(() => import('../components/WallControls').then((mod) => ({ default: mod.WallControls })));
+
+/** FE-45 kiosk code loads only with `?kiosk=1` (wall budget). */
+const KioskMode = lazy(() => import('../kiosk/KioskMode'));
 
 /** FE-49 phone view, loaded only on phones (wall budget). */
 const OnCallView = lazy(() => import('../components/OnCallView').then((mod) => ({ default: mod.OnCallView })));
@@ -111,12 +125,7 @@ export function WallApp({
   const locale = useLocale();
   const [sound, setSound] = useState<SoundSettings>(loadSoundSettings);
   const [player] = useState(() => createSoundPlayer());
-  const kioskMode = useKiosk();
-  const { enter: enterKiosk } = kioskMode;
 
-  useEffect(() => {
-    if (kiosk) void enterKiosk();
-  }, [kiosk, enterKiosk]);
 
   useWallAlerts(snapshot, { sound, player, notify: notifyIncident, locale });
 
@@ -189,7 +198,11 @@ export function WallApp({
       updatedAt={lastUpdateAt}
       onAcknowledge={onAcknowledge}
       onFullscreen={requestFullscreen}
-      controls={<WallControls sound={sound} onSoundChange={onSoundChange} playlist={presentation.playlist} />}
+      controls={
+        <Suspense fallback={null}>
+          <WallControls sound={sound} onSoundChange={onSoundChange} playlist={presentation.playlist} />
+        </Suspense>
+      }
       blocks={presentation.blocks}
       layoutKey={presentation.slug}
       loadEscalation={loadEscalation}
@@ -224,7 +237,16 @@ export function WallApp({
             screen
           )}
         </div>
-        {nightMode && <NightModeOverlay schedule={nightMode} now={now} hasUnownedIncident={unownedIncident} />}
+        {kiosk && (
+          <Suspense fallback={null}>
+            <KioskMode />
+          </Suspense>
+        )}
+        {nightMode && (
+          <Suspense fallback={null}>
+            <NightModeOverlay schedule={nightMode} now={now} hasUnownedIncident={unownedIncident} />
+          </Suspense>
+        )}
       </FxProvider>
     </MotionProvider>
     </LazyThemeProvider>

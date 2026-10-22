@@ -1,15 +1,4 @@
-import type {
-  AccessInfo,
-  Connection,
-  Group,
-  Incident,
-  MonitorDefinition,
-  MonitorView,
-  PreviewRequest,
-  PreviewResult,
-  WallSnapshot,
-} from './types';
-import { createConsoleEndpoints } from './consoleEndpoints';
+import type { AccessInfo, Incident, WallSnapshot } from './types';
 
 export class ApiError extends Error {
   readonly status: number;
@@ -54,7 +43,11 @@ async function readErrorMessage(response: Response): Promise<string> {
   return fallback;
 }
 
-export function createApiClient(options: ApiClientOptions = {}) {
+/**
+ * HTTP core (headers, errors, JSON) plus the wall's own calls. The wall and the small feature
+ * clients use it directly so the console endpoints never reach the wall bundle.
+ */
+export function createApiCore(options: ApiClientOptions = {}) {
   const baseUrl = options.baseUrl ?? '';
   const doFetch = options.fetch ?? ((input, init) => globalThis.fetch(input, init));
 
@@ -88,19 +81,12 @@ export function createApiClient(options: ApiClientOptions = {}) {
 
   return {
     request,
-    ...createConsoleEndpoints(request, raw, (error) => error instanceof ApiError && error.status === 404),
+    raw,
     getAccess: () => request<AccessInfo>('/api/access'),
     getWallSnapshot: () => request<WallSnapshot>('/api/wall/snapshot'),
     acknowledgeIncident: (id: string, by: string) =>
       request<Incident>(`/api/incidents/${encodeURIComponent(id)}/ack`, { method: 'POST', body: { by } }),
-    listGroups: () => request<Group[]>('/api/groups'),
-    listMonitors: () => request<MonitorView[]>('/api/monitors'),
-    listConnections: () => request<Connection[]>('/api/connections'),
-    createMonitor: (definition: MonitorDefinition) =>
-      request<MonitorDefinition>('/api/monitors', { method: 'POST', body: definition }),
-    previewMonitor: (target: PreviewRequest) =>
-      request<PreviewResult>('/api/monitors/preview', { method: 'POST', body: target }),
   };
 }
 
-export type ApiClient = ReturnType<typeof createApiClient>;
+export type ApiCore = ReturnType<typeof createApiCore>;

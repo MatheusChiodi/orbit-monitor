@@ -1,0 +1,262 @@
+@import '@fontsource/inter/latin-400.css';
+@import '@fontsource/inter/latin-500.css';
+@import '@fontsource/inter/latin-600.css';
+@import '@fontsource/inter-tight/latin-600.css';
+@import '@fontsource/inter-tight/latin-700.css';
+@import '@fontsource/inter-tight/latin-800.css';
+@import '@fontsource/geist-mono/latin-400.css';
+@import '@fontsource/geist-mono/latin-500.css';
+@import '@fontsource/geist-mono/latin-600.css';
+
+/* Tokens from docs/03-design.md, section 2 */
+:root {
+  --bg: #07090d;
+  --s1: #0d1117;
+  --s2: #121820;
+  --s3: #182029;
+  --line: rgba(255, 255, 255, 0.07);
+  --line-2: rgba(255, 255, 255, 0.13);
+  --text: #eef2f7;
+  --muted: #8b96a6;
+  --dim: #5a6575;
+  --ok: #22c55e;
+  --warn: #f5a524;
+  --down: #ff3b4f;
+  --info: #3b9eff;
+  --ok-text: #a9f0c3;
+  --warn-text: #ffd48a;
+  --down-text: #ffb3ba;
+  color-scheme: dark;
+}
+
+@theme {
+  --color-bg: var(--bg);
+  --color-s1: var(--s1);
+  --color-s2: var(--s2);
+  --color-s3: var(--s3);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-dim: var(--dim);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-down: var(--down);
+  --color-info: var(--info);
+  --color-ok-text: var(--ok-text);
+  --color-warn-text: var(--warn-text);
+  --color-down-text: var(--down-text);
+  --font-display: 'Inter Tight', 'Inter', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
+}
+
+html {
+  font-size: clamp(12px, .7vw + .45vh, 36px);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+.font-mono,
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.section-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+:focus-visible {
+  outline: 2px solid var(--info);
+  outline-offset: 2px;
+}
+
+/* Console: fixed font size set by the density (FE-07, 14–16 px; 15 px comfortable) */
+html.console {
+  font-size: var(--density-font, 15px);
+}
+
+/* Wall: viewing distance preset (FE-08) multiplies the fluid base, never below 12 px.
+   FE-20: on a video wall each screen shows one tile of a canvas `--wall-tile-factor` screens tall. */
+html.wall {
+  font-size: clamp(12px, calc((.7vw + .45vh) * var(--wall-scale, 1) * var(--wall-tile-factor, 1)), calc(36px * var(--wall-tile-factor, 1)));
+}
+
+/* < 1100 px or aspect ratio >= 4:3: one column, fixed 14 px font */
+@media (max-width: 1099px), (max-aspect-ratio: 4/3) {
+  html.wall {
+    font-size: 14px;
+  }
+}
+
+@keyframes orbit-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+@keyframes orbit-ring {
+  0% { transform: scale(1); opacity: 0.55; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+
+@keyframes orbit-flash {
+  from { background-color: color-mix(in srgb, var(--info) 16%, transparent); }
+  to { background-color: transparent; }
+}
+
+@keyframes orbit-pulse-once {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+@keyframes orbit-draw {
+  from { stroke-dashoffset: 12; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes orbit-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes orbit-flash-up {
+  from { background-color: color-mix(in srgb, var(--ok) 22%, transparent); }
+  to { background-color: transparent; }
+}
+
+@keyframes orbit-flash-down {
+  from { background-color: color-mix(in srgb, var(--down) 22%, transparent); }
+  to { background-color: transparent; }
+}
+
+.anim-flash-up { border-radius: 0.3rem; animation: orbit-flash-up 0.6s ease-out 1; }
+.anim-flash-down { border-radius: 0.3rem; animation: orbit-flash-down 0.6s ease-out 1; }
+.anim-blink { animation: orbit-blink 1.4s ease-in-out infinite; }
+.anim-pulse-once { animation: orbit-pulse-once 0.8s cubic-bezier(.2, .8, .2, 1) 1; }
+.anim-draw { stroke-dasharray: 1000; animation: orbit-draw 0.2s cubic-bezier(.2, .8, .2, 1) 1; }
+.anim-shimmer {
+  background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+  background-size: 200% 100%;
+  animation: orbit-shimmer 1.6s linear infinite;
+}
+.anim-ring { animation: orbit-ring 2.6s ease-out infinite; }
+.anim-flash { animation: orbit-flash 3s ease-out forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Wall: one scrollable column by default (phone, laptop, 4:3) */
+.wall-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 0.8rem;
+}
+.wall-col,
+.wall-pair {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  min-height: 0;
+}
+.wall-hero {
+  display: grid;
+}
+/* FE-19: layouts of a playlist cross-fade, stacked in the same cell */
+.wall-stage {
+  display: grid;
+}
+.wall-stage__layout {
+  grid-area: 1 / 1;
+  min-width: 0;
+  min-height: 0;
+}
+/* FE-11: a saved layout; one column in reading order on small screens */
+.wall-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 0.8rem;
+}
+/* FE-45: kiosk mode hides an idle cursor */
+.kiosk-cursor-hidden,
+.kiosk-cursor-hidden * {
+  cursor: none !important;
+}
+
+/* FE-46: stale data greys the wall out (the stale badge explains why) */
+.wall-root[data-stale="true"] .wall-layout,
+.wall-root[data-stale="true"] .wall-grid {
+  filter: grayscale(0.85);
+  opacity: 0.6;
+}
+.wall-chart {
+  min-height: 12rem;
+}
+
+/* >= 1100 px and wider than 4:3: full wall without scroll, columns 1.5 : 1 */
+@media (min-width: 1100px) and (min-aspect-ratio: 1334/1000) {
+  .wall-root {
+    display: flex;
+    flex-direction: column;
+    height: var(--wall-canvas-height, 100vh);
+    overflow: hidden;
+  }
+  .wall-stage {
+    flex: 1;
+    min-height: 0;
+  }
+  .wall-stage__layout {
+    display: flex;
+    flex-direction: column;
+  }
+  .wall-grid {
+    display: grid;
+    flex: 1;
+    min-height: 0;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: repeat(var(--wall-rows, 1), minmax(0, 1fr));
+  }
+  .wall-block {
+    grid-column: var(--block-col);
+    grid-row: var(--block-row);
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .wall-layout {
+    display: grid;
+    flex: 1;
+    min-height: 0;
+    grid-template-columns: 1.5fr 1fr;
+  }
+  .wall-hero { flex: 57 1 0; min-height: 0; }
+  .wall-pair { flex: 43 1 0; display: grid; grid-template-columns: 1fr 1fr; }
+  .wall-matrix { flex: 60 1 0; min-height: 0; }
+  .wall-timeline { flex: 40 1 0; min-height: 0; }
+  .wall-chart { min-height: 8rem; }
+}
+
+/* FE-06: switches from the animation settings (set on <html> by AnimationLevelProvider). */
+:root[data-motion-attention='off'] .anim-blink { animation: none; }
+:root[data-motion-feedback='off'] .anim-flash-up,
+:root[data-motion-feedback='off'] .anim-flash-down,
+:root[data-motion-feedback='off'] .anim-pulse-once,
+:root[data-motion-feedback='off'] .anim-draw { animation: none; }

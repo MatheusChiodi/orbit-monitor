@@ -1,11 +1,15 @@
+import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatPercent, formatRelative } from '@/shared/format';
 import { currentLocale } from '@/shared/i18n/i18n';
 import type { Group } from '@/shared/api/types';
-import { HeroOrb } from '@/shared/fx/HeroOrb';
-import { LivingOrb, type OrbMonitor } from '@/shared/fx/LivingOrb';
+import type { OrbMonitor } from '@/shared/fx/LivingOrb/orbModel';
 import { useAnimationLevel } from '@/shared/motion/animationLevel';
 import { Panel } from '@/shared/ui';
+
+/** FE-59 orb code loads after first paint; the calm symbol shows until then (wall budget). */
+const HeroOrb = lazy(() => import('@/shared/fx/HeroOrb').then((mod) => ({ default: mod.HeroOrb })));
+const LivingOrb = lazy(() => import('@/shared/fx/LivingOrb/LivingOrb').then((mod) => ({ default: mod.LivingOrb })));
 
 export interface HeroCalmProps {
   uptime24h: number;
@@ -39,15 +43,19 @@ export function HeroCalm({ uptime24h, lastRecoveryAt, nearLimitCount, now, monit
     <Panel title={t('wall.hero.title')} tone="OK" live className="h-full pl-[1.25rem]">
       <div className="flex flex-1 flex-col items-center justify-center gap-[1.2rem] py-[1.5rem] text-center">
         {monitors && groups ? (
-          <LivingOrb
-            monitors={monitors}
-            groups={groups}
-            uptime24h={uptime24h}
-            className="h-[17rem] w-full max-w-[38rem]"
-            fallback={symbol}
-          />
+          <Suspense fallback={symbol}>
+            <LivingOrb
+              monitors={monitors}
+              groups={groups}
+              uptime24h={uptime24h}
+              className="h-[17rem] w-full max-w-[38rem]"
+              fallback={symbol}
+            />
+          </Suspense>
         ) : (
-          <HeroOrb className="h-[14rem] w-[26rem] max-w-full" fallback={symbol} />
+          <Suspense fallback={symbol}>
+            <HeroOrb className="h-[14rem] w-[26rem] max-w-full" fallback={symbol} />
+          </Suspense>
         )}
         <h3 className="m-0 font-display text-[2.4rem] font-bold tracking-tight">{t('status.phrase.ok')}</h3>
         <dl className="m-0 grid grid-cols-1 gap-[0.8rem] sm:grid-cols-3">

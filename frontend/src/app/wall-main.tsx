@@ -5,21 +5,17 @@ import { loadOperator, normalizeOperatorName, saveOperator } from '@/domains/sec
 import { WallCustomization } from '@/domains/customization/WallCustomization';
 import { parseAccess } from '@/domains/security/access';
 import { WallApp, operatorName } from '@/domains/wall/WallApp';
-import { applyViewingScale, scaleFromSearch, scheduleFromSearch } from '@/domains/wall/display';
-import { isKioskRequested } from '@/domains/wall/kiosk';
-import { createEscalationApi } from '@/domains/alerting/escalation/escalationApi';
-import { createOnCallApi } from '@/domains/alerting/oncall/oncallApi';
-import { createLayoutsApi } from '@/domains/workspace/layout/layoutsApi';
-import { createApiClient } from '@/shared/api/client';
-import { createConfigClient } from '@/shared/api/configResources';
+import { scheduleFromSearch } from '@/domains/wall/display/nightSchedule';
+import { applyViewingScale, scaleFromSearch } from '@/domains/wall/display/viewingScale';
+import { isKioskRequested } from '@/domains/wall/kiosk/kioskRequest';
+import { createApiCore } from '@/shared/api/client';
 import { createCustomizationApi } from '@/shared/customization/api';
 import { createCustomizationStore } from '@/shared/customization/store';
 import { createTerminologyStore } from '@/shared/customization/terminology';
 import { wallLayoutSlug } from '@/shared/api/wallSocket';
-import { fetchWorkspaceDefaults } from '@/shared/api/workspaceDefaults';
-import { createI18n, detectLocale, loadLocale } from '@/shared/i18n/i18n';
+import { WALL_NAMESPACES, createI18n, detectLocale, loadLocale } from '@/shared/i18n/i18n';
 import { loadPreferences } from '@/shared/preferences/preferences';
-import './theme.css';
+import './wall.css';
 
 const params = new URLSearchParams(window.location.search);
 const scenario = params.get('scenario') === 'ok' ? 'ok' : 'incident';
@@ -34,17 +30,15 @@ const operator = operatorName(window.location.search, loadOperator());
 saveOperator(normalizeOperatorName(operator));
 
 // CORE-15: Problem Details in the wall's language (`i18n` is created below; read lazily per request).
-const api = createApiClient({ getOperator: () => operator, getLocale: () => i18n.language });
-const layouts = createLayoutsApi();
-const config = createConfigClient();
-const escalation = createEscalationApi();
-const onCall = createOnCallApi();
+const api = createApiCore({ getOperator: () => operator, getLocale: () => i18n.language });
+// Feature clients load on first use, off the critical path (wall budget).
 const loaders = {
-  loadLayout: layouts.bySlug,
-  loadWorkspaceDefaults: () => fetchWorkspaceDefaults(),
-  loadCustomThemes: async () => (await config.list('themes')).items,
-  loadEscalation: escalation.forIncident,
-  loadOnCall: onCall.now,
+  loadLayout: async (slug: string) => (await import('@/domains/workspace/layout/layoutsApi')).createLayoutsApi().bySlug(slug),
+  loadWorkspaceDefaults: async () => (await import('@/shared/api/workspaceDefaults')).fetchWorkspaceDefaults(),
+  loadCustomThemes: async () => (await (await import('@/shared/api/configResources')).createConfigClient().list('themes')).items,
+  loadEscalation: async (incidentId: string) =>
+    (await import('@/domains/alerting/escalation/escalationClient')).createEscalationApi().forIncident(incidentId),
+  loadOnCall: async () => (await import('@/domains/alerting/oncall/oncallClient')).createOnCallApi().now(),
   loadHistory: async (monitorId: string, range: { from: Date; to: Date }, resolution: 'raw' | '1m' | '1h') =>
     (await import('@/domains/telemetry/history/historyApi')).fetchHistory(monitorId, range, resolution),
 };
@@ -56,7 +50,7 @@ const customization = createCustomizationStore({ api: customizationApi });
 const terminology = createTerminologyStore(customizationApi);
 const wallAccess = () => api.getAccess().then(parseAccess);
 const locale = detectLocale();
-await loadLocale(locale);
+await loadLocale(locale, WALL_NAMESPACES);
 const i18n = createI18n(locale);
 document.documentElement.lang = locale;
 

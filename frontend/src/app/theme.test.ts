@@ -2,7 +2,8 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const css = readFileSync(resolve(__dirname, 'theme.css'), 'utf8');
+// theme.css (console) and wall.css both import base.css after Tailwind.
+const css = ['theme.css', 'base.css'].map((file) => readFileSync(resolve(__dirname, file), 'utf8')).join('\n');
 
 describe('theme (tokens from docs/03-design.md)', () => {
   it.each([

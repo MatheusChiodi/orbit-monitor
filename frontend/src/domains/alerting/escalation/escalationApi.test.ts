@@ -1,7 +1,8 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import type { Incident } from '@/shared/api/types';
-import { createEscalationApi, useNextEscalationStep } from './escalationApi';
+import { useNextEscalationStep } from './escalationApi';
+import { createEscalationApi } from './escalationClient';
 
 const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 

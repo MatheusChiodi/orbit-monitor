@@ -7,6 +7,7 @@ import {
   isLocaleLoaded,
   loadLocale,
   loadLocaleMessages,
+  WALL_NAMESPACES,
   loadSavedLocale,
   messages,
   resolveLocale,
@@ -119,5 +120,16 @@ describe('lazy locales (wall budget: only the active language is downloaded)', (
     await loadLocale('pt-BR');
     expect(isLocaleLoaded('pt-BR')).toBe(true);
     expect(createI18n('pt-BR').hasResourceBundle('pt-BR', 'translation')).toBe(true);
+  });
+});
+
+describe('wall namespaces', () => {
+  it('the wall language chunk leaves out the console-only namespaces', async () => {
+    const wall = await loadLocaleMessages('en', WALL_NAMESPACES);
+    expect(wall.customization).toBeDefined();
+    expect(wall.historyRange).toBeDefined();
+    expect('screens' in wall).toBe(false);
+    expect('monitorForm' in wall).toBe(false);
+    expect('theme' in wall).toBe(false);
   });
 });

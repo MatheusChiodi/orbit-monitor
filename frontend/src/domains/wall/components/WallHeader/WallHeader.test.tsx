@@ -76,12 +76,12 @@ describe('WallHeader', () => {
     const counters = screen.getByRole('list', { name: 'Count by state' });
     expect(within(counters).getByText('2 warning').className).toContain('text-warn-text');
   });
-  it('FE-10: shows the workspace brand with a sanitized logo when the snapshot carries one', () => {
+  it('FE-10: shows the workspace brand with a sanitized logo when the snapshot carries one', async () => {
     const logoSvg = '<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"><rect width="1" height="1"/></svg>';
     const { container } = render(
       <WallHeader environment="P" counts={counts} now={now} updatedAt={null} connection="open" brand={{ name: 'ACME', logoSvg }} />,
     );
-    expect(screen.getByRole('img', { name: 'ACME logo' })).toBeInTheDocument();
+    expect(await screen.findByRole('img', { name: 'ACME logo' })).toBeInTheDocument();
     expect(screen.getByTitle('ACME')).toBeInTheDocument();
     expect(container.innerHTML).not.toMatch(/onload/);
   });

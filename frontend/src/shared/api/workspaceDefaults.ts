@@ -1,5 +1,5 @@
 import { sanitizePreferences, type WorkspacePreferenceDefaults } from '@/shared/preferences/preferences';
-import { ApiError, createApiClient, type ApiClientOptions } from './client';
+import { ApiError, createApiCore, type ApiClientOptions } from './client';
 
 /**
  * BE-40 workspace defaults (theme, animation level, density, locale, scale) from `orbit.settings.json`.
@@ -21,7 +21,7 @@ function toDefaults(raw: RawDefaults): WorkspacePreferenceDefaults {
 }
 
 export async function fetchWorkspaceDefaults(options: Pick<ApiClientOptions, 'fetch' | 'baseUrl'> = {}): Promise<WorkspacePreferenceDefaults> {
-  const { request } = createApiClient(options);
+  const { request } = createApiCore(options);
   try {
     return toDefaults(await request<RawDefaults>('/api/settings/defaults'));
   } catch (error) {
@@ -39,6 +39,6 @@ export async function saveWorkspaceDefaults(
   defaults: WorkspacePreferenceDefaults,
   options: Pick<ApiClientOptions, 'fetch' | 'baseUrl' | 'getOperator'> = {},
 ): Promise<WorkspacePreferenceDefaults> {
-  const { request } = createApiClient(options);
+  const { request } = createApiCore(options);
   return toDefaults(await request<RawDefaults>('/api/settings/defaults', { method: 'PUT', body: defaults }));
 }

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { deviationLabel, formatReading, ruleText } from '@/domains/monitor/rules';
 import { EscalationCountdown } from '@/domains/alerting/EscalationCountdown';
@@ -5,9 +6,12 @@ import { formatElapsed } from '@/shared/format';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { translate } from '@/shared/i18n/message';
 import { SafeValue } from '@/shared/privacy/SafeValue';
-import { Badge, FlashValue, Panel, TEXT_CLASS, ThresholdChart } from '@/shared/ui';
+import { Badge, FlashValue, Panel, TEXT_CLASS } from '@/shared/ui';
 import type { HeroSelection } from '../../selectors';
 import { AcknowledgeButton } from '../AcknowledgeButton';
+
+/** The chart code loads right after first paint; the hero text (state, value, rule) never waits for it. */
+const ThresholdChart = lazy(() => import('@/shared/ui/ThresholdChart/ThresholdChart').then((mod) => ({ default: mod.ThresholdChart })));
 
 export interface HeroProps {
   selection: HeroSelection;
@@ -63,12 +67,14 @@ export function Hero({ selection, now, onAcknowledge, nextStep = null }: HeroPro
         )}
       </div>
 
-      <ThresholdChart
-        series={monitor.series ?? []}
-        rule={monitor.rule}
-        status={status}
-        className="wall-chart mt-[0.7rem] flex-1"
-      />
+      <Suspense fallback={<div aria-hidden className="wall-chart mt-[0.7rem] flex-1" />}>
+        <ThresholdChart
+          series={monitor.series ?? []}
+          rule={monitor.rule}
+          status={status}
+          className="wall-chart mt-[0.7rem] flex-1"
+        />
+      </Suspense>
 
       <footer className="mt-[0.7rem] flex flex-wrap items-center gap-[0.6rem]">
         {incident && incident.impact.length > 0 && (
