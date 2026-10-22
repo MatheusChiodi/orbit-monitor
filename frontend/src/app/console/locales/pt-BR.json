@@ -154,5 +154,11 @@
     "simulate": "Simular incidente",
     "sampleCard": "Monitor de exemplo",
     "precedence": "Ordem de precedência: movimento reduzido do sistema → ?motion= na URL → layout da parede → este dispositivo → padrão do workspace."
+  },
+  "history": {
+    "title": "Janela de histórico",
+    "down": "{{percent}}% das verificações ficaram DOWN",
+    "empty": "Sem histórico neste período.",
+    "chart": "{{name}} no período escolhido"
   }
 }

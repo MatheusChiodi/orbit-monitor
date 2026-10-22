@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { formatDuration, formatPercent } from '@/shared/format';
@@ -30,6 +30,12 @@ export interface SlaReportsProps {
   windowHours?: number;
   /** PDF export (redacted like the CSV); the button shows only when provided. */
   onExportPdf?: (rows: readonly SlaRow[], meta: { historyHours: number; period: string }) => void;
+  /** FE-58: the screen's period control (history range picker) replaces the built-in radios. */
+  controls?: ReactNode;
+  /** FE-58: coverage indicator of the history store, replacing the in-memory notice. */
+  coverageNote?: ReactNode;
+  /** Period chosen with `controls` (custom ranges included). */
+  requested?: { hours: number; label: string };
 }
 
 const HOUR = 3_600_000;
@@ -46,32 +52,55 @@ export type SlaPeriodId = (typeof SLA_PERIODS)[number]['id'];
  * FE-43: uptime per monitor over what is actually in memory. Periods longer than the window are
  * flagged as partial and never presented as complete (Orbit has no database).
  */
-export function SlaReports({ rows, historyStart, now, onExport, period: controlled, onPeriodChange, windowHours = DEFAULT_WINDOW_HOURS, onExportPdf }: SlaReportsProps) {
+export function SlaReports({
+  rows,
+  historyStart,
+  now,
+  onExport,
+  period: controlled,
+  onPeriodChange,
+  windowHours = DEFAULT_WINDOW_HOURS,
+  onExportPdf,
+  controls,
+  coverageNote,
+  requested,
+}: SlaReportsProps) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
   const [internal, setInternal] = useState<SlaPeriodId>('24h');
-  const period = PERIODS.find((p) => p.id === (controlled ?? internal)) ?? PERIODS[0];
+  const chosen = PERIODS.find((p) => p.id === (controlled ?? internal)) ?? PERIODS[0];
+  const period = requested ?? chosen;
   const setPeriod = (p: (typeof PERIODS)[number]) => {
     if (controlled === undefined) setInternal(p.id);
     onPeriodChange?.(p.id);
   };
 
-  if (!historyStart || rows.length === 0) return <p className="m-0 text-[0.85rem] text-muted">{t('reports.empty')}</p>;
+  if (!historyStart || rows.length === 0) {
+    return (
+      <div className="flex flex-col gap-[0.8rem]">
+        {controls}
+        {coverageNote}
+        <p className="m-0 text-[0.85rem] text-muted">{t('reports.empty')}</p>
+      </div>
+    );
+  }
 
   const cover = coverage({ requestedMs: period.hours * HOUR, historyStart, now });
   const availableHours = Math.min(windowHours, Math.floor(cover.availableMs / HOUR) || DEFAULT_WINDOW_HOURS);
 
   return (
     <div className="flex flex-col gap-[0.8rem]">
-      <HistoryNotice windowHours={availableHours} />
-      <div role="radiogroup" aria-label={t('reports.period')} className="flex gap-[0.4rem]">
-        {PERIODS.map((p) => (
-          <label key={p.id} className={`cursor-pointer rounded-[0.45rem] border px-[0.6rem] py-[0.25rem] text-[0.85rem] ${p.id === period.id ? 'border-info text-info' : 'border-line-2 text-muted'}`}>
-            <input type="radio" name="sla-period" className="sr-only" checked={p.id === period.id} onChange={() => setPeriod(p)} />
-            {p.label}
-          </label>
-        ))}
-      </div>
+      {coverageNote ?? <HistoryNotice windowHours={availableHours} />}
+      {controls ?? (
+        <div role="radiogroup" aria-label={t('reports.period')} className="flex gap-[0.4rem]">
+          {PERIODS.map((p) => (
+            <label key={p.id} className={`cursor-pointer rounded-[0.45rem] border px-[0.6rem] py-[0.25rem] text-[0.85rem] ${p.id === chosen.id ? 'border-info text-info' : 'border-line-2 text-muted'}`}>
+              <input type="radio" name="sla-period" className="sr-only" checked={p.id === chosen.id} onChange={() => setPeriod(p)} />
+              {p.label}
+            </label>
+          ))}
+        </div>
+      )}
       {!cover.complete && (
         <p role="status" className="m-0 text-[0.85rem] text-warn-text">
           {t('reports.partial', { hours: availableHours, period: period.label })}

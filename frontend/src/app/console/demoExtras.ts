@@ -158,6 +158,17 @@ export function createDemoExtras(snapshot: WallSnapshot, now: Date = new Date())
       return { items, total: items.length };
     },
     getHistoryCoverage: async () => ({ oldest: minutesAgo(now, 24 * 60), newest: now.toISOString(), retentionDays: 30, rawWritesEnabled: true }),
+    getHistory: async (monitorId, range, resolution) => {
+      const from = Date.parse(range.from);
+      const to = Date.parse(range.to);
+      const step = Math.max(60_000, Math.floor((to - from) / 60));
+      const buckets = Array.from({ length: 60 }, (_, i) => ({
+        start: new Date(from + i * step).toISOString(), count: 1, ok: i % 17 === 0 ? 0 : 1, warn: 0, down: i % 17 === 0 ? 1 : 0, unknown: 0,
+        latencyMin: 100, latencyMax: 300, latencyMean: 150 + ((i * 37) % 90), latencyP95: 280, valueMin: null, valueMax: null, valueMean: 40 + ((i * 13) % 20),
+      }));
+      const coverage = { oldest: minutesAgo(now, 24 * 60), newest: now.toISOString(), retentionDays: 30, rawWritesEnabled: true };
+      return { monitorId, from: range.from, to: range.to, resolution: resolution ?? '1m', coverage, samples: null, buckets };
+    },
     getHistorySummary: async (monitorId, range) => {
       const status = snapshot.monitors.find((m) => m.id === monitorId)?.status ?? 'OK';
       const down = status === 'DOWN' ? 6 : status === 'WARN' ? 1 : 0;

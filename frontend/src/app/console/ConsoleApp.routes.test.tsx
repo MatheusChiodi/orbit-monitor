@@ -235,3 +235,60 @@ describe('FE-55 card actions in the console', () => {
     expect(await screen.findByText('Incident acknowledged')).toBeInTheDocument();
   });
 });
+
+describe('FE-58 history range on the SLA screen', () => {
+  it('one period control (24 h / 7 d / 30 d / custom) drives the summaries and states the coverage', async () => {
+    const getHistoryCoverage = vi.fn().mockResolvedValue({ oldest: iso(3 * 24 * 60), newest: iso(0), retentionDays: 30, rawWritesEnabled: true });
+    const getHistorySummary = vi.fn().mockResolvedValue({ from: iso(60), to: iso(0), samples: 100, down: 1, uptimePercent: 99, p50: 1, p95: 2, p99: 3 });
+    render(<ConsoleApp api={api({ getHistoryCoverage, getHistorySummary })} operatorStore={operator()} />);
+    await screen.findByText('Web portal');
+    await go('#/reports');
+    const picker = await screen.findByRole('radiogroup', { name: 'History period' });
+    expect(within(picker).getByRole('radio', { name: '24 h' })).toHaveAttribute('aria-checked', 'true');
+    expect(screen.queryByRole('radiogroup', { name: 'Period' })).toBeNull();
+    expect(screen.getByText(/History available: last 30 days/)).toBeInTheDocument();
+    await userEvent.click(within(picker).getByRole('radio', { name: '7 d' }));
+    await vi.waitFor(() => {
+      const [, range] = getHistorySummary.mock.calls.at(-1)!;
+      expect(Date.parse(range.to) - Date.parse(range.from)).toBe(7 * 86_400_000);
+    });
+    expect(await screen.findByText(/Covers \d+% of this period/)).toBeInTheDocument();
+  });
+});
+
+describe('FE-58 history window on the incident page and the monitor detail', () => {
+  const history = (from: string, to: string) => ({
+    monitorId: 'm', from, to, resolution: '1m' as const,
+    coverage: { oldest: iso(600), newest: iso(0), retentionDays: 30, rawWritesEnabled: true },
+    samples: null,
+    buckets: [
+      { start: from, count: 3, ok: 2, warn: 0, down: 1, unknown: 0, latencyMin: 1, latencyMax: 3, latencyMean: 2, latencyP95: 3, valueMin: 1, valueMax: 3, valueMean: 2 },
+      { start: to, count: 1, ok: 1, warn: 0, down: 0, unknown: 0, latencyMin: 1, latencyMax: 1, latencyMean: 1, latencyP95: 1, valueMin: 4, valueMax: 4, valueMean: 4 },
+    ],
+  });
+
+  it('the incident page opens a window around the incident with picker, coverage and chart', async () => {
+    const getHistory = vi.fn((_: string, range: { from: string; to: string }) => Promise.resolve(history(range.from, range.to)));
+    render(<ConsoleApp api={api({ getHistory })} operatorStore={operator()} />);
+    await screen.findByText('Web portal');
+    await go('#/incidents/inc-1');
+    const panel = await screen.findByRole('region', { name: 'History window' });
+    expect(within(panel).getByRole('radiogroup', { name: 'History period' })).toBeInTheDocument();
+    await vi.waitFor(() => expect(within(panel).getByText('25% of the checks were DOWN')).toBeInTheDocument());
+    const [, range] = getHistory.mock.calls[0]!;
+    expect(Date.parse(range.from)).toBeLessThan(Date.parse(incident.openedAt));
+    expect(within(panel).getByRole('img', { name: /Web portal over the selected period/ })).toBeInTheDocument();
+  });
+
+  it('the monitor detail shows the same history window (24 h by default)', async () => {
+    const getHistory = vi.fn((_: string, range: { from: string; to: string }) => Promise.resolve(history(range.from, range.to)));
+    render(<ConsoleApp api={api({ getHistory })} operatorStore={operator()} />);
+    await screen.findByText('Web portal');
+    await go('#/monitors/m');
+    const panel = await screen.findByRole('region', { name: 'History window' });
+    expect(within(panel).getByRole('radio', { name: '24 h' })).toHaveAttribute('aria-checked', 'true');
+    await vi.waitFor(() => expect(getHistory).toHaveBeenCalled());
+    const [, range] = getHistory.mock.calls[0]!;
+    expect(Date.parse(range.to) - Date.parse(range.from)).toBe(86_400_000);
+  });
+});

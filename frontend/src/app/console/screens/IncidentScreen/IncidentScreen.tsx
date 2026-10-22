@@ -5,7 +5,9 @@ import { IncidentPage } from '@/domains/alerting/IncidentPage';
 import type { IncidentRecord } from '@/shared/api/consoleTypes';
 import { useConsole, useGroups, useMonitors } from '../../ConsoleContext';
 import { routeHref } from '../../routes';
+import { MonitorHistoryPanel } from '../MonitorHistoryPanel';
 import { ScreenStatus } from '../ScreenStatus';
+import { incidentWindow } from './incidentWindow';
 import { toIncidentDetail } from './incidentDetail';
 
 type Action =
@@ -84,6 +86,15 @@ export function IncidentScreen({ id }: { id: string }) {
           onAcknowledge={() => act.mutate({ kind: 'ack' })}
           onComment={(_, text) => act.mutate({ kind: 'comment', text })}
           onLinkTicket={(_, ticket) => act.mutate({ kind: 'ticket', ticket })}
+        />
+      )}
+      {incident.data && (
+        <MonitorHistoryPanel
+          key={`history:${incident.data.id}`}
+          monitorId={incident.data.monitorId}
+          name={monitors.data?.find((m) => m.id === incident.data!.monitorId)?.name ?? t('screens.incidents.unknownMonitor')}
+          status={incident.data.status === 'RESOLVED' ? 'OK' : incident.data.severity === 'DOWN' ? 'DOWN' : 'WARN'}
+          initial={incidentWindow(incident.data, now)}
         />
       )}
     </>

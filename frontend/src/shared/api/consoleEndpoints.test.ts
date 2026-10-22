@@ -100,6 +100,8 @@ describe('console endpoints', () => {
     expect(call(1).url).toBe('/api/history/m1/summary?from=2026-10-01T00%3A00%3A00Z&to=2026-10-02T00%3A00%3A00Z');
     await api.getHistoryCoverage();
     expect(call(2).url).toBe('/api/history/coverage');
+    await api.getHistory('m1', { from: 'a', to: 'b' }, '1h');
+    expect(call(3).url).toBe('/api/history/m1?from=a&to=b&resolution=1h');
   });
 
   it('config export downloads the zip; import posts the zip with dryRun', async () => {

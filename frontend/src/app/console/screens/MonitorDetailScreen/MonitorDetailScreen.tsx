@@ -7,6 +7,7 @@ import { SafeValue } from '@/shared/privacy/SafeValue';
 import { Button, Panel, StatusPill } from '@/shared/ui';
 import { useConsole, useMonitors } from '../../ConsoleContext';
 import { routeHref } from '../../routes';
+import { MonitorHistoryPanel } from '../MonitorHistoryPanel';
 import { ScreenStatus } from '../ScreenStatus';
 import { targetUrlOf } from './monitorTarget';
 
@@ -96,6 +97,7 @@ export function MonitorDetailScreen({ id }: { id: string }) {
               )}
             </Panel>
           )}
+          <MonitorHistoryPanel monitorId={id} name={view.name} status={view.status} />
           <Panel title={t('screens.monitor.incidents')}>
             {(incidents.data ?? []).length === 0 ? (
               <p className="m-0 text-[0.85rem] text-muted">{t('screens.monitor.noIncidents')}</p>

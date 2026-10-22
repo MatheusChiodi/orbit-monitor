@@ -16,6 +16,7 @@ import type {
   OrbitSettingsRecord,
   StatusPageRecord,
 } from './consoleTypes';
+import type { HistoryResponse } from '@/domains/telemetry/history/historyApi';
 import type { WorkspacePreferenceDefaults } from '@/shared/preferences/preferences';
 import type { Group } from './types';
 
@@ -123,6 +124,9 @@ export function createConsoleEndpoints(request: JsonRequest, raw: RawRequest, is
     },
     getHistorySummary: (monitorId: string, range: { from: string; to: string }) =>
       request<HistorySummary>(`/api/history/${enc(monitorId)}/summary${query(range)}`),
+    /** BE-52 `GET /api/history/{id}?from&to&resolution` (FE-58 history window). */
+    getHistory: (monitorId: string, range: { from: string; to: string }, resolution?: 'raw' | '1m' | '1h') =>
+      request<HistoryResponse>(`/api/history/${enc(monitorId)}${query({ ...range, resolution })}`),
     getHistoryCoverage: () => request<HistoryCoverageInfo>('/api/history/coverage'),
 
     /** BE-40 workspace defaults (theme, animation, density, locale, scale) under each device's choices. */
