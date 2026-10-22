@@ -20,7 +20,8 @@ import java.util.List;
 @RequestMapping("/api/layouts")
 public class LayoutController {
 
-    public record LayoutRequest(String slug, String name, List<WallLayoutService.Block> blocks) {
+    public record LayoutRequest(String slug, String name, List<WallLayoutService.Block> blocks, String themeId,
+                                String animationLevel, WallLayoutService.Playlist playlist) {
     }
 
     private final WallLayoutService layouts;
@@ -47,7 +48,7 @@ public class LayoutController {
                                          HttpServletRequest request) {
         String operator = Operators.require(header, null);
         WallLayoutService.Layout saved = layouts.save(new WallLayoutService.Layout(id, body.slug(), body.name(), 0,
-                body.blocks(), null, null), operator);
+                body.blocks(), null, null, body.themeId(), body.animationLevel(), body.playlist()), operator);
         audit.record(operator, "layout.save", id, body.slug() + " v" + saved.version(), request.getRemoteAddr());
         return saved;
     }

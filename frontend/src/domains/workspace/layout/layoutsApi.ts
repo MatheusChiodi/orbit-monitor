@@ -24,7 +24,7 @@ export interface WallLayout {
   [key: string]: unknown;
 }
 
-export const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{0,63}$/;
+export const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{0,39}$/;
 const RANGES = new Set(['24h', '7d', '30d']);
 const MAX_TEXT = 280;
 

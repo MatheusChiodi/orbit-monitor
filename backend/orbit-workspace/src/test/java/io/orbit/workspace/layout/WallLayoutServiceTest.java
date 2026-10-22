@@ -65,4 +65,46 @@ class WallLayoutServiceTest {
         assertThat(service.defaultLayout().slug()).isEqualTo("noc");
         assertThat(service.defaultLayout().blocks()).isNotEmpty();
     }
+
+    @Test
+    @DisplayName("keeps the layout theme, animation override, playlist and block options (FE-05, FE-06, FE-19, FE-58)")
+    void wallOptions() {
+        var series = new WallLayoutService.Block("series-1", "series", 0, 0, 6, 3, "mon_api", null, null, "7d", null);
+        var note = new WallLayoutService.Block("note", "text", 6, 0, 6, 3, null, null, null, null, "Call the on-call SRE");
+        var playlist = new WallLayoutService.Playlist(List.of(new WallLayoutService.PlaylistEntry("rotation", 60),
+                new WallLayoutService.PlaylistEntry("noc", 30)));
+        service.save(new WallLayoutService.Layout("lay_rot", "rotation", "Rotation", 0, List.of(series, note), null, null,
+                "nord", "minimal", playlist), "Ana");
+
+        ConfigFile<WallLayoutService.Layout> reread = new ConfigFile<>(dir, "layouts", WallLayoutService.Layout.class,
+                ConfigMapper.create(), items -> List.of());
+        WallLayoutService.Layout saved = new WallLayoutService(reread, Clock.systemUTC()).bySlug("rotation").orElseThrow();
+        assertThat(saved.themeId()).isEqualTo("nord");
+        assertThat(saved.animationLevel()).isEqualTo("minimal");
+        assertThat(saved.playlist().entries()).extracting(WallLayoutService.PlaylistEntry::layout).containsExactly("rotation", "noc");
+        assertThat(saved.blocks()).extracting(WallLayoutService.Block::id).containsExactly("series-1", "note");
+        assertThat(saved.blocks().get(0).range()).isEqualTo("7d");
+        assertThat(saved.blocks().get(1).text()).isEqualTo("Call the on-call SRE");
+    }
+
+    @Test
+    @DisplayName("rejects unknown theme ids, animation levels, block ranges, long texts and short or bad playlist entries")
+    void validatesWallOptions() {
+        assertThatThrownBy(() -> service.save(new WallLayoutService.Layout("l1", "a", "A", 0, List.of(), null, null,
+                "Not A Theme", null, null), "Ana")).isInstanceOf(ConfigValidationException.class);
+        assertThatThrownBy(() -> service.save(new WallLayoutService.Layout("l2", "b", "B", 0, List.of(), null, null,
+                null, "loud", null), "Ana")).isInstanceOf(ConfigValidationException.class);
+        var badRange = new WallLayoutService.Block("s", "series", 0, 0, 6, 3, null, null, null, "1y", null);
+        assertThatThrownBy(() -> service.save(layout("l3", "c", List.of(badRange)), "Ana"))
+                .isInstanceOf(ConfigValidationException.class);
+        var longText = new WallLayoutService.Block("t", "text", 0, 0, 6, 3, null, null, null, null, "x".repeat(281));
+        assertThatThrownBy(() -> service.save(layout("l4", "d", List.of(longText)), "Ana"))
+                .isInstanceOf(ConfigValidationException.class);
+        var shortEntry = new WallLayoutService.Playlist(List.of(new WallLayoutService.PlaylistEntry("noc", 2)));
+        assertThatThrownBy(() -> service.save(new WallLayoutService.Layout("l5", "e", "E", 0, List.of(), null, null,
+                null, null, shortEntry), "Ana")).isInstanceOf(ConfigValidationException.class);
+        var badSlug = new WallLayoutService.Playlist(List.of(new WallLayoutService.PlaylistEntry("Bad Slug", 60)));
+        assertThatThrownBy(() -> service.save(new WallLayoutService.Layout("l6", "f", "F", 0, List.of(), null, null,
+                null, null, badSlug), "Ana")).isInstanceOf(ConfigValidationException.class);
+    }
 }

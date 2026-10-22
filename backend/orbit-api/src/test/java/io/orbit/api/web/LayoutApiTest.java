@@ -67,4 +67,26 @@ class LayoutApiTest {
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.code").value("invalid-config"));
     }
+
+    @Test
+    @DisplayName("the layout theme, animation override, playlist and block options round-trip (FE-05, FE-06, FE-19, FE-58)")
+    void wallOptions() throws Exception {
+        String body = """
+                {"slug":"rotation","name":"Rotation","themeId":"nord","animationLevel":"minimal",
+                 "playlist":{"entries":[{"layout":"rotation","seconds":60},{"layout":"noc","seconds":30}]},
+                 "blocks":[{"id":"s1","type":"series","x":0,"y":0,"w":6,"h":3,"source":"mon_api","range":"7d"},
+                           {"id":"n1","type":"text","x":6,"y":0,"w":6,"h":3,"text":"Call the on-call SRE"}]}
+                """;
+        mvc.perform(put("/api/layouts/lay_rot").header(Operators.HEADER, "Ana")
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk());
+        mvc.perform(get("/api/layouts/rotation"))
+                .andExpect(jsonPath("$.themeId").value("nord"))
+                .andExpect(jsonPath("$.animationLevel").value("minimal"))
+                .andExpect(jsonPath("$.playlist.entries[1].layout").value("noc"))
+                .andExpect(jsonPath("$.playlist.entries[1].seconds").value(30))
+                .andExpect(jsonPath("$.blocks[0].id").value("s1"))
+                .andExpect(jsonPath("$.blocks[0].range").value("7d"))
+                .andExpect(jsonPath("$.blocks[1].text").value("Call the on-call SRE"));
+    }
 }

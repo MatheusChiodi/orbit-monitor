@@ -45,6 +45,65 @@
       ],
       "updatedAt": "2026-10-18T20:00:00Z",
       "updatedBy": "Example Operator"
+    },
+    {
+      "id": "lay_rotation",
+      "slug": "rotation",
+      "name": "Rotation",
+      "version": 1,
+      "blocks": [
+        {
+          "id": "clock",
+          "type": "clock",
+          "x": 0,
+          "y": 0,
+          "w": 4,
+          "h": 3
+        },
+        {
+          "id": "uptime",
+          "type": "uptime",
+          "x": 4,
+          "y": 0,
+          "w": 4,
+          "h": 3
+        },
+        {
+          "id": "latency",
+          "type": "series",
+          "x": 8,
+          "y": 0,
+          "w": 4,
+          "h": 3,
+          "source": "mon_example_api",
+          "range": "7d"
+        },
+        {
+          "id": "note",
+          "type": "text",
+          "x": 0,
+          "y": 3,
+          "w": 12,
+          "h": 2,
+          "text": "Example note shown on the wall"
+        }
+      ],
+      "themeId": "nord",
+      "animationLevel": "minimal",
+      "playlist": {
+        "entries": [
+          {
+            "layout": "rotation",
+            "seconds": 60
+          },
+          {
+            "layout": "noc",
+            "seconds": 30
+          }
+        ]
+      },
+      "updatedAt": "2026-10-22T12:00:00Z",
+      "updatedBy": "Example Operator"
     }
   ]
 }
