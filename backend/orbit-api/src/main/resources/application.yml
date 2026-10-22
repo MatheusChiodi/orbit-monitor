@@ -48,6 +48,11 @@ orbit:
     # Private ranges are allowed by default (Orbit watches internal systems); metadata is always blocked.
     block-private: false
     allowlist: []
+  # BE-47: per client IP token bucket on /api/** and the push endpoint; loopback (the console) is exempt.
+  rate-limit:
+    requests-per-minute: 300
+    burst: 60
+    exempt-loopback: true
   # BE-50: encrypted config backups in ~/.orbit/backups, newest 7 kept, one a day.
   backup:
     keep: 7

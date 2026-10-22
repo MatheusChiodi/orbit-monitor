@@ -1,7 +1,6 @@
 package io.orbit.api.web;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -13,7 +12,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Tag("pending")
 @SpringBootTest(properties = {"orbit.rate-limit.requests-per-minute=60", "orbit.rate-limit.burst=2"})
 @AutoConfigureMockMvc
 @DisplayName("BE-47 rate limiting on the API")
