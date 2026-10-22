@@ -5,7 +5,6 @@ import io.orbit.probe.http.HttpProbe;
 import io.orbit.probe.http.HttpProbeException;
 import io.orbit.probe.http.HttpProbeRequest;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -19,7 +18,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@Tag("pending")
 @DisplayName("BE-07 multi-step HTTP")
 class MultiStepHttpProbeTest {
 
