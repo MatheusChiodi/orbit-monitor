@@ -84,9 +84,14 @@ body {
   outline-offset: 2px;
 }
 
-/* Console: higher density and a fixed font size */
+/* Console: fixed font size set by the density (FE-07, 14–16 px; 15 px comfortable) */
 html.console {
-  font-size: 15px;
+  font-size: var(--density-font, 15px);
+}
+
+/* Wall: viewing distance preset (FE-08) multiplies the fluid base, never below 12 px */
+html.wall {
+  font-size: clamp(12px, calc((.7vw + .45vh) * var(--wall-scale, 1)), 36px);
 }
 
 /* < 1100 px or aspect ratio >= 4:3: one column, fixed 14 px font */
