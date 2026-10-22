@@ -25,17 +25,23 @@ WebSocket snapshot + deltas with sequence numbers; resume after reconnect
 ## Code
 - `backend/orbit-api/src/main/java/io/orbit/api/wall/WallSocketHandler.java`
 - `backend/orbit-api/src/main/java/io/orbit/api/wall/WallViews.java`
+- `frontend/src/shared/api/wallSocket.ts`
+- `backend/orbit-api/src/main/java/io/orbit/api/wall/WallViewFactory.java`
 
 ## Tests
 - `backend/orbit-api/src/test/java/io/orbit/api/wall/WallSocketTest.java`
 - `backend/orbit-api/src/test/java/io/orbit/api/wall/WallResumeTest.java`
+- `frontend/src/shared/api/wallSocket.test.ts`
+- `backend/orbit-api/src/test/java/io/orbit/api/wall/WallEscalationViewTest.java`
 
 ## Decisions and notes
 - Snapshot on connect, then deltas with increasing `seq`; a client that sees a gap reloads `GET /api/wall/snapshot`.
 - Resume (2026-10-22): every message carries `stream` (id of this server run). A client reconnecting to `/ws/wall?stream=<id>&since=<seq>` gets only the deltas after `seq`, in order, from a replay buffer of the last 1,000 deltas; an unknown stream (restart), a gap older than the buffer, a future seq or a malformed value gets a snapshot. Message: `{type, seq, stream, payload}`.
 - A snapshot no longer consumes a sequence number: it is the state as of its `seq`, so connecting clients never create gaps for the others. It is built outside the lock; deltas published meanwhile are replayed after it (a client may re-apply a delta it already has, never miss one).
+- Frontend (2026-10-22): `connectWall` remembers `{stream, seq}` and reconnects with `?stream=&since=`; a delta already applied is skipped, a gap closes the socket and reconnects without the resume point (fresh snapshot).
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — snapshot + deltas with sequence numbers.
 - 2026-10-22 — resume from a sequence number without a snapshot; snapshots no longer create gaps (status: done).
+- 2026-10-22 — frontend client resumes with stream/since; gaps fall back to a snapshot.

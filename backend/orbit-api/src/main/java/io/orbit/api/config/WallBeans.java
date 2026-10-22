@@ -9,6 +9,8 @@ import io.orbit.api.wall.WallPublisher;
 import io.orbit.api.wall.WallSocketHandler;
 import io.orbit.api.wall.WallTimeline;
 import io.orbit.api.wall.WallTitles;
+import io.orbit.api.wall.WallViews;
+import io.orbit.alerting.oncall.OnCallSchedule;
 import io.orbit.security.settings.SettingsService;
 import org.springframework.context.MessageSource;
 import io.orbit.api.wall.WallViewFactory;
@@ -22,6 +24,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Locale;
 
 /** Wall views, timeline, WebSocket handler and the publisher subscribed to domain events. */
@@ -46,11 +49,19 @@ public class WallBeans {
                                     MonitorRuntime runtime, GroupService groups, IncidentService incidents,
                                     WallTimeline timeline, Clock clock, EscalationRunner escalation,
                                     ConfigFile<MaintenanceWindow> maintenanceFile,
-                                    SettingsService settings) {
+                                    SettingsService settings, ConfigFile<OnCallSchedule> onCallFile) {
         WallViewFactory factory = new WallViewFactory(definitions, telemetry, runtime, groups, incidents, timeline,
                 clock, properties.environment());
         factory.setEscalatesAt(escalation::escalatesAt);
         factory.setBranding(new BrandingSource(settings));
+        factory.setNextEscalation(incident -> escalation.next(incident)
+                .map(step -> new WallViews.NextStepView(step.stepName(), step.dueAt(), step.onCall())));
+        factory.setOnCall(() -> {
+            Instant now = clock.instant();
+            return onCallFile.items().stream().flatMap(s -> s.onCall(now).stream()
+                    .map(person -> new WallViews.OnCallView(s.name(), person, s.shiftEndsAt(now).orElse(null))))
+                    .toList();
+        });
         // CORE-07: a group's state ignores monitors in maintenance (by monitor id or by their group).
         factory.setInMaintenance(monitorId -> {
             String groupId = definitions.monitor(monitorId).map(MonitorDef::groupId).orElse(null);

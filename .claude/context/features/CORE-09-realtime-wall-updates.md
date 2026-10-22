@@ -3,7 +3,7 @@ id: CORE-09
 title: "Realtime wall updates"
 area: full-stack
 group: "Realtime"
-status: in-progress
+status: done
 screens: [wall]
 spec: docs/01-architecture.md, docs/02-features.md, docs/04-data-protection.md
 updated: 2026-10-22
@@ -16,8 +16,8 @@ WebSocket `/ws/wall` feeding a Zustand store; no polling.
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
-- [ ] All tests green, none pending
+- [x] Implemented
+- [x] All tests green, none pending
 
 ## Screens
 [wall](../screens/wall.md)
@@ -48,6 +48,7 @@ WebSocket `/ws/wall` feeding a Zustand store; no polling.
 - `backend/orbit-api/src/test/java/io/orbit/api/wall/WallResumeTest.java`
 - `backend/orbit-api/src/test/java/io/orbit/api/wall/WallPublisherI18nTest.java`
 - `backend/orbit-api/src/test/java/io/orbit/api/wall/WallBrandingTest.java`
+- `backend/orbit-api/src/test/java/io/orbit/api/wall/WallEscalationViewTest.java`
 
 ## Decisions and notes
 - Backend: `/ws/wall` sends `{type: snapshot, seq, payload: WallSnapshot}` on connect, then `monitor` (after every check), `event` (confirmed state changes and acknowledgements) and `incident` deltas; `seq` increases per message.
@@ -59,9 +60,11 @@ WebSocket `/ws/wall` feeding a Zustand store; no polling.
 - Frontend: No wall token: the layout comes from the path `/wall/<slug>` (default `noc`).
 - Backend: messages are `{type, seq, stream, payload}`; reconnect with `?stream=&since=` to resume (BE-38). Timeline titles use the workspace language (orbit.settings.json `locale`). `INFO` entries come from notices (certificate warning steps).
 - Backend: `WallSnapshot.branding` = `{name, logoSvg}` from orbit.settings.json `branding` (FE-10), logo sanitized on save and again when served; absent when not configured.
+- Backend: `IncidentView.nextStep = {name, dueAt, onCall}` (BE-27 `EscalationRunner.next`, only for open, unacknowledged incidents) and `WallSnapshot.onCall = [{schedule, person, shiftEndsAt}]` (BE-33 schedules, same logic as `GET /api/oncall/now`) for the wall clock block.
 
 ## Changelog
 - 2026-10-18 — context file created (status: in-progress).
 - 2026-10-18 — backend: WebSocket /ws/wall with snapshot + deltas and sequence numbers.
 - 2026-10-18 — frontend: WebSocket client, Zustand store and feed with demo fallback.
 - 2026-10-22 — backend: resumable stream, localized timeline titles, notices and workspace branding in the snapshot.
+- 2026-10-22 — wall updates complete end to end: resumable stream on both sides, next escalation step and on-call in the snapshot (status: done).

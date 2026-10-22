@@ -70,7 +70,6 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `frontend/src/domains/wall/components/WallScreen/WallScreen.privacy.test.tsx`
 - `frontend/src/domains/workspace/GroupList/GroupList.privacy.test.tsx`
 - `frontend/src/app/console/ConsoleApp.privacy.test.tsx`
-- `frontend/src/shared/ui/SecretInput/SecretInput.pending.test.tsx`
 - `frontend/src/shared/ui/SecretInput/SecretInput.test.tsx`
 - `backend/orbit-common/src/test/java/io/orbit/common/privacy/SensitiveDataRedactorTest.java`
 - `backend/orbit-monitor/src/test/java/io/orbit/monitor/privacy/PayloadRedactorTest.java`

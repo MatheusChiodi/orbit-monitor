@@ -43,6 +43,31 @@ export function wallSocketUrl(location: { protocol: string; host: string }, layo
   return `${protocol}//${location.host}/ws/wall${query}`;
 }
 
+/** Position in the server stream (BE-38): reconnecting with it resumes without a full snapshot. */
+interface ResumePoint {
+  stream: string;
+  seq: number;
+}
+
+function sequenceOf(data: unknown): ResumePoint | null {
+  if (typeof data !== 'string') return null;
+  try {
+    const parsed: unknown = JSON.parse(data);
+    if (!parsed || typeof parsed !== 'object') return null;
+    const { seq, stream } = parsed as { seq?: unknown; stream?: unknown };
+    return typeof seq === 'number' && typeof stream === 'string' ? { stream, seq } : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Adds `stream` and `since` so the server replays only the missed deltas. */
+export function resumeUrl(url: string, point: ResumePoint | null): string {
+  if (!point) return url;
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}stream=${encodeURIComponent(point.stream)}&since=${point.seq}`;
+}
+
 export interface ConnectWallOptions {
   url: string;
   onMessage: (message: WallMessage) => void;
@@ -63,10 +88,11 @@ export function connectWall(options: ConnectWallOptions): WallConnection {
   let stopped = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let socket: SocketLike | undefined;
+  let resume: ResumePoint | null = null;
 
   function open(): void {
     options.onStatus?.('connecting');
-    const current = createSocket(options.url);
+    const current = createSocket(resumeUrl(options.url, resume));
     socket = current;
     current.onopen = () => {
       attempts = 0;
@@ -74,7 +100,19 @@ export function connectWall(options: ConnectWallOptions): WallConnection {
     };
     current.onmessage = (event) => {
       const message = parseWallMessage(event.data);
-      if (message) options.onMessage(message);
+      if (!message) return;
+      const point = sequenceOf(event.data);
+      if (point && message.type !== 'snapshot' && resume && point.stream === resume.stream) {
+        if (point.seq <= resume.seq) return; // already applied (replayed after a snapshot)
+        if (point.seq !== resume.seq + 1) {
+          // A gap: drop the resume point and reconnect for a fresh snapshot.
+          resume = null;
+          current.close();
+          return;
+        }
+      }
+      if (point) resume = point;
+      options.onMessage(message);
     };
     current.onerror = () => current.close();
     current.onclose = () => {
