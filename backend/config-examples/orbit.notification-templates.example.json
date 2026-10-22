@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "incident.down",
+      "title": {
+        "en": "[P1] {{monitor}} is down",
+        "pt-BR": "[P1] {{monitor}} está fora do ar"
+      },
+      "text": {
+        "en": "{{detail}} - open {{link}}",
+        "pt-BR": "{{detail}} - abra {{link}}"
+      }
+    }
+  ]
+}

@@ -2,6 +2,9 @@ package io.orbit.api.config;
 
 import io.orbit.alerting.IncidentService;
 import io.orbit.alerting.channel.ChannelDef;
+import io.orbit.alerting.channel.ChannelDelivery;
+import io.orbit.alerting.channel.EmailSender;
+import io.orbit.alerting.channel.SmtpEmailSender;
 import io.orbit.alerting.channel.NotificationDispatcher;
 import io.orbit.alerting.escalation.EscalationPolicy;
 import io.orbit.alerting.escalation.EscalationRunner;
@@ -13,6 +16,8 @@ import io.orbit.alerting.suppression.DependencyGraph;
 import io.orbit.alerting.suppression.MaintenanceSchedule;
 import io.orbit.alerting.suppression.MaintenanceWindow;
 import io.orbit.alerting.suppression.SilenceService;
+import io.orbit.alerting.template.NotificationTemplate;
+import io.orbit.alerting.template.TemplateCatalog;
 import io.orbit.api.runtime.EventBus;
 import io.orbit.api.runtime.MonitorRuntime;
 import io.orbit.common.event.MonitorStateChanged;
@@ -31,13 +36,13 @@ import io.orbit.telemetry.TimeRange;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -48,21 +53,20 @@ public class AlertingBeans {
 
     @Bean
     ConfigFile<ChannelDef> channelFile(OrbitProperties properties) {
-        return new ConfigFile<>(properties.configDir(), "channels", ChannelDef.class, ConfigMapper.create(), items -> {
-            List<String> errors = new ArrayList<>();
-            for (ChannelDef c : items) {
-                if (c.type() == null) {
-                    errors.add(c.id() + ": type is required (SLACK, TEAMS or WEBHOOK)");
-                }
-                if (c.url() == null) {
-                    errors.add(c.id() + ": url is required");
-                }
-                if (!"WARN".equals(c.minSeverity()) && !"DOWN".equals(c.minSeverity())) {
-                    errors.add(c.id() + ": minSeverity must be WARN or DOWN");
-                }
-            }
-            return errors;
-        });
+        return new ConfigFile<>(properties.configDir(), "channels", ChannelDef.class, ConfigMapper.create(),
+                items -> items.stream().flatMap(c -> ChannelDelivery.problems(c).stream()).toList());
+    }
+
+    /** BE-35: template overrides (orbit.notification-templates.json) over the built-in en/pt-BR texts. */
+    @Bean
+    ConfigFile<NotificationTemplate> notificationTemplateFile(OrbitProperties properties) {
+        return new ConfigFile<>(properties.configDir(), "notification-templates", NotificationTemplate.class,
+                ConfigMapper.create(), TemplateCatalog::problems);
+    }
+
+    @Bean
+    TemplateCatalog templateCatalog(ConfigFile<NotificationTemplate> notificationTemplateFile) {
+        return new TemplateCatalog(notificationTemplateFile::items);
     }
 
     @Bean
@@ -92,7 +96,7 @@ public class AlertingBeans {
 
     @Bean
     NotificationDispatcher notificationDispatcher(ConfigFile<ChannelDef> channelFile, SilenceService silences,
-                                                  MaintenanceSchedule maintenance,
+                                                  MaintenanceSchedule maintenance, TemplateCatalog templates,
                                                   MonitorDefinitions definitions, MonitorRuntime runtime,
                                                   SecretResolver secrets, OrbitProperties properties, Clock clock,
                                                   EventBus bus) {
@@ -109,7 +113,14 @@ public class AlertingBeans {
                 throw new IllegalStateException("Channel answered HTTP " + status);
             }
         };
-        NotificationDispatcher dispatcher = new NotificationDispatcher(channelFile::items, poster, secrets,
+        SmtpEmailSender smtp = new SmtpEmailSender();
+        // The SMTP host follows the same outbound policy as the HTTP channels (metadata/reserved/private rules).
+        EmailSender email = message -> {
+            guard.check(URI.create("https://" + message.smtp().host() + ":" + message.smtp().portOrDefault() + "/"));
+            smtp.send(message);
+        };
+        NotificationDispatcher dispatcher = new NotificationDispatcher(channelFile::items,
+                new ChannelDelivery(poster, email, secrets, clock), templates,
                 new AlertDeduplicator(Duration.ofMinutes(5)),
                 monitorId -> suppressed(monitorId, definitions, silences, maintenance, clock),
                 monitorId -> definitions.monitor(monitorId).map(m -> info(m, runtime.latest(monitorId))),
@@ -183,7 +194,7 @@ public class AlertingBeans {
                                       ConfigFile<OnCallSchedule> onCallFile, Clock clock) {
         return new EscalationRunner(escalationFile::items, incidents,
                 monitorId -> definitions.monitor(monitorId).map(MonitorDef::groupId),
-                (incident, step, onCall) -> dispatcher.escalate(incident, step.channelIds(), onCall),
+                (incident, step, onCall) -> dispatcher.escalate(incident, step.channelIds(), step.name(), onCall),
                 scheduleId -> onCallFile.items().stream().filter(s -> s.id().equals(scheduleId)).findFirst()
                         .flatMap(s -> s.onCall(clock.instant())),
                 clock);

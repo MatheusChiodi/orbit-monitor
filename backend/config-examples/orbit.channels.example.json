@@ -6,7 +6,9 @@
       "name": "Payments team (Slack)",
       "type": "SLACK",
       "url": "${env:PAYMENTS_SLACK_WEBHOOK_URL}",
-      "groupIds": ["grp_payments"],
+      "groupIds": [
+        "grp_payments"
+      ],
       "minSeverity": "WARN",
       "enabled": true
     },
@@ -19,6 +21,35 @@
       "groupIds": [],
       "minSeverity": "DOWN",
       "enabled": true
+    },
+    {
+      "id": "chn_noc_telegram",
+      "name": "NOC Telegram group",
+      "type": "TELEGRAM",
+      "token": "${env:ORBIT_TELEGRAM_BOT_TOKEN}",
+      "recipients": [
+        "-1001234567890"
+      ],
+      "groupIds": [],
+      "minSeverity": "WARN",
+      "enabled": true,
+      "locale": "pt-BR"
+    },
+    {
+      "id": "chn_manager_whatsapp",
+      "name": "Manager WhatsApp",
+      "type": "WHATSAPP",
+      "url": "${env:ORBIT_WHATSAPP_MESSAGES_URL}",
+      "token": "${env:ORBIT_WHATSAPP_TOKEN}",
+      "recipients": [
+        "+5511900000000"
+      ],
+      "groupIds": [
+        "grp_payments"
+      ],
+      "minSeverity": "DOWN",
+      "enabled": false,
+      "locale": "pt-BR"
     }
   ]
 }
