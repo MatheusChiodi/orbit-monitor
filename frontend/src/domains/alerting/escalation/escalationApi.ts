@@ -3,8 +3,9 @@ import { ApiError, createApiClient, type ApiClientOptions } from '@/shared/api/c
 import type { Incident } from '@/shared/api/types';
 
 /**
- * BE-27 escalation state of one incident. Assumed contract:
- * `GET /api/incidents/{id}/escalation` → `{ incidentId, policyName, nextStep: { index, name, at } | null }`.
+ * BE-27 escalation state of one incident: `GET /api/incidents/{id}/escalation` →
+ * `{ incidentId, policyName, stepIndex, stepName, dueAt, … }`, 204 when acknowledged, resolved or
+ * without a policy. The nested `{ nextStep: { index, name, at } }` shape is also accepted.
  */
 export interface EscalationStep {
   index: number;
@@ -21,8 +22,14 @@ export type LoadEscalation = (incidentId: string) => Promise<EscalationStatus | 
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null;
 
-function toStatus(raw: unknown): EscalationStatus {
-  if (!isRecord(raw)) return { policyName: null, nextStep: null };
+function toStatus(raw: unknown): EscalationStatus | null {
+  if (!isRecord(raw)) return null;
+  if (typeof raw.stepName === 'string' && typeof raw.dueAt === 'string') {
+    return {
+      policyName: typeof raw.policyName === 'string' ? raw.policyName : null,
+      nextStep: { index: typeof raw.stepIndex === 'number' ? raw.stepIndex : 0, name: raw.stepName, at: raw.dueAt },
+    };
+  }
   const step = raw.nextStep;
   const nextStep =
     isRecord(step) && typeof step.name === 'string' && typeof step.at === 'string'

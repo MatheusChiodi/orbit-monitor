@@ -38,7 +38,7 @@ updated: 2026-10-22
 ## Decisions and notes
 - `role=timer` with `aria-live=off` (no per-second announcements); `mm:ss` below one hour, amber in the last minute; hidden once acknowledged; "Escalated to …" after the deadline.
 - Used by the wall hero; the console incident page is FE-39.
-- Next-step name: `useNextEscalationStep` prefers `nextStepName` on the wall incident (WS snapshot, added by be-runtime) and otherwise asks `GET /api/incidents/{id}/escalation` (BE-27: `{ incidentId, policyName, nextStep: { index, name, at } | null }`, 204/404 = no further step) once per incident and deadline; acknowledged incidents never fetch. Failures leave the countdown without a name.
+- Next-step name: `useNextEscalationStep` prefers `nextStepName` on the wall incident (WS snapshot, added by be-runtime) and otherwise asks `GET /api/incidents/{id}/escalation` (BE-27: `{ incidentId, policyName, stepIndex, stepName, dueAt, … }`, 204 = no further step) once per incident and deadline; acknowledged incidents never fetch. Failures leave the countdown without a name.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -47,3 +47,4 @@ updated: 2026-10-22
 - 2026-10-18 — escalation countdown on the wall hero (status: in-progress).
 - 2026-10-18 — escalation countdown on the wall hero (status: in-progress).
 - 2026-10-22 — next-step name from the wall payload or the escalation API (status: done).
+- 2026-10-22 — parses the BE-27 escalation payload (stepName, dueAt).

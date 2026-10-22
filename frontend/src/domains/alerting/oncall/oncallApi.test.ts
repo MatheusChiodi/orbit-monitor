@@ -20,6 +20,11 @@ describe('BE-33 who is on call now', () => {
     expect(fetch).toHaveBeenCalledWith('/api/oncall/now', expect.anything());
   });
 
+  it('reads the BE-33 shape (`name` is the schedule name)', async () => {
+    const api = createOnCallApi({ fetch: vi.fn(async () => json(200, [{ scheduleId: 's1', name: 'Payments', person: 'Ana', shiftEndsAt: null }])) });
+    expect((await api.now())[0]?.scheduleName).toBe('Payments');
+  });
+
   it('also accepts the { items } envelope; no schedules (404) means nobody', async () => {
     const wrapped = createOnCallApi({ fetch: vi.fn(async () => json(200, { items: [{ scheduleId: 's', scheduleName: 'Ops', person: 'Rui', shiftEndsAt: null }] })) });
     expect(await wrapped.now()).toHaveLength(1);

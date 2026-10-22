@@ -24,6 +24,17 @@ describe('FE-40 escalation API (BE-27)', () => {
     expect(status).toEqual({ policyName: 'Payments', nextStep: { index: 1, name: 'Team lead', at: '2026-10-22T10:15:00Z' } });
   });
 
+  it('reads the BE-27 flat shape (stepName, dueAt); 204 means no further step', async () => {
+    const fetch = vi.fn(async () =>
+      json(200, { incidentId: 'inc-1', monitorId: 'm1', policyId: 'p', policyName: 'Payments', stepIndex: 2, stepName: 'On-call SRE', dueAt: '2026-10-22T10:30:00Z', channelIds: [], onCall: 'Ana' }),
+    );
+    expect(await createEscalationApi({ fetch }).forIncident('inc-1')).toEqual({
+      policyName: 'Payments',
+      nextStep: { index: 2, name: 'On-call SRE', at: '2026-10-22T10:30:00Z' },
+    });
+    expect(await createEscalationApi({ fetch: vi.fn(async () => new Response(null, { status: 204 })) }).forIncident('inc-1')).toBeNull();
+  });
+
   it('no policy (404) or a malformed answer means no next step', async () => {
     expect(await createEscalationApi({ fetch: vi.fn(async () => json(404, {})) }).forIncident('x')).toBeNull();
     const odd = await createEscalationApi({ fetch: vi.fn(async () => json(200, { nextStep: { name: 42 } })) }).forIncident('x');

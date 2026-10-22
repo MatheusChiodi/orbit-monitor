@@ -3,7 +3,7 @@ import { ApiError, createApiClient, type ApiClientOptions } from '@/shared/api/c
 
 /**
  * BE-33 "who is on call now" for the wall clock block. Assumed contract:
- * `GET /api/oncall/now` → `[{ scheduleId, scheduleName, person, shiftEndsAt }]` (readable by view-only clients).
+ * `GET /api/oncall/now` → `[{ scheduleId, name, person, shiftEndsAt }]` (BE-33; `scheduleName` also accepted).
  */
 export interface OnCallNow {
   scheduleId: string;
@@ -26,7 +26,7 @@ function toEntries(payload: unknown): OnCallNow[] {
       ? [
           {
             scheduleId: raw.scheduleId,
-            scheduleName: typeof raw.scheduleName === 'string' ? raw.scheduleName : raw.scheduleId,
+            scheduleName: typeof raw.scheduleName === 'string' ? raw.scheduleName : typeof raw.name === 'string' ? raw.name : raw.scheduleId,
             person: raw.person,
             shiftEndsAt: typeof raw.shiftEndsAt === 'string' ? raw.shiftEndsAt : null,
           },
