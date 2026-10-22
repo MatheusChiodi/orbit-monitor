@@ -26,4 +26,14 @@ class LogMaskingTest {
         assertThat(output.getOut()).contains("charge •••• •••• •••• 1111 declined", "token=••••")
                 .doesNotContain(TEST_PAN, "abc123");
     }
+
+    @Test
+    @DisplayName("a card number inside an exception message never reaches the console")
+    void stackTracesAreMasked(CapturedOutput output) {
+        LoggerFactory.getLogger("any.logger").error("query failed",
+                new IllegalStateException("Data truncation: value '" + TEST_PAN + "'"));
+
+        assertThat(output.getOut()).contains("IllegalStateException", "•••• •••• •••• 1111")
+                .doesNotContain(TEST_PAN);
+    }
 }

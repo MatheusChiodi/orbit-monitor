@@ -22,8 +22,10 @@ import java.util.Objects;
 /**
  * CORE-16 serialization guard: re-applies the redactor to every {@code ResultPayload},
  * {@code HttpResponseSnapshot} and {@code @Sensitive} value on the way out of the API and the
- * WebSocket, even if something upstream forgot to mask. Masking is idempotent, so already
- * masked values are unchanged.
+ * WebSocket, even if something upstream forgot to mask. Every other string (values and map keys, such
+ * as an error message or a column alias) loses its card numbers too; e-mails and other configuration
+ * values are left alone so settings stay editable. Masking is idempotent, so already masked values
+ * are unchanged.
  */
 public class SensitiveDataModule extends SimpleModule {
 
@@ -32,7 +34,37 @@ public class SensitiveDataModule extends SimpleModule {
         PayloadRedactor payloads = new PayloadRedactor(redactor);
         addSerializer(ResultPayload.class, new ResultPayloadSerializer(payloads));
         addSerializer(HttpResponseSnapshot.class, new HttpSnapshotSerializer(payloads));
+        addSerializer(String.class, new CardSafeStringSerializer(redactor));
+        addKeySerializer(String.class, new CardSafeKeySerializer(redactor));
         setSerializerModifier(new SensitiveFieldModifier(redactor));
+    }
+
+    private static final class CardSafeStringSerializer extends StdSerializer<String> {
+        private final transient SensitiveDataRedactor redactor;
+
+        CardSafeStringSerializer(SensitiveDataRedactor redactor) {
+            super(String.class);
+            this.redactor = redactor;
+        }
+
+        @Override
+        public void serialize(String value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+            gen.writeString(redactor.maskCardNumbers(value));
+        }
+    }
+
+    private static final class CardSafeKeySerializer extends StdSerializer<String> {
+        private final transient SensitiveDataRedactor redactor;
+
+        CardSafeKeySerializer(SensitiveDataRedactor redactor) {
+            super(String.class);
+            this.redactor = redactor;
+        }
+
+        @Override
+        public void serialize(String value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+            gen.writeFieldName(redactor.maskCardNumbers(value));
+        }
     }
 
     private static final class ResultPayloadSerializer extends StdSerializer<ResultPayload> {

@@ -122,3 +122,35 @@ describe('CORE-16 wall surface hides personal data', () => {
     expect(redact(pan, undefined, { surface: 'wall' })).toBe(maskedPan);
   });
 });
+
+describe('CORE-16 PAN next to other numbers', () => {
+  it('masks a PAN preceded or followed by another number', () => {
+    expect(redact(`order 7 ${pan} paid`)).toBe(`order 7 ${maskedPan} paid`);
+    expect(redact(`${pan} 99`)).toBe(`${maskedPan} 99`);
+    expect(redact(`2026-10-17 ${pan} declined`)).toBe(`2026-10-17 ${maskedPan} declined`);
+    expect(detectSensitive(`order 7 ${groupedPan(pan)}`)).toBe('PCI_PAN');
+  });
+
+  it('masks overlapping Luhn spans together so no digit of the PAN survives', () => {
+    const mc = makePan('555555555555444');
+    const masked = String(redact(`order 12 ${groupedPan(mc)} paid`));
+    expect(masked.replace(/[\s-]/g, '')).not.toContain(mc.slice(0, 12));
+    expect(masked).not.toMatch(/5555 5555/);
+    expect(masked).toMatch(/^order (12 )?•••• •••• •••• \d{4} paid$/);
+  });
+});
+
+describe('CORE-16 phones and key=value secrets in free text', () => {
+  it('masks Brazilian phone numbers', () => {
+    expect(redact('call (11) 98765-4321')).toBe('call (••) •••••-4321');
+    expect(detectSensitive('(11) 98765-4321')).toBe('PERSONAL');
+    expect(redact('call (11) 98765-4321', undefined, { surface: 'wall' })).toBe('call •••');
+  });
+
+  it('masks key=value secrets but keeps ${env:...} references', () => {
+    expect(redact('user=core password=hunter2;timeout=5')).toBe('user=core password=••••;timeout=5');
+    expect(redact('{"api_key": "abc123"}')).toBe('{"api_key": "••••"}');
+    expect(redact('"password": "${env:DB_PASSWORD}"')).toBe('"password": "${env:DB_PASSWORD}"');
+    expect(detectSensitive('token=abc123')).toBe('SECRET');
+  });
+});

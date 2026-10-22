@@ -28,7 +28,9 @@ public class SensitiveDataRedactor {
     private static final Set<String> PERSONAL_NAMES = Set.of("cpf", "cnpj", "email", "e_mail", "phone", "telefone",
             "celular", "mobile", "nome", "name", "address", "endereco");
 
-    private static final Pattern PAN = Pattern.compile("(?<!\\d)(?:\\d[ -]?){12,18}\\d(?!\\d)");
+    /** Digit groups joined by single spaces or hyphens; card numbers are searched inside the run. */
+    private static final Pattern DIGIT_RUN = Pattern.compile("(?<!\\d)\\d+(?:[ -]\\d+)*(?!\\d)");
+    private static final Pattern DIGIT_GROUP = Pattern.compile("\\d+");
     private static final Pattern CNPJ = Pattern.compile("(?<!\\d)\\d{2}\\.?\\d{3}\\.?\\d{3}/?\\d{4}-?\\d{2}(?!\\d)");
     private static final Pattern CPF = Pattern.compile("(?<![\\d.])\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}(?!\\d)");
     private static final Pattern EMAIL = Pattern.compile("([\\w.+-])[\\w.+-]*@([\\w-])[\\w.-]*\\.([A-Za-z]{2,})\\b");
@@ -75,10 +77,7 @@ public class SensitiveDataRedactor {
         if (text == null || text.isEmpty()) {
             return text;
         }
-        String s = replace(PAN, text, m -> {
-            String digits = m.group().replaceAll("[ -]", "");
-            return Luhn.isValid(digits) ? maskPan(digits) : m.group();
-        });
+        String s = maskCardNumbers(text);
         s = replace(CNPJ, s, m -> {
             String digits = m.group().replaceAll("\\D", "");
             return BrazilianDocuments.isCnpj(digits) ? "••.•••.•••/••••-" + digits.substring(12) : m.group();
@@ -94,18 +93,79 @@ public class SensitiveDataRedactor {
         return replace(BEARER, s, m -> m.group(1) + " " + DOTS);
     }
 
+    /**
+     * Masks only card numbers: any span of whole digit groups with 13-19 digits that passes Luhn, so a
+     * PAN next to another number ({@code "order 12 4111 ..."}, a date, a quantity) is still found.
+     */
+    public String maskCardNumbers(String text) {
+        if (text == null || text.isEmpty()) {
+            return text;
+        }
+        return replace(DIGIT_RUN, text, m -> maskPansInRun(m.group()));
+    }
+
+    public boolean containsCardNumber(String text) {
+        return text != null && !text.equals(maskCardNumbers(text));
+    }
+
+    /** Overlapping card-number spans are merged and masked as one, so no digit of either survives. */
+    private static String maskPansInRun(String run) {
+        List<int[]> groups = new ArrayList<>();
+        Matcher g = DIGIT_GROUP.matcher(run);
+        while (g.find()) {
+            groups.add(new int[]{g.start(), g.end()});
+        }
+        StringBuilder out = new StringBuilder();
+        int cursor = 0;
+        int i = 0;
+        while (i < groups.size()) {
+            int last = lastGroupOfPanStartingAt(run, groups, i);
+            if (last < 0) {
+                i++;
+                continue;
+            }
+            for (int k = i + 1; k <= last; k++) {
+                last = Math.max(last, lastGroupOfPanStartingAt(run, groups, k));
+            }
+            String digits = run.substring(groups.get(i)[0], groups.get(last)[1]).replaceAll("\\D", "");
+            out.append(run, cursor, groups.get(i)[0]).append(maskPan(digits));
+            cursor = groups.get(last)[1];
+            i = last + 1;
+        }
+        return out.append(run, cursor, run.length()).toString();
+    }
+
+    /** Index of the last group of the longest Luhn-valid span starting at group {@code first}, or -1. */
+    private static int lastGroupOfPanStartingAt(String run, List<int[]> groups, int first) {
+        int last = -1;
+        StringBuilder digits = new StringBuilder();
+        for (int j = first; j < groups.size() && digits.length() <= 19; j++) {
+            digits.append(run, groups.get(j)[0], groups.get(j)[1]);
+            if (Luhn.isValid(digits.toString())) {
+                last = j;
+            }
+        }
+        return last;
+    }
+
     private Object redactUnnamed(Object value) {
         return switch (value) {
             case String s -> redactText(s);
             case Integer i -> i;
             case Long l -> Luhn.isValid(Long.toString(Math.abs(l))) ? maskPan(Long.toString(Math.abs(l))) : l;
             case BigInteger b -> Luhn.isValid(b.abs().toString()) ? maskPan(b.abs().toString()) : b;
-            case BigDecimal d -> integralDigits(d)
-                    .filter(Luhn::isValid)
-                    .<Object>map(SensitiveDataRedactor::maskPan)
-                    .orElse(d);
+            case BigDecimal d -> maskIntegral(d, d);
+            case Double d -> Double.isFinite(d) ? maskIntegral(BigDecimal.valueOf(d), d) : d;
+            case Float f -> Float.isFinite(f) ? maskIntegral(BigDecimal.valueOf(f), f) : f;
             default -> value;
         };
+    }
+
+    private static Object maskIntegral(BigDecimal number, Object original) {
+        return integralDigits(number)
+                .filter(Luhn::isValid)
+                .<Object>map(SensitiveDataRedactor::maskPan)
+                .orElse(original);
     }
 
     private static java.util.Optional<String> integralDigits(BigDecimal d) {

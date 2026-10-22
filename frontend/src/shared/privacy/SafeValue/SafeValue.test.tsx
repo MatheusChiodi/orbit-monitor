@@ -14,6 +14,14 @@ describe('CORE-16 SafeValue', () => {
     expect(domContains(container, pan)).toBe(false);
   });
 
+  it('never renders a PAN that sits next to another number', () => {
+    const mc = makePan('555555555555444');
+    const { container } = render(<SafeValue value={`order 12 ${groupedPan(mc)} paid`} />);
+    expect(domContains(container, mc)).toBe(false);
+    expect(domContains(container, mc.slice(0, 12))).toBe(false);
+    expect(container.querySelector('[data-class="PCI_PAN"]')).not.toBeNull();
+  });
+
   it('marks masked values for assistive tech and styling', () => {
     render(<SafeValue value={pan} />);
     const el = screen.getByText(maskedPan);

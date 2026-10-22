@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.orbit.common.privacy.SensitiveDataRedactor;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -17,7 +18,9 @@ import java.nio.file.attribute.FileTime;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -26,12 +29,14 @@ import java.util.regex.Pattern;
  * One {@code orbit.<feature>.json} file (docs/06-configuration-files.md): a versioned list of items,
  * validated on read and write, written atomically (tmp + rename) with the previous copy kept as
  * {@code .bak}. An invalid file on disk is never overwritten by a reload: the last valid copy keeps
- * serving and the error is exposed through {@link #lastError()}.
+ * serving and the error is exposed through {@link #lastError()}. A card number is never stored
+ * (docs/04-data-protection.md): any value that contains one rejects the whole file.
  */
 public class ConfigFile<T extends ConfigItem> {
 
     public static final int CURRENT_VERSION = 1;
     private static final Pattern FEATURE = Pattern.compile("[a-z][a-z0-9-]{0,40}");
+    private static final SensitiveDataRedactor REDACTOR = new SensitiveDataRedactor();
 
     private final Path path;
     private final ObjectMapper mapper;
@@ -145,9 +150,34 @@ public class ConfigFile<T extends ConfigItem> {
             }
         }
         if (errors.isEmpty()) {
+            rejectCardNumbers(mapper.valueToTree(candidate), "items", errors);
+        }
+        if (errors.isEmpty()) {
             errors.addAll(validator.validate(candidate));
         }
         return errors;
+    }
+
+    /** PCI DSS 3.5: reports where a card number sits (never the value); encrypted secrets are skipped. */
+    private static void rejectCardNumbers(JsonNode node, String path, List<String> errors) {
+        if (node.isObject()) {
+            Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
+            while (fields.hasNext()) {
+                Map.Entry<String, JsonNode> field = fields.next();
+                String child = path + "." + REDACTOR.maskCardNumbers(field.getKey());
+                if (REDACTOR.containsCardNumber(field.getKey())) {
+                    errors.add(child + ": card numbers cannot be stored in configuration");
+                } else if (!"enc".equals(field.getKey())) {
+                    rejectCardNumbers(field.getValue(), child, errors);
+                }
+            }
+        } else if (node.isArray()) {
+            for (int i = 0; i < node.size(); i++) {
+                rejectCardNumbers(node.get(i), path + "[" + i + "]", errors);
+            }
+        } else if ((node.isTextual() || node.isIntegralNumber()) && REDACTOR.containsCardNumber(node.asText())) {
+            errors.add(path + ": card numbers cannot be stored in configuration");
+        }
     }
 
     private void writeAtomically(byte[] content) throws IOException {

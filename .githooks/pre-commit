@@ -1,16 +1,19 @@
 #!/bin/sh
 # Blocks commits that would publish Orbit configuration, keys or card data.
 # Enable once per clone: git config core.hooksPath .githooks
+# Regression tests: sh .githooks/pre-commit.test.sh
 
 status=0
 files=$(git diff --cached --name-only --diff-filter=ACMR)
 
+# One path per line, so names with spaces stay whole.
+IFS='
+'
 for f in $files; do
   base=$(basename "$f")
   case "$base" in
-    *.example.json|*.schema.json) ;;
-    orbit.*.json|*.json.bak|*.json.tmp|master.key|*.pem|*.p12|*.jks|*.keystore|.env|.env.*)
-      case "$base" in .env.example) continue ;; esac
+    *.example.json|*.schema.json|.env.example) ;;
+    orbit.*.json|*.json.bak|*.json.tmp|master.key|*.key|*.pem|*.p12|*.pfx|*.jks|*.keystore|id_rsa|id_ed25519|.env|.env.*)
       echo "pre-commit: refusing to commit '$f' (Orbit config, key or env file)."
       status=1
       ;;
@@ -22,39 +25,62 @@ for f in $files; do
       ;;
   esac
 done
+unset IFS
 
-# Content checks on staged additions only. Test sources may hold public test
-# card numbers (the well-known Visa test PAN, for example), so they are excluded
-# from the card scan.
-nontest=$(printf '%s\n' "$files" | grep -Ev '(/src/test/|\.test\.[jt]sx?$|\.spec\.[jt]sx?$|Test\.java$|/test/)' )
-added=""
-if [ -n "$nontest" ]; then
-  added=$(printf '%s\n' "$nontest" | tr '\n' '\0' | xargs -0 git diff --cached -U0 -- | grep '^+' | grep -v '^+++')
-fi
+# Content checks on staged additions of every file, tests included.
+added=$(git diff --cached -U0 --diff-filter=ACMR --no-color --no-ext-diff | grep '^+' | grep -v '^+++')
 
 if printf '%s\n' "$added" | grep -Eq -- '-----BEGIN ([A-Z]+ )?PRIVATE KEY-----'; then
   echo "pre-commit: a private key is staged."
   status=1
 fi
 
-# Card numbers: 13-19 digits (spaces/hyphens allowed) that pass the Luhn check.
-cards=$(printf '%s\n' "$added" | grep -Eo '([0-9][ -]?){12,18}[0-9]' | tr -d ' -' | awk '
-  length($0) >= 13 && length($0) <= 19 {
+# Card numbers: any span of whole digit groups (joined by single spaces or hyphens) with 13-19 digits
+# that passes Luhn and starts like a card (2-6), so "order 12 4111 1111 1111 1111" is caught too.
+# The well-known public test numbers are allowed; build any other test number at runtime.
+cards=$(printf '%s\n' "$added" | awk '
+  BEGIN {
+    split("4111111111111111 4242424242424242 4012888888881881 4000056655665556 5555555555554444 " \
+          "5105105105105100 5200828282828210 2223003122003222 378282246310005 371449635398431 " \
+          "6011111111111117 6011000990139424 3566002020360505 30569309025904 38520000023237 " \
+          "6200000000000005 4222222222222", list, " ")
+    for (k in list) allowed[list[k]] = 1
+  }
+  function luhn(d,    i, x, sum, alt) {
     sum = 0; alt = 0
-    for (i = length($0); i >= 1; i--) {
-      d = substr($0, i, 1) + 0
-      if (alt) { d *= 2; if (d > 9) d -= 9 }
-      sum += d; alt = !alt
+    for (i = length(d); i >= 1; i--) {
+      x = substr(d, i, 1) + 0
+      if (alt) { x *= 2; if (x > 9) x -= 9 }
+      sum += x; alt = !alt
     }
-    if (sum % 10 == 0 && $0 !~ /^0+$/) print $0
-  }')
+    return sum % 10 == 0
+  }
+  {
+    line = $0
+    while (match(line, /[0-9]+([ -][0-9]+)*/)) {
+      run = substr(line, RSTART, RLENGTH)
+      line = substr(line, RSTART + RLENGTH)
+      n = split(run, groups, /[ -]/)
+      for (i = 1; i <= n; i++) {
+        digits = ""
+        for (j = i; j <= n && length(digits) <= 19; j++) {
+          digits = digits groups[j]
+          if (length(digits) >= 13 && length(digits) <= 19 && digits ~ /^[2-6]/ \
+              && !(digits in allowed) && luhn(digits)) {
+            print "****" substr(digits, length(digits) - 3)
+          }
+        }
+      }
+    }
+  }' | sort -u)
 if [ -n "$cards" ]; then
-  echo "pre-commit: staged content contains values that look like card numbers (Luhn-valid)."
-  echo "            Use clearly fake test data built at runtime, or bypass only after manual review."
+  echo "pre-commit: staged content contains values that look like card numbers (Luhn-valid):"
+  printf '            %s\n' $cards
+  echo "            Use a public test number or build one at runtime; never commit a real card."
   status=1
 fi
 
 if [ "$status" -ne 0 ]; then
-  echo "pre-commit: commit blocked. See docs/06-configuration-files.md."
+  echo "pre-commit: commit blocked. See docs/04-data-protection.md and docs/06-configuration-files.md."
 fi
 exit $status

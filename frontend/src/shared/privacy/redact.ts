@@ -93,24 +93,65 @@ function cnpjValid(digits: string): boolean {
 
 const JWT = /\beyJ[\w-]+\.[\w-]+\.[\w-]*/g;
 const BEARER = /\bBearer\s+[\w\-.~+/]+=*/gi;
-const PAN_RUN = /(?<!\d)(?:\d[ -]?){12,18}\d(?!\d)/g;
+/** Digit groups joined by single spaces or hyphens; card numbers are searched inside the run. */
+const DIGIT_RUN = /(?<!\d)\d+(?:[ -]\d+)*(?!\d)/g;
 const CNPJ = /(?<!\d)\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}(?!\d)/g;
 const CPF = /(?<!\d)\d{3}\.?\d{3}\.?\d{3}-?\d{2}(?!\d)/g;
+const PHONE = /(?:\+55\s?)?\((\d{2})\)\s?(9?\d{4})-?(\d{4})/g;
+const KEY_VALUE_SECRET = /(\b(?:password|passwd|pwd|senha|secret|token|api[_-]?key)"?\s*[=:]\s*"?)(?!\$\{env:)([^\s";,&}]+)/gi;
 const EMAIL = /\b([A-Za-z0-9._%+-])[A-Za-z0-9._%+-]*@([A-Za-z0-9])[A-Za-z0-9-]*(?:\.[A-Za-z0-9-]+)*\.([A-Za-z]{2,})\b/g;
 
 function onlyDigits(text: string): string {
   return text.replace(/\D/g, '');
 }
 
+/** Last group index of the longest Luhn-valid span of whole groups starting at `first`, or -1. */
+function lastGroupOfPan(groups: string[], first: number): number {
+  let last = -1;
+  let digits = '';
+  for (let j = first; j < groups.length && digits.length <= 19; j += 1) {
+    digits += groups[j];
+    if (isPan(digits)) last = j;
+  }
+  return last;
+}
+
+/**
+ * Masks card numbers inside a digit run, so a PAN next to another number ("order 7 4111 ...", a date)
+ * is still found. Overlapping spans are merged and masked as one: no digit of either survives.
+ */
+function maskPansInRun(run: string): string {
+  const groups: { text: string; start: number; end: number }[] = [];
+  for (const m of run.matchAll(/\d+/g)) groups.push({ text: m[0], start: m.index, end: m.index + m[0].length });
+  const texts = groups.map((g) => g.text);
+  let out = '';
+  let cursor = 0;
+  let i = 0;
+  while (i < groups.length) {
+    let last = lastGroupOfPan(texts, i);
+    if (last < 0) {
+      i += 1;
+      continue;
+    }
+    for (let k = i + 1; k <= last; k += 1) last = Math.max(last, lastGroupOfPan(texts, k));
+    const first = groups[i];
+    const end = groups[last];
+    if (!first || !end) break;
+    const digits = texts.slice(i, last + 1).join('');
+    out += run.slice(cursor, first.start) + MASKS.pan(digits.slice(-4));
+    cursor = end.end;
+    i = last + 1;
+  }
+  return out + run.slice(cursor);
+}
+
+function maskCardNumbers(text: string): string {
+  return text.replace(DIGIT_RUN, maskPansInRun);
+}
+
 /** Masks every sensitive pattern found in free text (also JSON strings). */
 function redactText(text: string, hidePersonal = false): string {
-  return text
-    .replace(JWT, MASKS.secret)
-    .replace(BEARER, MASKS.secret)
-    .replace(PAN_RUN, (run) => {
-      const digits = onlyDigits(run);
-      return isPan(digits) ? MASKS.pan(digits.slice(-4)) : run;
-    })
+  return maskCardNumbers(text.replace(JWT, MASKS.secret).replace(BEARER, MASKS.secret))
     .replace(CNPJ, (run) => {
       const digits = onlyDigits(run);
       return cnpjValid(digits) ? (hidePersonal ? MASKS.hidden : MASKS.cnpj(digits.slice(-2))) : run;
@@ -121,15 +162,20 @@ function redactText(text: string, hidePersonal = false): string {
     })
     .replace(EMAIL, (_m, user: string, domain: string, tld: string) =>
       hidePersonal ? MASKS.hidden : `${user}•••@${domain}•••.${tld}`,
-    );
+    )
+    .replace(PHONE, (_m, _ddd: string, prefix: string, line: string) =>
+      hidePersonal ? MASKS.hidden : `(••) ${'•'.repeat(prefix.length)}-${line}`,
+    )
+    .replace(KEY_VALUE_SECRET, (_m, key: string) => `${key}${MASKS.secret}`);
 }
 
 function classifyValue(value: string): DataClass | null {
   if (new RegExp(JWT.source).test(value) || new RegExp(BEARER.source, 'i').test(value)) return 'SECRET';
-  for (const run of value.match(PAN_RUN) ?? []) if (isPan(onlyDigits(run))) return 'PCI_PAN';
+  if (new RegExp(KEY_VALUE_SECRET.source, 'i').test(value)) return 'SECRET';
+  if (maskCardNumbers(value) !== value) return 'PCI_PAN';
   for (const run of value.match(CNPJ) ?? []) if (cnpjValid(onlyDigits(run))) return 'PERSONAL';
   for (const run of value.match(CPF) ?? []) if (cpfValid(onlyDigits(run))) return 'PERSONAL';
-  if (new RegExp(EMAIL.source).test(value)) return 'PERSONAL';
+  if (new RegExp(EMAIL.source).test(value) || new RegExp(PHONE.source).test(value)) return 'PERSONAL';
   return null;
 }
 

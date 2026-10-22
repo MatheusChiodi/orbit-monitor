@@ -46,6 +46,9 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `backend/orbit-probe/src/main/java/io/orbit/probe/CheckRunner.java`
 - `backend/orbit-api/src/main/java/io/orbit/api/privacy/SensitiveDataModule.java`
 - `backend/orbit-api/src/main/java/io/orbit/api/privacy/MaskingConverter.java`
+- `backend/orbit-api/src/main/java/io/orbit/api/privacy/MaskedThrowableConverter.java`
+- `backend/orbit-config/src/main/java/io/orbit/config/ConfigFile.java`
+- `.githooks/pre-commit`
 - `backend/orbit-api/src/main/resources/logback-spring.xml`
 
 ## Tests
@@ -70,6 +73,10 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - `backend/orbit-api/src/test/java/io/orbit/api/privacy/SensitiveDataModuleTest.java`
 - `backend/orbit-api/src/test/java/io/orbit/api/privacy/MaskingConverterTest.java`
 - `backend/orbit-api/src/test/java/io/orbit/api/privacy/LogMaskingTest.java`
+- `backend/orbit-api/src/test/java/io/orbit/api/privacy/MaskedThrowableConverterTest.java`
+- `backend/orbit-api/src/test/java/io/orbit/api/privacy/CardDataLeakTest.java`
+- `backend/orbit-config/src/test/java/io/orbit/config/ConfigFileTest.java`
+- `.githooks/pre-commit.test.sh`
 
 ## Decisions and notes
 - Frontend: `detectSensitive` / `redact` mirror the backend redactor: Luhn PAN 13-19 digits (spaces/hyphens, numbers, inside free text and JSON) → `•••• •••• •••• 1234`; CVV/CVC/track/PIN by field name → `[REDACTED]`; CPF/CNPJ with valid check digits → `•••.•••.•••-12` / `••.•••.•••/••••-81`; e-mail → `j•••@d•••.com`; JWT, Bearer and secret field names → `••••`.
@@ -84,7 +91,17 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - Backend: Layer 2, serialization: `SensitiveDataModule` (registered in Spring's ObjectMapper) re-masks every `ResultPayload`, `HttpResponseSnapshot` and `@Sensitive` property on the way out of REST and `/ws/wall`; `@Sensitive` values that look harmless are still masked generically.
 - Backend: Layer 3, logs: `logback-spring.xml` uses `%maskedMsg` (`MaskingConverter`), so every log line, including formatted arguments, is masked.
 - Backend: Masks: PAN `•••• •••• •••• 1234`, SAD `[REDACTED]`, secrets `••••`, CPF `•••.•••.•••-12`, e-mail `j•••@d•••.com`, phone `(••) •••••-1234`.
-- Backend: Pending: masking stack-trace messages (`%wEx`) and the rule that PERSONAL fields cannot be unmasked on the wall.
+- Audit 2026-10-18 (both sides): PAN detection now scans every span of whole digit groups inside a run of digits joined by single spaces/hyphens, so a PAN next to another number ("order 12 5555 5555 5555 4444", a date, a quantity) is found; before, the greedy 13-19 digit match swallowed the extra digits, failed Luhn and leaked the card. Overlapping Luhn spans are merged and masked as one so no digit of either survives (over-masking is preferred to a leak). Frontend and backend use the same algorithm.
+- Backend: `Double`/`Float` values that are integral and Luhn-valid are masked like `Long`/`BigDecimal` (a DOUBLE column could carry a PAN into a series).
+- Backend: the Jackson guard also masks card numbers in every plain `String` value and map key (error messages, column aliases, JSON keys), but only card numbers, so e-mails and settings stay editable through the API. `JsonNode` trees are not covered by it; the probe-boundary redactor handles them.
+- Backend: stack traces go through `MaskedThrowableConverter` (`%maskedEx`, replaces `%wEx`), so a JDBC error quoting a row cannot log a PAN.
+- Backend: `ConfigFile` rejects (save) and refuses to serve (external edit) any `orbit.<feature>.json` whose values or keys contain a card number; the error names the path, never the value; `{"enc": ...}` secrets are skipped. PCI DSS 3.5 for configuration files.
+- Backend: `CardDataLeakTest` (end to end, H2 + RANDOM_PORT) puts a PAN in a text column, BIGINT, DOUBLE, free text next to another number, JSON text and a column alias, then checks preview, save, run, detail, list, wall snapshot, incidents, audit, `/ws/wall` frames, history events/audit/samples/series, every file under the config and data directories and the whole console output.
+- Hook: `.githooks/pre-commit` now scans test files too (only the well-known public test PANs are allowed; other test numbers are built at runtime), uses the same group-span Luhn search restricted to spans starting with 2-6 (card IINs; avoids Luhn-valid epoch milliseconds), handles paths with spaces, blocks `*.key`, `*.pfx`, `id_rsa`, `id_ed25519` and prints only `****1234` of a match. `sh .githooks/pre-commit.test.sh` runs 12 cases in throwaway repositories; the previous hook failed 2 of them (PAN in a test file, PAN next to another number).
+- Research: log masking via a custom Logback `ClassicConverter`/`ThrowableProxyConverter` (chosen: no dependency, works with Spring Boot's console pattern) vs. logstash-logback-encoder `MaskingJsonGeneratorDecorator` (JSON output only, extra dependency) vs. regex `replace` in the pattern (no Luhn check, would mask every 16-digit number). For the hook, a POSIX awk scan (no runtime needed) vs. gitleaks/detect-secrets (strong for secrets, but they need an extra binary per clone; whether their card rules apply Luhn was not verified). Luhn per ISO/IEC 7812-1.
+- Open: the BE-37 config export is not implemented yet; it reads the same `ConfigFile`s, which can no longer hold a PAN. CSV/PDF exports do not exist yet; when they do they must go through the redactor and get a test in `CardDataLeakTest`.
+- Open: the hook is not enabled in the shared clone (`core.hooksPath` unset).
+- Pending: the rule that PERSONAL fields cannot be unmasked on the wall (backend).
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -98,3 +115,4 @@ Detect and redact PAN (Luhn), SAD, CPF/CNPJ, e-mail, phone, secrets at the probe
 - 2026-10-18 — frontend: frontend: secret input.
 - 2026-10-18 — backend: pending tests for the Jackson serialization guard and the Logback masking converter.
 - 2026-10-18 — backend: Jackson serialization guard and Logback masking converter implemented.
+- 2026-10-18 — audit: PAN next to other numbers, floating-point PANs, plain strings in the API, stack traces and config files closed; frontend phone and key=value secret masks; end-to-end leak test; pre-commit hook hardened with tests.

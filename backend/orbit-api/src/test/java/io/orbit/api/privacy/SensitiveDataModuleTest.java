@@ -46,4 +46,27 @@ class SensitiveDataModuleTest {
         assertThat(json.writeValueAsString(new Customer("c1", "529.982.247-25"))).doesNotContain("529.982.247")
                 .contains("c1");
     }
+
+    record ErrorView(String monitorId, String error, List<String> notes, Map<String, Object> row) {
+    }
+
+    @Test
+    @DisplayName("a card number in any plain string, list item, map key or map value is masked")
+    void plainStrings() throws Exception {
+        var view = new ErrorView("mon_1", "Data truncation: value '" + TEST_PAN + "'",
+                List.of("order 7 " + TEST_PAN), Map.of(TEST_PAN, "x", "note", TEST_PAN));
+
+        String out = json.writeValueAsString(view);
+
+        assertThat(out).doesNotContain(TEST_PAN).contains("mon_1", "•••• •••• •••• 1111");
+        assertThat(json.writeValueAsString(TEST_PAN)).doesNotContain(TEST_PAN);
+    }
+
+    @Test
+    @DisplayName("plain strings keep e-mails and other configuration values untouched")
+    void plainStringsKeepNonCardData() throws Exception {
+        var view = new ErrorView("mon_1", "ops@example.com", List.of("2026-10-18T10:00:00Z"), Map.of("n", "347"));
+
+        assertThat(json.writeValueAsString(view)).contains("ops@example.com", "2026-10-18T10:00:00Z", "347");
+    }
 }

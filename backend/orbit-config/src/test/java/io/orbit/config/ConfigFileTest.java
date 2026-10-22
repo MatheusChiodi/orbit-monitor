@@ -50,6 +50,25 @@ class ConfigFileTest {
     }
 
     @Test
+    void refusesToStoreCardNumbers() throws IOException {
+        // Public test card number (never a real card).
+        String testPan = "4111 1111 1111 1111";
+
+        assertThatThrownBy(() -> groups().save(List.of(new Group("g1", "Order 7 " + testPan, null))))
+                .isInstanceOf(ConfigValidationException.class)
+                .hasMessageContaining("card number")
+                .hasMessageNotContaining(testPan);
+        assertThat(Files.exists(dir.resolve("orbit.groups.json"))).isFalse();
+
+        Files.writeString(dir.resolve("orbit.groups.json"),
+                "{\"version\":1,\"items\":[{\"id\":\"g1\",\"name\":\"" + testPan + "\"}]}");
+        ConfigFile<Group> edited = groups();
+        assertThat(edited.items()).isEmpty();
+        assertThat(edited.lastError()).hasValueSatisfying(e -> assertThat(e).contains("card number")
+                .doesNotContain(testPan));
+    }
+
+    @Test
     void keepsPreviousVersionAsBak() throws IOException {
         ConfigFile<Group> file = groups();
         file.save(List.of(new Group("g1", "One", null)));

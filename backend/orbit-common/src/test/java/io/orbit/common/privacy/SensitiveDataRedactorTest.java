@@ -130,6 +130,36 @@ class SensitiveDataRedactorTest {
         assertThat(redactor.redactText(null)).isNull();
     }
 
+    @Test
+    void panNextToOtherNumbersIsStillMasked() {
+        assertThat(redactor.redactText("order 7 " + VISA_TEST + " paid"))
+                .isEqualTo("order 7 •••• •••• •••• 1111 paid");
+        // "12 5555 5555 5555" is Luhn-valid too: overlapping spans are masked together, nothing leaks.
+        assertThat(redactor.redactText("order 12 " + MASTERCARD_TEST_SPACED + " paid"))
+                .isEqualTo("order •••• •••• •••• 4444 paid");
+        assertThat(redactor.redactText("2026-10-17 " + VISA_TEST + " declined"))
+                .isEqualTo("2026-10-17 •••• •••• •••• 1111 declined");
+        assertThat(redactor.redactText(VISA_TEST + " 99")).isEqualTo("•••• •••• •••• 1111 99");
+    }
+
+    @Test
+    void floatingPointPanValueIsMasked() {
+        assertThat(redactor.redact("value", Double.parseDouble(VISA_TEST))).isEqualTo("•••• •••• •••• 1111");
+        assertThat(redactor.redact("value", 0.5d)).isEqualTo(0.5d);
+        assertThat(redactor.redact("value", 1729250000001.0d)).isEqualTo(1729250000001.0d);
+        assertThat(redactor.redact("value", Double.NaN)).isEqualTo(Double.NaN);
+        assertThat(redactor.redact("ratio", 1.5f)).isEqualTo(1.5f);
+    }
+
+    @Test
+    void cardNumbersAloneCanBeMaskedAndDetected() {
+        assertThat(redactor.maskCardNumbers("a@b.com " + VISA_TEST)).isEqualTo("a@b.com •••• •••• •••• 1111");
+        assertThat(redactor.maskCardNumbers(null)).isNull();
+        assertThat(redactor.containsCardNumber("x 12 " + MASTERCARD_TEST_SPACED)).isTrue();
+        assertThat(redactor.containsCardNumber("4111111111111112 and 2026-10-18")).isFalse();
+        assertThat(redactor.containsCardNumber(null)).isFalse();
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {"OK", "UP", "347", "2026-10-18T10:00:00", "status=DEGRADED"})
     void harmlessTextIsUntouched(String text) {
