@@ -43,6 +43,20 @@ public class HistoryController {
                                   List<HistoryBucket> buckets) {
     }
 
+    /** Series of one field ({@code monitorId/field}); {@code field} is a column or a JSONPath. */
+    public record SeriesResponse(String monitorId, String field, Instant from, Instant to, String resolution,
+                                 List<HistorySample> samples, List<HistoryBucket> buckets) {
+    }
+
+    /**
+     * CORE-20: what the store covers, with a label for the console ("History available: last 30 days").
+     *
+     * @param coveredDays days between the oldest record and now, capped by the retention
+     */
+    public record CoverageView(Instant oldest, Instant newest, int retentionDays, boolean rawWritesEnabled,
+                               int coveredDays, String label) {
+    }
+
     static final Duration MAX_SPAN = Duration.ofDays(31);
     static final int MAX_RECORDS = 10_000;
     private static final Duration DEFAULT_SPAN = Duration.ofHours(24);
@@ -51,8 +65,11 @@ public class HistoryController {
     private final Clock clock;
     private final ObjectMapper json;
     private final SensitiveDataRedactor redactor;
+    private final Messages messages;
 
-    public HistoryController(HistoryStore store, Clock clock, ObjectMapper json, SensitiveDataRedactor redactor) {
+    public HistoryController(HistoryStore store, Clock clock, ObjectMapper json, SensitiveDataRedactor redactor,
+                             Messages messages) {
+        this.messages = messages;
         this.store = store;
         this.clock = clock;
         this.json = json;
@@ -71,6 +88,22 @@ public class HistoryController {
         }
         return new HistoryResponse(monitorId, range[0], range[1], res.label(), store.coverage(), null,
                 store.buckets(monitorId, range[0], range[1], res));
+    }
+
+    /** BE-19/BE-23: a field kept as series (SQL column, JSONPath, Kafka lag, days left). */
+    @GetMapping("/api/history/{monitorId}/series")
+    public SeriesResponse series(@PathVariable String monitorId, @RequestParam String field,
+                                 @RequestParam(required = false) String from, @RequestParam(required = false) String to,
+                                 @RequestParam(required = false) String resolution) {
+        Instant[] range = range(from, to);
+        Resolution res = Resolution.parse(resolution, range[0].toEpochMilli(), range[1].toEpochMilli());
+        String key = HistorySample.seriesKey(monitorId, field);
+        if (res == Resolution.RAW) {
+            return new SeriesResponse(monitorId, field, range[0], range[1], res.label(),
+                    store.rawSeries(key, range[0], range[1]), null);
+        }
+        return new SeriesResponse(monitorId, field, range[0], range[1], res.label(), null,
+                store.seriesBuckets(key, range[0], range[1], res));
     }
 
     @GetMapping("/api/history/{monitorId}/summary")
@@ -121,8 +154,16 @@ public class HistoryController {
     }
 
     @GetMapping("/api/history/coverage")
-    public HistoryCoverage coverage() {
-        return store.coverage();
+    public CoverageView coverage() {
+        HistoryCoverage c = store.coverage();
+        if (c.oldest() == null) {
+            return new CoverageView(null, null, c.retentionDays(), c.rawWritesEnabled(), 0,
+                    messages.current("history.coverage.empty"));
+        }
+        long days = Duration.between(c.oldest(), clock.instant()).toDays() + 1;
+        int covered = (int) Math.max(1, Math.min(c.retentionDays(), days));
+        return new CoverageView(c.oldest(), c.newest(), c.retentionDays(), c.rawWritesEnabled(), covered,
+                messages.current("history.coverage.days", covered));
     }
 
     @GetMapping("/api/history/health")

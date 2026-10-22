@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /** Builds the wall views from configuration, telemetry, latest results and incidents. */
@@ -36,6 +37,7 @@ public class WallViewFactory {
     private final Clock clock;
     private final String environment;
     private Function<Incident, Optional<Instant>> escalatesAt = incident -> Optional.empty();
+    private Supplier<Optional<WallViews.BrandingView>> branding = Optional::empty;
 
     public WallViewFactory(MonitorDefinitions definitions, TelemetryService telemetry, MonitorRuntime runtime,
                            GroupService groups, IncidentService incidents, WallTimeline timeline, Clock clock,
@@ -53,6 +55,11 @@ public class WallViewFactory {
     /** BE-27: source of the escalation countdown shown on the wall. */
     public void setEscalatesAt(Function<Incident, Optional<Instant>> escalatesAt) {
         this.escalatesAt = escalatesAt;
+    }
+
+    /** FE-10: source of the workspace name and logo shown on the wall. */
+    public void setBranding(Supplier<Optional<WallViews.BrandingView>> branding) {
+        this.branding = branding;
     }
 
     public WallViews.MonitorView monitorView(MonitorDef def) {
@@ -94,7 +101,7 @@ public class WallViewFactory {
         List<WallViews.IncidentView> open = incidents.recent().stream().filter(Incident::isOpen)
                 .map(this::incidentView).toList();
         return new WallViews.WallSnapshot(clock.instant(), environment, groupViews(), monitors, open,
-                timeline.recent(), uptime(), timeline.lastRecoveryAt().orElse(null));
+                timeline.recent(), uptime(), timeline.lastRecoveryAt().orElse(null), branding.get().orElse(null));
     }
 
     /** Mean availability of the monitors that have data, in percentage points. */

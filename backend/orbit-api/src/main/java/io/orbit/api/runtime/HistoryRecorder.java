@@ -28,6 +28,7 @@ public class HistoryRecorder {
         bus.onCheck(this::onCheck);
         bus.onStateChange(this::onStateChanged);
         bus.onIncident(this::onIncident);
+        bus.onNotice(this::onNotice);
     }
 
     void onCheck(CheckResult result) {
@@ -35,6 +36,15 @@ public class HistoryRecorder {
                 .map(def -> PrimaryValue.of(def, result).value()).orElse(null);
         store.record(new HistorySample(result.monitorId(), result.checkedAt(), result.state(), result.latencyMs(),
                 value, errorCode(result.error())));
+        // BE-19/BE-23: series fields (masked, never card data) go to the series stream with their rollups.
+        result.metrics().forEach((field, point) -> store.recordSeries(new HistorySample(
+                HistorySample.seriesKey(result.monitorId(), field), result.checkedAt(), result.state(),
+                result.latencyMs(), point)));
+    }
+
+    void onNotice(Notice notice) {
+        store.record(new HistoryEvent(notice.at(), notice.type(), notice.monitorId(), null,
+                notice.key() + " " + notice.args()));
     }
 
     void onStateChanged(MonitorStateChanged change) {

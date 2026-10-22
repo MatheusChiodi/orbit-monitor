@@ -133,8 +133,14 @@ final class DefinitionValidators {
         return errors;
     }
 
+    /** Fixed sub-paths of /api/history/{id}; a monitor with one of these ids would be unreachable there. */
+    private static final Set<String> RESERVED_IDS = Set.of("coverage", "health", "audit");
+
     private static void common(MonitorDef m, List<String> errors) {
         id(m.id(), errors);
+        if (RESERVED_IDS.contains(m.id())) {
+            errors.add(m.id() + ": id is reserved");
+        }
         required(m.id(), "name", m.name(), errors);
         if (m.intervalSeconds() < 15 || m.intervalSeconds() > 86_400) {
             errors.add(m.id() + ": interval must be between 15 s and 24 h");

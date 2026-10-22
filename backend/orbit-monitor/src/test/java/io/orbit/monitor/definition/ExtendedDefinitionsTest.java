@@ -141,4 +141,13 @@ class ExtendedDefinitionsTest {
                 .isInstanceOf(ConfigValidationException.class).hasMessageContaining("status");
         assertThat(Files.exists(dir.resolve("orbit.selects.json"))).isTrue();
     }
+
+    @Test
+    @DisplayName("BE-52: ids that are fixed history sub-paths are reserved")
+    void reservedIds() {
+        for (String id : List.of("coverage", "health", "audit")) {
+            assertThatThrownBy(() -> definitions.saveCheck(check(id, CheckMonitorDef.Type.TCP, "db", 1521, null, null,
+                    null), "Ana")).isInstanceOf(ConfigValidationException.class).hasMessageContaining("reserved");
+        }
+    }
 }
