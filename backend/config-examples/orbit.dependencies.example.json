@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "dep_bus_portal",
+      "upstream": "grp_service_bus",
+      "downstream": "grp_web_portal",
+      "note": "The portal reads from the service bus"
+    },
+    {
+      "id": "dep_auth_checkout",
+      "upstream": "req_auth_api",
+      "downstream": "req_checkout"
+    }
+  ]
+}

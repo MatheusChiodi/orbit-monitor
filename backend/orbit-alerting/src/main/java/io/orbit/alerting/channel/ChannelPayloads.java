@@ -62,6 +62,57 @@ public final class ChannelPayloads {
         return write(body);
     }
 
+    /** Title, text and link as plain text (Telegram, WhatsApp). */
+    public static String plainText(Notification n) {
+        return n.title() + "\n" + n.text() + "\n" + n.link();
+    }
+
+    /** Telegram Bot API {@code sendMessage} body for one chat (the bot token goes in the URL, never here). */
+    public static String telegram(Notification n, String chatId) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("chat_id", chatId);
+        body.put("text", plainText(n));
+        body.put("disable_web_page_preview", true);
+        return write(body);
+    }
+
+    /** WhatsApp Business Cloud API text message for one phone number (E.164). */
+    public static String whatsapp(Notification n, String phone) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("messaging_product", "whatsapp");
+        body.put("recipient_type", "individual");
+        body.put("to", phone);
+        body.put("type", "text");
+        body.put("text", Map.of("preview_url", false, "body", plainText(n)));
+        return write(body);
+    }
+
+    /**
+     * WhatsApp Cloud API template message (needed outside the 24-hour customer service window): the
+     * approved template receives the title and the text with the link as its two body parameters.
+     */
+    public static String whatsappTemplate(Notification n, String phone, String template, String languageTag) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("messaging_product", "whatsapp");
+        body.put("recipient_type", "individual");
+        body.put("to", phone);
+        body.put("type", "template");
+        body.put("template", Map.of("name", template, "language", Map.of("code", languageTag.replace('-', '_')),
+                "components", List.of(Map.of("type", "body", "parameters", List.of(
+                        Map.of("type", "text", "text", n.title()),
+                        Map.of("type", "text", "text", n.text() + " " + n.link()))))));
+        return write(body);
+    }
+
+    /** E-mail to deliver: recipients, subject (the title) and a plain-text body with the link. */
+    public static String email(Notification n, List<String> to) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("to", to);
+        body.put("subject", n.title());
+        body.put("body", n.text() + "\n\n" + n.link());
+        return write(body);
+    }
+
     /** {@code X-Orbit-Signature: sha256=<hex HMAC of "timestamp.body">} and a timestamp header against replay. */
     public static Map<String, String> signatureHeaders(String body, String secret, long epochSeconds) {
         try {
