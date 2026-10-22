@@ -1,7 +1,6 @@
 package io.orbit.config;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
@@ -9,7 +8,6 @@ import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Tag("pending")
 @DisplayName("CORE-19 JSON Schema per config file")
 class ConfigSchemasTest {
 

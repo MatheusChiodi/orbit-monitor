@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 /**
  * One {@code orbit.<feature>.json} file (docs/06-configuration-files.md): a versioned list of items,
  * validated on read and write, written atomically (tmp + rename) with the previous copy kept as
- * {@code .bak}. An invalid file on disk is never overwritten by a reload: the last valid copy keeps
+ * {@code .bak}. Files with a schema (CORE-19) are checked against it on read and write. An invalid file on disk is never overwritten by a reload: the last valid copy keeps
  * serving and the error is exposed through {@link #lastError()}. A card number is never stored
  * (docs/04-data-protection.md): any value that contains one rejects the whole file.
  */
@@ -39,6 +39,7 @@ public class ConfigFile<T extends ConfigItem> {
     private static final SensitiveDataRedactor REDACTOR = new SensitiveDataRedactor();
 
     private final Path path;
+    private final String feature;
     private final ObjectMapper mapper;
     private final JavaType listType;
     private final ConfigValidator<T> validator;
@@ -52,6 +53,7 @@ public class ConfigFile<T extends ConfigItem> {
             throw new IllegalArgumentException("Invalid feature name: " + feature);
         }
         this.path = directory.resolve("orbit." + feature + ".json");
+        this.feature = feature;
         this.mapper = mapper;
         this.listType = mapper.getTypeFactory().constructCollectionType(List.class, itemType);
         this.validator = validator;
@@ -83,6 +85,10 @@ public class ConfigFile<T extends ConfigItem> {
             ObjectNode document = mapper.createObjectNode();
             document.put("version", CURRENT_VERSION);
             document.set("items", mapper.valueToTree(newItems));
+            List<String> violations = schemaViolations(document);
+            if (!violations.isEmpty()) {
+                throw new ConfigValidationException(violations);
+            }
             writeAtomically(mapper.writeValueAsBytes(document));
             items = List.copyOf(newItems);
             loadedModifiedTime = Files.getLastModifiedTime(path);
@@ -117,6 +123,10 @@ public class ConfigFile<T extends ConfigItem> {
             if (version != CURRENT_VERSION) {
                 throw new IOException("Unsupported version " + version + " (expected " + CURRENT_VERSION + ")");
             }
+            List<String> violations = schemaViolations(document);
+            if (!violations.isEmpty()) {
+                throw new IOException(String.join("; ", violations));
+            }
             List<T> parsed = mapper.convertValue(document.path("items"), listType);
             List<T> loaded = parsed == null ? List.of() : parsed;
             List<String> errors = validate(loaded);
@@ -137,6 +147,11 @@ public class ConfigFile<T extends ConfigItem> {
             }
             return false;
         }
+    }
+
+    /** CORE-19: the document must match {@code orbit.<feature>.schema.json} when the feature has one. */
+    private List<String> schemaViolations(JsonNode document) {
+        return ConfigSchemas.has(feature) ? ConfigSchemas.validate(feature, document) : List.of();
     }
 
     private List<String> validate(List<T> candidate) {

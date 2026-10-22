@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MatheusChiodi/orbit-monitor/schemas/orbit.checks.schema.json",
+  "title": "orbit.checks.json",
+  "description": "TCP, ping and push monitors; push tokens are sealed in the vault",
+  "type": "object",
+  "required": [
+    "version",
+    "items"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "groupId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "intervalSeconds": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "timeoutMs": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "downAfter": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "hysteresis": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "openOnWarn": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "paused": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "conditions": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/$defs/condition"
+            }
+          },
+          "fields": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/$defs/field"
+            }
+          },
+          "type": {
+            "enum": [
+              "TCP",
+              "PING",
+              "PUSH"
+            ]
+          },
+          "host": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "port": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "pushToken": {
+            "$ref": "#/$defs/secret"
+          },
+          "maxSilenceSeconds": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "updatedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "ISO-8601 instant"
+          },
+          "updatedBy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "secret": {
+      "description": "Encrypted ({\"enc\": \"v1:...\"}) or an environment reference (\"${env:NAME}\"); never plain text",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "required": [
+            "enc"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "enc": {
+              "type": "string",
+              "pattern": "^v[0-9]+:"
+            }
+          }
+        },
+        {
+          "type": "string",
+          "pattern": "^\\$\\{env:[A-Za-z_][A-Za-z0-9_]*\\}$"
+        }
+      ]
+    },
+    "condition": {
+      "type": "object",
+      "required": [
+        "expression"
+      ],
+      "properties": {
+        "expression": {
+          "type": "string",
+          "minLength": 1
+        },
+        "level": {
+          "enum": [
+            "WARN",
+            "DOWN",
+            null
+          ]
+        }
+      }
+    },
+    "field": {
+      "type": "object",
+      "required": [
+        "key"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "format": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "decimals": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "series": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "display": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

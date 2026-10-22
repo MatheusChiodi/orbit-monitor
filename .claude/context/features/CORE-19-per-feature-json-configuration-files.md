@@ -6,7 +6,7 @@ group: "Platform"
 status: in-progress
 screens: [settings, monitor-editor-http, monitor-editor-sql, admin-connections, layout-editor, theme-editor]
 spec: docs/01-architecture.md, docs/02-features.md, docs/04-data-protection.md
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # CORE-19 · Per-feature JSON configuration files
@@ -16,7 +16,7 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented
+- [x] Implemented
 - [ ] All tests green, none pending
 
 ## Screens
@@ -29,6 +29,8 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 - `backend/orbit-config/src/main/java/io/orbit/config/ConfigSchemas.java`
 - `backend/config-examples/orbit.groups.example.json`
 - `frontend/src/app/settings/SettingsScreen/SettingsScreen.tsx`
+- `backend/orbit-config/src/main/java/io/orbit/config/SchemaValidator.java`
+- `backend/orbit-config/src/main/resources/schemas/orbit.<feature>.schema.json (15 files)`
 
 ## Tests
 - `frontend/src/shared/api/configResources.test.ts`
@@ -50,6 +52,9 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 - Frontend: Encrypted secrets (`{ enc }`) are replaced by `{ vault: true }` before reaching components; nothing is stored in the browser.
 - Frontend: Frontend: export strips encrypted values, `${env:…}` references and vault markers; import shows a dry-run diff (added / changed / removed ids per file) before applying.
 - Frontend: Frontend: Settings screen shows the access mode, the operator name (device only), workspace defaults from `orbit.settings.json`, the health of every config file (`missing` = not created yet, not an error) and Export / Import with a dry-run diff; view-only clients cannot change defaults or import.
+- Backend: one JSON Schema (draft 2020-12) per feature under `orbit-config/src/main/resources/schemas/`; `ConfigFile` validates the whole document against it on write (throws `ConfigValidationException`) and on load (keeps the last valid copy, `lastError()`). Secrets must be `{"enc":"v1:..."}`, `${env:NAME}` or null, so plain-text passwords are violations. Violations name the path and rule, never the value.
+- Backend: validator choice: in-house subset (`SchemaValidator`: type, required, properties, additionalProperties, items, enum, const, min/max, minLength, minItems, pattern, anyOf, oneOf, local `$ref`) over networknt json-schema-validator (Apache-2.0, maintained, Jackson-based) and everit (org.json based, less active). The schemas only need these keywords and the project avoids new runtime dependencies; the files stay standard so external tools can use them. Revisit if schemas need `if/then`, `format` or remote refs.
+- Backend: schemas are deliberately permissive on unknown fields (forward compatibility) and leave value rules (e.g. `editFrom` values) to each domain validator. Only version 1 exists, so no migration yet.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -62,3 +67,4 @@ One orbit.<feature>.json per feature in ~/.orbit/config, schema-validated, atomi
 - 2026-10-18 — frontend: frontend: settings screen.
 - 2026-10-18 — frontend: frontend: settings screen.
 - 2026-10-18 — frontend: frontend: settings screen.
+- 2026-10-22 — backend: JSON Schema per config file, validated on read and write; ConfigSchemasTest un-pended (frontend pending tests remain).

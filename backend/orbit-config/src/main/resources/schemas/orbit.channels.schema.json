@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MatheusChiodi/orbit-monitor/schemas/orbit.channels.schema.json",
+  "title": "orbit.channels.json",
+  "description": "Notification channels; URLs and signing secrets are vault or env references",
+  "type": "object",
+  "required": [
+    "version",
+    "items"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "enum": [
+              "SLACK",
+              "TEAMS",
+              "WEBHOOK"
+            ]
+          },
+          "url": {
+            "$ref": "#/$defs/secret"
+          },
+          "signingSecret": {
+            "$ref": "#/$defs/secret"
+          },
+          "groupIds": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "minSeverity": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "enabled": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "updatedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "ISO-8601 instant"
+          },
+          "updatedBy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "secret": {
+      "description": "Encrypted ({\"enc\": \"v1:...\"}) or an environment reference (\"${env:NAME}\"); never plain text",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "required": [
+            "enc"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "enc": {
+              "type": "string",
+              "pattern": "^v[0-9]+:"
+            }
+          }
+        },
+        {
+          "type": "string",
+          "pattern": "^\\$\\{env:[A-Za-z_][A-Za-z0-9_]*\\}$"
+        }
+      ]
+    }
+  }
+}

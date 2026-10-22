@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MatheusChiodi/orbit-monitor/schemas/orbit.selects.schema.json",
+  "title": "orbit.selects.json",
+  "description": "SQL monitors (read-only SELECTs on monitored databases)",
+  "type": "object",
+  "required": [
+    "version",
+    "items"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "connectionId",
+          "sql"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "groupId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "intervalSeconds": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "timeoutMs": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "downAfter": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "hysteresis": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "openOnWarn": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "paused": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "conditions": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/$defs/condition"
+            }
+          },
+          "fields": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/$defs/field"
+            }
+          },
+          "connectionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sql": {
+            "type": "string",
+            "minLength": 1
+          },
+          "maxRows": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "updatedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "ISO-8601 instant"
+          },
+          "updatedBy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "condition": {
+      "type": "object",
+      "required": [
+        "expression"
+      ],
+      "properties": {
+        "expression": {
+          "type": "string",
+          "minLength": 1
+        },
+        "level": {
+          "enum": [
+            "WARN",
+            "DOWN",
+            null
+          ]
+        }
+      }
+    },
+    "field": {
+      "type": "object",
+      "required": [
+        "key"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "format": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "decimals": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "series": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "display": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}
