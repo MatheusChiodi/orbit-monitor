@@ -49,12 +49,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MonitorRuntimeTest {
+
+    private static final AtomicInteger DATABASES = new AtomicInteger();
 
     // Public test card number (never a real card).
     private static final String TEST_PAN = "4111111111111111";
@@ -72,7 +74,8 @@ class MonitorRuntimeTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        h2Url = "jdbc:h2:mem:" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1";
+        // A random UUID can read as a Luhn-valid card number, which config files reject.
+        h2Url = "jdbc:h2:mem:runtime_" + DATABASES.incrementAndGet() + ";DB_CLOSE_DELAY=-1";
         try (Connection c = DriverManager.getConnection(h2Url, "sa", "pw"); Statement st = c.createStatement()) {
             st.execute("CREATE TABLE queue (pending_qty INT, card_number VARCHAR(19))");
             st.execute("INSERT INTO queue VALUES (347, '" + TEST_PAN + "')");
