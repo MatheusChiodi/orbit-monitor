@@ -47,8 +47,8 @@ Open on DOWN (or WARN if configured), auto-close on recovery, acknowledge with n
 ## Decisions and notes
 - Frontend: Acknowledge is the only wall action: solid red for DOWN, neutral for WARN; it becomes "Acknowledged at 17:04" / "Reconhecido às 17:04" (no name since 2026-10-22: `acknowledgedBy` holds the client kind and is never shown as a person).
 - Backend: `IncidentService` listens to confirmed `MonitorStateChanged` events: opens on DOWN (WARN only for monitors with `openOnWarn`), records severity changes, resolves on OK with duration, and reopens a relapse within 5 min.
-- Backend: Acknowledge is idempotent (first acknowledgement wins) and rejected on resolved incidents (409); comments and ticket links go to the timeline with the self-declared operator name.
-- Backend: REST: `GET /api/incidents`, `GET /api/incidents/{id}`, `POST /api/incidents/{id}/ack {by}`, `/comments {by,text}`, `/ticket {by,ticket}`; changes are pushed on `/ws/wall` as `incident` messages.
+- Backend: Acknowledge is idempotent (first acknowledgement wins) and rejected on resolved incidents (409); comments and ticket links go to the timeline with the client kind as actor (`loopback`, `lan`; no operator name since 2026-10-22).
+- Backend: REST: `GET /api/incidents`, `GET /api/incidents/{id}`, `POST /api/incidents/{id}/ack` (no body), `/comments {text}`, `/ticket {ticket}`; changes are pushed on `/ws/wall` as `incident` messages.
 - Backend: Incidents live in memory; resolved ones are dropped 24 h after resolution.
 - Backend: complete. REST adds `POST /api/incidents/{id}/resolve|reopen`, `GET /api/incidents?status=&monitorId=`, `GET /api/incidents/{id}/postmortem` and `GET /api/incidents/summary` (BE-34); shapes in BE-26 / BE-34. LAN clients may only acknowledge.
 - Frontend: the console lists, opens, acknowledges, resolves/reopens (editors), comments and links tickets through the incident API; the header bell is the incident feed (FE-38).
@@ -63,3 +63,4 @@ Open on DOWN (or WARN if configured), auto-close on recovery, acknowledge with n
 - 2026-10-22 — frontend: console incident list, page and actions wired to the API.
 - 2026-10-22 — frontend: wall ack merges the REST answer into the wall view and never fakes a refused ack; flow verified end to end (status: done).
 - 2026-10-22 — frontend: operator name retired; ack/resolve/reopen send no body, comments `{text}`, tickets `{ticket}`; "Acknowledged at HH:MM" without a name.
+- 2026-10-22 — backend: actor is the client kind; `by` is no longer read.
