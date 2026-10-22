@@ -3,6 +3,7 @@ package io.orbit.workspace;
 import io.orbit.common.MonitorState;
 import io.orbit.common.OperatorName;
 import io.orbit.config.ConfigFile;
+import io.orbit.config.ConfigValidationException;
 import io.orbit.config.ConfigValidator;
 
 import java.time.Clock;
@@ -65,6 +66,52 @@ public class GroupService {
         items.add(stamped);
         file.save(items);
         return stamped;
+    }
+
+    /**
+     * FE-13: persists a new group order. Listed groups take positions 1..n in the given order; groups
+     * left out keep their relative order after them. Unknown or repeated ids reject the whole change.
+     */
+    public synchronized List<Group> reorder(List<String> groupIds, String operator) {
+        return reorder(groupIds, java.util.Map.of(), operator);
+    }
+
+    /**
+     * Same as {@link #reorder(List, String)} and also stores the manual monitor order of the groups in
+     * {@code monitorOrder} (group id to monitor ids).
+     */
+    public synchronized List<Group> reorder(List<String> groupIds, java.util.Map<String, List<String>> monitorOrder,
+                                            String operator) {
+        String by = OperatorName.normalize(operator);
+        List<String> errors = new ArrayList<>();
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (String id : groupIds) {
+            if (!seen.add(id)) {
+                errors.add(id + ": listed twice");
+            } else if (find(id).isEmpty()) {
+                errors.add(id + ": unknown group");
+            }
+        }
+        monitorOrder.keySet().stream().filter(id -> find(id).isEmpty()).forEach(id -> errors.add(id + ": unknown group"));
+        if (!errors.isEmpty()) {
+            throw new ConfigValidationException(errors);
+        }
+        List<Group> ordered = new ArrayList<>();
+        groupIds.forEach(id -> ordered.add(find(id).orElseThrow()));
+        list().stream().filter(g -> !seen.contains(g.id())).forEach(ordered::add);
+        java.time.Instant now = clock.instant();
+        List<Group> items = new ArrayList<>();
+        for (int i = 0; i < ordered.size(); i++) {
+            Group g = ordered.get(i);
+            boolean monitorsMoved = monitorOrder.containsKey(g.id());
+            if (monitorsMoved) {
+                g = g.withMonitorOrder(monitorOrder.get(g.id()));
+            }
+            items.add(g.order() == i + 1 && !seen.contains(g.id()) && !monitorsMoved ? g
+                    : g.withOrder(i + 1).touchedBy(by, now));
+        }
+        file.save(items);
+        return list();
     }
 
     public synchronized boolean delete(String id) {

@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "lay_noc",
+      "slug": "noc",
+      "name": "NOC",
+      "version": 1,
+      "blocks": [
+        {
+          "type": "hero",
+          "x": 0,
+          "y": 0,
+          "w": 8,
+          "h": 6
+        },
+        {
+          "type": "also-active",
+          "x": 8,
+          "y": 0,
+          "w": 4,
+          "h": 3
+        },
+        {
+          "type": "near-limit",
+          "x": 8,
+          "y": 3,
+          "w": 4,
+          "h": 3
+        },
+        {
+          "type": "matrix",
+          "x": 0,
+          "y": 6,
+          "w": 8,
+          "h": 4
+        },
+        {
+          "type": "timeline",
+          "x": 8,
+          "y": 6,
+          "w": 4,
+          "h": 4
+        }
+      ],
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    }
+  ]
+}

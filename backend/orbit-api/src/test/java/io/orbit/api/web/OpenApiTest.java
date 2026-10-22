@@ -28,6 +28,17 @@ class OpenApiTest {
                 .andExpect(jsonPath("$.paths['/api/monitors']").exists())
                 .andExpect(jsonPath("$.paths['/api/monitors/preview']").exists())
                 .andExpect(jsonPath("$.paths['/api/incidents/{id}/ack']").exists())
-                .andExpect(jsonPath("$.paths['/api/access']").exists());
+                .andExpect(jsonPath("$.paths['/api/access']").exists())
+                .andExpect(jsonPath("$.paths['/api/variables']").exists())
+                .andExpect(jsonPath("$.paths['/api/themes']").exists())
+                .andExpect(jsonPath("$.paths['/api/settings/defaults']").exists())
+                .andExpect(jsonPath("$.paths['/api/status-pages']").exists())
+                .andExpect(jsonPath("$.paths['/api/status/{slug}']").exists())
+                .andExpect(jsonPath("$.paths['/api/workspaces']").exists())
+                .andExpect(jsonPath("$.paths['/api/groups/order']").exists())
+                .andExpect(jsonPath("$.paths['/api/audit']").exists())
+                .andExpect(jsonPath("$.paths['/api/config/health']").exists())
+                .andExpect(jsonPath("$.paths['/api/customization/{scope}/{target}']").exists())
+                .andExpect(jsonPath("$.paths['/api/terminology/{locale}']").exists());
     }
 }

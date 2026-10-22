@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "workspace",
+      "scope": "workspace",
+      "values": {
+        "card.monitor.clickAction": "open-detail",
+        "wall.rotationSeconds": 30
+      },
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    },
+    {
+      "id": "layout:noc",
+      "scope": "layout",
+      "target": "noc",
+      "values": {
+        "card.monitor.variant": "compact"
+      },
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    },
+    {
+      "id": "profile:night-shift",
+      "scope": "profile",
+      "target": "night-shift",
+      "name": "Night shift",
+      "values": {
+        "wall.dim": true
+      },
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    }
+  ]
+}

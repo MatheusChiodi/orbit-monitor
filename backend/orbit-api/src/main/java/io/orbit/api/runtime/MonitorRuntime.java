@@ -23,6 +23,7 @@ import io.orbit.security.vault.SecretResolver;
 import io.orbit.security.vault.VaultException;
 import io.orbit.telemetry.Heartbeat;
 import io.orbit.telemetry.TelemetryService;
+import io.orbit.workspace.variable.VariableResolver;
 
 import java.net.URI;
 import java.time.Duration;
@@ -32,6 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -51,10 +53,21 @@ public class MonitorRuntime {
     private final TargetLimiter limiter;
     private final SimpleProbes probes;
     private final Map<String, CheckResult> latest = new ConcurrentHashMap<>();
+    private final Supplier<VariableResolver> variables;
 
     public MonitorRuntime(MonitorDefinitions definitions, CheckRunner runner, TelemetryService telemetry,
                           ConnectionPools pools, SecretResolver secrets, ProbeScheduler scheduler, EventBus bus,
                           CircuitBreaker breaker, TargetLimiter limiter, SimpleProbes probes) {
+        this(definitions, runner, telemetry, pools, secrets, scheduler, bus, breaker, limiter, probes,
+                () -> new VariableResolver(Map.of(), Map.of(), secrets));
+    }
+
+    /** @param variables BE-39: current workspace variables, asked once per check run */
+    public MonitorRuntime(MonitorDefinitions definitions, CheckRunner runner, TelemetryService telemetry,
+                          ConnectionPools pools, SecretResolver secrets, ProbeScheduler scheduler, EventBus bus,
+                          CircuitBreaker breaker, TargetLimiter limiter, SimpleProbes probes,
+                          Supplier<VariableResolver> variables) {
+        this.variables = variables;
         this.probes = probes;
         this.breaker = breaker;
         this.limiter = limiter;
@@ -211,14 +224,28 @@ public class MonitorRuntime {
         }
         ConnectionDef con = connection.get();
         SqlProbeOptions options = new SqlProbeOptions(sql.maxRows(), Duration.ofMillis(sql.timeoutMs()), 100);
-        return runner.runSql(sql.id(), pools.dataSource(con), Dialect.fromJdbcUrl(con.jdbcUrl()), sql.sql(), options,
-                sql.parsedConditions(), policy);
+        return runner.runSql(sql.id(), pools.dataSource(con), Dialect.fromJdbcUrl(con.jdbcUrl()), sql.sql(),
+                parameters(sql), options, sql.parsedConditions(), policy);
+    }
+
+    /** BE-39: text parameters may reference workspace variables; values are bound, never concatenated. */
+    private Map<String, Object> parameters(SqlMonitorDef sql) {
+        if (sql.parameters().isEmpty()) {
+            return Map.of();
+        }
+        VariableResolver resolver = variables.get();
+        Map<String, Object> resolved = new HashMap<>();
+        sql.parameters().forEach((name, value) ->
+                resolved.put(name, value instanceof String text ? resolver.resolve(text) : value));
+        return resolved;
     }
 
     private HttpProbeRequest request(HttpMonitorDef http) {
-        Map<String, String> headers = new HashMap<>(http.headers());
+        VariableResolver resolver = variables.get();
+        Map<String, String> headers = new HashMap<>();
+        http.headers().forEach((name, value) -> headers.put(name, resolver.resolve(value)));
         http.secretHeaders().forEach((name, ref) -> headers.put(name, secrets.resolve(ref)));
-        return new HttpProbeRequest(http.method(), URI.create(http.url()), headers, http.body(),
-                Duration.ofMillis(http.timeoutMs()), http.followRedirects());
+        return new HttpProbeRequest(http.method(), URI.create(resolver.resolve(http.url())), headers,
+                resolver.resolve(http.body()), Duration.ofMillis(http.timeoutMs()), http.followRedirects());
     }
 }

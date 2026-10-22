@@ -42,8 +42,10 @@ class ThemeServiceTest {
     @Test
     @DisplayName("built-in defaults")
     void builtIn() {
-        ThemeService.Defaults d = ThemeService.builtInDefaults();
+        io.orbit.security.settings.WorkspaceDefaults d = ThemeService.builtInDefaults();
         assertThat(d.locale()).isEqualTo("en");
-        assertThat(d.scale()).isEqualTo(1.0);
+        assertThat(d.theme()).isEqualTo("orbit-dark");
+        assertThat(d.animation()).isEqualTo("standard");
+        assertThat(d.scale()).isEqualTo("3m");
     }
 }

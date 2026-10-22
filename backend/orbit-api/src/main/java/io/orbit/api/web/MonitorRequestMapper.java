@@ -45,7 +45,7 @@ public class MonitorRequestMapper {
         return new SqlMonitorDef(id, r.name(), r.groupId(), r.connectionId(), r.sql(), or(r.intervalSeconds(), 60),
                 or(r.timeoutSeconds(), 30) * 1_000L, or(r.maxRows(), 500), or(r.retries(), 1),
                 r.hysteresis() == null ? Hysteresis.DEFAULT_RATIO : r.hysteresis(), Boolean.TRUE.equals(r.openOnWarn()),
-                conditions(r, "[COL]."), fields(r), Boolean.TRUE.equals(r.paused()), null, null);
+                conditions(r, "[COL]."), fields(r), Boolean.TRUE.equals(r.paused()), null, null, r.parameters());
     }
 
     public HttpMonitorDef toHttp(MonitorRequest r) {

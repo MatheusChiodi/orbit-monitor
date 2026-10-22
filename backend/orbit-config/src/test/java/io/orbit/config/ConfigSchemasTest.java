@@ -15,7 +15,8 @@ class ConfigSchemasTest {
     @DisplayName("the core features have schemas")
     void schemasExist() {
         assertThat(ConfigSchemas.features()).contains("settings", "connections", "requests", "selects", "groups",
-                "query-catalog", "layouts", "channels", "escalation", "maintenance", "silences");
+                "query-catalog", "layouts", "channels", "escalation", "maintenance", "silences", "themes", "variables",
+                "status-pages", "workspaces", "customization", "terminology");
     }
 
     @Test

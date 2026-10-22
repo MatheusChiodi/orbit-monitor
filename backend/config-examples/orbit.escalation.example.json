@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "esc_payments",
+      "name": "Payments escalation",
+      "groupIds": [
+        "grp_payments"
+      ],
+      "steps": [
+        {
+          "after": "PT0S",
+          "channelIds": [
+            "chn_ops_slack"
+          ]
+        },
+        {
+          "after": "PT15M",
+          "channelIds": [
+            "chn_oncall_webhook"
+          ]
+        }
+      ],
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    }
+  ]
+}

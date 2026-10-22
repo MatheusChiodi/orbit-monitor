@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "en",
+      "terms": {
+        "status.DOWN": "Offline",
+        "incident.acknowledge": "I'm on it"
+      },
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    },
+    {
+      "id": "pt-BR",
+      "terms": {
+        "status.DOWN": "Fora do ar"
+      },
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    }
+  ]
+}

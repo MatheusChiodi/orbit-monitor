@@ -1,10 +1,14 @@
 package io.orbit.workspace;
 
 import io.orbit.common.MonitorState;
+import io.orbit.common.OperatorName;
 import io.orbit.config.ConfigFile;
 import io.orbit.config.ConfigItem;
 import io.orbit.config.ConfigValidationException;
+import io.orbit.config.ConfigValidator;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -23,32 +27,44 @@ public class WorkspaceService {
 
     private static final Pattern ID = Pattern.compile("[a-z][a-z0-9_-]{1,63}");
 
-    public record Workspace(String id, String name, List<String> groupIds) implements ConfigItem {
+    public record Workspace(String id, String name, List<String> groupIds, Instant updatedAt, String updatedBy)
+            implements ConfigItem {
         public Workspace {
             groupIds = groupIds == null ? List.of() : List.copyOf(groupIds);
         }
+
+        public Workspace(String id, String name, List<String> groupIds) {
+            this(id, name, groupIds, null, null);
+        }
     }
 
+    public static final ConfigValidator<Workspace> VALIDATOR = WorkspaceService::validate;
+
     private final ConfigFile<Workspace> file;
+    private final Clock clock;
+
+    public WorkspaceService(ConfigFile<Workspace> file, Clock clock) {
+        this.file = file;
+        this.clock = clock;
+    }
 
     public WorkspaceService(ConfigFile<Workspace> file) {
-        this.file = file;
+        this(file, Clock.systemUTC());
     }
 
     /** Creates or replaces a workspace; {@code operator} is required like every config change. */
     public synchronized Workspace save(Workspace workspace, String operator) {
-        if (operator == null || operator.isBlank()) {
-            throw new IllegalArgumentException("Operator name required");
-        }
+        Workspace stamped = new Workspace(workspace.id(), workspace.name() == null ? null : workspace.name().strip(),
+                workspace.groupIds(), clock.instant(), OperatorName.normalize(operator));
         List<Workspace> items = new ArrayList<>(file.items().stream()
                 .filter(w -> !w.id().equals(workspace.id())).toList());
-        items.add(workspace);
+        items.add(stamped);
         List<String> errors = validate(items);
         if (!errors.isEmpty()) {
             throw new ConfigValidationException(errors);
         }
         file.save(items);
-        return workspace;
+        return stamped;
     }
 
     public synchronized boolean delete(String id) {
@@ -63,6 +79,10 @@ public class WorkspaceService {
     public List<Workspace> list() {
         return file.items().stream().sorted(Comparator.comparing(Workspace::name, Comparator.nullsLast(
                 Comparator.naturalOrder()))).toList();
+    }
+
+    public Optional<Workspace> find(String id) {
+        return file.items().stream().filter(w -> w.id().equals(id)).findFirst();
     }
 
     public Optional<Workspace> workspaceOf(String groupId) {
