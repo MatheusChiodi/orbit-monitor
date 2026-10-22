@@ -2,9 +2,9 @@
 screen: theme-editor
 title: "Theme editor"
 route: "index.html#/settings/themes"
-status: planned
+status: done
 spec: docs/05-extended-features.md FE-01..FE-05
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # Theme editor
@@ -13,7 +13,9 @@ updated: 2026-10-18
 Create/edit color themes with contrast guard and presets, import/export.
 
 ## Layout and components
-_To be filled as the screen is built (component tree, file paths)._
+- Route `index.html#/settings/themes` (header button "Appearance") → `AppearancePage` → `AppearanceSettings` (`ThemeGallery` + `ThemeEditor`, import review)
+- `ConsoleTheme` (in `ConsoleApp`) provides the ThemeProvider: device theme from FE-50 preferences, BE-40 workspace default, custom themes from `/api/themes`
+- Code: `frontend/src/app/console/AppearancePage/`, `frontend/src/app/console/ConsoleTheme/`, `frontend/src/domains/settings/appearance/`
 
 ## States
 - Loading, empty, error, stale data
@@ -40,3 +42,4 @@ _To be filled as the screen is built (component tree, file paths)._
 ## Changelog
 - 2026-10-18 — context file created.
 - 2026-10-18 — theme editor and theme core implemented (FE-01..FE-05 in progress, FE-02 done).
+- 2026-10-22 — route `#/settings/themes` and console ThemeProvider mounted.

@@ -3,10 +3,10 @@ id: FE-01
 title: "Theme editor"
 area: frontend
 group: "Theming and personalization"
-status: in-progress
+status: done
 screens: [theme-editor]
 spec: docs/05-extended-features.md
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # FE-01 · Theme editor
@@ -17,7 +17,7 @@ Create/edit a color theme (`bg`, `s1–s3`, `line`, `text/muted/dim`, `ok/warn/d
 ## Status
 - [x] Tests written (pending or active)
 - [x] Implemented
-- [ ] All tests green, none pending
+- [x] All tests green, none pending
 
 ## Screens
 [theme-editor](../screens/theme-editor.md)
@@ -28,10 +28,14 @@ Create/edit a color theme (`bg`, `s1–s3`, `line`, `text/muted/dim`, `ok/warn/d
 - `frontend/src/domains/settings/appearance/WallPreview/WallPreview.tsx`
 - `frontend/src/domains/settings/appearance/ConsolePreview/ConsolePreview.tsx`
 - `frontend/src/domains/settings/appearance/AppearanceSettings/AppearanceSettings.tsx`
+- `frontend/src/app/console/ConsoleTheme/ConsoleTheme.tsx`
+- `frontend/src/app/console/AppearancePage/AppearancePage.tsx`
+- `frontend/src/app/console/ConsoleApp.tsx`
 
 ## Tests
 - `frontend/src/domains/settings/appearance/ThemeEditor/ThemeEditor.test.tsx`
 - `frontend/src/domains/settings/appearance/AppearanceSettings/AppearanceSettings.test.tsx`
+- `frontend/src/app/console/ConsoleApp.theming.test.tsx`
 
 ## Decisions and notes
 - Every one of the 30 token paths is editable (hex text field + native picker; alpha kept from the text field). Invalid hex is flagged with aria-invalid and never reaches the preview.
@@ -43,3 +47,4 @@ Create/edit a color theme (`bg`, `s1–s3`, `line`, `text/muted/dim`, `ok/warn/d
 - 2026-10-18 — pending test suite written (status: tests-pending).
 - 2026-10-18 — editor implemented with live wall/console preview and contrast guard; moved to src/domains/settings/appearance (status: in-progress until wired into Settings → Appearance).
 - 2026-10-18 — editor reachable from the gallery (Duplicate & edit, Edit); saving applies the new theme on the device.
+- 2026-10-22 — editor reachable on Settings → Appearance (`#/settings/themes`); saved themes persist through `/api/themes` (BE-40, 422 on contrast failure shown as an alert) (status: done).

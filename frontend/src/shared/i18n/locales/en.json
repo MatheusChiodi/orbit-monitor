@@ -161,7 +161,9 @@
         "rule": "Rule",
         "value": "Value"
       }
-    }
+    },
+    "appearance": "Appearance",
+    "layouts": "Wall layouts"
   },
   "form": {
     "configuration": "Configuration",
@@ -391,7 +393,39 @@
         "portrait": "Portrait (1080×1920)"
       }
     },
-    "tile": "Tile {{index}} of {{total}}"
+    "tile": "Tile {{index}} of {{total}}",
+    "page": {
+      "title": "Wall layouts",
+      "list": "Layouts",
+      "new": "New layout",
+      "empty": "No saved layouts yet: the wall shows the built-in NOC layout.",
+      "openOnWall": "Open on the wall",
+      "saved": "Layout \"{{name}}\" saved",
+      "saveError": "The layout could not be saved: {{message}}",
+      "loadError": "Layouts could not be loaded"
+    },
+    "settings": {
+      "title": "Layout settings",
+      "name": "Name",
+      "slug": "Address (/wall/…)",
+      "slugInvalid": "Use lowercase letters, digits and dashes",
+      "theme": "Theme on this wall",
+      "themeInherit": "Device or workspace theme",
+      "animation": "Animation on this wall",
+      "animationInherit": "Device or workspace level",
+      "playlist": "Playlist",
+      "playlistHint": "Rotate these layouts on this wall; rotation pauses while an incident is unacknowledged.",
+      "playlistLayout": "Layout {{position}}",
+      "playlistSeconds": "Seconds on screen for layout {{position}}",
+      "playlistAdd": "Add to playlist",
+      "playlistRemove": "Remove layout {{position}} from the playlist",
+      "block": "Block",
+      "blockSource": "Monitor or group",
+      "blockSourceAll": "All monitors",
+      "blockRange": "History window",
+      "blockRangeLive": "Last 60 minutes (live)",
+      "blockText": "Text"
+    }
   },
   "palette": {
     "title": "Command palette",

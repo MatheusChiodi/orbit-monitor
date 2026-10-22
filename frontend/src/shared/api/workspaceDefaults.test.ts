@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { fetchWorkspaceDefaults } from './workspaceDefaults';
+import { fetchWorkspaceDefaults, saveWorkspaceDefaults } from './workspaceDefaults';
 
 const json = (status: number, body: unknown) =>
   new Response(status === 204 ? null : JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -30,5 +30,15 @@ describe('BE-40 workspace defaults client', () => {
       throw new TypeError('offline');
     });
     expect(await fetchWorkspaceDefaults({ fetch })).toEqual({});
+  });
+
+  it('saves the defaults with PUT /api/settings/defaults (editors only) and returns what was stored', async () => {
+    const fetch = vi.fn(async (_url: string, init?: RequestInit) => json(200, JSON.parse(String(init?.body))));
+    const saved = await saveWorkspaceDefaults({ theme: 'nord', animation: 'minimal' }, { fetch: fetch as unknown as typeof globalThis.fetch, getOperator: () => 'Ana' });
+    const [url, init] = fetch.mock.calls[0] ?? [];
+    expect(url).toBe('/api/settings/defaults');
+    expect(init?.method).toBe('PUT');
+    expect(JSON.parse(String(init?.body))).toEqual({ theme: 'nord', animation: 'minimal' });
+    expect(saved).toEqual({ theme: 'nord', animation: 'minimal' });
   });
 });

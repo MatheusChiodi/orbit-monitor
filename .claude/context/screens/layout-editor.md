@@ -2,9 +2,9 @@
 screen: layout-editor
 title: "Wall layout editor"
 route: "index.html#/layouts/:id"
-status: planned
+status: in-progress
 spec: docs/05-extended-features.md FE-11..FE-20
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # Wall layout editor
@@ -13,7 +13,12 @@ updated: 2026-10-18
 12-column drag-and-drop grid, block settings, screen previews, incident simulator, undo/redo.
 
 ## Layout and components
-_To be filled as the screen is built (component tree, file paths)._
+- Route `index.html#/layouts` and `#/layouts/<id>` (header button "Wall layouts") → `LayoutsPage`
+  - layout list (nav) + "New layout" (free `layout-N` slug, NOC template)
+  - `LayoutSettings`: name, slug, FE-05 theme, FE-06 animation override, FE-19 playlist (layout + seconds rows)
+  - `BlockSettings`: per-block source (monitor/group), FE-58 history window for series, text
+  - `LayoutEditor` inside a scoped theme preview (`data-theme-preview`, `themeStyle`) so the grid shows the layout theme
+  - "Open on the wall" link `/wall/<slug>`; view-only clients get a read-only grid and disabled settings
 
 ## States
 - Loading, empty, error, stale data
@@ -33,10 +38,15 @@ _To be filled as the screen is built (component tree, file paths)._
 - [FE-20 · Video wall tiling](../features/FE-20-video-wall-tiling.md) — in-progress
 
 ## Code
-_None yet._
+- `frontend/src/app/console/LayoutsPage/LayoutsPage.tsx`
+- `frontend/src/domains/workspace/LayoutSettings/LayoutSettings.tsx`
+- `frontend/src/domains/workspace/BlockSettings/BlockSettings.tsx`
+- `frontend/src/domains/workspace/LayoutEditor/LayoutEditor.tsx`
 
 ## Tests
-_None yet._
+- `frontend/src/app/console/ConsoleApp.theming.test.tsx`
+- `frontend/src/domains/workspace/LayoutEditor/LayoutEditor.test.tsx`
 
 ## Changelog
 - 2026-10-18 — context file created.
+- 2026-10-22 — console route, layout settings (theme, animation, playlist), block settings and themed preview.

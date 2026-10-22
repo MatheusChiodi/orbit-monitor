@@ -3,10 +3,10 @@ id: FE-04
 title: "Theme import/export"
 area: frontend
 group: "Theming and personalization"
-status: in-progress
+status: done
 screens: [theme-editor]
 spec: docs/05-extended-features.md
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # FE-04 · Theme import/export
@@ -17,7 +17,7 @@ Orbit theme JSON (schema-validated), import of VS Code color theme `.json` with 
 ## Status
 - [x] Tests written (pending or active)
 - [x] Implemented
-- [ ] All tests green, none pending
+- [x] All tests green, none pending
 
 ## Screens
 [theme-editor](../screens/theme-editor.md)
@@ -29,6 +29,8 @@ Orbit theme JSON (schema-validated), import of VS Code color theme `.json` with 
 - `frontend/src/shared/theme/paths.ts`
 - `frontend/src/shared/theme/customThemes.ts`
 - `frontend/src/domains/settings/appearance/ImportReview/ImportReview.tsx`
+- `frontend/src/shared/theme/customThemeItems.ts`
+- `frontend/src/app/console/AppearancePage/AppearancePage.tsx`
 
 ## Tests
 - `frontend/src/shared/theme/themeFile.test.ts`
@@ -36,12 +38,13 @@ Orbit theme JSON (schema-validated), import of VS Code color theme `.json` with 
 - `frontend/src/shared/theme/paths.test.ts`
 - `frontend/src/shared/theme/customThemes.test.tsx`
 - `frontend/src/domains/settings/appearance/ThemeGallery/ThemeGallery.test.tsx (import and export flows)`
+- `frontend/src/app/console/ConsoleApp.theming.test.tsx`
 
 ## Decisions and notes
 - Orbit file: `{ version: 1, theme }`; `validateTheme` rebuilds a clean object (unknown fields dropped, colors only `#rgb/#rrggbb/#rrggbbaa`, https-only url, name ≤ 60, id slug). Imported themes are always `category: custom`. Max 256 KB (VS Code: 1 MB).
 - VS Code import accepts JSONC (comments, trailing commas) via a string-aware stripper; maps editor/sideBar/activityBar/panel backgrounds, foregrounds, terminal ANSI colors, focusBorder and tokenColors scopes; `#rgba` shorthand supported; then `fixTheme` runs and every change is shown in the review dialog (token, before → after) before saving.
 - Custom themes are persisted only through the config API (`useCustomThemes`: `GET/POST /api/themes`, `PUT/DELETE /api/themes/{id}`, `orbit.themes.json` `{ version, items }`); items are re-validated on read, built-in ids are reserved. Export downloads `<id>.orbit-theme.json`; sharing with the workspace = saving it as a custom theme.
-- Remaining: backend confirmation of the `/api/themes` contract (backend-agent).
+- `/api/themes` confirmed by BE-40 (`GET {version, items}`, POST, PUT/DELETE `/{id}`, 422 on contrast failure); server errors are shown on the Appearance page. `sanitizeCustomThemes` lives in `customThemeItems.ts` (no React Query) so the wall can validate custom themes lazily.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -49,3 +52,4 @@ Orbit theme JSON (schema-validated), import of VS Code color theme `.json` with 
 - 2026-10-18 — scope expanded (30 built-in themes + accessibility, VS Code import).
 - 2026-10-18 — Orbit theme file, schema validation and VS Code import with contrast fixes implemented; review UI next (status: in-progress).
 - 2026-10-18 — import review dialog, Orbit JSON export download and custom theme persistence hook implemented.
+- 2026-10-22 — wired to the live `/api/themes` on Settings → Appearance (status: done).

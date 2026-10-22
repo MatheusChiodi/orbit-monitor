@@ -3,8 +3,8 @@ import { ApiError, createApiClient, type ApiClientOptions } from './client';
 
 /**
  * BE-40 workspace defaults (theme, animation level, density, locale, scale) from `orbit.settings.json`.
- * Assumed contract: `GET /api/settings/defaults` → `{ theme?, animationLevel?, density?, locale?, scale? }`;
- * older backends only have `GET /api/settings` (same field names), used as a fallback.
+ * BE-40: `GET/PUT /api/settings/defaults` → `{ theme, animation, density, locale, scale }` (the frontend names);
+ * `animationLevel` is accepted too, and older backends without the endpoint fall back to `GET /api/settings`.
  */
 type RawDefaults = Record<string, unknown>;
 
@@ -32,4 +32,13 @@ export async function fetchWorkspaceDefaults(options: Pick<ApiClientOptions, 'fe
   } catch {
     return {};
   }
+}
+
+/** Editors only (access policy); the backend answers 403 for view-only clients. */
+export async function saveWorkspaceDefaults(
+  defaults: WorkspacePreferenceDefaults,
+  options: Pick<ApiClientOptions, 'fetch' | 'baseUrl' | 'getOperator'> = {},
+): Promise<WorkspacePreferenceDefaults> {
+  const { request } = createApiClient(options);
+  return toDefaults(await request<RawDefaults>('/api/settings/defaults', { method: 'PUT', body: defaults }));
 }

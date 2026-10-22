@@ -161,7 +161,9 @@
         "rule": "Regra",
         "value": "Valor"
       }
-    }
+    },
+    "appearance": "Aparência",
+    "layouts": "Layouts do painel"
   },
   "form": {
     "configuration": "Configuração",
@@ -391,7 +393,39 @@
         "portrait": "Retrato (1080×1920)"
       }
     },
-    "tile": "Parte {{index}} de {{total}}"
+    "tile": "Parte {{index}} de {{total}}",
+    "page": {
+      "title": "Layouts do painel",
+      "list": "Layouts",
+      "new": "Novo layout",
+      "empty": "Nenhum layout salvo: o painel mostra o layout NOC padrão.",
+      "openOnWall": "Abrir no painel",
+      "saved": "Layout \"{{name}}\" salvo",
+      "saveError": "Não foi possível salvar o layout: {{message}}",
+      "loadError": "Não foi possível carregar os layouts"
+    },
+    "settings": {
+      "title": "Configurações do layout",
+      "name": "Nome",
+      "slug": "Endereço (/wall/…)",
+      "slugInvalid": "Use letras minúsculas, dígitos e hífens",
+      "theme": "Tema neste painel",
+      "themeInherit": "Tema do dispositivo ou do workspace",
+      "animation": "Animação neste painel",
+      "animationInherit": "Nível do dispositivo ou do workspace",
+      "playlist": "Playlist",
+      "playlistHint": "Alterna estes layouts neste painel; a rotação pausa enquanto houver incidente não reconhecido.",
+      "playlistLayout": "Layout {{position}}",
+      "playlistSeconds": "Segundos na tela do layout {{position}}",
+      "playlistAdd": "Adicionar à playlist",
+      "playlistRemove": "Remover o layout {{position}} da playlist",
+      "block": "Bloco",
+      "blockSource": "Monitor ou grupo",
+      "blockSourceAll": "Todos os monitores",
+      "blockRange": "Janela de histórico",
+      "blockRangeLive": "Últimos 60 minutos (ao vivo)",
+      "blockText": "Texto"
+    }
   },
   "palette": {
     "title": "Paleta de comandos",

@@ -20,6 +20,11 @@ describe('GroupList', () => {
     expect(rows[0]).toHaveTextContent('349 QTY');
   });
 
+  it('FE-59: each monitor row is addressable as #monitor-<id> (living orb "open", wall card actions)', () => {
+    render(<GroupList groups={snap.groups} monitors={snap.monitors} onNewMonitor={vi.fn()} />);
+    expect(document.getElementById('monitor-reconciliation')).toHaveTextContent('Reconciliation queue');
+  });
+
   it('renders in pt-BR', () => {
     renderWithLocale(<GroupList groups={snap.groups} monitors={snap.monitors} onNewMonitor={vi.fn()} />, 'pt-BR');
     expect(screen.getByRole('searchbox', { name: 'Filtrar monitores' })).toBeInTheDocument();

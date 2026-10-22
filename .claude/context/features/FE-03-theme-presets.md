@@ -3,10 +3,10 @@ id: FE-03
 title: "Theme gallery"
 area: frontend
 group: "Theming and personalization"
-status: in-progress
+status: done
 screens: [theme-editor]
 spec: docs/05-extended-features.md
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # FE-03 · Theme gallery
@@ -17,7 +17,7 @@ Default Orbit Dark or 30 built-in editor-inspired themes (Dracula, Nord, Tokyo N
 ## Status
 - [x] Tests written (pending or active)
 - [x] Implemented
-- [ ] All tests green, none pending
+- [x] All tests green, none pending
 
 ## Screens
 [theme-editor](../screens/theme-editor.md)
@@ -34,6 +34,11 @@ Default Orbit Dark or 30 built-in editor-inspired themes (Dracula, Nord, Tokyo N
 - `frontend/src/domains/settings/appearance/WallPreview/WallPreview.tsx`
 - `frontend/src/domains/settings/appearance/themeLabel.ts`
 - `docs/themes.md`
+- `frontend/src/app/console/ConsoleTheme/ConsoleTheme.tsx`
+- `frontend/src/app/console/AppearancePage/AppearancePage.tsx`
+- `frontend/src/app/console/ConsoleApp.tsx`
+- `frontend/src/shared/theme/LazyThemeProvider.tsx`
+- `frontend/src/shared/theme/defaults.ts`
 
 ## Tests
 - `frontend/src/shared/theme/registry.test.ts`
@@ -41,6 +46,9 @@ Default Orbit Dark or 30 built-in editor-inspired themes (Dracula, Nord, Tokyo N
 - `frontend/src/shared/theme/locales.test.ts`
 - `frontend/src/domains/settings/appearance/ThemeGallery/ThemeGallery.test.tsx`
 - `frontend/src/domains/settings/appearance/AppearanceSettings/AppearanceSettings.test.tsx`
+- `frontend/src/app/console/ConsoleApp.theming.test.tsx`
+- `frontend/src/shared/theme/LazyThemeProvider.test.tsx`
+- `frontend/src/domains/wall/WallApp/WallApp.layout.test.tsx`
 
 ## Decisions and notes
 - Ids follow docs/05 §1.3: orbit-dark, 30 editor themes, high-contrast-dark, high-contrast-light, oled-black, colorblind-deuteranopia/protanopia/tritanopia. The old preset ids (`light`, `high-contrast`, `deuteranopia`…) were dropped with the old pending tests.
@@ -50,7 +58,7 @@ Default Orbit Dark or 30 built-in editor-inspired themes (Dracula, Nord, Tokyo N
 - Device choice and favorites live in localStorage (`orbit.theme`, versioned, try/catch) per FE-50; the provider exposes preview(id) for hover/focus previews on the real screen and applies a 280 ms cross-fade unless the animation level is off (FE-06).
 - Gallery: card grid (auto-fill, min 15 rem) whose thumbnail is a live mini wall (hero + 18-cell matrix + two chart series) rendered with the card's own CSS variables. Previews re-declare Tailwind's `--color-*` aliases inline, because `@theme` aliases resolve at `:root` and would otherwise ignore a scoped `--bg`. Filters All/Dark/Light/Accessible/Favorites/Custom (aria-pressed), accent- and case-insensitive search over name and "inspired by", Restore default, Follow system light/dark, Make workspace default.
 - Charts: every theme has `chart[8]` in a fixed categorical order (blue, orange, teal, yellow, purple, green, accent, red), written as both `--chart-1..8` and `--viz-1..8` for shared/viz (orbit-dataviz). Orbit Dark and OLED Black use the dataviz palette (#3987e5 … #e66767) as is; every series passes 3:1 on s1 and ΔE_OK ≥ 0.06.
-- Remaining: mount `<ThemeProvider>` at the console/wall entries and `AppearanceSettings` on the Settings → Appearance route (frontend-agent), with `useCustomThemes` for `orbit.themes.json`.
+- Mounted: the console wraps everything in `ConsoleTheme` (ThemeProvider controlled by the FE-50 preferences store: device theme = `orbit.preferences.theme`, workspace default = BE-40 `/api/settings/defaults`, custom themes = `useCustomThemes` on `/api/themes`); Settings → Appearance is `index.html#/settings/themes` (`AppearancePage`, header button "Appearance"); "Make workspace default" saves `PUT /api/settings/defaults` (editors only). The wall uses `LazyThemeProvider` with the same precedence (see FE-05). Favorites stay in `orbit.theme`.
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
@@ -59,3 +67,4 @@ Default Orbit Dark or 30 built-in editor-inspired themes (Dracula, Nord, Tokyo N
 - 2026-10-18 — 37 built-in theme JSONs (researched palettes + licenses), registry, ThemeProvider with device choice, favorites and hover preview; gallery UI next (status: in-progress).
 - 2026-10-18 — gallery (Settings → Appearance) with live mini walls, filters, search, favorites, hover preview, duplicate & edit, import/export implemented; waiting for the route mount.
 - 2026-10-18 — chart palette extended to 8 series exposed as --viz-1..8.
+- 2026-10-22 — ThemeProvider mounted in console (FE-50 device theme, BE-40 defaults, custom themes) and wall; Settings → Appearance route (status: done).

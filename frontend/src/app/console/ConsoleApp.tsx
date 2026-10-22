@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { QueryClient, QueryClientProvider, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useStore } from 'zustand';
@@ -31,6 +31,14 @@ import { useAppearance } from '@/shared/customization/useAppearance';
 import { createPreferencesStore, type PreferencesStore } from '@/shared/preferences/preferences';
 import { Button } from '@/shared/ui';
 import { usePreferenceEffects } from './usePreferenceEffects';
+import { AppearancePage, APPEARANCE_HASH } from './AppearancePage';
+import { ConsoleTheme } from './ConsoleTheme';
+import { LayoutsPage, LAYOUTS_HASH } from './LayoutsPage';
+import { createLayoutsApi, type LayoutsApi } from '@/domains/workspace/layout/layoutsApi';
+import { createConfigClient } from '@/shared/api/configResources';
+import { fetchWorkspaceDefaults, saveWorkspaceDefaults } from '@/shared/api/workspaceDefaults';
+import type { WorkspacePreferenceDefaults } from '@/shared/preferences/preferences';
+import type { ThemesClient } from '@/shared/theme/customThemes';
 import { createConsoleSource, type ConsoleApi } from './consoleSource';
 
 export interface ConsoleAppProps {
@@ -42,17 +50,35 @@ export interface ConsoleAppProps {
   /** CORE-21: `orbit.customization.json` / `orbit.terminology.json` (BE-51); device-only when omitted. */
   customizationApi?: CustomizationApi;
   customizationStore?: CustomizationStore;
+  /** FE-04: custom themes (`/api/themes`); created with the operator header when omitted. */
+  configClient?: ThemesClient;
+  /** FE-11: wall layouts (`/api/layouts`). */
+  layoutsApi?: Pick<LayoutsApi, 'list' | 'save'>;
+  /** BE-40: workspace defaults (`/api/settings/defaults`). */
+  defaultsApi?: WorkspaceDefaultsApi;
+}
+
+export interface WorkspaceDefaultsApi {
+  load: () => Promise<WorkspacePreferenceDefaults>;
+  save: (defaults: WorkspacePreferenceDefaults) => Promise<WorkspacePreferenceDefaults>;
+}
+
+/** The startup language (`?lang=`, saved, browser) is never replaced by the workspace default. */
+function withoutLocale({ locale: _locale, ...rest }: WorkspacePreferenceDefaults): WorkspacePreferenceDefaults {
+  return rest;
 }
 
 /** `index.html#/settings/preferences` opens the device preferences screen. */
 export const PREFERENCES_HASH = '#/settings/preferences';
 /** `index.html#/settings/customization` opens the customization screen (CORE-21). */
 export const CUSTOMIZATION_HASH = '#/settings/customization';
-type ConsoleView = 'list' | 'new' | 'preferences' | 'customization';
+type ConsoleView = 'list' | 'new' | 'preferences' | 'customization' | 'appearance' | 'layouts';
 
 function initialView(): ConsoleView {
   if (typeof window === 'undefined') return 'list';
   if (window.location.hash === PREFERENCES_HASH) return 'preferences';
+  if (window.location.hash === APPEARANCE_HASH) return 'appearance';
+  if (window.location.hash === LAYOUTS_HASH || window.location.hash.startsWith(`${LAYOUTS_HASH}/`)) return 'layouts';
   return window.location.hash === CUSTOMIZATION_HASH ? 'customization' : 'list';
 }
 
@@ -68,13 +94,30 @@ interface WorkspaceProps {
   operator: string;
   onChangeName: () => void;
   preferences: PreferencesStore;
+  services: ConsoleServices;
 }
 
-function Workspace({ api, access, demo, operator, onChangeName, preferences }: WorkspaceProps) {
+interface ConsoleServices {
+  themesClient: ThemesClient;
+  layoutsApi: Pick<LayoutsApi, 'list' | 'save'>;
+  defaultsApi: WorkspaceDefaultsApi;
+}
+
+function Workspace({ api, access, demo, operator, onChangeName, preferences, services }: WorkspaceProps) {
   const { t } = useTranslation();
   const source = useMemo(() => createConsoleSource(api, demo), [api, demo]);
   const queryClient = useQueryClient();
-  const [view, setView] = useState<ConsoleView>(initialView);
+  const [view, setViewState] = useState<ConsoleView>(initialView);
+  const setView = (next: ConsoleView) => {
+    if (next === 'appearance') window.location.hash = APPEARANCE_HASH;
+    else if (next === 'layouts') window.location.hash = LAYOUTS_HASH;
+    setViewState(next);
+  };
+  const setWorkspaceTheme = (theme: string) =>
+    void services.defaultsApi
+      .save({ ...preferences.getState().defaults, theme })
+      .then((saved) => preferences.getState().setWorkspaceDefaults(withoutLocale(saved)))
+      .catch(() => {});
   const [notice, setNotice] = useState<string | null>(null);
   const editable = canEdit(access.mode);
 
@@ -85,6 +128,13 @@ function Workspace({ api, access, demo, operator, onChangeName, preferences }: W
     queryFn: source.listConnections,
     enabled: view === 'new' && editable,
   });
+
+  // `index.html#monitor-<id>` (wall card actions, FE-55): scroll to the row once the list is there.
+  const monitorsLoaded = monitors.isSuccess;
+  useEffect(() => {
+    const target = /^#monitor-(.+)$/.exec(window.location.hash);
+    if (monitorsLoaded && target) document.getElementById(`monitor-${decodeURIComponent(target[1]!)}`)?.scrollIntoView({ block: 'center' });
+  }, [monitorsLoaded]);
 
   const openNew = () => {
     if (!editable) return;
@@ -136,6 +186,12 @@ function Workspace({ api, access, demo, operator, onChangeName, preferences }: W
           <Button variant="ghost" aria-current={view === 'customization' ? 'page' : undefined} onClick={() => setView('customization')}>
             {t('customization.title')}
           </Button>
+          <Button variant="ghost" aria-current={view === 'appearance' ? 'page' : undefined} onClick={() => setView('appearance')}>
+            {t('console.appearance')}
+          </Button>
+          <Button variant="ghost" aria-current={view === 'layouts' ? 'page' : undefined} onClick={() => setView('layouts')}>
+            {t('console.layouts')}
+          </Button>
           <a href="/wall.html" className="text-info hover:underline">
             {t('console.openWall')}
           </a>
@@ -153,7 +209,17 @@ function Workspace({ api, access, demo, operator, onChangeName, preferences }: W
         {notice && (
           <p className="m-0 rounded-[0.45rem] border border-ok/50 bg-ok/12 px-[0.8rem] py-[0.5rem] text-ok-text">{notice}</p>
         )}
-        {view === 'customization' ? (
+        {view === 'appearance' ? (
+          <>
+            <h1 className="m-0 font-display text-[1.6rem] font-bold tracking-tight">{t('console.appearance')}</h1>
+            <AppearancePage themesClient={services.themesClient} editable={editable} onSetWorkspaceDefault={setWorkspaceTheme} />
+          </>
+        ) : view === 'layouts' ? (
+          <>
+            <h1 className="m-0 font-display text-[1.6rem] font-bold tracking-tight">{t('console.layouts')}</h1>
+            <LayoutsPage api={services.layoutsApi} editable={editable} monitors={monitors.data ?? []} groups={groups.data ?? []} />
+          </>
+        ) : view === 'customization' ? (
           <>
             <h1 className="m-0 font-display text-[1.6rem] font-bold tracking-tight">{t('customization.title')}</h1>
             <CustomizationScreen editable={editable} />
@@ -222,9 +288,10 @@ interface ShellProps {
   api: ConsoleApi;
   operatorStore: OperatorStore;
   preferences: PreferencesStore;
+  services: ConsoleServices;
 }
 
-function Shell({ api, operatorStore, preferences }: ShellProps) {
+function Shell({ api, operatorStore, preferences, services }: ShellProps) {
   const { t } = useTranslation();
   const operator = useStore(operatorStore, (s) => s.name);
   const setName = useStore(operatorStore, (s) => s.setName);
@@ -257,30 +324,62 @@ function Shell({ api, operatorStore, preferences }: ShellProps) {
       operator={operator}
       onChangeName={() => setRenaming(true)}
       preferences={preferences}
+      services={services}
     />
   );
 }
 
 /** Console: no login; the operator declares a name once and the API decides edit vs. view-only. */
-export function ConsoleApp({ api, operatorStore, queryClient, preferencesStore, customizationApi, customizationStore }: ConsoleAppProps) {
+export function ConsoleApp({
+  api,
+  operatorStore,
+  queryClient,
+  preferencesStore,
+  customizationApi,
+  customizationStore,
+  configClient,
+  layoutsApi,
+  defaultsApi,
+}: ConsoleAppProps) {
   const [client] = useState(() => queryClient ?? createQueryClient());
   const [preferences] = useState(() => preferencesStore ?? createPreferencesStore());
   const [customization] = useState(() => customizationStore ?? createCustomizationStore({ api: customizationApi, preferences }));
   const [terminology] = useState(() => createTerminologyStore(customizationApi));
+  const [services] = useState<ConsoleServices>(() => {
+    const getOperator = () => operatorStore.getState().name;
+    return {
+      themesClient: configClient ?? createConfigClient({ getOperator }),
+      layoutsApi: layoutsApi ?? createLayoutsApi({ getOperator }),
+      defaultsApi: defaultsApi ?? { load: () => fetchWorkspaceDefaults(), save: (d) => saveWorkspaceDefaults(d, { getOperator }) },
+    };
+  });
+  // BE-40: workspace defaults fill whatever this device did not choose (FE-50).
+  useEffect(() => {
+    let current = true;
+    services.defaultsApi
+      .load()
+      .then((defaults) => current && preferences.getState().setWorkspaceDefaults(withoutLocale(defaults)))
+      .catch(() => {});
+    return () => {
+      current = false;
+    };
+  }, [services, preferences]);
   const effective = usePreferenceEffects(preferences, operatorStore);
   useAppearance(customization);
   return (
     <QueryClientProvider client={client}>
       <AnimationLevelProvider level={effective.animation}>
+        <ConsoleTheme preferences={preferences} themesClient={services.themesClient}>
         <FxProvider>
           <FxBackground />
           <div className="fx-layer">
             <CustomizationRuntime store={customization} terminology={terminology}>
-              <Shell api={api} operatorStore={operatorStore} preferences={preferences} />
+              <Shell api={api} operatorStore={operatorStore} preferences={preferences} services={services} />
             </CustomizationRuntime>
           </div>
           <FxDowngradeNotice />
         </FxProvider>
+        </ConsoleTheme>
       </AnimationLevelProvider>
     </QueryClientProvider>
   );

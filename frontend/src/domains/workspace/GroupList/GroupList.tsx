@@ -49,7 +49,7 @@ function MonitorRow({ monitor: m, onOpenMonitor }: { monitor: MonitorView; onOpe
   const name = card.title || m.name;
   return (
     <>
-      <AnimatedItem as="tr" motionKind="reorder" data-status={m.status} data-variant={card.variant} className={`border-b border-line last:border-0 ${card.hover === 'highlight' ? 'hover:bg-s2/60' : ''}`}>
+      <AnimatedItem as="tr" id={`monitor-${m.id}`} motionKind="reorder" data-status={m.status} data-variant={card.variant} className={`border-b border-line last:border-0 ${card.hover === 'highlight' ? 'hover:bg-s2/60' : ''}`}>
         <td className={`w-[7rem] px-[0.9rem] ${pad}`}>
           <span className="inline-flex items-center gap-[0.4rem]">
             <StatusDot status={m.status} />

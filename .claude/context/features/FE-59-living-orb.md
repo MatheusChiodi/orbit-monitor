@@ -3,10 +3,10 @@ id: FE-59
 title: "Living orb (system map)"
 area: frontend
 group: "Visual FX"
-status: in-progress
+status: done
 screens: [wall, monitor-list]
 spec: docs/03-design.md §4.2 (Living orb)
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # FE-59 · Living orb (system map)
@@ -16,8 +16,8 @@ The 3D orb becomes a live map: core = overall health, one ring per group, one sa
 
 ## Status
 - [x] Tests written (pending or active)
-- [ ] Implemented (wall and console done; "open the monitor" needs `id="monitor-<id>"` rows in GroupList)
-- [ ] All tests green, none pending
+- [x] Implemented
+- [x] All tests green, none pending
 
 ## Code
 - `frontend/src/shared/fx/LivingOrb/orbModel.ts` — pure data → visual mapping (core, rings, satellites, drift, halo, trail, hollow, aggregation, heartbeat, keyboard order)
@@ -30,6 +30,7 @@ The 3D orb becomes a live map: core = overall health, one ring per group, one sa
 - `frontend/src/shared/fx/LivingOrb/MiniOrb.tsx` — header mini orb
 - Integration: `HeroCalm.tsx` (`monitors`/`groups` props → LivingOrb), `WallScreen.tsx` (passes the snapshot), `WallHeader.tsx` (`orb` prop → MiniOrb), `ConsoleApp.tsx` (interactive orb above the monitor list; open = scroll to `#monitor-<id>`)
 - i18n: `fx.orb.*` in `en.json` / `pt-BR.json`
+- `frontend/src/domains/workspace/GroupList/GroupList.tsx`
 
 ## Tests
 - `frontend/src/shared/fx/LivingOrb/orbModel.test.ts`
@@ -39,6 +40,8 @@ The 3D orb becomes a live map: core = overall health, one ring per group, one sa
 - `frontend/src/domains/wall/components/HeroCalm/HeroCalm.fx.test.tsx`
 - `frontend/src/domains/wall/components/WallHeader/WallHeader.fx.test.tsx`
 - `frontend/src/app/console/ConsoleApp.fx.test.tsx` (FE-59 case)
+- `frontend/src/domains/workspace/GroupList/GroupList.test.tsx`
+- `frontend/src/app/console/ConsoleApp.theming.test.tsx`
 
 ## Decisions and notes
 - Mapping is pure (`buildOrbModel`) and tested without WebGL; the 3D scene and the SVG read the same model and the same placement formula, so the static and live orbs agree.
@@ -49,8 +52,10 @@ The 3D orb becomes a live map: core = overall health, one ring per group, one sa
 - More than 60 monitors → one satellite per group and state, with a count (tooltip shows "N monitors"; Enter/click do not open an aggregate).
 - Tests resolve the lazy 3D chunk once in `beforeAll`, so no assertion depends on dynamic-import speed under a parallel run.
 - On the wall the orb is passive (no mouse dependency); `interactive` is for the console and touch walls.
+- "Open the monitor" works: GroupList rows carry `id="monitor-<id>"`; the console also scrolls to `index.html#monitor-<id>` once the list has loaded (used by the wall card actions).
 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — orb model, text summary, static SVG, live 3D scene, mini orb; wall integration (status: in-progress).
 - 2026-10-18 — Interactive orb in the console monitor list (tooltip, keyboard, legend, drag, zoom).
+- 2026-10-22 — monitor rows addressable as #monitor-<id>; orb "open" scrolls to them (status: done).
