@@ -63,6 +63,19 @@
                   "items": {
                     "type": "string"
                   }
+                },
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "onCallScheduleId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "orbit.oncall.json schedule named in the escalation message"
                 }
               }
             }

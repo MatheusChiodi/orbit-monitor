@@ -35,6 +35,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jsqlparser.version>5.1</jsqlparser.version>
         <springdoc.version>2.8.6</springdoc.version>
+        <greenmail.version>2.1.3</greenmail.version>
         <zstd-jni.version>1.5.7-24</zstd-jni.version>
         <!-- Tests tagged "pending" cover features not implemented yet (docs/05 section 3). -->
         <surefire.excludedGroups>pending,bench</surefire.excludedGroups>

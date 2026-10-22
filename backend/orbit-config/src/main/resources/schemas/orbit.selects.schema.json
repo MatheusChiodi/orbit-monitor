@@ -118,6 +118,21 @@
               "string",
               "null"
             ]
+          },
+          "parameters": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Named SELECT parameters (:name, BE-11); text values may use ${var:..}, ${vault:..} or ${env:..} (BE-39)",
+            "additionalProperties": {
+              "type": [
+                "string",
+                "number",
+                "boolean",
+                "null"
+              ]
+            }
           }
         }
       }

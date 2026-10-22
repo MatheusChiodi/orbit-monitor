@@ -6,7 +6,8 @@ import java.util.Map;
 /**
  * Body of POST /api/monitors, following the frontend {@code MonitorDefinition} contract.
  * A condition is either {@code expression} or {@code field + operator + value}. TCP and ping
- * monitors use {@code host}/{@code port}; push monitors use {@code maxSilenceSeconds}.
+ * monitors use {@code host}/{@code port}; push monitors use {@code maxSilenceSeconds}. SQL monitors may
+ * send named {@code parameters} (BE-11) whose text values can reference workspace variables (BE-39).
  */
 public record MonitorRequest(
         String id,
@@ -31,7 +32,8 @@ public record MonitorRequest(
         Boolean followRedirects,
         String host,
         Integer port,
-        Integer maxSilenceSeconds) {
+        Integer maxSilenceSeconds,
+        Map<String, Object> parameters) {
 
     public record ConditionRequest(String field, String operator, String value, String expression, String level) {
     }

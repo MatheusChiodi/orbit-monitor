@@ -4,6 +4,7 @@ import io.orbit.config.ConfigItem;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,6 +47,25 @@ public record OnCallSchedule(String id, String name, List<String> people, Instan
             return Optional.of(override.get().until());
         }
         return shiftIndex(now).map(index -> start.plus(shift.multipliedBy(index + 1)));
+    }
+
+    /** What is wrong with this schedule (empty when valid), prefixed with its id. */
+    public List<String> problems() {
+        List<String> problems = new ArrayList<>();
+        if (people.isEmpty()) {
+            problems.add(id + ": at least one person");
+        }
+        if (start == null) {
+            problems.add(id + ": start is required");
+        }
+        for (Override o : overrides) {
+            if (o.person() == null || o.person().isBlank() || o.from() == null || o.until() == null) {
+                problems.add(id + ": overrides need a person, from and until");
+            } else if (!o.until().isAfter(o.from())) {
+                problems.add(id + ": override for " + o.person() + " must end after it starts");
+            }
+        }
+        return problems;
     }
 
     private Optional<Override> activeOverride(Instant now) {

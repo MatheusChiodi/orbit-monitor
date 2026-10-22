@@ -27,5 +27,17 @@
             <groupId>io.orbit</groupId>
             <artifactId>orbit-security</artifactId>
         </dependency>
+        <!-- BE-28: SMTP e-mail (Jakarta Mail implementation, version managed by Spring Boot). -->
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
+        </dependency>
+        <!-- In-process SMTP server for the e-mail channel tests. -->
+        <dependency>
+            <groupId>com.icegreen</groupId>
+            <artifactId>greenmail-junit5</artifactId>
+            <version>${greenmail.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

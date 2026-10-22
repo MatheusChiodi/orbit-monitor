@@ -39,4 +39,13 @@ class OnCallScheduleTest {
     void beforeStart() {
         assertThat(weekly.onCall(T0.minusSeconds(1))).isEmpty();
     }
+
+    @Test
+    @DisplayName("validation names what is missing")
+    void problems() {
+        assertThat(weekly.problems()).isEmpty();
+        assertThat(new OnCallSchedule("x", "X", List.of(), null, Duration.ofDays(1), List.of(
+                new OnCallSchedule.Override("Dani", T0, T0))).problems())
+                .contains("x: at least one person", "x: start is required", "x: override for Dani must end after it starts");
+    }
 }

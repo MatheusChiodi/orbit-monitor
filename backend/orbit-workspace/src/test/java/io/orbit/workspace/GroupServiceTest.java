@@ -85,4 +85,31 @@ class GroupServiceTest {
         assertThat(GroupService.stateOf(List.of(), states::get)).isEqualTo(MonitorState.UNKNOWN);
         assertThat(GroupService.stateOf(List.of("nope"), id -> null)).isEqualTo(MonitorState.UNKNOWN);
     }
+
+    @Test
+    void reorderPersistsTheNewOrderAndPutsUnlistedGroupsLast() {
+        service.save(group("grp_a", "Payments").withOrder(1), "Ana");
+        service.save(group("grp_b", "Core bank").withOrder(2), "Ana");
+        service.save(group("grp_c", "Portal").withOrder(3), "Ana");
+
+        service.reorder(List.of("grp_c", "grp_a"), "Bia");
+
+        assertThat(service.list()).extracting(Group::id).containsExactly("grp_c", "grp_a", "grp_b");
+        assertThat(service.find("grp_c")).map(Group::updatedBy).contains("Bia");
+        assertThatThrownBy(() -> service.reorder(List.of("grp_missing"), "Bia"))
+                .isInstanceOf(ConfigValidationException.class);
+        assertThatThrownBy(() -> service.reorder(List.of("grp_a", "grp_a"), "Bia"))
+                .isInstanceOf(ConfigValidationException.class);
+    }
+
+    @Test
+    void reorderStoresTheManualMonitorOrderOfAGroup() {
+        service.save(group("grp_a", "Payments").withOrder(1), "Ana");
+
+        service.reorder(List.of("grp_a"), Map.of("grp_a", List.of("sel_b", "sel_a")), "Bia");
+
+        assertThat(service.find("grp_a")).map(Group::monitorOrder).contains(List.of("sel_b", "sel_a"));
+        assertThatThrownBy(() -> service.reorder(List.of(), Map.of("grp_x", List.of("m")), "Bia"))
+                .isInstanceOf(ConfigValidationException.class);
+    }
 }
