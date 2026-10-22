@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MatheusChiodi/orbit-monitor/schemas/orbit.dependencies.schema.json",
+  "title": "orbit.dependencies.json",
+  "description": "Dependencies between groups and monitors (downstream depends on upstream)",
+  "type": "object",
+  "required": [
+    "version",
+    "items"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "upstream",
+          "downstream"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "upstream": {
+            "type": "string",
+            "minLength": 1
+          },
+          "downstream": {
+            "type": "string",
+            "minLength": 1
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "updatedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "ISO-8601 instant"
+          },
+          "updatedBy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

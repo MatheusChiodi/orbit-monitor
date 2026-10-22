@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -17,6 +18,27 @@ public class DependencyGraph {
 
     private final Map<String, Set<String>> downstreams = new HashMap<>();
     private final Map<String, Set<String>> upstreams = new HashMap<>();
+
+    /** Graph of the edges in orbit.dependencies.json; a cycle throws {@link IllegalArgumentException}. */
+    public static DependencyGraph of(List<Dependency> dependencies) {
+        DependencyGraph graph = new DependencyGraph();
+        for (Dependency d : dependencies) {
+            graph.addDependency(d.upstream(), d.downstream());
+        }
+        return graph;
+    }
+
+    /** Direct upstream dependencies of {@code node}. */
+    public synchronized Set<String> upstreamsOf(String node) {
+        return Set.copyOf(upstreams.getOrDefault(node, Set.of()));
+    }
+
+    /** Every edge as {@code [upstream, downstream]}. */
+    public synchronized List<List<String>> edges() {
+        return downstreams.entrySet().stream()
+                .flatMap(e -> e.getValue().stream().map(d -> List.of(e.getKey(), d)))
+                .toList();
+    }
 
     /** Declares that {@code downstream} depends on {@code upstream}; cycles are rejected. */
     public synchronized void addDependency(String upstream, String downstream) {

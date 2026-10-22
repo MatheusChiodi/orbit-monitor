@@ -6,6 +6,9 @@ import io.orbit.alerting.channel.NotificationDispatcher;
 import io.orbit.alerting.escalation.EscalationPolicy;
 import io.orbit.alerting.escalation.EscalationRunner;
 import io.orbit.alerting.suppression.AlertDeduplicator;
+import io.orbit.alerting.suppression.CascadeResolver;
+import io.orbit.alerting.suppression.Dependency;
+import io.orbit.alerting.suppression.DependencyGraph;
 import io.orbit.alerting.suppression.MaintenanceWindow;
 import io.orbit.alerting.suppression.SilenceService;
 import io.orbit.api.runtime.EventBus;
@@ -114,6 +117,33 @@ public class AlertingBeans {
             }
         });
         return detector;
+    }
+
+    /** BE-30: edges of orbit.dependencies.json; a cycle or self-loop makes the file invalid. */
+    @Bean
+    ConfigFile<Dependency> dependencyFile(OrbitProperties properties) {
+        return new ConfigFile<>(properties.configDir(), "dependencies", Dependency.class, ConfigMapper.create(),
+                items -> {
+                    try {
+                        DependencyGraph.of(items);
+                        return List.of();
+                    } catch (IllegalArgumentException e) {
+                        return List.of(e.getMessage());
+                    }
+                });
+    }
+
+    /** BE-30: a new incident whose upstream already has an open DOWN incident collapses into it. */
+    @Bean
+    CascadeResolver cascadeResolver(ConfigFile<Dependency> dependencyFile, MonitorDefinitions definitions,
+                                    IncidentService incidents) {
+        CascadeResolver resolver = new CascadeResolver(() -> DependencyGraph.of(dependencyFile.items()),
+                monitorId -> definitions.monitor(monitorId).map(MonitorDef::groupId),
+                groupId -> definitions.monitors().stream().filter(m -> groupId.equals(m.groupId()))
+                        .map(MonitorDef::id).toList(),
+                incidents::openIncident);
+        incidents.setUpstream(resolver::upstreamIncident);
+        return resolver;
     }
 
     @Bean
