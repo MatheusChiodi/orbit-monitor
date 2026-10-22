@@ -56,4 +56,12 @@ class ConfigExamplesTest {
             }
         }
     }
+
+    @Test
+    void everyConfigFileWithASchemaHasAnExampleAndViceVersa() throws IOException {
+        List<String> exampleFeatures = examples().stream().map(p -> p.getFileName().toString())
+                .filter(n -> n.endsWith(".example.json"))
+                .map(n -> n.substring("orbit.".length(), n.length() - ".example.json".length())).toList();
+        assertThat(exampleFeatures).containsExactlyInAnyOrderElementsOf(ConfigSchemas.features());
+    }
 }

@@ -51,6 +51,20 @@ class VariableResolverTest {
     }
 
     @Test
+    @DisplayName("environment references resolve when an environment is given and are masked in previews")
+    void environment() {
+        SecretResolver vault = new SecretResolver(new SecretCipher(MasterKey.loadOrCreate(dir.resolve("k2"))), n -> null);
+        VariableResolver withEnv = new VariableResolver(Map.of("env", "prod"), Map.of(), vault,
+                Map.of("STORE", "SP01")::get);
+
+        assertThat(withEnv.resolve("${var:env}/${env:STORE}")).isEqualTo("prod/SP01");
+        assertThat(withEnv.resolveMasked("${env:STORE}")).isEqualTo("••••");
+        assertThatThrownBy(() -> withEnv.resolve("${env:MISSING}")).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("MISSING");
+        assertThat(resolver.resolve("${env:STORE}")).isEqualTo("${env:STORE}");
+    }
+
+    @Test
     @DisplayName("text without references is untouched")
     void plain() {
         assertThat(resolver.resolve("SELECT 1 FROM dual")).isEqualTo("SELECT 1 FROM dual");

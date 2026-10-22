@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "harbor-night",
+      "name": "Harbor Night",
+      "mode": "dark",
+      "category": "custom",
+      "basedOn": "orbit-dark",
+      "colors": {
+        "bg": "#07090d",
+        "s1": "#0d1117",
+        "s2": "#131922",
+        "s3": "#1a212c",
+        "line": "#ffffff14",
+        "line2": "#ffffff24",
+        "text": "#eef2f7",
+        "muted": "#8b96a6",
+        "dim": "#6b7686",
+        "ok": "#22c55e",
+        "warn": "#f5a524",
+        "down": "#ff3b4f",
+        "info": "#3b9eff",
+        "accent": "#3b9eff"
+      },
+      "chart": [
+        "#3b9eff",
+        "#22c55e",
+        "#f5a524",
+        "#ff3b4f",
+        "#a78bfa",
+        "#2dd4bf",
+        "#f472b6",
+        "#facc15"
+      ],
+      "syntax": {
+        "keyword": "#c792ea",
+        "string": "#c3e88d",
+        "number": "#f78c6c",
+        "comment": "#6b7686",
+        "function": "#82aaff",
+        "operator": "#89ddff",
+        "identifier": "#eef2f7"
+      },
+      "fx": {
+        "from": "#3b9eff",
+        "to": "#a78bfa",
+        "glow": "#3b9eff"
+      },
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    }
+  ]
+}

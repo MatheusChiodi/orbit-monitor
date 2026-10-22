@@ -24,6 +24,7 @@ import io.orbit.probe.sql.SqlProbeOptions;
 import javax.sql.DataSource;
 import java.time.Clock;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Runs one check end to end: execute the probe, evaluate conditions on the raw result in memory,
@@ -71,9 +72,18 @@ public class CheckRunner {
 
     public CheckResult runSql(String monitorId, DataSource dataSource, Dialect dialect, String sql,
                               SqlProbeOptions options, List<Condition> conditions, CheckPolicy policy) {
+        return runSql(monitorId, dataSource, dialect, sql, Map.of(), options, conditions, policy);
+    }
+
+    /** BE-11 / BE-39: the SELECT with its named parameters, already resolved by the caller. */
+    public CheckResult runSql(String monitorId, DataSource dataSource, Dialect dialect, String sql,
+                              Map<String, Object> params, SqlProbeOptions options, List<Condition> conditions,
+                              CheckPolicy policy) {
         long start = System.nanoTime();
         try {
-            ResultPayload raw = sqlProbe.execute(dataSource, dialect, sql, options);
+            ResultPayload raw = params == null || params.isEmpty()
+                    ? sqlProbe.execute(dataSource, dialect, sql, options)
+                    : sqlProbe.execute(dataSource, dialect, sql, params, options);
             Evaluation evaluation = engine.evaluateAll(conditions, new SqlEvaluationContext(raw),
                     policy.previousState(), policy.hysteresisRatio());
             return success(monitorId, evaluation, raw.ms(), redactor.redact(raw));

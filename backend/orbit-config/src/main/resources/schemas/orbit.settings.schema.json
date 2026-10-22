@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/MatheusChiodi/orbit-monitor/schemas/orbit.settings.schema.json",
   "title": "orbit.settings.json",
-  "description": "Workspace settings: access policy, locale, theme, animation level, history",
+  "description": "Workspace settings: access policy and workspace defaults (theme, animation level, density, locale, scale) plus history",
   "type": "object",
   "required": [
     "version",
@@ -70,19 +70,22 @@
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "off, minimal, standard or expressive (FE-06)"
           },
           "density": {
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "compact, comfortable or spacious"
           },
           "scale": {
             "type": [
-              "number",
+              "string",
               "null"
-            ]
+            ],
+            "description": "Wall viewing distance preset: 2m, 3m or 5m (FE-08)"
           },
           "historyHours": {
             "type": [
