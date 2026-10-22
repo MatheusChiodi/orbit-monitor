@@ -2,7 +2,6 @@ package io.orbit.probe.cert;
 
 import io.orbit.common.MonitorState;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -11,7 +10,6 @@ import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Tag("pending")
 @DisplayName("BE-05 certificate and domain expiry")
 class ExpiryPolicyTest {
 
