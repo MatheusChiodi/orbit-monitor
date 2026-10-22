@@ -8,6 +8,7 @@ import type { LayoutBlock } from '@/domains/workspace/layout/grid';
 import type { WallSnapshot } from '@/shared/api/types';
 import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import type { WallConnectionState } from '../../store';
+import { createMonitorActionHandler } from '../../actions/monitorActions';
 import { isClassicArrangement } from '../../layout/wallLayout';
 import { alsoActive, groupRows, pickHero } from '../../selectors';
 import { AlsoActive } from '../AlsoActive';
@@ -42,6 +43,8 @@ export interface WallScreenProps {
   loadOnCall?: LoadOnCall;
   /** FE-58: history of series blocks with a range. */
   loadHistory?: LoadHistory;
+  /** Where card actions open the console (FE-55); defaults to `location.assign`. */
+  onNavigate?: (url: string) => void;
 }
 
 /**
@@ -62,6 +65,7 @@ export function WallScreen({
   loadEscalation,
   loadOnCall,
   loadHistory,
+  onNavigate = (url) => window.location.assign(url),
 }: WallScreenProps) {
   const { t } = useTranslation();
   const heroMotion = useMotionPreset('hero');
@@ -88,6 +92,7 @@ export function WallScreen({
   const counts = countByStatus(snapshot.monitors);
   const near = nearLimit(snapshot.monitors);
   const unowned = new Set(snapshot.incidents.filter((i) => !i.acknowledgedBy).map((i) => i.monitorId));
+  const onMonitorAction = createMonitorActionHandler(snapshot, { onAcknowledge, navigate: onNavigate });
 
   return (
     <div className="wall-root" data-stale={stale ? 'true' : 'false'}>
@@ -128,7 +133,7 @@ export function WallScreen({
                 </div>
                 <div className="wall-col wall-col--context">
                   <div className="wall-matrix">
-                    <MonitorMatrix rows={groupRows(snapshot)} unownedMonitorIds={unowned} />
+                    <MonitorMatrix rows={groupRows(snapshot)} unownedMonitorIds={unowned} onMonitorAction={onMonitorAction} />
                   </div>
                   <div className="wall-timeline">
                     <Timeline events={snapshot.timeline} freshIds={freshEventIds} />
@@ -147,6 +152,7 @@ export function WallScreen({
                   nextStep={nextStep}
                   onCall={onCall}
                   loadHistory={loadHistory}
+                  onMonitorAction={onMonitorAction}
                 />
               </Suspense>
             )}

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockSnapshot } from '../../mock';
@@ -43,6 +43,18 @@ describe('WallScreen', () => {
     renderWall('incident', onAcknowledge);
     await userEvent.click(screen.getByRole('button', { name: 'Acknowledge' }));
     expect(onAcknowledge).toHaveBeenCalledWith('inc-reconciliation');
+  });
+
+  it('FE-55: clicking a matrix tile runs its card action (default: open the incident in the console)', async () => {
+    const onNavigate = vi.fn();
+    render(
+      <WallScreen snapshot={mockSnapshot('incident', now)} now={now} connection="open" freshEventIds={new Set()} onAcknowledge={vi.fn()} onNavigate={onNavigate} />,
+    );
+    const matrix = screen.getByRole('region', { name: 'All monitors' });
+    const tiles = within(matrix).getAllByRole('button');
+    const tile = tiles.find((el) => el.textContent?.includes('Reconciliation queue'));
+    await userEvent.click(tile!);
+    expect(onNavigate).toHaveBeenCalledWith('/index.html#/incidents/inc-reconciliation');
   });
 
   it('DOM block order follows the phone order', () => {

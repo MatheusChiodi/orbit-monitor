@@ -4,6 +4,7 @@ import { nearLimit } from '@/domains/monitor/status';
 import type { OnCallNow } from '@/domains/alerting/oncall/oncallApi';
 import type { LayoutBlock } from '@/domains/workspace/layout/grid';
 import type { MonitorView, WallSnapshot } from '@/shared/api/types';
+import type { CardAction } from '@/shared/customization/definitions/cards';
 import { formatPercent } from '@/shared/format';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { safeText } from '@/shared/privacy/redact';
@@ -32,6 +33,8 @@ export interface LayoutGridProps {
   nextStep?: string | null;
   onCall?: readonly OnCallNow[] | null;
   loadHistory?: LoadHistory;
+  /** FE-55 card actions of matrix tiles. */
+  onMonitorAction?: (action: CardAction, monitorId: string) => void;
 }
 
 /** Monitors a block shows: its source monitor or group, or every monitor. */
@@ -44,7 +47,7 @@ function monitorsFor(block: LayoutBlock, monitors: readonly MonitorView[]): Moni
  * FE-11: a saved wall layout on the 12-column grid (≥ 1100 px and wider than 4:3); on smaller screens
  * the blocks stack in reading order (top to bottom, left to right).
  */
-export function LayoutGrid({ blocks, snapshot, hero, now, freshEventIds, onAcknowledge, nextStep, onCall = null, loadHistory }: LayoutGridProps) {
+export function LayoutGrid({ blocks, snapshot, hero, now, freshEventIds, onAcknowledge, nextStep, onCall = null, loadHistory, onMonitorAction }: LayoutGridProps) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
   const rows = Math.max(1, ...blocks.map((b) => b.y + b.h));
@@ -66,7 +69,7 @@ export function LayoutGrid({ blocks, snapshot, hero, now, freshEventIds, onAckno
       case 'ranking':
         return <NearLimit items={nearLimit(monitors, 10)} title={t('wall.blocks.ranking')} />;
       case 'matrix':
-        return <MonitorMatrix rows={groupRows({ ...snapshot, monitors })} unownedMonitorIds={unowned} />;
+        return <MonitorMatrix rows={groupRows({ ...snapshot, monitors })} unownedMonitorIds={unowned} onMonitorAction={onMonitorAction} />;
       case 'timeline':
         return <Timeline events={snapshot.timeline} freshIds={freshEventIds} />;
       case 'clock':
