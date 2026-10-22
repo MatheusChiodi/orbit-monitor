@@ -25,7 +25,12 @@ public final class Statistics {
 
     /** BE-20: uptime that leaves out heartbeats inside maintenance windows. */
     public static UptimeReport uptime(List<Heartbeat> heartbeats, List<TimeRange> excluded) {
-        throw new UnsupportedOperationException("BE-20 maintenance exclusion is not implemented yet");
+        if (excluded.isEmpty()) {
+            return uptime(heartbeats);
+        }
+        return uptime(heartbeats.stream()
+                .filter(h -> excluded.stream().noneMatch(window -> window.contains(h.at())))
+                .toList());
     }
 
     /** Nearest-rank percentile, {@code 0 < p <= 100}. */
