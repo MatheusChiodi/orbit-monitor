@@ -4,7 +4,7 @@ title: "Monitor list"
 route: "index.html#/monitors"
 status: in-progress
 spec: docs/02-features.md §1–2
-updated: 2026-10-18
+updated: 2026-10-22
 ---
 
 # Monitor list
@@ -15,6 +15,7 @@ Groups and monitors with state, filters, saved views, bulk actions.
 ## Layout and components
 - `ConsoleApp` → operator prompt (first visit) → header (language, open wall, operator name, change name) → `ViewOnlyBanner` → `GroupList`
 - `GroupList`: text filter, "New monitor" (edit mode only), one section per group with summary and a row per monitor (state text, name, type, rule, value)
+- `GroupList` rows and group headers follow the FE-55 card settings (fields, variant, title, order, summary, empty text, click / double-click / long-press actions, inline expand); header has the Customize toggle (FE-53, editors only)
 
 ## States
 - Loading, empty, error, stale data
@@ -31,6 +32,8 @@ Groups and monitors with state, filters, saved views, bulk actions.
 - [FE-31 · Bulk actions](../features/FE-31-bulk-actions.md) — done
 - [FE-32 · Monitor templates and clone](../features/FE-32-monitor-templates-and-clone.md) — done
 - [FE-37 · Onboarding](../features/FE-37-onboarding.md) — done
+- [FE-53 · Customize mode and inspector](../features/FE-53-customize-mode.md) — done
+- [FE-55 · Card and component behavior settings](../features/FE-55-card-behavior-settings.md) — done
 
 ## Code
 - `frontend/src/app/console/ConsoleApp.tsx`
@@ -42,7 +45,9 @@ Groups and monitors with state, filters, saved views, bulk actions.
 - `frontend/src/app/console/ConsoleApp.test.tsx`
 - `frontend/src/app/console/consoleSource.test.ts`
 - `frontend/src/domains/workspace/GroupList/GroupList.test.tsx`
+- frontend/src/domains/workspace/GroupList/GroupList.customization.test.tsx
 
 ## Changelog
 - 2026-10-18 — context file created.
 - 2026-10-18 — monitor list with filter, view-only handling and demo fallback; en/pt-BR.
+- 2026-10-22 — card settings and Customize mode on the monitor list.

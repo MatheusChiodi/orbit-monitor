@@ -20,7 +20,8 @@ public final class ConfigSchemas {
 
     private static final List<String> FEATURES = List.of("settings", "connections", "requests", "selects", "checks",
             "query-catalog", "groups", "layouts", "channels", "escalation", "maintenance", "silences", "themes",
-            "variables", "status-pages", "workspaces");
+            "variables", "status-pages", "workspaces", "customization", "terminology", "dependencies", "oncall",
+            "notification-templates");
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final Map<String, SchemaValidator> VALIDATORS = new ConcurrentHashMap<>();
 

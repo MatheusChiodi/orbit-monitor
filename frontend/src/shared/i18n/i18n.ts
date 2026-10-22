@@ -3,14 +3,15 @@ import { initReactI18next } from 'react-i18next';
 import type en from './locales/en.json';
 import type themeEn from '@/shared/theme/locales/en.json';
 import type historyRangeEn from '@/domains/telemetry/history/locales/en.json';
+import type customizationEn from '@/shared/customization/locales/en.json';
 
 export const SUPPORTED_LOCALES = ['en', 'pt-BR'] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = 'en';
 export const LOCALE_STORAGE_KEY = 'orbit.locale';
 
-/** Theme and history-range messages live with their features (`@/shared/theme`, `@/domains/telemetry/history`). */
-export type Messages = typeof en & { theme: typeof themeEn; historyRange: typeof historyRangeEn };
+/** Theme, history-range and customization messages live with their features (`@/shared/theme`, `@/domains/telemetry/history`, `@/shared/customization`). */
+export type Messages = typeof en & { theme: typeof themeEn; historyRange: typeof historyRangeEn; customization: typeof customizationEn };
 
 /**
  * Locales are separate chunks: an entry point awaits `loadLocale` for its language before rendering,
@@ -18,20 +19,22 @@ export type Messages = typeof en & { theme: typeof themeEn; historyRange: typeof
  */
 const LOADERS: Record<Locale, () => Promise<Messages>> = {
   en: async () => {
-    const [base, theme, historyRange] = await Promise.all([
+    const [base, theme, historyRange, customization] = await Promise.all([
       import('./locales/en.json'),
       import('@/shared/theme/locales/en.json'),
       import('@/domains/telemetry/history/locales/en.json'),
+      import('@/shared/customization/locales/en.json'),
     ]);
-    return { ...base.default, theme: theme.default, historyRange: historyRange.default };
+    return { ...base.default, theme: theme.default, historyRange: historyRange.default, customization: customization.default };
   },
   'pt-BR': async () => {
-    const [base, theme, historyRange] = await Promise.all([
+    const [base, theme, historyRange, customization] = await Promise.all([
       import('./locales/pt-BR.json'),
       import('@/shared/theme/locales/pt-BR.json'),
       import('@/domains/telemetry/history/locales/pt-BR.json'),
+      import('@/shared/customization/locales/pt-BR.json'),
     ]);
-    return { ...base.default, theme: theme.default, historyRange: historyRange.default };
+    return { ...base.default, theme: theme.default, historyRange: historyRange.default, customization: customization.default };
   },
 };
 
@@ -118,6 +121,8 @@ export function createI18n(locale: Locale, options: CreateI18nOptions = {}): I18
     supportedLngs: [...SUPPORTED_LOCALES],
     resources: Object.fromEntries(Object.entries(RESOURCES).map(([lng, translation]) => [lng, { translation }])),
     interpolation: { escapeValue: false },
+    // FE-54: renamed labels are added at runtime; components re-render when the store changes.
+    react: { bindI18nStore: 'added' },
     initAsync: false,
   });
   return instance;

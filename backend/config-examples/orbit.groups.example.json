@@ -10,6 +10,7 @@
       "owner": "Payments team",
       "tags": ["critical"],
       "order": 1,
+      "monitorOrder": ["sel_reconciliation_queue", "req_customer_portal"],
       "updatedAt": "2026-10-18T20:00:00Z",
       "updatedBy": "Example Operator"
     }

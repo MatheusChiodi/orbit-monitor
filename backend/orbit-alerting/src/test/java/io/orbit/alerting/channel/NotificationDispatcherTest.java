@@ -144,4 +144,80 @@ class NotificationDispatcherTest {
             assertThat(p.body()).contains("Escalation", "Card queue");
         });
     }
+
+    @Test
+    @DisplayName("BE-30: a downstream incident collapsed into its upstream one sends nothing of its own")
+    void cascadeChildIsQuiet() {
+        down("sel_bus");
+        String upstream = incidents.openIncident("sel_bus").orElseThrow().id();
+        posts.clear();
+        incidents.setUpstream(id -> id.equals("sel_cards") ? Optional.of(upstream) : Optional.empty());
+
+        down("sel_cards");
+
+        assertThat(incidents.openIncident("sel_cards").orElseThrow().parentId()).isEqualTo(upstream);
+        assertThat(posts).isEmpty();
+    }
+
+    @Test
+    @DisplayName("BE-25: flapping is notified once; the changes while flapping are not")
+    void flappingNotifiedOnce() {
+        incidents.setFlapping(new IncidentService.Flapping() {
+            @Override
+            public boolean observe(MonitorStateChanged change) {
+                return true;
+            }
+
+            @Override
+            public boolean isFlapping(String monitorId, Instant now) {
+                return true;
+            }
+        });
+        down("sel_cards");
+        posts.clear();
+        incidents.onStateChanged(new MonitorStateChanged("sel_cards", MonitorState.DOWN, MonitorState.OK, T0, T0));
+        incidents.onStateChanged(new MonitorStateChanged("sel_cards", MonitorState.OK, MonitorState.DOWN, T0, T0));
+
+        assertThat(posts).isNotEmpty().allSatisfy(p -> assertThat(p.body()).containsIgnoringCase("flapping"));
+        assertThat(posts).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("BE-33: an escalation step names who is on call")
+    void escalationNamesOnCall() {
+        down("sel_cards");
+        posts.clear();
+        dispatcher.escalate(incidents.openIncident("sel_cards").orElseThrow(), List.of("chn_hook"), "Bia Souza");
+        assertThat(posts).singleElement().satisfies(p -> assertThat(p.body()).contains("Bia Souza"));
+    }
+
+    @Test
+    @DisplayName("BE-35: each channel gets the templates in its language, overrides win, values stay masked")
+    void templatesPerLanguage() {
+        List<io.orbit.alerting.template.NotificationTemplate> overrides = List.of(
+                new io.orbit.alerting.template.NotificationTemplate("incident.down",
+                        Map.of("en", "[P1] {{monitor}} DOWN"), Map.of("en", "{{detail}} -> {{link}}")));
+        List<ChannelDef> mixed = List.of(
+                new ChannelDef("chn_pt", "Equipe", ChannelDef.Type.WEBHOOK, secrets.seal("https://pt.example.com/h"), null,
+                        List.of(), "WARN", true, null, List.of(), null, "pt-BR"),
+                new ChannelDef("chn_en", "Team", ChannelDef.Type.WEBHOOK, secrets.seal("https://en.example.com/h"), null,
+                        List.of(), "WARN", true, null, List.of(), null, "en"));
+        NotificationDispatcher localized = new NotificationDispatcher(() -> mixed,
+                new ChannelDelivery((uri, headers, body) -> posts.add(new Post(uri, headers, body)), m -> { }, secrets,
+                        clock),
+                new io.orbit.alerting.template.TemplateCatalog(() -> overrides),
+                new AlertDeduplicator(Duration.ofMinutes(5)), id -> false,
+                id -> Optional.of(new NotificationDispatcher.MonitorInfo("Card queue", "grp_pay", "CARD = " + TEST_PAN)),
+                "http://orbit.local:8080", clock);
+        IncidentService service = new IncidentService(new InMemoryIncidentRepository(), id -> false,
+                localized::onIncident, clock, Duration.ofMinutes(5));
+
+        service.onStateChanged(new MonitorStateChanged("sel_cards", MonitorState.OK, MonitorState.DOWN, T0, T0));
+
+        assertThat(posts).hasSize(2).allSatisfy(p -> assertThat(p.body()).doesNotContain(TEST_PAN));
+        assertThat(posts).filteredOn(p -> p.uri().getHost().startsWith("pt")).singleElement()
+                .satisfies(p -> assertThat(p.body()).contains("Card queue está fora do ar"));
+        assertThat(posts).filteredOn(p -> p.uri().getHost().startsWith("en")).singleElement()
+                .satisfies(p -> assertThat(p.body()).contains("[P1] Card queue DOWN", "-> http://orbit.local:8080/incidents/"));
+    }
 }

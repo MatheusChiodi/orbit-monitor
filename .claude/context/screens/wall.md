@@ -23,6 +23,7 @@ Header with global status and clock, hero (incident / all operational), also act
 - Saved layouts (FE-11): `WallScreen` keeps the classic arrangement for the built-in NOC blocks and otherwise renders the lazy `LayoutGrid`; layouts of a playlist (FE-19) cross-fade inside `.wall-stage`
 - TV overrides: `?theme=` (FE-05, `LazyThemeProvider`), `?motion=` (FE-06), `?tile=n/2|n/4` (FE-20, `TiledWall`)
 - Hero countdown names the next escalation step (FE-40); clock blocks show who is on call (BE-33)
+- `WallCustomization` (wall-main) reads workspace, layout and device customization, applies the look and renamed labels; Customize mode (FE-53) loads lazily for clients with edit access; `MonitorMatrix` tiles follow the FE-55 card settings and show a text state label for WARN/DOWN
 
 ## States
 - Loading, empty, error, stale data
@@ -63,6 +64,8 @@ Header with global status and clock, hero (incident / all operational), also act
 - [FE-45 · Kiosk mode](../features/FE-45-kiosk-mode.md) — done
 - [FE-46 · Stale data indicator](../features/FE-46-stale-data-indicator.md) — done
 - [FE-47 · Sound alerts](../features/FE-47-sound-alerts.md) — done
+- [FE-53 · Customize mode and inspector](../features/FE-53-customize-mode.md) — done
+- [FE-55 · Card and component behavior settings](../features/FE-55-card-behavior-settings.md) — done
 
 ## Code
 - `frontend/src/domains/wall/WallApp/WallApp.tsx`
@@ -80,6 +83,7 @@ Header with global status and clock, hero (incident / all operational), also act
 - `frontend/src/domains/wall/layout/`
 - `frontend/src/domains/wall/components/LayoutGrid/LayoutGrid.tsx`
 - `frontend/src/shared/theme/LazyThemeProvider.tsx`
+- frontend/src/domains/customization/WallCustomization/WallCustomization.tsx
 
 ## Tests
 - `frontend/src/domains/wall/WallApp/WallApp.test.tsx`
@@ -93,6 +97,7 @@ Header with global status and clock, hero (incident / all operational), also act
 - `frontend/src/domains/wall/components/*/*.privacy.test.tsx`
 - `frontend/src/domains/wall/WallApp/WallApp.layout.test.tsx`
 - `frontend/src/domains/wall/layout/*.test.ts`
+- frontend/src/domains/wall/components/MonitorMatrix/MonitorMatrix.customization.test.tsx
 
 ## Changelog
 - 2026-10-18 — context file created.
@@ -100,3 +105,4 @@ Header with global status and clock, hero (incident / all operational), also act
 - 2026-10-18 — FE-51 motion on every wall component; probe values through SafeValue.
 - 2026-10-22 — night mode overlay (FE-09), viewing distance scale (FE-08) and workspace brand in the header (FE-10).
 - 2026-10-22 — saved layouts by slug, playlist cross-fade, `?theme=`/`?motion=`/`?tile=`, escalation step name, on-call clock, lazy chunks for the budget.
+- 2026-10-22 — customization (look, labels, card settings, Customize mode for editors) on the wall.

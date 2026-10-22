@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "chk_core_db_port",
+      "name": "Core DB port",
+      "groupId": "grp_payments",
+      "type": "TCP",
+      "host": "db.internal.example",
+      "port": 1521,
+      "intervalSeconds": 30,
+      "timeoutMs": 5000,
+      "downAfter": 2,
+      "paused": false,
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    },
+    {
+      "id": "chk_nightly_job",
+      "name": "Nightly settlement job",
+      "groupId": "grp_payments",
+      "type": "PUSH",
+      "pushToken": "${env:ORBIT_PUSH_TOKEN}",
+      "maxSilenceSeconds": 90000,
+      "intervalSeconds": 60,
+      "updatedAt": "2026-10-18T20:00:00Z",
+      "updatedBy": "Example Operator"
+    }
+  ]
+}

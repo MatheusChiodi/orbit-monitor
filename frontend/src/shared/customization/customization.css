@@ -1,0 +1,30 @@
+/* FE-56: typography, shape and density overrides, active only when a value differs from the default. */
+html.console[data-type-base] { font-size: var(--type-base); }
+html.console[data-type-scale] { font-size: max(13px, calc(var(--type-base, var(--density-font, 15px)) * var(--type-scale))); }
+html.wall[data-type-scale] { font-size: clamp(12px, calc((.7vw + .45vh) * var(--wall-scale, 1) * var(--type-scale)), 36px); }
+html[data-weight='medium'] body { font-weight: 500; }
+html[data-letter-spacing='tight'] body { letter-spacing: -0.01em; }
+html[data-letter-spacing='wide'] body { letter-spacing: 0.02em; }
+html[data-mono-values='off'] .font-mono { font-family: var(--font-sans); }
+
+html[data-radius='sharp'] :where([class*='rounded-']) { border-radius: 0.12rem; }
+html[data-radius='round'] :where([class*='rounded-[0.45rem]'], [class*='rounded-[0.3rem]']) { border-radius: 0.8rem; }
+html[data-radius='round'] :where([class*='rounded-[0.9rem]']) { border-radius: 1.4rem; }
+html[data-border='thick'] :where(.border) { border-width: 2px; }
+
+html[data-glass='off'][data-fx] .fx-glass {
+  background: var(--s1);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-color: var(--line);
+  box-shadow: none;
+}
+html[data-glass='off'][data-fx] .fx-glass::before { display: none; }
+html[data-surfaces='flat'] :where(.bg-s2, .bg-s3) { background-color: var(--s1); }
+html[data-shadows='on'] :where(section.rounded-\[0\.9rem\]) { box-shadow: 0 0.4rem 1.4rem rgb(0 0 0 / 0.28); }
+html[data-panel-padding='tight'] :where(section.p-\[0\.9rem\]) { padding: 0.55rem; }
+html[data-panel-padding='roomy'] :where(section.p-\[0\.9rem\]) { padding: 1.3rem; }
+
+/* FE-53: Customize mode outlines every customizable item. */
+html[data-customize='on'] [data-customizable] { outline: 1px dashed color-mix(in srgb, var(--info) 55%, transparent); outline-offset: 2px; }
+html[data-customize='on'] [data-customizable]:hover { outline: 2px solid var(--info); }

@@ -7,6 +7,11 @@ import { canEdit } from '@/domains/security/access';
 import type { OperatorStore } from '@/domains/security/operator';
 import { OperatorPrompt } from '@/domains/security/OperatorPrompt';
 import { ViewOnlyBanner } from '@/domains/security/ViewOnlyBanner';
+import { CustomizationRuntime } from '@/domains/customization/CustomizationRuntime';
+import { CustomizationScreen } from '@/domains/customization/CustomizationScreen';
+import { CustomizeLayer } from '@/domains/customization/CustomizeLayer';
+import { CustomizeModeProvider } from '@/domains/customization/CustomizeModeProvider';
+import { CustomizeToggle } from '@/domains/customization/CustomizeToggle';
 import { DevicePreferences } from '@/domains/workspace/DevicePreferences';
 import { GroupList } from '@/domains/workspace/GroupList';
 import { CommandPalette, type PaletteItem } from './CommandPalette';
@@ -19,6 +24,10 @@ import { LivingOrb } from '@/shared/fx/LivingOrb';
 import { OrbitIntro } from '@/shared/fx/OrbitIntro';
 import { LanguageSelector } from '@/shared/i18n/LanguageSelector';
 import { AnimationLevelProvider } from '@/shared/motion/animationLevel';
+import type { CustomizationApi } from '@/shared/customization/api';
+import { createCustomizationStore, type CustomizationStore } from '@/shared/customization/store';
+import { createTerminologyStore } from '@/shared/customization/terminology';
+import { useAppearance } from '@/shared/customization/useAppearance';
 import { createPreferencesStore, type PreferencesStore } from '@/shared/preferences/preferences';
 import { Button } from '@/shared/ui';
 import { usePreferenceEffects } from './usePreferenceEffects';
@@ -30,14 +39,21 @@ export interface ConsoleAppProps {
   queryClient?: QueryClient;
   /** FE-50: device preferences; created from `localStorage` when omitted. */
   preferencesStore?: PreferencesStore;
+  /** CORE-21: `orbit.customization.json` / `orbit.terminology.json` (BE-51); device-only when omitted. */
+  customizationApi?: CustomizationApi;
+  customizationStore?: CustomizationStore;
 }
 
 /** `index.html#/settings/preferences` opens the device preferences screen. */
 export const PREFERENCES_HASH = '#/settings/preferences';
-type ConsoleView = 'list' | 'new' | 'preferences';
+/** `index.html#/settings/customization` opens the customization screen (CORE-21). */
+export const CUSTOMIZATION_HASH = '#/settings/customization';
+type ConsoleView = 'list' | 'new' | 'preferences' | 'customization';
 
 function initialView(): ConsoleView {
-  return typeof window !== 'undefined' && window.location.hash === PREFERENCES_HASH ? 'preferences' : 'list';
+  if (typeof window === 'undefined') return 'list';
+  if (window.location.hash === PREFERENCES_HASH) return 'preferences';
+  return window.location.hash === CUSTOMIZATION_HASH ? 'customization' : 'list';
 }
 
 /** Probe data stays in memory only: no persisted query cache, short garbage collection. */
@@ -105,6 +121,7 @@ function Workspace({ api, access, demo, operator, onChangeName, preferences }: W
   });
 
   return (
+    <CustomizeModeProvider editable={editable}>
     <div className="min-h-screen">
       <header className="flex flex-wrap items-center gap-[1rem] border-b border-line px-[1.4rem] py-[0.7rem]">
         <span className="font-display text-[1.25rem] font-bold tracking-tight">{t('app.name')}</span>
@@ -112,8 +129,12 @@ function Workspace({ api, access, demo, operator, onChangeName, preferences }: W
         {demo && <span className="text-[0.8rem] text-warn-text">{t('app.demoData')}</span>}
         <nav className="ml-auto flex flex-wrap items-center gap-[0.8rem] text-[0.9rem]">
           <LanguageSelector />
+          <CustomizeToggle />
           <Button variant="ghost" aria-current={view === 'preferences' ? 'page' : undefined} onClick={() => setView('preferences')}>
             {t('preferences.title')}
+          </Button>
+          <Button variant="ghost" aria-current={view === 'customization' ? 'page' : undefined} onClick={() => setView('customization')}>
+            {t('customization.title')}
           </Button>
           <a href="/wall.html" className="text-info hover:underline">
             {t('console.openWall')}
@@ -132,7 +153,12 @@ function Workspace({ api, access, demo, operator, onChangeName, preferences }: W
         {notice && (
           <p className="m-0 rounded-[0.45rem] border border-ok/50 bg-ok/12 px-[0.8rem] py-[0.5rem] text-ok-text">{notice}</p>
         )}
-        {view === 'preferences' ? (
+        {view === 'customization' ? (
+          <>
+            <h1 className="m-0 font-display text-[1.6rem] font-bold tracking-tight">{t('customization.title')}</h1>
+            <CustomizationScreen editable={editable} />
+          </>
+        ) : view === 'preferences' ? (
           <>
             <h1 className="m-0 font-display text-[1.6rem] font-bold tracking-tight">{t('preferences.title')}</h1>
             <DevicePreferences store={preferences} />
@@ -186,7 +212,9 @@ function Workspace({ api, access, demo, operator, onChangeName, preferences }: W
           </>
         )}
       </main>
+      <CustomizeLayer />
     </div>
+    </CustomizeModeProvider>
   );
 }
 
@@ -234,17 +262,22 @@ function Shell({ api, operatorStore, preferences }: ShellProps) {
 }
 
 /** Console: no login; the operator declares a name once and the API decides edit vs. view-only. */
-export function ConsoleApp({ api, operatorStore, queryClient, preferencesStore }: ConsoleAppProps) {
+export function ConsoleApp({ api, operatorStore, queryClient, preferencesStore, customizationApi, customizationStore }: ConsoleAppProps) {
   const [client] = useState(() => queryClient ?? createQueryClient());
   const [preferences] = useState(() => preferencesStore ?? createPreferencesStore());
+  const [customization] = useState(() => customizationStore ?? createCustomizationStore({ api: customizationApi, preferences }));
+  const [terminology] = useState(() => createTerminologyStore(customizationApi));
   const effective = usePreferenceEffects(preferences, operatorStore);
+  useAppearance(customization);
   return (
     <QueryClientProvider client={client}>
       <AnimationLevelProvider level={effective.animation}>
         <FxProvider>
           <FxBackground />
           <div className="fx-layer">
-            <Shell api={api} operatorStore={operatorStore} preferences={preferences} />
+            <CustomizationRuntime store={customization} terminology={terminology}>
+              <Shell api={api} operatorStore={operatorStore} preferences={preferences} />
+            </CustomizationRuntime>
           </div>
           <FxDowngradeNotice />
         </FxProvider>

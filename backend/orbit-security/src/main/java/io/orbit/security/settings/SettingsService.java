@@ -18,15 +18,12 @@ import java.util.Set;
  */
 public class SettingsService {
 
-    private static final Set<String> LOCALES = Set.of("en", "pt-BR");
     private static final Set<String> EDIT_FROM = Set.of("loopback", "lan", "cidr");
 
     public static final ConfigValidator<OrbitSettings> VALIDATOR = items -> {
         List<String> errors = new ArrayList<>();
         for (OrbitSettings s : items) {
-            if (s.locale() != null && !LOCALES.contains(s.locale())) {
-                errors.add("locale must be en or pt-BR");
-            }
+            errors.addAll(s.workspaceDefaults().validate());
             if (s.historyHours() != null && (s.historyHours() < 1 || s.historyHours() > 168)) {
                 errors.add("historyHours must be between 1 and 168");
             }
@@ -75,6 +72,20 @@ public class SettingsService {
         OrbitSettings stamped = settings.stamped(OperatorName.normalize(operator), clock.instant());
         file.save(List.of(stamped));
         return stamped;
+    }
+
+    /** BE-40: effective workspace defaults (file values over the built-in ones). */
+    public WorkspaceDefaults defaults() {
+        return current().workspaceDefaults().over(WorkspaceDefaults.BUILT_IN);
+    }
+
+    /**
+     * BE-40: replaces the workspace defaults (null fields go back to the built-in value) and keeps the
+     * access policy and history window; returns the effective defaults.
+     */
+    public synchronized WorkspaceDefaults saveDefaults(WorkspaceDefaults defaults, String operator) {
+        save(current().withDefaults(defaults), operator);
+        return defaults();
     }
 
     public boolean reloadIfChanged() {

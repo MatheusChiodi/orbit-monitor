@@ -62,7 +62,8 @@ public class AccessFilter extends OncePerRequestFilter {
             // BE-03: the secret push token authenticates the call; a job on another machine sends it.
             return AccessAction.READ;
         }
-        if (request.getMethod().equals("POST") && path.startsWith("/api/incidents/")) {
+        // Only the acknowledgement is open to view-only clients; resolve, reopen, comments and tickets are changes.
+        if (request.getMethod().equals("POST") && path.startsWith("/api/incidents/") && path.endsWith("/ack")) {
             return AccessAction.ACKNOWLEDGE;
         }
         return AccessAction.MUTATE;

@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MatheusChiodi/orbit-monitor/schemas/orbit.oncall.schema.json",
+  "title": "orbit.oncall.json",
+  "description": "On-call schedules: people rotate in fixed-length shifts from start; overrides win",
+  "type": "object",
+  "required": [
+    "version",
+    "items"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "shift"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "people": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "start": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "ISO-8601 instant"
+          },
+          "shift": {
+            "type": [
+              "string",
+              "number"
+            ],
+            "description": "ISO-8601 duration or seconds"
+          },
+          "overrides": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "object",
+              "properties": {
+                "person": {
+                  "type": "string"
+                },
+                "from": {
+                  "type": "string"
+                },
+                "until": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "updatedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "ISO-8601 instant"
+          },
+          "updatedBy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

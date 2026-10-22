@@ -7,17 +7,41 @@ import io.orbit.common.event.StateChangeListener;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
  * Incident lifecycle driven by confirmed state changes: opens on DOWN (or WARN when the monitor
  * is configured for it), follows severity changes, resolves on recovery and reopens a relapse
- * inside the reopen window. Operators acknowledge, comment and link tickets by self-declared name.
+ * inside the reopen window. Operators acknowledge, comment, link tickets, resolve and reopen by
+ * self-declared name. A flapping monitor (BE-25) keeps one incident open until it settles, and a
+ * monitor whose upstream dependency already has an open incident (BE-30) opens a child incident.
  */
 public class IncidentService implements StateChangeListener {
+
+    /** BE-25 port: flapping detection over confirmed changes (FlappingDetector in the runtime). */
+    public interface Flapping {
+        /** Records a confirmed change; true when the monitor is flapping now. */
+        boolean observe(MonitorStateChanged change);
+
+        boolean isFlapping(String monitorId, Instant now);
+    }
+
+    private static final Flapping NEVER = new Flapping() {
+        @Override
+        public boolean observe(MonitorStateChanged change) {
+            return false;
+        }
+
+        @Override
+        public boolean isFlapping(String monitorId, Instant now) {
+            return false;
+        }
+    };
 
     public static final Duration RESOLVED_RETENTION = Duration.ofHours(24);
     /** Replacement for an anonymized operator name; same marker as the audit log. */
@@ -29,6 +53,8 @@ public class IncidentService implements StateChangeListener {
     private final IncidentListener listener;
     private final Clock clock;
     private final Duration reopenWindow;
+    private volatile Flapping flapping = NEVER;
+    private volatile Function<String, Optional<String>> upstream = monitorId -> Optional.empty();
 
     public IncidentService(IncidentRepository repository, Predicate<String> opensOnWarn, IncidentListener listener,
                            Clock clock, Duration reopenWindow) {
@@ -39,24 +65,86 @@ public class IncidentService implements StateChangeListener {
         this.reopenWindow = reopenWindow;
     }
 
+    /** BE-25: flapping detection; without it no monitor is ever considered flapping. */
+    public void setFlapping(Flapping flapping) {
+        this.flapping = flapping;
+    }
+
+    /** BE-30: open upstream incident id for a monitor (dependency graph); empty when none. */
+    public void setUpstream(Function<String, Optional<String>> upstream) {
+        this.upstream = upstream;
+    }
+
     @Override
     public synchronized void onStateChanged(MonitorStateChanged event) {
+        boolean flappingNow = flapping.observe(event);
         Optional<Incident> open = repository.findOpenByMonitor(event.monitorId());
+        if (open.isPresent() && flappingNow && !open.get().flapping()) {
+            open = Optional.of(store(open.get().withFlapping(true, event.at())));
+        }
         MonitorState state = event.current();
         if (state == MonitorState.OK) {
-            open.ifPresent(i -> store(i.resolve(event.at())));
+            open.filter(i -> !i.flapping()).ifPresent(i -> store(i.resolve(event.at())));
             return;
         }
         boolean opens = state == MonitorState.DOWN || (state == MonitorState.WARN && opensOnWarn.test(event.monitorId()));
         if (open.isPresent()) {
             Incident incident = open.get();
-            if ((state == MonitorState.DOWN || state == MonitorState.WARN) && incident.severity() != state) {
+            if (!incident.flapping() && (state == MonitorState.DOWN || state == MonitorState.WARN)
+                    && incident.severity() != state) {
                 store(incident.withSeverity(state, event.at()));
             }
         } else if (opens) {
-            store(relapse(event).orElseGet(() ->
-                    Incident.open(newId(), event.monitorId(), state, event.since() == null ? event.at() : event.since())));
+            store(relapse(event).orElseGet(() -> openNew(event, state)));
         }
+    }
+
+    private Incident openNew(MonitorStateChanged event, MonitorState state) {
+        Instant at = event.since() == null ? event.at() : event.since();
+        Optional<Incident> parent = upstream.apply(event.monitorId()).flatMap(repository::findById)
+                .filter(Incident::isOpen);
+        parent.ifPresent(p -> store(p.correlate(event.monitorId(), event.at())));
+        return Incident.open(newId(), event.monitorId(), state, at, parent.map(Incident::id).orElse(null));
+    }
+
+    /**
+     * BE-25: called periodically. A flapping incident whose monitor settled stops flapping and is
+     * resolved when the monitor is OK again.
+     */
+    public synchronized void settle(Function<String, MonitorState> currentState) {
+        Instant now = clock.instant();
+        for (Incident incident : repository.findAll()) {
+            if (!incident.isOpen() || !incident.flapping() || flapping.isFlapping(incident.monitorId(), now)) {
+                continue;
+            }
+            Incident settled = store(incident.withFlapping(false, now));
+            if (currentState.apply(incident.monitorId()) == MonitorState.OK) {
+                store(settled.resolve(now));
+            }
+        }
+    }
+
+    /** BE-26: an operator closes an open incident. */
+    public synchronized Incident resolve(String incidentId, String operator) {
+        String name = OperatorName.normalize(operator);
+        Incident incident = require(incidentId);
+        if (!incident.isOpen()) {
+            throw new IllegalStateException("Incident is already resolved: " + incidentId);
+        }
+        return store(incident.resolve(name, clock.instant()));
+    }
+
+    /** BE-26: an operator reopens a resolved incident (refused while the monitor has another open one). */
+    public synchronized Incident reopen(String incidentId, String operator) {
+        String name = OperatorName.normalize(operator);
+        Incident incident = require(incidentId);
+        if (incident.isOpen()) {
+            throw new IllegalStateException("Incident is already open: " + incidentId);
+        }
+        if (repository.findOpenByMonitor(incident.monitorId()).isPresent()) {
+            throw new IllegalStateException("The monitor already has an open incident: " + incident.monitorId());
+        }
+        return store(incident.reopenBy(name, clock.instant()));
     }
 
     private Optional<Incident> relapse(MonitorStateChanged event) {

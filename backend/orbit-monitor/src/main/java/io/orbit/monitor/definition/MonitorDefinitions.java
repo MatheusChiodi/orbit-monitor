@@ -125,6 +125,31 @@ public class MonitorDefinitions {
         return remove(requests, id);
     }
 
+    /** FE-13 / CORE-07: moves a monitor of any kind to another group (null = no group); false when unknown. */
+    public synchronized boolean moveToGroup(String monitorId, String groupId, String operator) {
+        Optional<MonitorDef> found = monitor(monitorId);
+        if (found.isEmpty()) {
+            return false;
+        }
+        switch (found.get()) {
+            case SqlMonitorDef s -> saveSelect(new SqlMonitorDef(s.id(), s.name(), groupId, s.connectionId(), s.sql(),
+                    s.intervalSeconds(), s.timeoutMs(), s.maxRows(), s.downAfter(), s.hysteresis(), s.openOnWarn(),
+                    s.conditions(), s.fields(), s.paused(), s.updatedAt(), s.updatedBy(), s.parameters()), operator);
+            case HttpMonitorDef h -> saveRequest(new HttpMonitorDef(h.id(), h.name(), groupId, h.method(), h.url(),
+                    h.headers(), h.secretHeaders(), h.body(), h.intervalSeconds(), h.timeoutMs(), h.followRedirects(),
+                    h.downAfter(), h.hysteresis(), h.openOnWarn(), h.conditions(), h.fields(), h.paused(),
+                    h.updatedAt(), h.updatedBy()), operator);
+            case CheckMonitorDef c -> saveCheck(new CheckMonitorDef(c.id(), c.name(), groupId, c.type(), c.host(),
+                    c.port(), c.pushToken(), c.maxSilenceSeconds(), c.intervalSeconds(), c.timeoutMs(), c.downAfter(),
+                    c.hysteresis(), c.openOnWarn(), c.conditions(), c.fields(), c.paused(), c.updatedAt(),
+                    c.updatedBy()), operator);
+            default -> {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** Reloads files edited outside Orbit; returns true when anything changed. */
     public boolean reloadIfChanged() {
         boolean a = connections.reloadIfChanged();
