@@ -1,0 +1,257 @@
+{
+  "monitors": {},
+  "rail": {},
+  "detail": {},
+  "incidents": {
+    "description": "What broke, who is on it and what came back.",
+    "filter": "Show incidents",
+    "filters": {
+      "all": "All",
+      "open": "Open",
+      "acknowledged": "Acknowledged",
+      "resolved": "Resolved"
+    },
+    "list": "Incidents",
+    "acknowledge": "Acknowledge",
+    "resolve": "Resolve",
+    "resolvedLasted": "Resolved at {{time}} · lasted {{duration}}",
+    "openedAgo": "Opened {{time}}",
+    "emptyTitle": {
+      "all": "No incidents yet",
+      "open": "Nothing open",
+      "acknowledged": "Nothing acknowledged",
+      "resolved": "No resolved incidents"
+    },
+    "emptyBody": {
+      "all": "When a monitor goes down, its incident shows up here so you can acknowledge and resolve it.",
+      "open": "Every incident is acknowledged or resolved.",
+      "acknowledged": "No open incident has been acknowledged yet.",
+      "resolved": "Resolved incidents stay here while they are in memory."
+    },
+    "acknowledged": "Incident acknowledged",
+    "resolved": "Incident resolved",
+    "probableImpact": "Probable impact",
+    "comments": "Comments",
+    "noComments": "No comments yet.",
+    "ticketTitle": "Ticket",
+    "ticketHint": "Link the ticket in your tracker, e.g. INC-4821.",
+    "actionsFor": "Actions for {{name}}"
+  },
+  "maintenance": {
+    "description": "Monitors in a maintenance window are silenced and do not count against uptime.",
+    "newWindow": "New window",
+    "dialogTitle": "New maintenance window",
+    "name": "Name",
+    "target": "Group",
+    "start": "Starts",
+    "end": "Ends",
+    "reason": "Reason",
+    "reasonHint": "Optional. Shown on the wall while the window is active.",
+    "create": "Create window",
+    "cancel": "Cancel",
+    "nameRequired": "Give the window a name.",
+    "groupRequired": "Choose a group or create one on the Monitors screen.",
+    "endAfterStart": "The end must be after the start.",
+    "dragHint": "Tip: drag across the calendar (or press Enter on a cell, Shift+arrows, Enter) to pick a time range.",
+    "week": "Week of {{range}}",
+    "today": "Today",
+    "now": "Now",
+    "hour": "Hour",
+    "windowAt": "{{title}} · {{group}} · {{range}}",
+    "empty": "No maintenance windows this week."
+  },
+  "reports": {
+    "description": "Availability of every monitor over the period you choose.",
+    "columns": {
+      "group": "Group",
+      "monitor": "Monitor",
+      "monitors": "Monitors",
+      "availability": "Availability",
+      "downtime": "Downtime",
+      "incidents": "Incidents"
+    },
+    "byGroup": "By group",
+    "byMonitor": "By monitor",
+    "emptyTitle": "Nothing to report yet",
+    "emptyBody": "Availability shows up here once your monitors have run for a while. Orbit keeps up to 30 days of history."
+  },
+  "statusPages": {
+    "description": "Share the state of chosen groups on a simple page. Values, rules and errors are never shown.",
+    "address": "Address",
+    "addressHint": "Full address: {{url}}",
+    "visibility": "Who can open it",
+    "internalHelp": "Only people who can edit Orbit (this machine or your allowed network) can open it.",
+    "publicHelp": "Anyone with the link can see the group states.",
+    "groups": "Groups to show",
+    "selectAll": "All groups",
+    "noGroups": "Create a group first: status pages show group states.",
+    "openPage": "Open page",
+    "savedPages": "Your status pages",
+    "untitled": "Untitled page",
+    "previewEmpty": "Choose groups to see how the page looks."
+  },
+  "audit": {
+    "description": "Every change made to Orbit's configuration, newest first.",
+    "anyAction": "Any action",
+    "monitor": "Monitor",
+    "anyMonitor": "Any monitor",
+    "viewChange": "View change",
+    "changesOf": "Query changes · {{name}}",
+    "closeChanges": "Close",
+    "range": "{{from}}–{{to}} of {{total}}",
+    "areas": {
+      "sql": "Query monitors",
+      "http": "Website and API monitors",
+      "monitor": "Deleted monitors",
+      "incident": "Incidents",
+      "maintenance": "Maintenance",
+      "dependency": "Dependencies",
+      "group": "Groups",
+      "status-page": "Status pages",
+      "connection": "Connections",
+      "channel": "Notification channels",
+      "settings": "Settings",
+      "layout": "Wall layouts",
+      "theme": "Themes",
+      "customization": "Customization",
+      "config": "Configuration import"
+    },
+    "actions": {
+      "sql": {
+        "save": "Query monitor saved"
+      },
+      "http": {
+        "save": "Website or API monitor saved"
+      },
+      "tcp": {
+        "save": "TCP monitor saved"
+      },
+      "ping": {
+        "save": "Ping monitor saved"
+      },
+      "push": {
+        "save": "Push monitor saved"
+      },
+      "dns": {
+        "save": "DNS monitor saved"
+      },
+      "grpc": {
+        "save": "gRPC monitor saved"
+      },
+      "kafka": {
+        "save": "Kafka monitor saved"
+      },
+      "cert": {
+        "save": "Certificate monitor saved"
+      },
+      "monitor": {
+        "delete": "Monitor deleted"
+      },
+      "select": {
+        "preview": "Query previewed",
+        "update": "Query updated"
+      },
+      "request": {
+        "preview": "Request previewed"
+      },
+      "incident": {
+        "ack": "Incident acknowledged",
+        "resolve": "Incident resolved",
+        "reopen": "Incident reopened",
+        "comment": "Comment added to an incident",
+        "ticket": "Ticket linked to an incident"
+      },
+      "maintenance": {
+        "save": "Maintenance window saved",
+        "delete": "Maintenance window deleted"
+      },
+      "dependency": {
+        "save": "Dependency added",
+        "delete": "Dependency removed"
+      },
+      "group": {
+        "save": "Group saved",
+        "update": "Group updated",
+        "delete": "Group deleted",
+        "order": "Groups reordered"
+      },
+      "status-page": {
+        "save": "Status page saved",
+        "delete": "Status page deleted"
+      },
+      "connection": {
+        "save": "Connection saved",
+        "delete": "Connection deleted"
+      },
+      "channel": {
+        "save": "Notification channel saved",
+        "delete": "Notification channel deleted",
+        "test": "Notification channel tested"
+      },
+      "settings": {
+        "save": "Settings saved",
+        "defaults": "Workspace defaults saved"
+      },
+      "layout": {
+        "save": "Wall layout saved",
+        "delete": "Wall layout deleted"
+      },
+      "theme": {
+        "create": "Theme created",
+        "save": "Theme saved",
+        "delete": "Theme deleted"
+      },
+      "customization": {
+        "save": "Customization saved",
+        "reset": "Customization reset",
+        "import": "Customization imported"
+      },
+      "config": {
+        "import": "Configuration imported"
+      },
+      "silence": {
+        "create": "Alerts silenced",
+        "lift": "Silence lifted"
+      },
+      "escalation": {
+        "save": "Escalation policy saved",
+        "delete": "Escalation policy deleted"
+      },
+      "oncall": {
+        "save": "On-call schedule saved",
+        "delete": "On-call schedule deleted"
+      },
+      "variable": {
+        "save": "Variable saved",
+        "delete": "Variable deleted"
+      },
+      "terminology": {
+        "save": "Terminology saved",
+        "reset": "Terminology reset"
+      },
+      "notification-template": {
+        "save": "Notification template saved",
+        "reset": "Notification template reset"
+      },
+      "workspace": {
+        "save": "Workspace saved",
+        "delete": "Workspace deleted"
+      },
+      "query-catalog": {
+        "save": "Saved query stored",
+        "delete": "Saved query deleted"
+      },
+      "operator": {
+        "anonymize": "Old operator names anonymized"
+      }
+    }
+  },
+  "dependencies": {
+    "description": "Tell Orbit what relies on what. When something goes down, alerts from what depends on it are held back: one alert instead of a cascade.",
+    "groups": "Groups",
+    "monitors": "Monitors",
+    "sentence": "If {{upstream}} goes down, alerts from {{downstream}} are suppressed.",
+    "list": "Current dependencies",
+    "hint": "Select an item to see everything that depends on it."
+  }
+}

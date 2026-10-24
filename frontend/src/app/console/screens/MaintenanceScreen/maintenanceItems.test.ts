@@ -30,6 +30,8 @@ describe('FE-41 maintenance items', () => {
   it('a new window becomes an item with a generated id and the group as target', () => {
     const item = newMaintenanceItem({ title: 'Deploy', groupId: 'payments', start: 's', end: 'e' }, () => 'abc');
     expect(item).toEqual({ id: 'mw-abc', name: 'Deploy', targets: ['payments'], start: 's', end: 'e' });
+    const withReason = newMaintenanceItem({ title: 'Patch', groupId: 'core', start: 's', end: 'e', reason: 'Kernel' }, () => 'x');
+    expect(withReason.reason).toBe('Kernel');
   });
 
   it('weeks start on Monday at midnight', () => {

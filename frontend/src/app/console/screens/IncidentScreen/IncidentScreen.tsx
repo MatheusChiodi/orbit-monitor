@@ -53,12 +53,15 @@ export function IncidentScreen({ id }: { id: string }) {
     },
   });
 
+  const backLink = (
+    <a href={routeHref({ name: 'incidents' })} className="text-sm text-accent hover:underline">
+      ← {t('screens.incidents.back')}
+    </a>
+  );
   const notFound = incident.error instanceof Error && /\(404\)|not found/i.test(incident.error.message);
   return (
     <>
-      <a href={routeHref({ name: 'incidents' })} className="text-[0.85rem] text-info hover:underline">
-        ← {t('screens.incidents.back')}
-      </a>
+      {!incident.data && backLink}
       {notFound ? (
         <p role="alert" className="m-0 text-muted">
           {t('screens.incidents.notFound')}
@@ -67,7 +70,7 @@ export function IncidentScreen({ id }: { id: string }) {
         <ScreenStatus pending={incident.isPending} error={incident.error} />
       )}
       {act.error && (
-        <p role="alert" className="m-0 text-[0.85rem] text-down-text">
+        <p role="alert" className="m-0 text-sm text-down-text">
           {act.error.message}
         </p>
       )}
@@ -79,6 +82,7 @@ export function IncidentScreen({ id }: { id: string }) {
             ...(escalation.data ? { escalatesAt: escalation.data.dueAt } : {}),
           }}
           nextStep={escalation.data?.stepName ?? null}
+          eyebrow={backLink}
           onResolve={() => act.mutate({ kind: 'resolve' })}
           onReopen={() => act.mutate({ kind: 'reopen' })}
           now={now}

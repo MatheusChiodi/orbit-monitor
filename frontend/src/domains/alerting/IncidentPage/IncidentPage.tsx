@@ -1,11 +1,10 @@
-import { useId, useState } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AcknowledgeButton } from '@/domains/wall/components/AcknowledgeButton';
 import type { AccessMode, Incident, TimelineEvent } from '@/shared/api/types';
-import { formatClock, formatDuration, formatElapsed } from '@/shared/format';
+import { formatClock, formatDuration, formatElapsed, formatTime } from '@/shared/format';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { SafeValue } from '@/shared/privacy/SafeValue';
-import { ActorLabel, Badge, Button, INPUT_CLASS, LABEL_CLASS, Panel, StatusDot, TEXT_CLASS } from '@/shared/ui';
+import { ActorLabel, Badge, Button, Field, PageHeader, Panel, StatusBadge, StatusDot, TextArea, TextInput } from '@/shared/ui';
 import { EscalationCountdown } from '../EscalationCountdown';
 
 export interface IncidentComment {
@@ -37,125 +36,164 @@ export interface IncidentPageProps {
   onReopen?: (incidentId: string) => void;
   /** FE-40: name of the next escalation step (`/api/incidents/{id}/escalation`). */
   nextStep?: string | null;
+  /** Back link shown above the title. */
+  eyebrow?: ReactNode;
 }
 
 /** FE-39: incident timeline, comments, acknowledge, ticket link and the postmortem once resolved. */
-export function IncidentPage({ incident, now, mode, onAcknowledge, onComment, onLinkTicket, onResolve, onReopen, nextStep = null }: IncidentPageProps) {
+export function IncidentPage({ incident, now, mode, onAcknowledge, onComment, onLinkTicket, onResolve, onReopen, nextStep = null, eyebrow }: IncidentPageProps) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
-  const ids = { comment: useId(), ticket: useId() };
+  const impactId = useId();
   const [comment, setComment] = useState('');
   const [ticket, setTicket] = useState(incident.ticket ?? '');
   const resolved = Boolean(incident.resolvedAt);
   const opened = Date.parse(incident.openedAt);
   const editable = mode === 'edit';
+  const acknowledged = Boolean(incident.acknowledgedBy);
+
+  const actions = resolved ? (
+    editable && onReopen && <Button onClick={() => onReopen(incident.id)}>{t('screens.incidents.reopen')}</Button>
+  ) : (
+    <>
+      <EscalationCountdown escalatesAt={incident.escalatesAt} nextStep={nextStep} now={now} acknowledged={acknowledged} />
+      {acknowledged ? (
+        // `acknowledgedBy` holds the client kind (or a legacy name): never shown as a person.
+        <span className="text-sm text-muted">
+          {incident.acknowledgedAt ? t('screens.incidents.acknowledgedAt', { time: formatTime(incident.acknowledgedAt) }) : t('screens.incidents.acknowledged')}
+        </span>
+      ) : (
+        <Button variant="primary" onClick={() => onAcknowledge(incident.id)}>
+          {t('ops.incidents.acknowledge')}
+        </Button>
+      )}
+      {editable && onResolve && <Button onClick={() => onResolve(incident.id)}>{t('screens.incidents.resolve')}</Button>}
+    </>
+  );
 
   return (
-    <div className="flex flex-col gap-[1rem]">
-      <header className="flex flex-col gap-[0.3rem]">
-        <span className="flex items-center gap-[0.5rem] text-[0.85rem] text-muted">
-          <span className={`font-semibold ${TEXT_CLASS[incident.severity]}`}>{t(`status.label.${incident.severity}`)}</span>
-          <span aria-hidden>·</span>
-          <SafeValue value={incident.groupName} />
-          <span className="ml-auto font-mono">{formatElapsed(incident.openedAt, now, locale)}</span>
-        </span>
-        <h1 className="m-0 font-display text-[1.8rem] font-bold tracking-tight">
-          <SafeValue value={incident.monitorName} />
-        </h1>
-        <span className="flex flex-wrap gap-[0.4rem]">
-          {incident.impact.map((item) => (
-            <Badge key={item}>
-              <SafeValue value={item} />
-            </Badge>
-          ))}
-        </span>
-        {!resolved && (
-          <span className="flex flex-wrap items-center gap-[0.8rem]">
-            <EscalationCountdown escalatesAt={incident.escalatesAt} nextStep={nextStep} now={now} acknowledged={Boolean(incident.acknowledgedBy)} />
-            <AcknowledgeButton incident={incident} onAcknowledge={onAcknowledge} />
-            {editable && onResolve && <Button onClick={() => onResolve(incident.id)}>{t('screens.incidents.resolve')}</Button>}
+    <div className="flex flex-col gap-4">
+      <PageHeader
+        className="pb-0"
+        eyebrow={
+          <span className="flex flex-col gap-2">
+            {eyebrow}
+            <span className="flex flex-wrap items-center gap-2">
+              <StatusBadge status={resolved ? 'OK' : incident.severity} />
+              <span aria-hidden>·</span>
+              <SafeValue value={incident.groupName} />
+              <span aria-hidden>·</span>
+              <span className="font-mono">{formatElapsed(incident.openedAt, now, locale)}</span>
+            </span>
           </span>
-        )}
-        {resolved && editable && onReopen && (
-          <span>
-            <Button onClick={() => onReopen(incident.id)}>{t('screens.incidents.reopen')}</Button>
-          </span>
-        )}
-      </header>
+        }
+        title={<SafeValue value={incident.monitorName} />}
+        actions={actions}
+      />
+
+      {incident.impact.length > 0 && (
+        <section aria-labelledby={impactId} className="flex flex-wrap items-center gap-2">
+          <h2 id={impactId} className="section-label m-0">
+            {t('ops.incidents.probableImpact')}
+          </h2>
+          <ul className="m-0 flex list-none flex-wrap gap-1.5 p-0">
+            {incident.impact.map((item) => (
+              <li key={item}>
+                <Badge>
+                  <SafeValue value={item} />
+                </Badge>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {resolved && incident.resolvedAt && (
         <Panel title={t('incident.postmortem')}>
-          <dl className="m-0 grid grid-cols-2 gap-[0.6rem]">
+          <dl className="m-0 grid grid-cols-2 gap-3">
             <div>
               <dt className="section-label">{t('incident.mtta')}</dt>
-              <dd className="m-0 font-mono text-[1.1rem]">
+              <dd className="m-0 font-mono text-lg">
                 {incident.acknowledgedAt ? formatDuration(Date.parse(incident.acknowledgedAt) - opened) : '—'}
               </dd>
             </div>
             <div>
               <dt className="section-label">{t('incident.mttr')}</dt>
-              <dd className="m-0 font-mono text-[1.1rem]">{formatDuration(Date.parse(incident.resolvedAt) - opened)}</dd>
+              <dd className="m-0 font-mono text-lg">{formatDuration(Date.parse(incident.resolvedAt) - opened)}</dd>
             </div>
           </dl>
         </Panel>
       )}
 
-      <Panel>
-        <ol aria-label={t('incident.timeline')} className="m-0 flex list-none flex-col gap-[0.3rem] p-0">
+      <Panel title={t('incident.timeline')}>
+        <ol aria-label={t('incident.timeline')} className="m-0 flex list-none flex-col gap-1.5 p-0">
           {incident.events.map((event) => (
-            <li key={event.id} className="grid grid-cols-[auto_auto_1fr] items-start gap-x-[0.6rem]">
-              <time dateTime={event.at} className="font-mono text-[0.78rem] text-muted">
+            <li key={event.id} className="flex items-start gap-2.5">
+              <time dateTime={event.at} className="font-mono text-sm text-muted">
                 {formatClock(event.at)}
               </time>
-              <StatusDot status={event.kind === 'DOWN' || event.kind === 'WARN' || event.kind === 'OK' ? event.kind : 'OK'} className="mt-[0.3rem]" />
-              <span>
-                <SafeValue value={event.title} className="block text-[0.85rem] font-semibold" />
-                {event.detail && <SafeValue value={event.detail} className="block font-mono text-[0.72rem] text-muted" />}
+              <StatusDot status={event.kind === 'DOWN' || event.kind === 'WARN' || event.kind === 'OK' ? event.kind : 'OK'} className="mt-1.5" />
+              <span className="min-w-0">
+                <SafeValue value={event.title} className="block text-sm font-semibold" />
+                {event.detail && <SafeValue value={event.detail} className="block font-mono text-xs text-muted" />}
               </span>
             </li>
           ))}
         </ol>
       </Panel>
 
-      <Panel>
-        <ul className="m-0 flex list-none flex-col gap-[0.5rem] p-0">
-          {incident.comments.map((c) => (
-            <li key={c.id} className="text-[0.85rem]">
-              <ActorLabel actor={c.author} className="font-semibold" />
-              <span className="ml-[0.5rem] font-mono text-[0.72rem] text-dim">{formatClock(c.at)}</span>
-              <SafeValue value={c.text} className="block" />
-            </li>
-          ))}
-        </ul>
-        {editable && (
-        <>
-        <div className={`${LABEL_CLASS} mt-[0.6rem]`}>
-          <label htmlFor={ids.comment}>{t('incident.comment')}</label>
-          <textarea id={ids.comment} className={`${INPUT_CLASS} h-auto min-h-[4rem] py-[0.4rem]`} value={comment} onChange={(e) => setComment(e.target.value)} />
-        </div>
-        <div className="mt-[0.4rem]">
-          <Button
-            onClick={() => {
-              if (!comment.trim()) return;
-              onComment(incident.id, comment.trim());
-              setComment('');
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Panel title={t('ops.incidents.comments')}>
+          {incident.comments.length === 0 ? (
+            <p className="m-0 text-sm text-muted">{t('ops.incidents.noComments')}</p>
+          ) : (
+            <ul className="m-0 flex list-none flex-col gap-2 p-0">
+              {incident.comments.map((c) => (
+                <li key={c.id} className="text-sm">
+                  <ActorLabel actor={c.author} className="font-semibold" />
+                  <span className="ml-2 font-mono text-xs text-dim">{formatClock(c.at)}</span>
+                  <SafeValue value={c.text} className="block" />
+                </li>
+              ))}
+            </ul>
+          )}
+          {editable && (
+            <form
+              className="mt-3 flex flex-col gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!comment.trim()) return;
+                onComment(incident.id, comment.trim());
+                setComment('');
+              }}
+            >
+              <Field label={t('incident.comment')}>
+                <TextArea rows={3} value={comment} onChange={(e) => setComment(e.target.value)} />
+              </Field>
+              <span>
+                <Button type="submit" disabled={!comment.trim()}>
+                  {t('incident.addComment')}
+                </Button>
+              </span>
+            </form>
+          )}
+        </Panel>
+
+        <Panel title={t('ops.incidents.ticketTitle')}>
+          <form
+            className="flex flex-wrap items-end gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (ticket.trim()) onLinkTicket(incident.id, ticket.trim());
             }}
           >
-            {t('incident.addComment')}
-          </Button>
-        </div>
-        </>
-        )}
-        <div className="mt-[0.8rem] flex flex-wrap items-end gap-[0.5rem]">
-          <div className={LABEL_CLASS}>
-            <label htmlFor={ids.ticket}>{t('incident.ticket')}</label>
-            <input id={ids.ticket} className={INPUT_CLASS} value={ticket} disabled={mode !== 'edit'} onChange={(e) => setTicket(e.target.value)} />
-          </div>
-          {mode === 'edit' && (
-            <Button onClick={() => ticket.trim() && onLinkTicket(incident.id, ticket.trim())}>{t('incident.linkTicket')}</Button>
-          )}
-        </div>
-      </Panel>
+            <Field label={t('incident.ticket')} hint={editable ? t('ops.incidents.ticketHint') : undefined} className="min-w-48 flex-1">
+              <TextInput value={ticket} disabled={!editable} onChange={(e) => setTicket(e.target.value)} />
+            </Field>
+            {editable && <Button type="submit">{t('incident.linkTicket')}</Button>}
+          </form>
+        </Panel>
+      </div>
     </div>
   );
 }

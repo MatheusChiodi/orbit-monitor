@@ -17,7 +17,14 @@ export function toCalendarWindows(items: readonly MaintenanceItem[]): Maintenanc
 const randomId = () => Math.random().toString(36).slice(2, 10);
 
 export function newMaintenanceItem(window: NewMaintenanceWindow, id: () => string = randomId): MaintenanceItem {
-  return { id: `mw-${id()}`, name: window.title, targets: [window.groupId], start: window.start, end: window.end };
+  return {
+    id: `mw-${id()}`,
+    name: window.title,
+    targets: [window.groupId],
+    start: window.start,
+    end: window.end,
+    ...(window.reason ? { reason: window.reason } : {}),
+  };
 }
 
 export function startOfWeek(date: Date): Date {

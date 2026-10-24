@@ -34,7 +34,7 @@ describe('FE-39 incident page', () => {
   it('shows identification, state label, elapsed time and timeline', () => {
     setup();
     expect(screen.getByRole('heading', { level: 1, name: 'Reconciliation queue' })).toBeInTheDocument();
-    expect(screen.getByText('DOWN')).toBeInTheDocument();
+    expect(screen.getByText('Down')).toBeInTheDocument();
     expect(screen.getByText('4min 01s ago')).toBeInTheDocument();
     const timeline = screen.getByRole('list', { name: 'Timeline' });
     expect(timeline).toHaveTextContent('QTY = 349 · rule QTY < 200');
@@ -44,6 +44,21 @@ describe('FE-39 incident page', () => {
     const h = setup();
     await userEvent.click(screen.getByRole('button', { name: 'Acknowledge' }));
     expect(h.onAcknowledge).toHaveBeenCalledWith('inc-reconciliation');
+  });
+
+  it('Acknowledge is the primary action, never the danger color (UX audit)', () => {
+    setup();
+    const button = screen.getByRole('button', { name: 'Acknowledge' });
+    expect(button.className).toMatch(/bg-accent/);
+    expect(button.className).not.toMatch(/bg-down/);
+  });
+
+  it('impact chips are labelled "Probable impact"; comments and ticket are separate titled sections', () => {
+    setup();
+    const impact = screen.getByRole('region', { name: 'Probable impact' });
+    expect(impact).toHaveTextContent('Checkout');
+    expect(within(screen.getByRole('region', { name: 'Comments' })).getByRole('textbox', { name: 'Comment' })).toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: 'Ticket' })).getByRole('textbox', { name: 'Ticket' })).toBeInTheDocument();
   });
 
   it('an acknowledged incident reads "Acknowledged at HH:MM", even with a legacy name stored', () => {
@@ -102,7 +117,8 @@ describe('FE-39 incident page', () => {
       <IncidentPage incident={incident} now={now} mode="edit" onAcknowledge={vi.fn()} onComment={vi.fn()} onLinkTicket={vi.fn()} />,
       'pt-BR',
     );
-    expect(screen.getByText('FORA')).toBeInTheDocument();
+    expect(screen.getByText('Fora')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Impacto provável' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Reconhecer' })).toBeInTheDocument();
     expect(screen.getByText('Rede local')).toBeInTheDocument();
   });

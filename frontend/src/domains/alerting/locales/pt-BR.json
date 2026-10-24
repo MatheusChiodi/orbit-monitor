@@ -1,0 +1,257 @@
+{
+  "monitors": {},
+  "rail": {},
+  "detail": {},
+  "incidents": {
+    "description": "O que quebrou, quem está cuidando e o que voltou.",
+    "filter": "Mostrar incidentes",
+    "filters": {
+      "all": "Todos",
+      "open": "Abertos",
+      "acknowledged": "Reconhecidos",
+      "resolved": "Resolvidos"
+    },
+    "list": "Incidentes",
+    "acknowledge": "Reconhecer",
+    "resolve": "Resolver",
+    "resolvedLasted": "Resolvido às {{time}} · durou {{duration}}",
+    "openedAgo": "Aberto {{time}}",
+    "emptyTitle": {
+      "all": "Nenhum incidente ainda",
+      "open": "Nada aberto",
+      "acknowledged": "Nada reconhecido",
+      "resolved": "Nenhum incidente resolvido"
+    },
+    "emptyBody": {
+      "all": "Quando um monitor cair, o incidente aparece aqui para você reconhecer e resolver.",
+      "open": "Todos os incidentes foram reconhecidos ou resolvidos.",
+      "acknowledged": "Nenhum incidente aberto foi reconhecido ainda.",
+      "resolved": "Incidentes resolvidos ficam aqui enquanto estão na memória."
+    },
+    "acknowledged": "Incidente reconhecido",
+    "resolved": "Incidente resolvido",
+    "probableImpact": "Impacto provável",
+    "comments": "Comentários",
+    "noComments": "Nenhum comentário ainda.",
+    "ticketTitle": "Chamado",
+    "ticketHint": "Vincule o chamado do seu sistema de tickets, ex.: INC-4821.",
+    "actionsFor": "Ações de {{name}}"
+  },
+  "maintenance": {
+    "description": "Monitores em janela de manutenção ficam silenciados e não contam para o uptime.",
+    "newWindow": "Nova janela",
+    "dialogTitle": "Nova janela de manutenção",
+    "name": "Nome",
+    "target": "Grupo",
+    "start": "Início",
+    "end": "Fim",
+    "reason": "Motivo",
+    "reasonHint": "Opcional. Aparece no wall enquanto a janela estiver ativa.",
+    "create": "Criar janela",
+    "cancel": "Cancelar",
+    "nameRequired": "Dê um nome à janela.",
+    "groupRequired": "Escolha um grupo ou crie um na tela de Monitores.",
+    "endAfterStart": "O fim precisa ser depois do início.",
+    "dragHint": "Dica: arraste no calendário (ou Enter numa célula, Shift+setas, Enter) para escolher o horário.",
+    "week": "Semana de {{range}}",
+    "today": "Hoje",
+    "now": "Agora",
+    "hour": "Hora",
+    "windowAt": "{{title}} · {{group}} · {{range}}",
+    "empty": "Nenhuma janela de manutenção nesta semana."
+  },
+  "reports": {
+    "description": "Disponibilidade de cada monitor no período que você escolher.",
+    "columns": {
+      "group": "Grupo",
+      "monitor": "Monitor",
+      "monitors": "Monitores",
+      "availability": "Disponibilidade",
+      "downtime": "Tempo fora",
+      "incidents": "Incidentes"
+    },
+    "byGroup": "Por grupo",
+    "byMonitor": "Por monitor",
+    "emptyTitle": "Nada para relatar ainda",
+    "emptyBody": "A disponibilidade aparece aqui depois que seus monitores rodarem por um tempo. O Orbit guarda até 30 dias de histórico."
+  },
+  "statusPages": {
+    "description": "Compartilhe o estado dos grupos escolhidos numa página simples. Valores, regras e erros nunca aparecem.",
+    "address": "Endereço",
+    "addressHint": "Endereço completo: {{url}}",
+    "visibility": "Quem pode abrir",
+    "internalHelp": "Só quem pode editar o Orbit (esta máquina ou sua rede permitida) consegue abrir.",
+    "publicHelp": "Qualquer pessoa com o link vê o estado dos grupos.",
+    "groups": "Grupos exibidos",
+    "selectAll": "Todos os grupos",
+    "noGroups": "Crie um grupo primeiro: páginas de status mostram o estado dos grupos.",
+    "openPage": "Abrir página",
+    "savedPages": "Suas páginas de status",
+    "untitled": "Página sem título",
+    "previewEmpty": "Escolha grupos para ver como a página fica."
+  },
+  "audit": {
+    "description": "Toda mudança feita na configuração do Orbit, da mais recente para a mais antiga.",
+    "anyAction": "Qualquer ação",
+    "monitor": "Monitor",
+    "anyMonitor": "Qualquer monitor",
+    "viewChange": "Ver mudança",
+    "changesOf": "Mudanças na consulta · {{name}}",
+    "closeChanges": "Fechar",
+    "range": "{{from}}–{{to}} de {{total}}",
+    "areas": {
+      "sql": "Monitores de consulta",
+      "http": "Monitores de site e API",
+      "monitor": "Monitores excluídos",
+      "incident": "Incidentes",
+      "maintenance": "Manutenção",
+      "dependency": "Dependências",
+      "group": "Grupos",
+      "status-page": "Páginas de status",
+      "connection": "Conexões",
+      "channel": "Canais de notificação",
+      "settings": "Configurações",
+      "layout": "Layouts do painel",
+      "theme": "Temas",
+      "customization": "Personalização",
+      "config": "Importação de configuração"
+    },
+    "actions": {
+      "sql": {
+        "save": "Monitor de consulta salvo"
+      },
+      "http": {
+        "save": "Monitor de site ou API salvo"
+      },
+      "tcp": {
+        "save": "Monitor TCP salvo"
+      },
+      "ping": {
+        "save": "Monitor de ping salvo"
+      },
+      "push": {
+        "save": "Monitor push salvo"
+      },
+      "dns": {
+        "save": "Monitor DNS salvo"
+      },
+      "grpc": {
+        "save": "Monitor gRPC salvo"
+      },
+      "kafka": {
+        "save": "Monitor Kafka salvo"
+      },
+      "cert": {
+        "save": "Monitor de certificado salvo"
+      },
+      "monitor": {
+        "delete": "Monitor excluído"
+      },
+      "select": {
+        "preview": "Consulta pré-visualizada",
+        "update": "Consulta atualizada"
+      },
+      "request": {
+        "preview": "Requisição pré-visualizada"
+      },
+      "incident": {
+        "ack": "Incidente reconhecido",
+        "resolve": "Incidente resolvido",
+        "reopen": "Incidente reaberto",
+        "comment": "Comentário adicionado a um incidente",
+        "ticket": "Chamado vinculado a um incidente"
+      },
+      "maintenance": {
+        "save": "Janela de manutenção salva",
+        "delete": "Janela de manutenção excluída"
+      },
+      "dependency": {
+        "save": "Dependência adicionada",
+        "delete": "Dependência removida"
+      },
+      "group": {
+        "save": "Grupo salvo",
+        "update": "Grupo atualizado",
+        "delete": "Grupo excluído",
+        "order": "Grupos reordenados"
+      },
+      "status-page": {
+        "save": "Página de status salva",
+        "delete": "Página de status excluída"
+      },
+      "connection": {
+        "save": "Conexão salva",
+        "delete": "Conexão excluída"
+      },
+      "channel": {
+        "save": "Canal de notificação salvo",
+        "delete": "Canal de notificação excluído",
+        "test": "Canal de notificação testado"
+      },
+      "settings": {
+        "save": "Configurações salvas",
+        "defaults": "Padrões do workspace salvos"
+      },
+      "layout": {
+        "save": "Layout do painel salvo",
+        "delete": "Layout do painel excluído"
+      },
+      "theme": {
+        "create": "Tema criado",
+        "save": "Tema salvo",
+        "delete": "Tema excluído"
+      },
+      "customization": {
+        "save": "Personalização salva",
+        "reset": "Personalização redefinida",
+        "import": "Personalização importada"
+      },
+      "config": {
+        "import": "Configuração importada"
+      },
+      "silence": {
+        "create": "Alertas silenciados",
+        "lift": "Silêncio encerrado"
+      },
+      "escalation": {
+        "save": "Política de escalonamento salva",
+        "delete": "Política de escalonamento excluída"
+      },
+      "oncall": {
+        "save": "Escala de plantão salva",
+        "delete": "Escala de plantão excluída"
+      },
+      "variable": {
+        "save": "Variável salva",
+        "delete": "Variável excluída"
+      },
+      "terminology": {
+        "save": "Terminologia salva",
+        "reset": "Terminologia redefinida"
+      },
+      "notification-template": {
+        "save": "Modelo de notificação salvo",
+        "reset": "Modelo de notificação redefinido"
+      },
+      "workspace": {
+        "save": "Workspace salvo",
+        "delete": "Workspace excluído"
+      },
+      "query-catalog": {
+        "save": "Consulta salva armazenada",
+        "delete": "Consulta salva excluída"
+      },
+      "operator": {
+        "anonymize": "Nomes antigos de operadores anonimizados"
+      }
+    }
+  },
+  "dependencies": {
+    "description": "Diga ao Orbit o que depende do quê. Quando algo cai, os alertas do que depende dele ficam retidos: um alerta em vez de uma cascata.",
+    "groups": "Grupos",
+    "monitors": "Monitores",
+    "sentence": "Se {{upstream}} cair, os alertas de {{downstream}} são suprimidos.",
+    "list": "Dependências atuais",
+    "hint": "Selecione um item para ver tudo o que depende dele."
+  }
+}
