@@ -57,7 +57,8 @@ describe('ConsoleApp (no login)', () => {
 
   it('edit mode (loopback) shows edit actions', async () => {
     render(<ConsoleApp api={onlineApi('edit')} />);
-    expect(await screen.findByRole('button', { name: 'Add monitor' })).toBeInTheDocument();
+    // The sidebar and the Monitors header both offer it.
+    expect(await screen.findAllByRole('button', { name: 'Add monitor' })).not.toHaveLength(0);
     expect(screen.queryByText(/View-only/)).toBeNull();
   });
 

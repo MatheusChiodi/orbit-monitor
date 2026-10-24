@@ -178,6 +178,22 @@
     "retry": "Tentar novamente",
     "keyboardShortcuts": "Atalhos de teclado",
     "customizeMode": "Ligar ou desligar o modo Personalizar",
-    "addMonitor": "Adicionar monitor"
+    "addMonitor": "Adicionar monitor",
+    "newGroup": "Novo grupo",
+    "newWindow": "Nova janela de manutenção",
+    "newStatusPage": "Nova página de status",
+    "addConnection": "Adicionar conexão",
+    "addChannel": "Adicionar canal de notificação",
+    "exportConfig": "Exportar configuração",
+    "exported": "Configuração exportada",
+    "actionFailed": "Não foi possível concluir: {{message}}",
+    "editMonitor": "Editar {{name}}",
+    "togglePause": "Pausar ou retomar {{name}}",
+    "runNow": "Verificar {{name}} agora",
+    "deleteMonitor": "Excluir {{name}}…",
+    "acknowledge": "Reconhecer {{name}}",
+    "resolve": "Resolver {{name}}",
+    "acknowledged": "Incidente reconhecido",
+    "resolved": "Incidente resolvido"
   }
 }

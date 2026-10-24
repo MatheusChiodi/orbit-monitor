@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useRef, useSyncExternalStore } from 'react';
 import { isSettingsSection, settingsHref, type SettingsSection } from '@/app/settings/sections';
 import { MONITOR_KINDS, type MonitorKind } from '@/domains/monitor/form';
 
@@ -37,6 +37,27 @@ export type LegacyRoute =
 
 export type RouteTarget = ConsoleRoute | LegacyRoute;
 
+/**
+ * One-shot intents carried in the hash query (`#/maintenance?action=new-window`): the command palette
+ * asks, the screen that owns the action performs it (`useRouteAction`) and the query is dropped.
+ * Destructive ones (`delete`) only open the screen's confirmation.
+ */
+export const ROUTE_ACTIONS = [
+  'new-group',
+  'new-window',
+  'new-status-page',
+  'add-connection',
+  'add-channel',
+  'toggle-pause',
+  'run',
+  'delete',
+] as const;
+export type RouteAction = (typeof ROUTE_ACTIONS)[number];
+
+export interface NavigateOptions {
+  action?: RouteAction;
+}
+
 const STATIC: Record<string, ConsoleRoute> = {
   '': { name: 'monitors' },
   monitors: { name: 'monitors' },
@@ -67,8 +88,9 @@ function decode(segment: string): string | null {
   }
 }
 
+/** The path of a hash, without its `?query` (`#/monitors/new?from=x` → `monitors/new`). */
 function pathOf(hash: string): string {
-  return hash.replace(/^#/, '').replace(/^\/+|\/+$/g, '');
+  return hash.replace(/^#/, '').split('?')[0]!.replace(/^\/+|\/+$/g, '');
 }
 
 function withId(path: string, pattern: RegExp, build: (id: string) => ConsoleRoute): ConsoleRoute | null {
@@ -136,6 +158,23 @@ export function routeHref(route: RouteTarget): string {
   }
 }
 
+/** `routeHref` plus a one-shot action (`#/monitors/m1?action=toggle-pause`). */
+export function actionHref(route: RouteTarget, action: RouteAction): string {
+  return `${routeHref(route)}?action=${action}`;
+}
+
+/** The action asked for in a hash, if any and known. */
+export function routeActionOf(hash: string): RouteAction | null {
+  const query = hash.split('?')[1];
+  const action = query ? new URLSearchParams(query).get('action') : null;
+  return ROUTE_ACTIONS.find((a) => a === action) ?? null;
+}
+
+function replaceHash(hash: string): void {
+  window.history.replaceState(window.history.state, '', `${window.location.pathname}${window.location.search}${hash}`);
+  window.dispatchEvent(new HashChangeEvent('hashchange'));
+}
+
 function subscribe(onChange: () => void): () => void {
   window.addEventListener('hashchange', onChange);
   return () => window.removeEventListener('hashchange', onChange);
@@ -147,19 +186,32 @@ const readHash = () => window.location.hash;
  * Current route plus a navigate function; back/forward work because the hash is the state.
  * Legacy addresses are replaced in place (no extra history entry).
  */
-export function useHashRoute(): [ConsoleRoute, (route: RouteTarget) => void] {
+export function useHashRoute(): [ConsoleRoute, (route: RouteTarget, options?: NavigateOptions) => void] {
   const hash = useSyncExternalStore(subscribe, readHash, () => '');
-  const navigate = useCallback((route: RouteTarget) => {
-    const href = routeHref(route);
+  const navigate = useCallback((route: RouteTarget, options: NavigateOptions = {}) => {
+    const href = options.action ? actionHref(route, options.action) : routeHref(route);
     if (window.location.hash === href) return;
     window.location.hash = href;
     window.dispatchEvent(new HashChangeEvent('hashchange'));
   }, []);
   useEffect(() => {
     const target = redirectFor(hash);
-    if (!target) return;
-    window.history.replaceState(window.history.state, '', `${window.location.pathname}${window.location.search}${target}`);
-    window.dispatchEvent(new HashChangeEvent('hashchange'));
+    if (target) replaceHash(target);
   }, [hash]);
   return [parseRoute(hash), navigate];
+}
+
+/**
+ * Runs `run` when the hash asks for `action` (`?action=…`), once, then drops the query so a reload or
+ * Back never repeats it. Called by the screen that owns the action (new group, new window, pause…).
+ */
+export function useRouteAction(action: RouteAction, run: () => void): void {
+  const hash = useSyncExternalStore(subscribe, readHash, () => '');
+  const latest = useRef(run);
+  latest.current = run;
+  useEffect(() => {
+    if (routeActionOf(hash) !== action) return;
+    replaceHash(hash.split('?')[0]!);
+    latest.current();
+  }, [hash, action]);
 }

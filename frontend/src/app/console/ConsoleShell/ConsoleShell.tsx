@@ -26,7 +26,7 @@ export interface ConsoleShellProps {
  */
 export function ConsoleShell({ route, connectFeed, onNewMonitor, children }: ConsoleShellProps) {
   const { t } = useTranslation();
-  const { access, demo } = useConsole();
+  const { access, demo, editable } = useConsole();
   const incidents = useIncidents();
   // FE-53 Customize mode (editors only); its `Ctrl+.` shortcut lives in CustomizeLayer.
   const { mode } = useCustomization();
@@ -58,10 +58,10 @@ export function ConsoleShell({ route, connectFeed, onNewMonitor, children }: Con
           <span className="display-wide text-md text-text">{t('app.name')}</span>
           <span className="text-sm text-dim">{t('app.console')}</span>
         </a>
-        <ConsoleNav route={route} openIncidents={openIncidents} />
+        <ConsoleNav route={route} openIncidents={openIncidents} onAddMonitor={editable ? onNewMonitor : undefined} />
       </aside>
       <NavDrawer open={menuOpen} onClose={() => setMenuOpen(false)}>
-        <ConsoleNav route={route} openIncidents={openIncidents} />
+        <ConsoleNav route={route} openIncidents={openIncidents} onAddMonitor={editable ? onNewMonitor : undefined} />
       </NavDrawer>
       <div className="flex min-h-screen flex-col lg:pl-58">
         <ConsoleHeader

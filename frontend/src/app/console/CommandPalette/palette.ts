@@ -1,4 +1,4 @@
-export type PaletteKind = 'monitor' | 'incident' | 'group' | 'page' | 'layout' | 'action';
+export type PaletteKind = 'action' | 'monitor' | 'incident' | 'command' | 'page' | 'group' | 'layout';
 
 export interface PaletteItem {
   id: string;
@@ -7,10 +7,12 @@ export interface PaletteItem {
   hint?: string;
   /** Hidden in view-only mode. */
   requiresEdit?: boolean;
+  /** Shown only once something is typed (per-monitor and per-incident commands would flood the empty list). */
+  searchOnly?: boolean;
 }
 
-/** Display order of the result groups. */
-export const PALETTE_KINDS: PaletteKind[] = ['monitor', 'incident', 'group', 'page', 'layout', 'action'];
+/** Display order of the result groups: what you can do first, then what you can open. */
+export const PALETTE_KINDS: PaletteKind[] = ['action', 'monitor', 'incident', 'command', 'page', 'group', 'layout'];
 
 function normalize(text: string): string {
   return text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
@@ -37,7 +39,7 @@ export function searchPalette(items: readonly PaletteItem[], query: string): Pal
 /** Results grouped in display order, flattened (the order arrow keys follow). */
 export function orderPalette(items: readonly PaletteItem[], mode: 'edit' | 'view-only', query: string): PaletteItem[] {
   const visible = searchPalette(
-    items.filter((item) => mode === 'edit' || !item.requiresEdit),
+    items.filter((item) => (mode === 'edit' || !item.requiresEdit) && (!item.searchOnly || query.trim() !== '')),
     query,
   );
   return PALETTE_KINDS.flatMap((kind) => visible.filter((item) => item.kind === kind));

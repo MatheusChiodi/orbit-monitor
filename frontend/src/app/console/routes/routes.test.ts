@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { parseRoute, redirectFor, routeHref, useHashRoute, type ConsoleRoute } from './routes';
+import { vi } from 'vitest';
+import { actionHref, parseRoute, redirectFor, routeActionOf, routeHref, useHashRoute, useRouteAction, type ConsoleRoute } from './routes';
 
 afterEach(() => {
   window.location.hash = '';
@@ -95,5 +96,40 @@ describe('console hash routes', () => {
     expect(window.location.hash).toBe('#/settings/appearance');
     expect(result.current[0]).toEqual({ name: 'settings', section: 'appearance' });
     expect(window.history.length).toBe(length + 1);
+  });
+
+  it('a query never changes the route (#/monitors/new?from=m1)', () => {
+    expect(parseRoute('#/monitors/new?from=m1')).toEqual({ name: 'new-monitor' });
+    expect(parseRoute('#/monitors/m1?action=toggle-pause')).toEqual({ name: 'monitor', id: 'm1' });
+    expect(parseRoute('#/settings/notifications?action=add-channel')).toEqual({ name: 'settings', section: 'notifications' });
+  });
+
+  it('actions travel in the hash query and only known ones are read', () => {
+    expect(actionHref({ name: 'monitor', id: 'a b' }, 'delete')).toBe('#/monitors/a%20b?action=delete');
+    expect(routeActionOf('#/maintenance?action=new-window')).toBe('new-window');
+    expect(routeActionOf('#/maintenance?action=format-disk')).toBeNull();
+    expect(routeActionOf('#/maintenance')).toBeNull();
+  });
+
+  it('useRouteAction runs once for its action and drops the query', () => {
+    const run = vi.fn();
+    const other = vi.fn();
+    window.location.hash = '#/maintenance?action=new-window';
+    const { rerender } = renderHook(() => {
+      useRouteAction('new-window', run);
+      useRouteAction('new-group', other);
+    });
+    expect(run).toHaveBeenCalledTimes(1);
+    expect(other).not.toHaveBeenCalled();
+    expect(window.location.hash).toBe('#/maintenance');
+    rerender();
+    expect(run).toHaveBeenCalledTimes(1);
+  });
+
+  it('navigate can carry an action', () => {
+    const { result } = renderHook(() => useHashRoute());
+    act(() => result.current[1]({ name: 'status-pages' }, { action: 'new-status-page' }));
+    expect(window.location.hash).toBe('#/status-pages?action=new-status-page');
+    expect(result.current[0]).toEqual({ name: 'status-pages' });
   });
 });

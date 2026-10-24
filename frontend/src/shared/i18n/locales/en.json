@@ -451,7 +451,8 @@
       "layout": "Layouts",
       "action": "Actions",
       "incident": "Open incidents",
-      "page": "Pages"
+      "page": "Pages",
+      "command": "Quick actions"
     },
     "placeholder": "Type a monitor, incident or page…",
     "results": "Results",

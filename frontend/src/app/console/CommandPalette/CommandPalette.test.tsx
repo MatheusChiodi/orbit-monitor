@@ -14,6 +14,7 @@ const items: PaletteItem[] = [
   { id: 'p-incidents', kind: 'page', label: 'Incidents' },
   { id: 'a-new-monitor', kind: 'action', label: 'New monitor', requiresEdit: true },
   { id: 'a-open-wall', kind: 'action', label: 'Open wall' },
+  { id: 'c-edit', kind: 'command', label: 'Edit Checkout API', searchOnly: true },
 ];
 
 function setup(mode: 'edit' | 'view-only' = 'edit') {
@@ -88,7 +89,8 @@ describe('FE-28 command palette', () => {
     expect(active).toHaveAttribute('aria-selected', 'true');
     expect(combobox).toHaveAttribute('aria-activedescendant', active.id);
     await userEvent.keyboard('{Enter}');
-    expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ id: items[1]!.id }));
+    // Actions come first: New monitor, then Open wall.
+    expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ id: 'a-open-wall' }));
     // The dialog leaves through AnimatePresence (FE-51), so wait for the exit to finish.
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
@@ -116,6 +118,14 @@ describe('FE-28 command palette', () => {
     await userEvent.keyboard('{Control>}k{/Control}');
     expect(screen.queryByRole('option', { name: /New monitor/ })).toBeNull();
     expect(screen.getByRole('option', { name: /Open wall/ })).toBeInTheDocument();
+  });
+
+  it('per-item commands appear only once something is typed', async () => {
+    setup();
+    await userEvent.keyboard('{Control>}k{/Control}');
+    expect(screen.queryByRole('option', { name: /Edit Checkout API/ })).toBeNull();
+    await userEvent.keyboard('checkout');
+    expect(screen.getByRole('group', { name: 'Quick actions' })).toHaveTextContent('Edit Checkout API');
   });
 
   it('a controlled palette opens from outside (the top bar button) and reports closing', async () => {

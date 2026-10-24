@@ -2,14 +2,14 @@ import { createContext, useContext, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { AccessInfo } from '@/shared/api/types';
 import type { ConsoleSource } from './consoleSource';
-import type { RouteTarget } from './routes';
+import type { NavigateOptions, RouteTarget } from './routes';
 
 export interface ConsoleContextValue {
   source: ConsoleSource;
   access: AccessInfo;
   editable: boolean;
   demo: boolean;
-  navigate: (route: RouteTarget) => void;
+  navigate: (route: RouteTarget, options?: NavigateOptions) => void;
 }
 
 const Context = createContext<ConsoleContextValue | null>(null);

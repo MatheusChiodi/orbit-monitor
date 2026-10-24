@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { IconExternal, IconWall } from '@/shared/ui';
+import { Button, IconExternal, IconPlus, IconWall } from '@/shared/ui';
 import { routeHref, type ConsoleRoute } from '../routes';
 import { NAV_SECTIONS, type NavGroup, type NavSection } from './navSections';
 
@@ -7,6 +7,8 @@ export interface ConsoleNavProps {
   route: ConsoleRoute;
   /** Open incidents, shown as a count next to Incidents (0 hides it). */
   openIncidents: number;
+  /** Editors get the primary "Add monitor" at the top, on every screen. */
+  onAddMonitor?: () => void;
 }
 
 const LINK = 'ui-control flex h-9 items-center gap-3 rounded-sm px-3 text-base transition-colors duration-120';
@@ -36,7 +38,7 @@ function NavLink({ section, route, count }: { section: NavSection; route: Consol
 }
 
 /** FE-63: the console sections (sidebar on desktop, drawer on mobile) and the wall link. */
-export function ConsoleNav({ route, openIncidents }: ConsoleNavProps) {
+export function ConsoleNav({ route, openIncidents, onAddMonitor }: ConsoleNavProps) {
   const { t } = useTranslation();
   const group = (name: NavGroup) =>
     NAV_SECTIONS.filter((s) => s.group === name).map((section) => (
@@ -44,7 +46,13 @@ export function ConsoleNav({ route, openIncidents }: ConsoleNavProps) {
     ));
   return (
     <nav aria-label={t('screens.nav.label')} className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-3 py-4">
-      <ul className="m-0 flex list-none flex-col gap-0.5 p-0">{group('primary')}</ul>
+      {onAddMonitor && (
+        <Button variant="primary" block onClick={onAddMonitor}>
+          <IconPlus />
+          {t('screens.shell.addMonitor')}
+        </Button>
+      )}
+      <ul className="m-0 -mt-2 flex list-none flex-col gap-0.5 p-0">{group('primary')}</ul>
       <div className="flex flex-col gap-1">
         <p className="section-label m-0 px-3">{t('screens.shell.more')}</p>
         <ul className="m-0 flex list-none flex-col gap-0.5 p-0">{group('more')}</ul>

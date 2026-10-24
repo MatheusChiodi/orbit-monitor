@@ -178,6 +178,22 @@
     "retry": "Try again",
     "keyboardShortcuts": "Keyboard shortcuts",
     "customizeMode": "Toggle Customize mode",
-    "addMonitor": "Add monitor"
+    "addMonitor": "Add monitor",
+    "newGroup": "New group",
+    "newWindow": "New maintenance window",
+    "newStatusPage": "New status page",
+    "addConnection": "Add connection",
+    "addChannel": "Add notification channel",
+    "exportConfig": "Export configuration",
+    "exported": "Configuration exported",
+    "actionFailed": "Couldn't finish: {{message}}",
+    "editMonitor": "Edit {{name}}",
+    "togglePause": "Pause or resume {{name}}",
+    "runNow": "Run {{name}} now",
+    "deleteMonitor": "Delete {{name}}…",
+    "acknowledge": "Acknowledge {{name}}",
+    "resolve": "Resolve {{name}}",
+    "acknowledged": "Incident acknowledged",
+    "resolved": "Incident resolved"
   }
 }

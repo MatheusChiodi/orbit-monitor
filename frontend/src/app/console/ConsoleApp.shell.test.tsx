@@ -143,6 +143,79 @@ describe('FE-63 console shell', () => {
     expect(window.location.hash).toBe('#/settings/connections');
   });
 
+  it('editors always have "Add monitor" in the sidebar; view-only clients do not', async () => {
+    const { unmount } = render(<ConsoleApp api={api()} />);
+    const nav = await screen.findByRole('navigation', { name: 'Console sections' });
+    await userEvent.click(within(nav).getByRole('button', { name: 'Add monitor' }));
+    expect(window.location.hash).toBe('#/monitors/new');
+    unmount();
+    render(<ConsoleApp api={api({ getAccess: vi.fn().mockResolvedValue({ mode: 'view-only', client: 'lan' }) })} />);
+    const viewNav = await screen.findByRole('navigation', { name: 'Console sections' });
+    expect(within(viewNav).queryByRole('button', { name: 'Add monitor' })).toBeNull();
+  });
+
+  it('palette actions ask the owning screen through ?action= (delete only opens the confirmation there)', { timeout: 30_000 }, async () => {
+    const seen: string[] = [];
+    const record = () => seen.push(window.location.hash);
+    window.addEventListener('hashchange', record);
+    try {
+      render(<ConsoleApp api={api()} />);
+      await screen.findByText('Invoices');
+      for (const [query, hash] of [
+        ['new maintenance', '#/maintenance?action=new-window'],
+        ['new group', '#/?action=new-group'],
+        ['new status page', '#/status-pages?action=new-status-page'],
+        ['add connection', '#/settings/connections?action=add-connection'],
+        ['add notification', '#/settings/notifications?action=add-channel'],
+        ['delete invoices', '#/monitors/n?action=delete'],
+        ['run invoices', '#/monitors/n?action=run'],
+        ['pause or resume invoices', '#/monitors/n?action=toggle-pause'],
+      ] as const) {
+        await userEvent.keyboard('{Control>}k{/Control}');
+        await userEvent.keyboard(`${query}{Enter}`);
+        expect(seen).toContain(hash);
+      }
+      await userEvent.keyboard('{Control>}k{/Control}');
+      await userEvent.keyboard('edit invoices{Enter}');
+      expect(window.location.hash).toBe('#/monitors/n/edit');
+    } finally {
+      window.removeEventListener('hashchange', record);
+    }
+  });
+
+  it('per-monitor commands show only after typing', async () => {
+    render(<ConsoleApp api={api()} />);
+    await screen.findByText('Invoices');
+    await userEvent.keyboard('{Control>}k{/Control}');
+    expect(screen.queryByRole('option', { name: /Edit Invoices/ })).toBeNull();
+    expect(screen.getByRole('group', { name: 'Actions' })).toHaveTextContent('New maintenance window');
+  });
+
+  it('the palette acknowledges and resolves the open incident in place', async () => {
+    const acknowledgeIncidentRecord = vi.fn().mockResolvedValue({ ...incident, acknowledgedAt: iso(0) });
+    const resolveIncident = vi.fn().mockResolvedValue({ ...incident, status: 'RESOLVED' });
+    render(<ConsoleApp api={api({ acknowledgeIncidentRecord, resolveIncident })} />);
+    await screen.findByText('Invoices');
+    await userEvent.keyboard('{Control>}k{/Control}');
+    await userEvent.keyboard('acknowledge checkout{Enter}');
+    expect(acknowledgeIncidentRecord).toHaveBeenCalledWith('inc-1');
+    expect(await screen.findByText('Incident acknowledged')).toBeInTheDocument();
+    await userEvent.keyboard('{Control>}k{/Control}');
+    await userEvent.keyboard('resolve checkout{Enter}');
+    expect(resolveIncident).toHaveBeenCalledWith('inc-1');
+  });
+
+  it('view-only clients can acknowledge from the palette but not create, resolve or delete', async () => {
+    render(<ConsoleApp api={api({ getAccess: vi.fn().mockResolvedValue({ mode: 'view-only', client: 'lan' }) })} />);
+    await screen.findByText('Invoices');
+    await userEvent.keyboard('{Control>}k{/Control}');
+    expect(screen.queryByRole('option', { name: /New group/ })).toBeNull();
+    await userEvent.keyboard('checkout');
+    expect(screen.getByRole('option', { name: /Acknowledge Checkout API/ })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: /Resolve Checkout API/ })).toBeNull();
+    expect(screen.queryByRole('option', { name: /Delete Checkout API/ })).toBeNull();
+  });
+
   it('the mobile menu opens an accessible drawer that closes on Escape and after following a link', async () => {
     render(<ConsoleApp api={api()} />);
     await screen.findByText('Invoices');
