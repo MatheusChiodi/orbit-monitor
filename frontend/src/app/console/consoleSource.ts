@@ -52,7 +52,7 @@ const EXTENDED_KEYS = [
   'listMaintenance', 'listMaintenanceOccurrences', 'saveMaintenance', 'deleteMaintenance', 'listDependencies', 'saveDependency', 'deleteDependency',
   'listStatusPages', 'saveStatusPage', 'saveGroupOrder', 'queryAudit', 'getCatalog', 'getHistorySummary', 'getHistory', 'listSavedQueries',
   'getHistoryCoverage', 'getWorkspaceDefaults', 'saveWorkspaceDefaults', 'getSettings', 'saveSettings', 'getConfigHealth', 'exportConfig', 'importConfig',
-  'saveGroup', 'saveConnection', 'deleteConnection', 'testConnection',
+  'saveGroup', 'deleteGroup', 'deleteMonitor', 'saveConnection', 'deleteConnection', 'testConnection',
 ] as const satisfies readonly (keyof ConsoleEndpoints)[];
 
 const unavailable = () => Promise.reject(new Error('unavailable'));
@@ -91,6 +91,12 @@ export function createConsoleSource(api: ConsoleApi, demo: boolean): ConsoleSour
       snapshot.groups = [...snapshot.groups.filter((g) => g.id !== id), group];
       return group;
     },
+    deleteGroup: async (id) => {
+      snapshot.groups = snapshot.groups.filter((g) => g.id !== id);
+    },
+    deleteMonitor: async (id) => {
+      snapshot.monitors = snapshot.monitors.filter((m) => m.id !== id);
+    },
     saveConnection: async (id, input) => {
       const saved: Connection = { id, name: input.name, kind: 'POSTGRES', jdbcUrl: input.jdbcUrl, username: input.username, password: '•••• (vault)' };
       const index = connections.findIndex((c) => c.id === id);
@@ -105,6 +111,8 @@ export function createConsoleSource(api: ConsoleApi, demo: boolean): ConsoleSour
     testConnection: async () => ({ ok: true, ms: 42, error: null }),
     previewMonitor: mockPreview,
     createMonitor: async (definition) => {
+      // Saving an existing monitor (edit, pause) updates it in place instead of adding a copy.
+      if (definition.id && snapshot.monitors.some((m) => m.id === definition.id)) return definition;
       created.push(definition);
       return definition;
     },

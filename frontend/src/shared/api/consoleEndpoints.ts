@@ -112,6 +112,8 @@ export function createConsoleEndpoints(request: JsonRequest, raw: RawRequest, is
     saveGroupOrder: (order: GroupOrder) => request<Group[]>('/api/groups/order', { method: 'PUT', body: order }),
     /** Creates or renames a group (`PUT /api/groups/{id}`). */
     saveGroup: ({ id, ...group }: GroupInput) => request<Group>(`/api/groups/${enc(id)}`, { method: 'PUT', body: group }),
+    deleteGroup: (id: string) => remove('groups', id),
+    deleteMonitor: (id: string) => remove('monitors', id),
 
     /** Database connections (orbit.connections.json); passwords are write-only. */
     saveConnection: (id: string, connection: ConnectionInput) =>

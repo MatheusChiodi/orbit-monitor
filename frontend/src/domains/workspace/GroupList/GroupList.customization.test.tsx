@@ -27,9 +27,9 @@ describe('FE-55 GroupList reads card settings from the registry', () => {
     render(<GroupList groups={snap.groups} monitors={snap.monitors} onNewMonitor={vi.fn()} />, { wrapper });
     const rows = within(screen.getByRole('region', { name: 'Payments' })).getAllByRole('row').slice(1);
     expect(rows[0]).toHaveTextContent('Recon backlog');
-    expect(rows[0]).toHaveTextContent('DOWN');
-    expect(rows[0]).not.toHaveTextContent('QTY < 200');
-    expect(rows[0]).not.toHaveTextContent('SQL');
+    expect(rows[0]).toHaveTextContent('Down');
+    expect(rows[0]).not.toHaveTextContent('QTY below 200');
+    expect(rows[0]).not.toHaveTextContent('Query');
   });
 
   it('applies the group order, summary and custom title', () => {
@@ -39,7 +39,7 @@ describe('FE-55 GroupList reads card settings from the registry', () => {
     });
     render(<GroupList groups={snap.groups} monitors={snap.monitors} onNewMonitor={vi.fn()} />, { wrapper });
     const region = screen.getByRole('region', { name: 'Money' });
-    expect(within(region).queryByText('2/4 ok · DOWN')).not.toBeInTheDocument();
+    expect(within(region).queryByText('2 of 4 OK')).not.toBeInTheDocument();
     const names = within(region).getAllByRole('row').slice(1).map((r) => r.textContent ?? '');
     expect(names[0]).toContain('Acquirer error rate');
   });
@@ -65,7 +65,7 @@ describe('FE-55 GroupList reads card settings from the registry', () => {
   it('keeps the original look without a provider', () => {
     render(<GroupList groups={snap.groups} monitors={snap.monitors} onNewMonitor={vi.fn()} />);
     const rows = within(screen.getByRole('region', { name: 'Payments' })).getAllByRole('row').slice(1);
-    expect(rows[0]).toHaveTextContent('SQL');
+    expect(rows[0]).toHaveTextContent('Query');
     expect(screen.queryAllByRole('button', { name: /Reconciliation queue/ })).toHaveLength(0);
   });
 });

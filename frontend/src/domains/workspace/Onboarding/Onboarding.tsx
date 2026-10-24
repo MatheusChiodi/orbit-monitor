@@ -1,48 +1,55 @@
+import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AccessMode } from '@/shared/api/types';
-import { AnimatedItem, Button, Panel } from '@/shared/ui';
-import { onboardingSteps, type OnboardingResources } from './onboardingSteps';
+import { IconChevronRight } from '@/shared/ui';
 
 export interface OnboardingProps {
-  resources: OnboardingResources;
   mode: AccessMode;
   onStart: (type: 'HTTP' | 'SQL') => void;
 }
 
-/** FE-37: guided first monitor; view-only clients are told setup happens on the Orbit machine. */
-export function Onboarding({ resources, mode, onStart }: OnboardingProps) {
+const START = [
+  { type: 'HTTP', title: 'ops.monitors.onboarding.url', hint: 'ops.monitors.onboarding.urlHint' },
+  { type: 'SQL', title: 'ops.monitors.onboarding.sql', hint: 'ops.monitors.onboarding.sqlHint' },
+] as const;
+
+/** FE-37: the empty monitor list — one invitation, two ways to start; view-only clients learn where setup happens. */
+export function Onboarding({ mode, onStart }: OnboardingProps) {
   const { t } = useTranslation();
-  const steps = onboardingSteps(resources);
+  const ids = useId();
   return (
-    <Panel>
-      <h2 className="m-0 font-display text-[1.4rem] font-bold tracking-tight">{t('onboarding.title')}</h2>
-      <ol aria-label={t('onboarding.steps')} className="m-0 mt-[0.6rem] flex list-none flex-col gap-[0.4rem] p-0">
-        {steps.map((step, index) => (
-          <AnimatedItem
-            key={step.id}
-            index={index}
-            count={steps.length}
-            aria-label={t(`onboarding.${step.id}`)}
-            className="flex items-center gap-[0.6rem] text-[0.9rem]"
-          >
-            <span className="font-mono text-[0.8rem] text-dim">{index + 1}.</span>
-            <span className={step.done ? 'text-muted line-through' : ''}>{t(`onboarding.${step.id}`)}</span>
-            {step.done && <span className="text-[0.75rem] font-semibold text-ok-text">{t('onboarding.done')}</span>}
-          </AnimatedItem>
-        ))}
-      </ol>
-      {mode === 'edit' ? (
-        <div className="mt-[0.8rem] flex flex-wrap gap-[0.5rem]">
-          <Button variant="primary" onClick={() => onStart('HTTP')}>
-            {t('onboarding.http')}
-          </Button>
-          <Button variant="primary" onClick={() => onStart('SQL')}>
-            {t('onboarding.sql')}
-          </Button>
+    <section data-surface="panel" aria-labelledby={`${ids}-title`} className="flex flex-col gap-4 rounded-md border border-line bg-s1 p-6">
+      <div className="flex flex-col gap-1">
+        <h2 id={`${ids}-title`} className="m-0 text-lg font-semibold">
+          {t('ops.monitors.onboarding.title')}
+        </h2>
+        <p className="m-0 text-base text-muted">
+          {mode === 'edit' ? t('ops.monitors.onboarding.body') : t('ops.monitors.onboarding.viewOnly')}
+        </p>
+      </div>
+      {mode === 'edit' && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {START.map((start, index) => (
+            <button
+              key={start.type}
+              type="button"
+              aria-describedby={`${ids}-${start.type}`}
+              onClick={() => onStart(start.type)}
+              className={`group flex items-center gap-3 rounded-md border p-4 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+                index === 0 ? 'border-accent/60 bg-accent/8 hover:bg-accent/12' : 'border-line-2 bg-s2 hover:bg-s3'
+              }`}
+            >
+              <span className="flex min-w-0 flex-1 flex-col gap-1">
+                <span className="text-md font-semibold text-text">{t(start.title)}</span>
+                <span id={`${ids}-${start.type}`} className="text-sm text-muted">
+                  {t(start.hint)}
+                </span>
+              </span>
+              <IconChevronRight className="shrink-0 text-dim group-hover:text-text" />
+            </button>
+          ))}
         </div>
-      ) : (
-        <p className="m-0 mt-[0.8rem] text-[0.85rem] text-muted">{t('onboarding.viewOnly')}</p>
       )}
-    </Panel>
+    </section>
   );
 }
