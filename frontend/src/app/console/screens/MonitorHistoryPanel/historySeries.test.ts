@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { HistoryResponse } from '@/domains/telemetry/history/historyApi';
-import { downShare, historyValues } from './historySeries';
+import { downShare, historyPoints, historyValues } from './historySeries';
 
 const base = { monitorId: 'm', from: 'a', to: 'b', resolution: '1m' as const, coverage: { oldest: null, newest: 'b', retentionDays: 30, rawWritesEnabled: true } };
 const bucket = (down: number, count: number, valueMean: number | null, latencyMean: number | null) => ({
@@ -17,5 +17,10 @@ describe('FE-58 history series', () => {
   it('down share over buckets or samples', () => {
     expect(downShare({ ...base, samples: null, buckets: [bucket(1, 3, null, null), bucket(0, 1, null, null)] } as HistoryResponse)).toBe(25);
     expect(downShare({ ...base, samples: null, buckets: [] } as HistoryResponse)).toBeNull();
+  });
+
+  it('points carry the time of each bucket or sample', () => {
+    const points = historyPoints({ ...base, samples: null, buckets: [{ ...bucket(0, 1, 5, 100), start: '2026-10-24T10:00:00Z' }] } as HistoryResponse);
+    expect(points).toEqual([{ at: new Date('2026-10-24T10:00:00Z'), value: 5 }]);
   });
 });

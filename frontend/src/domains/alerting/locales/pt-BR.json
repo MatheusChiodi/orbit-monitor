@@ -162,7 +162,12 @@
       "threshold": "Limite {{value}}",
       "point": "{{time}}: {{value}}",
       "noData": "sem dados"
-    }
+    },
+    "copyName": "Cópia de {{name}}",
+    "duplicatedToast": "Cópia criada",
+    "duplicatedHint": "Digite de novo os cabeçalhos secretos antes de salvar.",
+    "pauseHint": "Pausar verificações e alertas",
+    "editHint": "Alterar alvo, condições e exibição"
   },
   "incidents": {
     "description": "O que quebrou, quem está cuidando e o que voltou.",

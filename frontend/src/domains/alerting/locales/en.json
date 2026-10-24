@@ -162,7 +162,12 @@
       "threshold": "Limit {{value}}",
       "point": "{{time}}: {{value}}",
       "noData": "no data"
-    }
+    },
+    "copyName": "Copy of {{name}}",
+    "duplicatedToast": "Copy created",
+    "duplicatedHint": "Type any secret headers again before saving.",
+    "pauseHint": "Pause checks and alerts",
+    "editHint": "Change target, conditions and display"
   },
   "incidents": {
     "description": "What broke, who is on it and what came back.",

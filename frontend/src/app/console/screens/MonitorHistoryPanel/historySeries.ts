@@ -20,3 +20,15 @@ export function downShare(response: HistoryResponse): number | null {
   const samples = response.samples ?? [];
   return samples.length ? Math.round((samples.filter((s) => s.state === 'DOWN').length / samples.length) * 100) : null;
 }
+
+export interface HistoryPoint {
+  at: Date;
+  value: number | null;
+}
+
+/** The charted values with their time (bucket start or sample time), same choice of value as `historyValues`. */
+export function historyPoints(response: HistoryResponse): HistoryPoint[] {
+  const values = historyValues(response);
+  const times = response.buckets ? response.buckets.map((b) => b.start) : (response.samples ?? []).map((s) => s.at);
+  return values.map((value, i) => ({ at: new Date(times[i]!), value }));
+}

@@ -4,12 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { CoverageIndicator } from '@/domains/telemetry/history/CoverageIndicator';
 import { HistoryRangePicker } from '@/domains/telemetry/history/HistoryRangePicker';
 import { presetRange, resolutionFor, type HistoryRange } from '@/domains/telemetry/history/range';
-import type { Status } from '@/shared/api/types';
+import { HistoryChart } from '@/domains/telemetry/history/HistoryChart';
+import type { Rule, Status } from '@/shared/api/types';
 import { safeText } from '@/shared/privacy/redact';
-import { Sparkline } from '@/shared/ui';
 import { useConsole } from '../../ConsoleContext';
 import { ScreenStatus } from '../ScreenStatus';
-import { downShare, historyValues } from './historySeries';
+import { downShare, historyPoints } from './historySeries';
 
 export interface MonitorHistoryPanelProps {
   monitorId: string;
@@ -17,10 +17,13 @@ export interface MonitorHistoryPanelProps {
   status: Status;
   /** Starting period (an incident opens a window around it); 24 h otherwise. */
   initial?: HistoryRange;
+  /** Main rule: its limit is drawn on the chart. */
+  rule?: Rule;
+  unit?: string;
 }
 
 /** FE-58: history window of one monitor from the 30-day store — range picker, coverage and chart. */
-export function MonitorHistoryPanel({ monitorId, name, status, initial }: MonitorHistoryPanelProps) {
+export function MonitorHistoryPanel({ monitorId, name, status, initial, rule, unit }: MonitorHistoryPanelProps) {
   const { t } = useTranslation();
   const { source, demo } = useConsole();
   const titleId = useId();
@@ -31,24 +34,32 @@ export function MonitorHistoryPanel({ monitorId, name, status, initial }: Monito
       source.getHistory(monitorId, { from: range.from.toISOString(), to: range.to.toISOString() }, resolutionFor(range)),
     placeholderData: keepPreviousData,
   });
-  const values = history.data ? historyValues(history.data) : [];
+  const points = history.data ? historyPoints(history.data) : [];
   const down = history.data ? downShare(history.data) : null;
 
   return (
-    <section aria-labelledby={titleId} className="flex flex-col gap-[0.6rem] rounded-[0.9rem] border border-line bg-s1 p-[1rem]">
-      <h2 id={titleId} className="section-label m-0">
-        {t('screens.history.title')}
-      </h2>
-      <HistoryRangePicker value={range} onChange={setRange} />
+    <section aria-labelledby={titleId} data-surface="panel" className="flex flex-col gap-3 rounded-md border border-line bg-s1 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 id={titleId} className="section-label m-0">
+          {t('screens.history.title')}
+        </h2>
+        <HistoryRangePicker value={range} onChange={setRange} />
+      </div>
       {history.data?.coverage && <CoverageIndicator coverage={history.data.coverage} range={range} />}
       <ScreenStatus pending={history.isPending} error={history.error} />
       {history.data &&
-        (values.length === 0 ? (
-          <p className="m-0 text-[0.85rem] text-muted">{t('screens.history.empty')}</p>
+        (points.every((p) => p.value === null) ? (
+          <p className="m-0 text-base text-muted">{t('screens.history.empty')}</p>
         ) : (
           <>
-            <Sparkline values={values} status={status} label={t('screens.history.chart', { name: safeText(name) })} className="h-[5rem] w-full" />
-            {down !== null && <p className="m-0 text-[0.85rem] text-muted">{t('screens.history.down', { percent: down })}</p>}
+            <HistoryChart
+              points={points}
+              limit={rule?.limit ?? null}
+              unit={unit}
+              status={status}
+              label={t('screens.history.chart', { name: safeText(name) })}
+            />
+            {down !== null && <p className="m-0 text-sm text-muted">{t('screens.history.down', { percent: down })}</p>}
           </>
         ))}
     </section>
