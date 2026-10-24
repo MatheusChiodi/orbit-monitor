@@ -1,6 +1,8 @@
 import type { Ref, TextareaHTMLAttributes } from 'react';
 import { useFieldControlProps } from '../Field/Field';
-import { TEXTAREA_CLASS } from '../formStyles';
+
+const TEXTAREA_CLASS =
+  'min-h-20 w-full min-w-0 rounded-sm border border-line-2 bg-s2 px-2.5 py-2 text-base leading-normal text-text placeholder:text-dim focus:border-accent disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-down';
 
 export interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   ref?: Ref<HTMLTextAreaElement>;

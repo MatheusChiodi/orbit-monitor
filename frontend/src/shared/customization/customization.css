@@ -23,9 +23,8 @@ html[data-radius='round'] {
   --radius-lg: 22px;
 }
 
-/* Borders: primitives draw with `border` and mark containers with data-surface. */
-html[data-border='thick'] { --control-border-width: 2px; }
-html[data-border='thick'] :where(.border, [data-surface]) { border-width: var(--control-border-width); }
+/* Borders: every primitive draws its outline with the `border` utility. */
+html[data-border='thick'] :where(.border) { border-width: 2px; }
 
 /* Surfaces: flat folds the raised levels (s2, s3) into the panel color. */
 html[data-surfaces='flat'] {
@@ -37,9 +36,9 @@ html[data-surfaces='flat'] {
 html[data-shadows='on'] { --panel-shadow: 0 0.4rem 1.4rem rgb(0 0 0 / 0.28); }
 html[data-panel-padding='tight'] { --panel-padding: 0.625rem; }
 html[data-panel-padding='roomy'] { --panel-padding: 1.5rem; }
+html[data-shadows='on'] [data-surface='panel'] { box-shadow: var(--panel-shadow); }
 
-/* Glass (FE-52) belongs to the wall: console panels stay solid; the wall can turn it off. */
-html.console[data-fx] .fx-glass,
+/* Glass (FE-52): the wall can turn it off (console panels are always solid, see app/theme.css). */
 html[data-glass='off'][data-fx] .fx-glass {
   background: var(--s1);
   -webkit-backdrop-filter: none;
@@ -47,19 +46,15 @@ html[data-glass='off'][data-fx] .fx-glass {
   border-color: var(--line);
   box-shadow: var(--panel-shadow);
 }
-html.console[data-fx] .fx-glass::before,
 html[data-glass='off'][data-fx] .fx-glass::before { display: none; }
 
 /*
- * Legacy hooks for markup not yet on the tokens (arbitrary radius/padding classes). Remove once no file
- * uses rounded-[0.45rem] / rounded-[0.3rem] / rounded-[0.9rem] / p-[0.9rem] (redesign wave, 2026-10).
+ * Legacy radius hooks for markup not yet on the tokens. Remove once no file uses rounded-[0.45rem] /
+ * rounded-[0.3rem] / rounded-[0.9rem] (redesign wave, 2026-10). Padding and shadow follow data-surface only.
  */
 html[data-radius='sharp'] :where([class*='rounded-[']) { border-radius: 0.12rem; }
 html[data-radius='round'] :where([class*='rounded-[0.45rem]'], [class*='rounded-[0.3rem]']) { border-radius: 0.8rem; }
 html[data-radius='round'] :where([class*='rounded-[0.9rem]']) { border-radius: 1.4rem; }
-html[data-shadows='on'] :where(section.rounded-\[0\.9rem\]) { box-shadow: var(--panel-shadow); }
-html[data-panel-padding='tight'] :where(section.p-\[0\.9rem\]) { padding: var(--panel-padding); }
-html[data-panel-padding='roomy'] :where(section.p-\[0\.9rem\]) { padding: var(--panel-padding); }
 
 /* FE-53: Customize mode outlines a customizable item on hover or focus only. */
 html[data-customize='on'] [data-customizable]:hover,

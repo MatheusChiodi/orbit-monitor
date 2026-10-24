@@ -60,7 +60,7 @@ describe('Button', () => {
     expect(screen.getByRole('button', { name: 'M' }).className).toContain('h-9');
   });
 
-  it('FE-61: loading is busy, announces it and ignores clicks', async () => {
+  it('FE-61: loading is busy, keeps its name and ignores clicks', async () => {
     const onClick = vi.fn();
     render(
       <Button loading onClick={onClick}>
@@ -69,7 +69,7 @@ describe('Button', () => {
     );
     const button = screen.getByRole('button');
     expect(button).toHaveAttribute('aria-busy', 'true');
-    expect(button).toHaveTextContent('Loading…');
+    expect(button).toHaveAccessibleName('Save');
     await userEvent.click(button);
     expect(onClick).not.toHaveBeenCalled();
   });

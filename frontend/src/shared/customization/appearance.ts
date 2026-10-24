@@ -24,7 +24,7 @@ export interface Appearance {
 export const FONT_STACKS: Readonly<Record<string, string>> = {
   inter: "'Inter', system-ui, sans-serif",
   'inter-tight': "'Inter Tight', 'Inter', system-ui, sans-serif",
-  'geist-mono': "'Geist Mono', ui-monospace, monospace",
+  'geist-mono': "'Geist Mono Variable', 'Geist Mono', ui-monospace, monospace",
   'system-sans': 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
   'system-serif': 'ui-serif, Georgia, "Times New Roman", serif',
   'system-mono': 'ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace',

@@ -6,7 +6,7 @@ Import everything from `@/shared/ui`. All primitives read design tokens (`app/ba
 - Colors (Tailwind): `bg s1 s2 s3 line line-2 text muted dim accent on-accent ok warn down info ok-text warn-text down-text`. `accent` = primary action, focus, links, selection.
 - Type: `text-xs .75 · sm .8125 · base .875 · md 1 · lg 1.25 · xl 1.625 · 2xl 2.25` rem (16 px root). Weights 400/500/600. Display face: class `display-wide` (Archivo, page H1, wall hero, KPI numbers). Data: `font-mono` (Geist Mono, tabular). Section label: class `section-label` (the only one).
 - Radius: `rounded-sm` 6px controls/chips · `rounded-md` 10px cards/panels/rows · `rounded-lg` 14px dialogs/popovers · `rounded-full` dots/pills only.
-- Spacing: Tailwind 4px scale. Panel padding `p-(--panel-padding)`; panel shadow `shadow-panel`; popovers `shadow-popover`.
+- Spacing: Tailwind 4px scale. Panel padding `p-(--panel-padding)`; the FE-56 shadow follows `data-surface="panel"` (set by Panel/Card); popovers `shadow-popover`.
 - Control heights: `h-8` sm, `h-9` md, `pointer-coarse:h-11` on touch.
 
 ## Primitives

@@ -61,9 +61,9 @@ describe('theme (tokens from docs/03-design.md)', () => {
   });
 
   it('FE-60: Archivo display, Geist body and Geist Mono data fonts are bundled', () => {
-    expect(css).toContain("@fontsource-variable/archivo");
-    expect(css).toContain("@fontsource-variable/geist/");
-    expect(css).toContain("@fontsource/geist-mono");
+    expect(css).toContain('@fontsource-variable/archivo');
+    expect(css).toContain('@fontsource-variable/geist/');
+    expect(css).toContain('@fontsource-variable/geist-mono');
     expect(css).toMatch(/--font-display:\s*'Archivo Variable'/);
     expect(css).toMatch(/--font-sans:\s*'Geist Variable'/);
   });

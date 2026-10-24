@@ -4,9 +4,9 @@ import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import type { Status } from '@/shared/api/types';
 import { DOT_CLASS } from '../tones';
 
-/** FE-60: panel/card surface; padding and shadow come from tokens the FE-56 controls change. */
+/** FE-60: panel/card surface; padding (and, via data-surface, the shadow) come from FE-56 tokens. */
 export const PANEL_CLASS =
-  'relative flex min-h-0 flex-col overflow-hidden rounded-md border border-line bg-s1 p-(--panel-padding) shadow-panel';
+  'relative flex min-h-0 flex-col overflow-hidden rounded-md border border-line bg-s1 p-(--panel-padding)';
 
 export interface PanelProps {
   title?: string;

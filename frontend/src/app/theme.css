@@ -1,3 +1,121 @@
 @import 'tailwindcss';
 /* Tokens, fonts and app rules shared with the wall entry (wall.css). */
 @import './base.css';
+/* Inter and Geist Mono (static) remain FE-56 font choices in the console; the wall uses the defaults. */
+@import '@fontsource/inter/latin-400.css';
+@import '@fontsource/inter/latin-500.css';
+@import '@fontsource/inter/latin-600.css';
+@import '@fontsource/inter-tight/latin-600.css';
+@import '@fontsource/inter-tight/latin-700.css';
+
+/* Console-only primitive styles (FE-61); the wall entry does not load them. */
+
+/* Glass (FE-52) belongs to the wall: console panels stay solid. */
+html.console[data-fx] .fx-glass {
+  background: var(--s1);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-color: var(--line);
+  box-shadow: var(--panel-shadow);
+}
+html.console[data-fx] .fx-glass::before { display: none; }
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.select-chevron {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%239ba5b6' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1rem;
+}
+
+/* FE-61 overlay motion: CSS transitions with @starting-style (interruptible, off the main thread). */
+.ui-pop,
+.ui-dialog,
+.ui-toast,
+.ui-backdrop {
+  transition-property: opacity, transform;
+  transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+}
+.ui-pop { transition-duration: 150ms; }
+.ui-dialog { transition-duration: 200ms; }
+.ui-toast { transition-duration: 220ms; }
+.ui-backdrop { transition-duration: 200ms; }
+@starting-style {
+  .ui-pop { opacity: 0; scale: 0.97; }
+  .ui-dialog { opacity: 0; scale: 0.98; translate: 0 4px; }
+  .ui-toast { opacity: 0; translate: 0 8px; }
+  .ui-backdrop { opacity: 0; }
+}
+.ui-pop,
+.ui-dialog,
+.ui-toast { transition-property: opacity, scale, translate; }
+:root[data-animation='off'] :is(.ui-pop, .ui-dialog, .ui-toast, .ui-backdrop) { transition: none; }
+
+/* FE-61 Table: below 640 px each row is a card of label/value lines. */
+@media (max-width: 639px) {
+  .ui-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .ui-table tbody tr {
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.75rem;
+  }
+  .ui-table tbody td {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    height: auto;
+    padding: 0;
+    text-align: right;
+  }
+  .ui-table tbody td[data-label]::before {
+    content: attr(data-label);
+    color: var(--muted);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    text-align: left;
+  }
+  .ui-table tbody td[colspan] { justify-content: center; }
+  .ui-table tbody td[colspan]::before { content: none; }
+}
+
+/* FE-61 touch targets: console controls grow to 44 px on coarse pointers. */
+@media (pointer: coarse) {
+  .ui-control { min-height: 2.75rem; }
+  .ui-control:is(.size-8, .size-9) { min-width: 2.75rem; }
+}
+
+/* Disabled controls show they cannot be used. */
+.ui-control:disabled { cursor: not-allowed; }
+
+/* FE-61 Button loading: the label keeps its width and accessible name; a spinner replaces it visually. */
+.ui-control[aria-busy='true'] {
+  color: transparent;
+  cursor: progress;
+}
+.ui-control[aria-busy='true']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--text);
+  border-right-color: transparent;
+  border-radius: 9999px;
+  animation: ui-spin 0.7s linear infinite;
+}
+.ui-control[data-variant='primary'][aria-busy='true']::after { border-color: var(--on-accent); border-right-color: transparent; }
+.ui-control[data-variant='danger'][aria-busy='true']::after { border-color: var(--bg); border-right-color: transparent; }
+@keyframes ui-spin {
+  to { transform: rotate(360deg); }
+}

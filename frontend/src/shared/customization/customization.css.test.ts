@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 const css = readFileSync(resolve(__dirname, 'customization.css'), 'utf8');
 /** The token-based rules, without the legacy block kept for markup still on arbitrary classes. */
-const current = css.slice(0, css.indexOf('Legacy hooks'));
+const current = css.slice(0, css.indexOf('Legacy radius hooks'));
 
 describe('FE-56 / FE-60 customization hooks', () => {
   it.each([
@@ -13,8 +13,8 @@ describe('FE-56 / FE-60 customization hooks', () => {
     ['surfaces', /html\[data-surfaces='flat'\]\s*\{[^}]*--surface-2:\s*var\(--s1\)/],
     ['shadows', /html\[data-shadows='on'\]\s*\{\s*--panel-shadow:/],
     ['panel padding', /html\[data-panel-padding='tight'\]\s*\{\s*--panel-padding:/],
-    ['border', /html\[data-border='thick'\]\s*\{\s*--control-border-width:\s*2px/],
-  ])('%s changes a token', (_, rule) => {
+    ['border', /html\[data-border='thick'\] :where\(\.border\)\s*\{\s*border-width:\s*2px/],
+  ])('%s is driven by a token or a stable hook', (_, rule) => {
     expect(current).toMatch(rule);
   });
 
@@ -22,7 +22,9 @@ describe('FE-56 / FE-60 customization hooks', () => {
     expect(current).not.toMatch(/rounded-\[|p-\\?\[|\.bg-s[23]/);
   });
 
-  it('console panels are never glass; the wall keeps FE-52 glass', () => {
-    expect(current).toMatch(/html\.console\[data-fx\] \.fx-glass/);
+  it('console panels are never glass (theme.css); the wall can turn FE-52 glass off', () => {
+    const console = readFileSync(resolve(__dirname, '../../app/theme.css'), 'utf8');
+    expect(console).toMatch(/html\.console\[data-fx\] \.fx-glass/);
+    expect(current).toMatch(/html\[data-glass='off'\]\[data-fx\] \.fx-glass/);
   });
 });
