@@ -13,16 +13,17 @@ const groups = [
   { id: 'pay', name: 'Payments' },
 ];
 const windows: MaintenanceWindow[] = [
-  { id: 'mw1', groupId: 'core', title: 'DB patch', start: new Date(2026, 9, 20, 22, 0).toISOString(), end: new Date(2026, 9, 21, 0, 0).toISOString() },
+  { id: 'mw1', windowId: 'mw1', target: 'core', title: 'DB patch', start: new Date(2026, 9, 20, 22, 0).toISOString(), end: new Date(2026, 9, 21, 0, 0).toISOString() },
 ];
 
 function setup(props: Partial<MaintenanceCalendarProps> = {}) {
   const onCreate = vi.fn();
+  const onDelete = vi.fn();
   const onWeekChange = vi.fn();
   render(
-    <MaintenanceCalendar windows={windows} groups={groups} weekStart={weekStart} now={now} mode="edit" onCreate={onCreate} onWeekChange={onWeekChange} {...props} />,
+    <MaintenanceCalendar windows={windows} groups={groups} weekStart={weekStart} now={now} mode="edit" onSave={onCreate} onDelete={onDelete} onWeekChange={onWeekChange} {...props} />,
   );
-  return { onCreate, onWeekChange };
+  return { onCreate, onDelete, onWeekChange };
 }
 
 describe('FE-41 maintenance calendar', () => {
@@ -88,7 +89,7 @@ describe('FE-41 maintenance calendar', () => {
     await userEvent.type(screen.getByRole('textbox', { name: /Reason/ }), 'Security patch');
     await userEvent.click(screen.getByRole('button', { name: 'Create window' }));
     expect(onCreate).toHaveBeenCalledWith({
-      groupId: 'core',
+      target: 'core',
       title: 'Kernel update',
       start: new Date(2026, 9, 22, 1, 0).toISOString(),
       end: new Date(2026, 9, 22, 3, 0).toISOString(),
@@ -117,10 +118,10 @@ describe('FE-41 maintenance calendar', () => {
     const dialog = screen.getByRole('dialog', { name: 'New maintenance window' });
     expect(dialog).toHaveTextContent('Wed 09:00 – 11:00');
     await userEvent.type(screen.getByRole('textbox', { name: /Name/ }), 'Deploy');
-    await userEvent.selectOptions(screen.getByRole('combobox', { name: /Group/ }), 'pay');
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: /Applies to/ }), 'pay');
     await userEvent.click(screen.getByRole('button', { name: 'Create window' }));
     expect(onCreate).toHaveBeenCalledWith({
-      groupId: 'pay',
+      target: 'pay',
       title: 'Deploy',
       start: new Date(2026, 9, 21, 9, 0).toISOString(),
       end: new Date(2026, 9, 21, 11, 0).toISOString(),
@@ -139,6 +140,48 @@ describe('FE-41 maintenance calendar', () => {
     expect(screen.getByRole('dialog', { name: 'New maintenance window' })).toHaveTextContent('Wed 09:00 – 10:30');
   });
 
+  it('clicking a window edits it; Delete asks first', async () => {
+    const { onCreate, onDelete } = setup();
+    await userEvent.click(screen.getByRole('button', { name: /^Edit DB patch/ }));
+    const dialog = screen.getByRole('dialog', { name: 'Edit maintenance window' });
+    expect(screen.getByRole('textbox', { name: /Name/ })).toHaveValue('DB patch');
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+    expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ id: 'mw1', target: 'core', title: 'DB patch' }));
+    expect(dialog).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /^Edit DB patch/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    expect(screen.getByRole('dialog', { name: 'Delete DB patch?' })).toBeInTheDocument();
+    expect(onDelete).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: 'Delete window' }));
+    expect(onDelete).toHaveBeenCalledWith('mw1');
+  });
+
+  it('a window repeats with a cron expression and a duration; targets can be monitors', async () => {
+    const { onCreate } = setup({
+      monitors: [
+        { id: 'shop', name: 'Shop', type: 'HTTP' },
+        { id: 'orbit_self', name: 'Orbit', type: 'SELF' as never },
+      ],
+    });
+    await userEvent.click(screen.getByRole('button', { name: 'New window' }));
+    const target = screen.getByRole('combobox', { name: /Applies to/ });
+    expect(screen.getByRole('group', { name: 'Monitors' })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Orbit' })).toBeNull();
+    await userEvent.selectOptions(target, 'shop');
+    await userEvent.type(screen.getByRole('textbox', { name: /Name/ }), 'Nightly backup');
+    await userEvent.click(screen.getByRole('radio', { name: 'Repeats' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Create window' }));
+    expect(screen.getByText('Type a cron expression, e.g. 0 2 * * 0.')).toBeInTheDocument();
+    await userEvent.type(screen.getByRole('textbox', { name: /cron/ }), '0 2 * * 0');
+    await userEvent.click(screen.getByRole('button', { name: 'Create window' }));
+    expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ target: 'shop', title: 'Nightly backup', cron: '0 2 * * 0', durationMinutes: 60 }));
+  });
+
+  it('a new-window request from outside opens the form', () => {
+    setup({ newRequest: 1 });
+    expect(screen.getByRole('dialog', { name: 'New maintenance window' })).toBeInTheDocument();
+  });
+
   it('empty week', () => {
     setup({ windows: [] });
     expect(screen.getByText('No maintenance windows this week.')).toBeInTheDocument();
@@ -153,7 +196,7 @@ describe('FE-41 maintenance calendar', () => {
   });
 
   it('renders in pt-BR', () => {
-    renderWithLocale(<MaintenanceCalendar windows={windows} groups={groups} weekStart={weekStart} now={now} mode="edit" onCreate={vi.fn()} />, 'pt-BR');
+    renderWithLocale(<MaintenanceCalendar windows={windows} groups={groups} weekStart={weekStart} now={now} mode="edit" onSave={vi.fn()} />, 'pt-BR');
     expect(screen.getByRole('grid', { name: 'Calendário de manutenção' })).toBeInTheDocument();
     expect(screen.getByRole('gridcell', { name: 'qua 09:00' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Nova janela' })).toBeInTheDocument();

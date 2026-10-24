@@ -20,6 +20,8 @@ export interface IncidentListProps {
   onFilterChange: (filter: IncidentFilter) => void;
   onAcknowledge: (id: string) => void;
   onResolve: (id: string) => void;
+  /** Editors only: brings a resolved incident back. */
+  onReopen?: (id: string) => void;
   /** Id of the incident whose action is in flight. */
   busyId?: string | null;
 }
@@ -39,7 +41,7 @@ function stateText(incident: IncidentRecord, t: TFunction): string {
 }
 
 /** FE-39: incidents filtered by state, with acknowledge / resolve on each open row. */
-export function IncidentList({ incidents, names, now, editable, filter, onFilterChange, onAcknowledge, onResolve, busyId = null }: IncidentListProps) {
+export function IncidentList({ incidents, names, now, editable, filter, onFilterChange, onAcknowledge, onResolve, onReopen, busyId = null }: IncidentListProps) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
   const counts = countByFilter(incidents);
@@ -114,6 +116,17 @@ export function IncidentList({ incidents, names, now, editable, filter, onFilter
                       </Button>
                     )}
                   </span>
+                )}
+                {!open && editable && onReopen && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    loading={busy}
+                    aria-label={`${t('ops.incidents.reopen')} ${safeText(name)}`}
+                    onClick={() => onReopen(incident.id)}
+                  >
+                    {t('ops.incidents.reopen')}
+                  </Button>
                 )}
               </AnimatedItem>
             );

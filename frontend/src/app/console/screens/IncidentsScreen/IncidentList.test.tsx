@@ -35,7 +35,7 @@ const names = new Map([
 ]);
 
 function setup(props: Partial<Parameters<typeof IncidentList>[0]> = {}) {
-  const handlers = { onAcknowledge: vi.fn(), onResolve: vi.fn() };
+  const handlers = { onAcknowledge: vi.fn(), onResolve: vi.fn(), onReopen: vi.fn() };
   render(<IncidentList incidents={incidents} names={names} now={now} editable filter="all" onFilterChange={vi.fn()} {...handlers} {...props} />);
   return handlers;
 }
@@ -79,10 +79,17 @@ describe('FE-39 incident list', () => {
     expect(screen.getByText('Acknowledged at 11:05')).toBeInTheDocument();
   });
 
-  it('view-only clients may acknowledge but not resolve', () => {
+  it('editors reopen a resolved incident from the list', async () => {
+    const h = setup();
+    await userEvent.click(screen.getByRole('button', { name: 'Reopen Checkout API' }));
+    expect(h.onReopen).toHaveBeenCalledWith('i-done');
+  });
+
+  it('view-only clients may acknowledge but not resolve or reopen', () => {
     setup({ editable: false });
     expect(screen.getByRole('button', { name: 'Acknowledge Checkout API' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Resolve/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: /^Reopen/ })).toBeNull();
   });
 
   it('an empty filter invites instead of showing a blank list', () => {

@@ -33,11 +33,13 @@ Drag on a calendar to create one-off/recurring maintenance windows.
 - `frontend/src/domains/alerting/MaintenanceCalendar/slots.ts`
 
 ## Tests
+- `frontend/src/app/console/screens/MaintenanceScreen/MaintenanceScreen.test.tsx`
 - `frontend/src/domains/alerting/MaintenanceCalendar/MaintenanceCalendar.test.tsx`
 - `frontend/src/app/console/screens/MaintenanceScreen/maintenanceItems.test.ts`
 - `frontend/src/app/console/ConsoleApp.screens.test.tsx`
 
 ## Decisions and notes
+- Round 2: a click on a window (list button or calendar block) opens the same dialog in edit mode with Save changes and Delete (Delete switches the dialog to a confirmation; toast "Maintenance window deleted"); the schedule is Once (start/end) or Repeats (cron expression + duration in minutes, hint "0 2 * * 0 = Sundays 02:00"); "Applies to" lists Groups and Monitors in optgroups (the built-in SELF check is left out). Editing reads the saved items (`GET /api/maintenance`) for cron, duration and reason. `?action=new-window` (command palette) opens the New window form through `useRouteAction`. Calendar windows use `target` (group or monitor id) instead of `groupId`.
 - Creation by button and form is the main path; dragging is a shortcut that pre-fills the same Dialog.
 - Keyboard: one tab stop (roving tabindex), arrows move, Enter starts a selection, Shift+Up/Down extends, Enter confirms, Esc cancels.
 - Native `datetime-local` inputs (local time) for start and end; the end must be after the start; reason is optional and sent only when filled.
@@ -49,3 +51,4 @@ Drag on a calendar to create one-off/recurring maintenance windows.
 - 2026-10-22 — verified against the BE-31 API; cron occurrences shown (status: done).
 - 2026-10-24 — redesign: real week calendar (day headers, hour axis, today and now markers), "New window" button with Dialog form, drag kept as a shortcut.
 - 2026-10-24 — the hidden hour-axis column header keeps its grid column, so day headers line up with their columns.
+- 2026-10-24 — edit and delete windows, recurring windows (cron + duration), monitor targets, palette action new-window.

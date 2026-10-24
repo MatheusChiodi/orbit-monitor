@@ -82,7 +82,7 @@ describe('console routes', () => {
     const a = api();
     render(<ConsoleApp api={a} />);
     await go('#/incidents');
-    const list = await screen.findByRole('list', { name: 'Open' });
+    const list = await screen.findByRole('list', { name: 'Incidents' });
     const link = within(list).getByRole('link', { name: 'Web portal' });
     expect(link).toHaveAttribute('href', '#/incidents/inc-1');
     await go('#/incidents/inc-1');
@@ -98,7 +98,7 @@ describe('console routes', () => {
     expect(await screen.findByText('on it')).toBeInTheDocument();
     expect(screen.getByText('Local network')).toBeInTheDocument();
     expect(screen.queryByText(/self-declared/)).toBeNull();
-    await userEvent.type(screen.getByLabelText('Ticket'), 'OPS-9');
+    await userEvent.type(screen.getByRole('textbox', { name: /^Ticket/ }), 'OPS-9');
     await userEvent.click(screen.getByRole('button', { name: 'Link ticket' }));
     expect(a.linkIncidentTicket).toHaveBeenCalledWith('inc-1', 'OPS-9');
   });
@@ -111,6 +111,7 @@ describe('console routes', () => {
     await go('#/incidents/inc-1');
     expect(await screen.findByText(/Page the DBA/)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Resolve' }));
+    await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Resolve incident' }));
     expect(resolveIncident).toHaveBeenCalledWith('inc-1');
     expect(await screen.findByText('Incident inc-1 is already resolved')).toBeInTheDocument();
   });

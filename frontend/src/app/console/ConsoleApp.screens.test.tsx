@@ -40,11 +40,12 @@ describe('console screens wired to the data source (demo mode)', () => {
     const cells = within(grid).getAllByRole('gridcell');
     fireEvent.pointerDown(cells[18 * 7]!);
     fireEvent.pointerUp(cells[19 * 7]!);
-    await userEvent.type(screen.getByRole('textbox', { name: 'Title' }), 'Deploy');
-    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Group' }), 'pay');
-    await userEvent.click(screen.getByRole('button', { name: 'Create window' }));
-    expect(await screen.findByText('Maintenance window "Deploy" created')).toBeInTheDocument();
-    expect(await screen.findByRole('button', { name: /^Deploy · Payments/ })).toBeInTheDocument();
+    const dialog = screen.getByRole('dialog', { name: 'New maintenance window' });
+    await userEvent.type(within(dialog).getByRole('textbox', { name: /Name/ }), 'Deploy');
+    await userEvent.selectOptions(within(dialog).getByRole('combobox', { name: /Applies to/ }), 'pay');
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Create window' }));
+    expect(await screen.findByText('Maintenance window created')).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: /^Edit Deploy · Payments/ })).toBeInTheDocument();
   });
 
   it('FE-42: #/dependencies shows the graph and adds a dependency', async () => {
@@ -87,8 +88,9 @@ describe('console screens wired to the data source (demo mode)', () => {
 
   it('FE-39: #/incidents says when an incident was acknowledged, never by whom', async () => {
     await open('#/incidents');
-    const resolved = await screen.findByRole('list', { name: 'Resolved' });
-    expect(within(resolved).getByText(/^Acknowledged at \d{2}:\d{2}$/)).toBeInTheDocument();
+    await userEvent.click(await screen.findByRole('radio', { name: /^Acknowledged/ }));
+    const list = screen.getByRole('list', { name: 'Incidents' });
+    expect(within(list).getByText(/^Acknowledged at \d{2}:\d{2}$/)).toBeInTheDocument();
     expect(screen.queryByText(/self-declared|R\. Lima/)).toBeNull();
   });
 

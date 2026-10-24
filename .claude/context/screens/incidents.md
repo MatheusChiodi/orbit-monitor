@@ -33,11 +33,13 @@ Open/closed incidents, filters, acknowledge, notification center.
 - `frontend/src/app/console/NotificationsBell/NotificationsBell.tsx`
 
 ## Tests
+- `frontend/src/app/console/screens/IncidentsScreen/IncidentsScreen.test.tsx`
 - `frontend/src/app/console/screens/IncidentsScreen/IncidentList.test.tsx`
 - `frontend/src/app/console/ConsoleApp.routes.test.tsx`
 - `frontend/src/app/console/NotificationsBell/incidentFeed.test.ts`
 
 ## Decisions and notes
+- Round 2: Acknowledge / Resolve / Reopen on each row (Reopen for resolved incidents, editors only); Resolve asks for confirmation in a `Dialog`; every action answers with a toast naming the verb ("Incident acknowledged / resolved / reopened"); errors are toasts.
 - Filters: Open = open and not acknowledged; Acknowledged = open and acknowledged; Resolved = closed; All is the default.
 - Acknowledge is never the danger color (UX audit); every client may acknowledge, only editors resolve (BE-26).
 - Success is a toast ("Incident acknowledged"); errors stay inline (role=alert). New strings live in the `ops` i18n namespace (`domains/alerting/locales`).
@@ -46,3 +48,4 @@ Open/closed incidents, filters, acknowledge, notification center.
 - 2026-10-18 — context file created.
 - 2026-10-22 — incident list route and header notification bell built (status: done).
 - 2026-10-24 — redesign: PageHeader, state filters, acknowledge/resolve in the list, "Resolved at · lasted", empty states.
+- 2026-10-24 — reopen in the list, resolve confirmation, toasts for every incident action.

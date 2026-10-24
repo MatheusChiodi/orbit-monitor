@@ -7,14 +7,17 @@ import { safeText } from '@/shared/privacy/redact';
 import { Button, IconButton, IconChevronLeft, IconChevronRight, IconPlus } from '@/shared/ui';
 import { SLOTS_PER_DAY, slotRange, slotStart, type SlotRef } from './slots';
 import { dayStart, daySegments, nextHourRange, nowMarker } from './weekGrid';
-import { WindowDialog, weekday, type NewMaintenanceWindow } from './WindowDialog';
+import { WindowDialog, weekday, type MaintenanceTargetMonitor, type WindowDraft } from './WindowDialog';
 
-export type { NewMaintenanceWindow } from './WindowDialog';
+export type { MaintenanceTargetMonitor, NewMaintenanceWindow, WindowDraft } from './WindowDialog';
 
-/** Item of `orbit.maintenance.json`. */
+/** One block of the week: a one-off window or one occurrence of a recurring one. */
 export interface MaintenanceWindow {
   id: string;
-  groupId: string;
+  /** Id of the `orbit.maintenance.json` item (an occurrence id adds `@start`). */
+  windowId?: string;
+  /** Group or monitor id. */
+  target: string;
   title: string;
   start: string;
   end: string;
@@ -23,9 +26,17 @@ export interface MaintenanceWindow {
 export interface MaintenanceCalendarProps {
   windows: readonly MaintenanceWindow[];
   groups: readonly Pick<Group, 'id' | 'name'>[];
+  /** Monitors that can be a window's target (the built-in `SELF` check is left out). */
+  monitors?: readonly MaintenanceTargetMonitor[];
   weekStart: Date;
   mode: AccessMode;
-  onCreate: (window: NewMaintenanceWindow) => void;
+  /** New window (no `id`) or edited window (`id`). */
+  onSave: (window: WindowDraft) => void;
+  onDelete?: (id: string) => void;
+  /** The saved settings of a window, to edit it (recurrence, reason); defaults to the block itself. */
+  draftOf?: (window: MaintenanceWindow) => WindowDraft | undefined;
+  /** Increment to open the "New window" form from outside (command palette). */
+  newRequest?: number;
   /** Week navigation; hidden when absent. */
   onWeekChange?: (weekStart: Date) => void;
   /** Clock for the today marker (tests pass a fixed one). */
@@ -48,7 +59,19 @@ const clamp = (value: number, max: number) => Math.min(max, Math.max(0, value));
  * FE-41: week calendar — day headers, hour axis, today marker. "New window" opens a form; dragging (or
  * Enter + Shift+arrows) across a day is a shortcut that opens the same form with that range.
  */
-export function MaintenanceCalendar({ windows, groups, weekStart, mode, onCreate, onWeekChange, now: fixedNow }: MaintenanceCalendarProps) {
+export function MaintenanceCalendar({
+  windows,
+  groups,
+  monitors = [],
+  weekStart,
+  mode,
+  onSave,
+  onDelete,
+  draftOf,
+  newRequest = 0,
+  onWeekChange,
+  now: fixedNow,
+}: MaintenanceCalendarProps) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
   const editable = mode === 'edit';
@@ -58,6 +81,16 @@ export function MaintenanceCalendar({ windows, groups, weekStart, mode, onCreate
   const [focus, setFocus] = useState<SlotRef | null>(null);
   const [cursor, setCursor] = useState<SlotRef>(() => ({ day: Math.max(0, nowMarker(weekStart, now)?.day ?? 0), slot: 18 }));
   const [draft, setDraft] = useState<{ start: string; end: string } | null>(null);
+  const [editing, setEditing] = useState<WindowDraft | null>(null);
+
+  useEffect(() => {
+    if (newRequest > 0 && editable) setDraft(nextHourRange(new Date()));
+  }, [newRequest, editable]);
+
+  function edit(w: MaintenanceWindow) {
+    if (!editable) return;
+    setEditing(draftOf?.(w) ?? { id: w.windowId ?? w.id, target: w.target, title: w.title, start: w.start, end: w.end });
+  }
 
   useEffect(() => {
     const row = scroller.current?.querySelector<HTMLElement>(`[data-slot="${FIRST_VISIBLE_SLOT}"]`);
@@ -101,14 +134,14 @@ export function MaintenanceCalendar({ windows, groups, weekStart, mode, onCreate
   }
 
   const days = Array.from({ length: 7 }, (_, day) => dayStart(weekStart, day));
-  const groupName = new Map(groups.map((g) => [g.id, g.name]));
+  const targetName = new Map([...groups, ...monitors].map((g) => [g.id, g.name]));
   const marker = nowMarker(weekStart, now);
   const dayMonth = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' });
   const weekRange = `${dayMonth.format(days[0])} – ${dayMonth.format(days[6])}`;
   const windowText = (w: MaintenanceWindow) =>
     t('ops.maintenance.windowAt', {
       title: safeText(w.title),
-      group: safeText(groupName.get(w.groupId) ?? w.groupId),
+      group: safeText(targetName.get(w.target) ?? w.target),
       range: `${weekday(new Date(w.start), locale)} ${formatTime(w.start)}–${formatTime(w.end)}`,
     });
 
@@ -138,9 +171,23 @@ export function MaintenanceCalendar({ windows, groups, weekStart, mode, onCreate
       ) : (
         <ul className="m-0 flex list-none flex-col gap-1 p-0 text-sm">
           {windows.map((w) => (
-            <li key={w.id} className="flex items-center gap-2">
-              <span aria-hidden className="size-2 shrink-0 rounded-sm bg-accent" />
-              {windowText(w)}
+            <li key={w.id}>
+              {editable ? (
+                <button
+                  type="button"
+                  aria-label={t('ops.maintenance.open', { name: windowText(w) })}
+                  onClick={() => edit(w)}
+                  className="flex items-center gap-2 rounded-sm py-0.5 text-left text-text hover:text-accent focus-visible:outline-2 focus-visible:outline-accent"
+                >
+                  <span aria-hidden className="size-2 shrink-0 rounded-sm bg-accent" />
+                  {windowText(w)}
+                </button>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <span aria-hidden className="size-2 shrink-0 rounded-sm bg-accent" />
+                  {windowText(w)}
+                </span>
+              )}
             </li>
           ))}
         </ul>
@@ -219,7 +266,11 @@ export function MaintenanceCalendar({ windows, groups, weekStart, mode, onCreate
                       .map((s) => (
                         <div
                           key={`${w.id}-${day}`}
-                          className="absolute inset-x-0.5 overflow-hidden rounded-sm border-l-2 border-accent bg-accent/15 px-1 text-xs text-text"
+                          data-window={w.id}
+                          onClick={() => edit(w)}
+                          className={`absolute inset-x-0.5 overflow-hidden rounded-sm border-l-2 border-accent bg-accent/15 px-1 text-xs text-text ${
+                            editable ? 'pointer-events-auto cursor-pointer hover:bg-accent/25' : ''
+                          }`}
                           style={{ top: `${s.top}%`, height: `${s.height}%` }}
                         >
                           {s.first && <span className="block truncate">{safeText(w.title)}</span>}
@@ -239,7 +290,18 @@ export function MaintenanceCalendar({ windows, groups, weekStart, mode, onCreate
       </div>
       {editable && <p className="m-0 text-xs text-dim">{t('ops.maintenance.dragHint')}</p>}
 
-      {draft && editable && <WindowDialog initial={draft} groups={groups} onCreate={onCreate} onClose={() => setDraft(null)} />}
+      {draft && editable && <WindowDialog initial={draft} groups={groups} monitors={monitors} onSave={onSave} onClose={() => setDraft(null)} />}
+      {editing && editable && (
+        <WindowDialog
+          initial={{ start: editing.start, end: editing.end }}
+          editing={editing}
+          groups={groups}
+          monitors={monitors}
+          onSave={onSave}
+          onDelete={onDelete}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </div>
   );
 }

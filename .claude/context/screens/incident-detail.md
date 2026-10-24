@@ -33,6 +33,11 @@ Timeline, comments, acknowledge, ticket link, escalation countdown, postmortem.
 - `frontend/src/domains/alerting/IncidentPage/IncidentPage.tsx`
 
 ## Tests
+- `frontend/src/domains/alerting/SilenceDialog/SilenceDialog.tsx`
+- `frontend/src/domains/alerting/IncidentPage/postmortemMarkdown.ts`
+- `frontend/src/domains/alerting/SilenceDialog/SilenceDialog.test.tsx`
+- `frontend/src/domains/alerting/IncidentPage/postmortemMarkdown.test.ts`
+- `frontend/src/app/console/screens/IncidentScreen/IncidentScreen.test.tsx`
 - `frontend/src/app/console/screens/IncidentScreen/incidentDetail.test.ts`
 - `frontend/src/app/console/screens/IncidentScreen/incidentWindow.test.ts`
 - `frontend/src/domains/alerting/IncidentPage/IncidentPage.test.tsx`
@@ -40,6 +45,7 @@ Timeline, comments, acknowledge, ticket link, escalation countdown, postmortem.
 - `frontend/src/app/console/ConsoleApp.routes.test.tsx`
 
 ## Decisions and notes
+- Round 2: Resolve asks for confirmation; toasts for acknowledge / resolve / reopen; the postmortem panel (resolved incidents) loads `GET /api/incidents/{id}/postmortem` and offers "Copy as Markdown" (clipboard) and "Download .md" (`postmortemMarkdown`, values through the redactor); "Silence alerts…" opens `SilenceDialog` (reason + 15 min / 1 h / 4 h / 1 day / custom 1–10080 min → `POST /api/silences` with the monitor as target) and the active silence shows under the header with "Lift silence" (`DELETE /api/silences/{id}`). `SilenceDialog` takes the data source as a prop so the monitor detail can reuse it.
 - Acknowledge is the primary button (accent), never red; the wall AcknowledgeButton is no longer used here.
 - History opens on the same 24 h preset as the monitor detail when the incident fits in it; older incidents keep the window around the incident (1 h before opening to 1 h after resolution, max 31 days).
 
@@ -49,3 +55,4 @@ Timeline, comments, acknowledge, ticket link, escalation countdown, postmortem.
 - 2026-10-22 — resolve/reopen for editors, comments editor-only (BE-26), next escalation step (FE-40).
 - 2026-10-22 — FE-58 history window around the incident.
 - 2026-10-24 — redesign: Acknowledge primary, "Probable impact" label, separate Comments and Ticket sections, 24 h history default.
+- 2026-10-24 — resolve confirmation, action toasts, postmortem copy/download as Markdown, silence alerts and lift silence.

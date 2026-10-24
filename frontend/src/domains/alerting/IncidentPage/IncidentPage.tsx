@@ -38,10 +38,30 @@ export interface IncidentPageProps {
   nextStep?: string | null;
   /** Back link shown above the title. */
   eyebrow?: ReactNode;
+  /** More header actions after acknowledge / resolve (e.g. "Silence alerts…"). */
+  extraActions?: ReactNode;
+  /** Notes under the header (e.g. the active silence). */
+  banner?: ReactNode;
+  /** Actions of the postmortem panel (copy / download Markdown). */
+  postmortemActions?: ReactNode;
 }
 
 /** FE-39: incident timeline, comments, acknowledge, ticket link and the postmortem once resolved. */
-export function IncidentPage({ incident, now, mode, onAcknowledge, onComment, onLinkTicket, onResolve, onReopen, nextStep = null, eyebrow }: IncidentPageProps) {
+export function IncidentPage({
+  incident,
+  now,
+  mode,
+  onAcknowledge,
+  onComment,
+  onLinkTicket,
+  onResolve,
+  onReopen,
+  nextStep = null,
+  eyebrow,
+  extraActions,
+  banner,
+  postmortemActions,
+}: IncidentPageProps) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
   const impactId = useId();
@@ -53,7 +73,10 @@ export function IncidentPage({ incident, now, mode, onAcknowledge, onComment, on
   const acknowledged = Boolean(incident.acknowledgedBy);
 
   const actions = resolved ? (
-    editable && onReopen && <Button onClick={() => onReopen(incident.id)}>{t('screens.incidents.reopen')}</Button>
+    <>
+      {editable && onReopen && <Button onClick={() => onReopen(incident.id)}>{t('screens.incidents.reopen')}</Button>}
+      {extraActions}
+    </>
   ) : (
     <>
       <EscalationCountdown escalatesAt={incident.escalatesAt} nextStep={nextStep} now={now} acknowledged={acknowledged} />
@@ -68,6 +91,7 @@ export function IncidentPage({ incident, now, mode, onAcknowledge, onComment, on
         </Button>
       )}
       {editable && onResolve && <Button onClick={() => onResolve(incident.id)}>{t('screens.incidents.resolve')}</Button>}
+      {extraActions}
     </>
   );
 
@@ -90,6 +114,7 @@ export function IncidentPage({ incident, now, mode, onAcknowledge, onComment, on
         title={<SafeValue value={incident.monitorName} />}
         actions={actions}
       />
+      {banner}
 
       {incident.impact.length > 0 && (
         <section aria-labelledby={impactId} className="flex flex-wrap items-center gap-2">
@@ -109,7 +134,7 @@ export function IncidentPage({ incident, now, mode, onAcknowledge, onComment, on
       )}
 
       {resolved && incident.resolvedAt && (
-        <Panel title={t('incident.postmortem')}>
+        <Panel title={t('incident.postmortem')} actions={postmortemActions}>
           <dl className="m-0 grid grid-cols-2 gap-3">
             <div>
               <dt className="section-label">{t('incident.mtta')}</dt>
