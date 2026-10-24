@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { AnimationLevelScope, motionPreset, type AnimationLevel } from '@/shared/motion';
 import { SafeValue } from '@/shared/privacy';
@@ -32,7 +32,7 @@ export function VizFrame({ mode, level, label, status, empty = false, historyHou
   const enter = motionPreset(level, 'enter');
   return (
     <AnimationLevelScope level={level}>
-      <motion.figure
+      <m.figure
         data-animation={level}
         data-chart={mode}
         initial={enter.initial}
@@ -47,7 +47,7 @@ export function VizFrame({ mode, level, label, status, empty = false, historyHou
         {empty ? <p className="m-0 py-[0.8rem] text-center text-[0.85rem] text-muted">{t('viz.noData')}</p> : children}
         {footer}
         {historyHours !== undefined && <HistoryNotice windowHours={historyHours} />}
-      </motion.figure>
+      </m.figure>
     </AnimationLevelScope>
   );
 }
