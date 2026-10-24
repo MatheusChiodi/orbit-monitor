@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Tabs } from './Tabs';
 
 function Harness() {
@@ -39,4 +39,19 @@ describe('FE-61 Tabs', () => {
     await userEvent.keyboard('{End}');
     expect(screen.getByRole('tab', { name: 'Text' })).toHaveAttribute('aria-selected', 'true');
   });
+
+  it('keeps the selected tab in view when the list scrolls (phones)', async () => {
+    const scrollIntoView = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
+    render(<Harness />);
+    expect(scrollIntoView).toHaveBeenCalled();
+    scrollIntoView.mockClear();
+    await userEvent.click(screen.getByRole('tab', { name: 'Text' }));
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: 'nearest', inline: 'nearest' });
+    expect(scrollIntoView.mock.contexts[0]).toBe(screen.getByRole('tab', { name: 'Text' }));
+  });
+});
+
+afterEach(() => {
+  delete (Element.prototype as { scrollIntoView?: unknown }).scrollIntoView;
 });

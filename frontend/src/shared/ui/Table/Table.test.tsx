@@ -47,4 +47,12 @@ describe('FE-61 Table', () => {
     render(<Table caption="x" columns={COLUMNS} rows={[]} getRowKey={(r) => r.id} />);
     expect(screen.getByText('Nothing to show yet')).toBeInTheDocument();
   });
+
+  it('hideOnMobile columns are marked for the stacked layout (CSS hides them below 640 px)', () => {
+    const columns: TableColumn<Row>[] = [...COLUMNS, { key: 'id', header: 'Id', cell: (r) => r.id, hideOnMobile: true }];
+    render(<Table caption="x" columns={columns} rows={ROWS} getRowKey={(r) => r.id} />);
+    expect(screen.getByRole('columnheader', { name: 'Id' })).toHaveAttribute('data-hide-mobile');
+    expect(screen.getByRole('cell', { name: 'a' })).toHaveAttribute('data-hide-mobile');
+    expect(screen.getByRole('cell', { name: 'Checkout API' })).not.toHaveAttribute('data-hide-mobile');
+  });
 });

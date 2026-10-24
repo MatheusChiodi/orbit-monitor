@@ -9,7 +9,7 @@ export interface TableColumn<R> {
   align?: 'start' | 'end';
   /** Numbers, ids, timestamps: Geist Mono with tabular figures. */
   mono?: boolean;
-  /** Hidden below 640 px. */
+  /** Hidden below 640 px (`data-hide-mobile`, styled by theme.css). */
   hideOnMobile?: boolean;
   className?: string;
 }
@@ -47,7 +47,8 @@ export function Table<R>({ caption, columns, rows, getRowKey, onRowClick, rowLab
               <th
                 key={column.key}
                 scope="col"
-                className={`section-label h-9 px-3 font-semibold ${column.align === 'end' ? 'text-right' : ''} ${column.hideOnMobile ? 'max-sm:hidden' : ''}`}
+                data-hide-mobile={column.hideOnMobile || undefined}
+                className={`section-label h-9 px-3 font-semibold ${column.align === 'end' ? 'text-right' : ''}`}
               >
                 {column.header}
               </th>
@@ -75,9 +76,10 @@ export function Table<R>({ caption, columns, rows, getRowKey, onRowClick, rowLab
                 <td
                   key={column.key}
                   data-label={column.header}
+                  data-hide-mobile={column.hideOnMobile || undefined}
                   className={`h-11 px-3 py-2 text-text ${column.align === 'end' ? 'text-right' : ''} ${column.mono ? 'font-mono text-sm' : ''} ${
-                    column.hideOnMobile ? 'max-sm:hidden' : ''
-                  } ${column.className ?? ''}`}
+                    column.className ?? ''
+                  }`}
                 >
                   {column.cell(row)}
                 </td>

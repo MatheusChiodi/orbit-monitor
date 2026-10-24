@@ -55,8 +55,13 @@ html.console[data-fx] .fx-glass::before { display: none; }
 .ui-toast { transition-property: opacity, scale, translate; }
 :root[data-animation='off'] :is(.ui-pop, .ui-dialog, .ui-toast, .ui-backdrop) { transition: none; }
 
-/* FE-61 Table: below 640 px each row is a card of label/value lines. */
+/* FE-61 Table: below 640 px each row is a card of label/value lines. Unlayered, so it beats utilities. */
 @media (max-width: 639px) {
+  .ui-table,
+  .ui-table tbody {
+    display: block;
+    width: 100%;
+  }
   .ui-table thead {
     position: absolute;
     width: 1px;
@@ -66,24 +71,32 @@ html.console[data-fx] .fx-glass::before { display: none; }
   }
   .ui-table tbody tr {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 0.25rem;
     padding: 0.75rem;
   }
   .ui-table tbody td {
     display: flex;
     justify-content: space-between;
+    align-items: baseline;
     gap: 1rem;
+    min-width: 0;
     height: auto;
     padding: 0;
     text-align: right;
+    overflow-wrap: anywhere;
   }
+  .ui-table tbody td > * { min-width: 0; }
   .ui-table tbody td[data-label]::before {
     content: attr(data-label);
+    flex: none;
+    max-width: 45%;
     color: var(--muted);
     font-family: var(--font-sans);
     font-size: var(--text-sm);
     text-align: left;
   }
+  .ui-table [data-hide-mobile] { display: none; }
   .ui-table tbody td[colspan] { justify-content: center; }
   .ui-table tbody td[colspan]::before { content: none; }
 }

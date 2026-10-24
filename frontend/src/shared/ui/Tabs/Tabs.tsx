@@ -1,4 +1,4 @@
-import { useId, useRef, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useId, useRef, type KeyboardEvent, type ReactNode } from 'react';
 import { nextRovingIndex } from '../popover/roving';
 
 export interface TabItem<V extends string> {
@@ -23,6 +23,10 @@ export function Tabs<V extends string>({ label, items, value, onChange, classNam
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const current = Math.max(0, items.findIndex((item) => item.value === value));
   const active = items[current];
+  // On phones the tablist scrolls sideways: keep the selected tab visible.
+  useEffect(() => {
+    refs.current[current]?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+  }, [current]);
   const onKeyDown = (event: KeyboardEvent) => {
     const next = nextRovingIndex(event, current, items.map((item) => Boolean(item.disabled)));
     if (next === null) return;
