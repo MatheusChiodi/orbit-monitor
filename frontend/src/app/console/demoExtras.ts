@@ -72,7 +72,8 @@ function demoAudit(now: Date): AuditEntry[] {
 }
 
 // Groups and connections are created by consoleSource's demo branch, next to the demo connection list.
-type Extras = Omit<ConsoleEndpoints, 'exportConfig' | 'importConfig' | 'getCatalog' | 'saveGroup' | 'deleteGroup' | 'deleteMonitor' | 'saveConnection' | 'deleteConnection' | 'testConnection'>;
+type Extras = Omit<ConsoleEndpoints, 'exportConfig' | 'importConfig' | 'getCatalog' | 'saveGroup' | 'deleteGroup' | 'deleteMonitor' | 'saveConnection' | 'deleteConnection' | 'testConnection' | 'testConnectionDraft' | 'regeneratePushToken'
+  | 'pauseMonitor' | 'resumeMonitor' | 'duplicateMonitor' | 'runMonitor' | 'bulkMonitors' | 'listSilences' | 'createSilence' | 'liftSilence' | 'listEvents' | 'saveSavedQuery' | 'deleteSavedQuery'>;
 
 /** In-memory data for the console screens in demo mode; never persisted, never sent anywhere. */
 export function createDemoExtras(snapshot: WallSnapshot, now: Date = new Date()): Extras {
@@ -140,6 +141,30 @@ export function createDemoExtras(snapshot: WallSnapshot, now: Date = new Date())
     },
     deleteDependency: async (id) => {
       dependencies.delete(id);
+    },
+    deleteStatusPage: async (id) => {
+      pages.delete(id);
+    },
+    getPostmortem: async (id) => {
+      const incident = update(id, (i) => i);
+      const monitor = snapshot.monitors.find((m) => m.id === incident.monitorId);
+      const seconds = (from: string, to: string | null) => (to ? Math.round((Date.parse(to) - Date.parse(from)) / 1000) : null);
+      return {
+        incidentId: incident.id,
+        monitorId: incident.monitorId,
+        monitorName: monitor?.name ?? incident.monitorId,
+        groupId: monitor?.groupId ?? null,
+        status: incident.status,
+        severity: incident.severity,
+        openedAt: incident.openedAt,
+        acknowledgedAt: incident.acknowledgedAt,
+        acknowledgedBy: incident.acknowledgedBy,
+        resolvedAt: incident.resolvedAt,
+        timeToAcknowledgeSeconds: seconds(incident.openedAt, incident.acknowledgedAt),
+        timeToResolveSeconds: seconds(incident.openedAt, incident.resolvedAt),
+        ticket: incident.ticket,
+        timeline: incident.events,
+      };
     },
     listStatusPages: async () => [...pages.values()],
     saveStatusPage: async (item) => {

@@ -235,3 +235,56 @@ export interface ConnectionTestResult {
   ms: number;
   error: string | null;
 }
+
+/** `POST /api/monitors/{id}/run`: the check result, values masked. */
+export interface MonitorRunResult {
+  state: string;
+  latencyMs: number;
+  error: string | null;
+  checkedAt: string;
+}
+
+export type BulkMonitorAction = 'pause' | 'resume' | 'delete' | 'move';
+
+/** `POST /api/monitors/bulk` answer: one result per id (`error`: `not-found` | `failed`). */
+export interface BulkMonitorResult {
+  action: BulkMonitorAction;
+  results: { id: string; ok: boolean; error?: string | null }[];
+}
+
+/** `GET /api/silences` (orbit.silences.json): alerts of `target` (monitor or group id) are held until `until`. */
+export interface SilenceRecord {
+  id: string;
+  target: string;
+  reason: string;
+  createdBy: string;
+  createdAt: string;
+  until: string;
+}
+
+/** `GET /api/incidents/{id}/postmortem` (BE-34). */
+export interface PostmortemRecord {
+  incidentId: string;
+  monitorId: string;
+  monitorName: string;
+  groupId: string | null;
+  status: string;
+  severity: string;
+  openedAt: string;
+  acknowledgedAt: string | null;
+  acknowledgedBy: string | null;
+  resolvedAt: string | null;
+  timeToAcknowledgeSeconds: number | null;
+  timeToResolveSeconds: number | null;
+  ticket: string | null;
+  timeline: IncidentEventRecord[];
+}
+
+/** `GET /api/events` (BE-52 history event log). */
+export interface HistoryEventRecord {
+  at: string;
+  type: string;
+  monitorId: string | null;
+  actor: string | null;
+  detail: string | null;
+}

@@ -30,6 +30,8 @@ Database connections can be listed, added, edited, tested, given a new password 
 - `frontend/src/shared/api/consoleEndpoints.ts` (`saveConnection`, `deleteConnection`, `testConnection`, `saveGroup`)
 - `frontend/src/app/console/consoleSource.ts` (demo connections in memory)
 
+- `frontend/src/domains/connections/SavedQueries/SavedQueries.tsx` (Saved queries tab, `SavedQueryDialog`)
+
 ## Tests
 - `frontend/src/domains/connections/model/connectionModel.test.ts`
 - `frontend/src/domains/connections/ConnectionDialog/ConnectionDialog.test.tsx`
@@ -43,6 +45,11 @@ Database connections can be listed, added, edited, tested, given a new password 
 - A test can take ~10 s when the host is unreachable; the row/select shows "Testing…" then "Connected in N ms" or "Couldn't connect. <reason>". A connection saved from the dialog is tested right away.
 - Strings live in the `monitorForm` namespace (`monitorForm.connections.*`) to avoid touching the shared namespace list during the redesign.
 - Query key `['connections', demo]` is shared with the monitor form, so a connection added in Settings appears in the SQL select and vice versa.
+- "Test connection" inside the dialog uses `POST /api/connections/test` (nothing saved; on edit an empty password uses the stored one).
+- The list shows `usedBy`; deleting a connection in use says how many SQL monitors it pauses and sends `?force=true`.
+- Palette "Add connection" lands on `#/settings/connections?action=add-connection` (`useRouteAction`) and opens the dialog for editors.
+- Saved queries (`/api/query-catalog`) are a second tab of the same section; the SQL form offers "Save to catalog".
 
 ## Changelog
 - 2026-10-24 — connections settings, add/edit dialog, test status and the "Add connection" entry in the SQL target (status: done).
+- 2026-10-24 — test before saving, in-use delete with force, palette action, saved queries tab and "Save to catalog".

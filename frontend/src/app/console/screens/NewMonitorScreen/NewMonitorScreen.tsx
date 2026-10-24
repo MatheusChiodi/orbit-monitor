@@ -6,7 +6,8 @@ import { MonitorForm } from '@/domains/monitor/components/MonitorForm';
 import { duplicateOf, stateFromDefinition, stateFromTemplate, type LoadedMonitor, type MonitorFormState, type MonitorKind } from '@/domains/monitor/form';
 import type { MonitorSaveResult } from '@/shared/api/monitorTargets';
 import type { MonitorDefinition } from '@/shared/api/types';
-import { Button, Card, Field, TextInput } from '@/shared/ui';
+import { PushUrlPanel } from '@/domains/monitor/components/PushUrlPanel';
+import { Button } from '@/shared/ui';
 import { useConsole } from '../../ConsoleContext';
 import { ScreenSkeleton, ScreenStatus, ScreenTitle } from '../ScreenStatus';
 import { useMonitorFormServices } from './useMonitorFormServices';
@@ -58,16 +59,14 @@ export function NewMonitorScreen({ kind, onSaved }: NewMonitorScreenProps) {
     return (
       <>
         <ScreenTitle>{title}</ScreenTitle>
-        <Card title={t('console.monitors.saved', { name: push.name })}>
-          <Field label={t('monitorForm.pushUrl')}>
-            <TextInput readOnly className="font-mono" value={push.url} onFocus={(e) => e.target.select()} />
-          </Field>
+        <div className="flex flex-col gap-4">
+          <PushUrlPanel url={push.url} />
           <div>
             <Button variant="primary" onClick={() => onSaved(push.name)}>
               {t('screens.done')}
             </Button>
           </div>
-        </Card>
+        </div>
       </>
     );
   }

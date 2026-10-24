@@ -98,7 +98,11 @@
     "schedule": "Schedule",
     "intervalHint": "How often Orbit checks (15 s to 1 day).",
     "retriesHint": "Failed checks in a row before it counts as Down.",
-    "nextShort": "Next"
+    "nextShort": "Next",
+    "delete": "Delete monitor",
+    "deleteTitle": "Delete {{name}}?",
+    "deleteBody": "Orbit stops checking it right away. This cannot be undone.",
+    "deleted": "Monitor \"{{name}}\" deleted"
   },
   "group": {
     "new": "New group",
@@ -113,7 +117,10 @@
     "failed": "Couldn't create the group: {{error}}",
     "nameRequired": "Enter a name for the group",
     "exists": "There is already a group with this name",
-    "required": "Choose a group or create one"
+    "required": "Choose a group or create one",
+    "renameTitle": "Rename group",
+    "rename": "Rename",
+    "renamed": "Group renamed"
   },
   "rules": {
     "sentence": "{{level}} when {{field}} {{operator}} {{value}}",
@@ -240,7 +247,8 @@
       "database": "Database",
       "address": "Address",
       "user": "User",
-      "status": "Last test"
+      "status": "Last test",
+      "usedBy": "Used by"
     },
     "actions": "Actions for {{name}}",
     "notTested": "Not tested",
@@ -256,6 +264,49 @@
       "none": "No connections yet",
       "choose": "Choose a connection",
       "addHint": "Add the database Orbit should read from."
-    }
+    },
+    "usedBy_one": "{{count}} monitor",
+    "usedBy_other": "{{count}} monitors",
+    "notUsed": "Not used",
+    "deleteInUse_one": "{{count}} SQL monitor uses it. Deleting pauses it until you choose another connection.",
+    "deleteInUse_other": "{{count}} SQL monitors use it. Deleting pauses them until you choose another connection.",
+    "deleteFailed": "Couldn't delete the connection. {{error}}"
+  },
+  "push": {
+    "title": "Push URL",
+    "once": "Copy it now: Orbit shows it only once.",
+    "hidden": "Orbit showed this URL once, when the monitor was created. Lost it? Generate a new one; the old one stops working.",
+    "copy": "Copy",
+    "copied": "Push URL copied",
+    "regenerate": "Generate a new URL",
+    "confirmTitle": "Generate a new push URL?",
+    "confirmBody": "Jobs that call the current URL stop reporting until they get the new one.",
+    "failed": "Couldn't generate a new URL. {{error}}"
+  },
+  "queries": {
+    "title": "Saved queries",
+    "description": "SELECTs a SQL monitor can start from. They are offered in the monitor form for their connection.",
+    "add": "Add query",
+    "addTitle": "Add saved query",
+    "editTitle": "Edit saved query",
+    "name": "Name",
+    "connection": "Connection",
+    "sql": "SQL",
+    "descriptionLabel": "Description (optional)",
+    "save": "Save query",
+    "saved": "Query saved",
+    "deleted": "Query deleted",
+    "deleteTitle": "Delete {{name}}?",
+    "deleteBody": "Monitors that already use this SQL keep their copy.",
+    "deleteConfirm": "Delete query",
+    "emptyTitle": "No saved queries yet",
+    "emptyBody": "Save a SELECT you use often to start SQL monitors from it.",
+    "needsConnection": "Add a connection first; saved queries belong to a connection.",
+    "caption": "Saved queries",
+    "actions": "Actions for {{name}}",
+    "loadFailed": "Couldn't load the saved queries.",
+    "required": "Enter a name, choose a connection and type the SELECT",
+    "saveFailed": "Couldn't save the query. {{error}}",
+    "saveFromForm": "Save to catalog"
   }
 }

@@ -8,9 +8,10 @@ import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { translate, type Message } from '@/shared/i18n/message';
 import type { CatalogTable, ConnectionInput, ConnectionTestResult, GroupInput, SavedQuery } from '@/shared/api/consoleTypes';
+import { SavedQueryDialog } from '@/domains/connections/SavedQueries';
 import type { MonitorSaveResult } from '@/shared/api/monitorTargets';
 import type { Connection, Group, MonitorDefinition, PreviewRequest, PreviewResult } from '@/shared/api/types';
-import { Button, StickyActionBar } from '@/shared/ui';
+import { Button, Dialog, StickyActionBar, useToast } from '@/shared/ui';
 import { defaultConditions, validateCondition } from '../../conditions';
 import { mergeSuggested, suggestFields } from '../../display';
 import {
@@ -59,6 +60,11 @@ export interface MonitorFormProps {
   onCreateGroup?: (group: GroupInput) => Promise<Group>;
   onSaveConnection?: (id: string, connection: ConnectionInput) => Promise<Connection>;
   onTestConnection?: (id: string) => Promise<ConnectionTestResult>;
+  onTestConnectionDraft?: (draft: ConnectionInput & { id?: string }) => Promise<ConnectionTestResult>;
+  /** Keeps the SELECT in the query catalog (`PUT /api/query-catalog/{id}`). */
+  onSaveSavedQuery?: (query: SavedQuery) => Promise<SavedQuery>;
+  /** Edit only: "Delete monitor" (asks first). */
+  onDelete?: () => Promise<void>;
   /** Back to the kind chooser (create only). */
   onChangeKind?: () => void;
   /** Shown above the steps (e.g. "secrets are not copied"). */
@@ -85,10 +91,15 @@ export function MonitorForm(props: MonitorFormProps) {
   const [saving, setSaving] = useState(false);
   const [addingConnection, setAddingConnection] = useState(false);
   const [added, setAdded] = useState<Connection[]>([]);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [savingQuery, setSavingQuery] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const moved = useRef(false);
   const { tests, run: testConnection } = useConnectionTests(props.onTestConnection ?? noTest);
   const sentence = useConditionSentence();
+  const { toast } = useToast();
 
   const patch = (next: Partial<MonitorFormState>) => setState((s) => ({ ...s, ...next }));
   const steps = stepsFor(state.type);
@@ -206,6 +217,7 @@ export function MonitorForm(props: MonitorFormProps) {
             savedQueries={savedQueries}
             onAddConnection={props.onSaveConnection ? () => setAddingConnection(true) : undefined}
             connectionTest={tests[state.connectionId]}
+            onSaveQuery={props.onSaveSavedQuery ? () => setSavingQuery(true) : undefined}
           />
         }
         preview={
@@ -265,6 +277,44 @@ export function MonitorForm(props: MonitorFormProps) {
         </h2>
         {body}
       </m.div>
+      {props.onDelete && (
+        <Dialog
+          open={confirmDelete}
+          size="sm"
+          onClose={() => setConfirmDelete(false)}
+          title={t('monitorForm.flow.deleteTitle', { name: state.name })}
+          description={t('monitorForm.flow.deleteBody')}
+          footer={
+            <>
+              {deleteError && (
+                <p role="alert" className="m-0 mr-auto self-center text-sm text-down-text">
+                  {deleteError}
+                </p>
+              )}
+              <Button variant="ghost" onClick={() => setConfirmDelete(false)}>
+                {t('form.cancel')}
+              </Button>
+              <Button
+                variant="danger"
+                loading={deleting}
+                onClick={async () => {
+                  setDeleting(true);
+                  setDeleteError(null);
+                  try {
+                    await props.onDelete!();
+                  } catch (e) {
+                    setDeleteError(e instanceof Error ? e.message : t('form.saveFailed'));
+                  } finally {
+                    setDeleting(false);
+                  }
+                }}
+              >
+                {t('monitorForm.flow.delete')}
+              </Button>
+            </>
+          }
+        />
+      )}
       <StickyActionBar
         status={
           problems > 0 ? (
@@ -274,6 +324,11 @@ export function MonitorForm(props: MonitorFormProps) {
           )
         }
       >
+        {props.onDelete && (
+          <Button variant="danger" onClick={() => setConfirmDelete(true)}>
+            {t('monitorForm.flow.delete')}
+          </Button>
+        )}
         <Button variant="ghost" onClick={onCancel}>
           {t('form.cancel')}
         </Button>
@@ -295,12 +350,26 @@ export function MonitorForm(props: MonitorFormProps) {
           {mode === 'edit' ? t('monitorForm.flow.saveChanges') : t('monitorForm.flow.add')}
         </Button>
       </StickyActionBar>
+      {savingQuery && props.onSaveSavedQuery && (
+        <SavedQueryDialog
+          initial={{ name: state.name, connectionId: state.connectionId, sql: state.sql }}
+          connections={allConnections}
+          takenIds={savedQueries.map((q) => q.id)}
+          onClose={() => setSavingQuery(false)}
+          onSave={async (query) => {
+            await props.onSaveSavedQuery!(query);
+            setSavingQuery(false);
+            toast({ title: t('monitorForm.queries.saved'), tone: 'OK' });
+          }}
+        />
+      )}
       {props.onSaveConnection && (
         <ConnectionDialog
           open={addingConnection}
           takenIds={allConnections.map((c) => c.id)}
           onClose={() => setAddingConnection(false)}
           onSave={props.onSaveConnection}
+          onTestDraft={props.onTestConnectionDraft}
           onSaved={(connection) => {
             setAddingConnection(false);
             setAdded((list) => [...list.filter((c) => c.id !== connection.id), connection]);

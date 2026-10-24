@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { useRouteAction } from '@/app/console/routes';
 import type { Connection } from '@/shared/api/types';
-import { Button, Card, Dialog, EmptyState, IconPlus, Menu, Table, useToast, type TableColumn } from '@/shared/ui';
+import { Button, Card, Dialog, EmptyState, IconPlus, Menu, Table, Tabs, useToast, type TableColumn } from '@/shared/ui';
 import { ConnectionDialog } from '../ConnectionDialog';
 import { ConnectionTestStatus, useConnectionTests } from '../ConnectionTestStatus';
 import { connectionsKey, type ConnectionsSource } from '../model';
+import { SavedQueries, type SavedQueriesSource } from '../SavedQueries';
 
 export interface ConnectionsSettingsProps {
   /** The console source (live API or demo). */
-  source: ConnectionsSource;
+  source: ConnectionsSource & Partial<SavedQueriesSource>;
   /** Demo flag of the console: live and demo connections never share a cache entry. */
   demo: boolean;
   /** False away from the machine that runs Orbit (view-only access). */
@@ -28,10 +30,16 @@ export function ConnectionsSettings({ source, demo, editable = true }: Connectio
   const { tests, run } = useConnectionTests(source.testConnection);
   const [editing, setEditing] = useState<Editing>(null);
   const [deleting, setDeleting] = useState<Connection | null>(null);
+  const [tab, setTab] = useState<'connections' | 'queries'>('connections');
   const connections = list.data ?? [];
 
+  useRouteAction('add-connection', () => {
+    if (editable) setEditing({});
+  });
+
   const remove = useMutation({
-    mutationFn: (id: string) => source.deleteConnection(id),
+    // A connection in use is deleted with `force`: the server pauses its SQL monitors first.
+    mutationFn: (connection: Connection) => source.deleteConnection(connection.id, (connection.usedBy ?? 0) > 0),
     onSuccess: async () => {
       setDeleting(null);
       toast({ title: t('monitorForm.connections.deleted') });
@@ -65,6 +73,11 @@ export function ConnectionsSettings({ source, demo, editable = true }: Connectio
       cell: (c) => <span className="block max-w-xs truncate" title={c.jdbcUrl}>{c.jdbcUrl}</span>,
     },
     { key: 'user', header: t('monitorForm.connections.columns.user'), mono: true, hideOnMobile: true, cell: (c) => c.username ?? '' },
+    {
+      key: 'usedBy',
+      header: t('monitorForm.connections.columns.usedBy'),
+      cell: (c) => (c.usedBy ? t('monitorForm.connections.usedBy', { count: c.usedBy }) : <span className="text-dim">{t('monitorForm.connections.notUsed')}</span>),
+    },
     { key: 'status', header: t('monitorForm.connections.columns.status'), cell: (c) => <ConnectionTestStatus state={tests[c.id]} className="max-w-xs" /> },
   ];
   if (editable) {
@@ -80,14 +93,22 @@ export function ConnectionsSettings({ source, demo, editable = true }: Connectio
             { id: 'test', label: t('monitorForm.connections.test'), onSelect: () => void run(c.id), disabled: tests[c.id]?.phase === 'testing' },
             { id: 'edit', label: t('monitorForm.connections.edit'), onSelect: () => setEditing({ connection: c }) },
             { id: 'rotate', label: t('monitorForm.connections.rotate'), onSelect: () => setEditing({ connection: c, rotate: true }) },
-            { id: 'delete', label: t('monitorForm.connections.delete'), danger: true, onSelect: () => setDeleting(c) },
+            {
+              id: 'delete',
+              label: t('monitorForm.connections.delete'),
+              danger: true,
+              onSelect: () => {
+                remove.reset();
+                setDeleting(c);
+              },
+            },
           ]}
         />
       ),
     });
   }
 
-  return (
+  const connectionsCard = (
     // The Settings section renders the "Connections" heading; the card carries the description and the action.
     <Card description={t('monitorForm.connections.description')} actions={connections.length > 0 ? add : null}>
       {!editable && <p className="m-0 text-sm text-muted">{t('monitorForm.connections.readOnly')}</p>}
@@ -109,6 +130,7 @@ export function ConnectionsSettings({ source, demo, editable = true }: Connectio
         takenIds={connections.map((c) => c.id)}
         onClose={() => setEditing(null)}
         onSave={source.saveConnection}
+        onTestDraft={source.testConnectionDraft}
         onSaved={(c) => void onSaved(c)}
       />
       <Dialog
@@ -116,19 +138,44 @@ export function ConnectionsSettings({ source, demo, editable = true }: Connectio
         size="sm"
         onClose={() => setDeleting(null)}
         title={t('monitorForm.connections.deleteTitle', { name: deleting?.name ?? '' })}
-        description={t('monitorForm.connections.deleteBody')}
+        description={
+          deleting?.usedBy ? t('monitorForm.connections.deleteInUse', { count: deleting.usedBy }) : t('monitorForm.connections.deleteBody')
+        }
         footer={
           <>
+            {remove.isError && (
+              <p role="alert" className="m-0 mr-auto self-center text-sm text-down-text">
+                {t('monitorForm.connections.deleteFailed', { error: remove.error instanceof Error ? remove.error.message : '' })}
+              </p>
+            )}
             <Button variant="ghost" onClick={() => setDeleting(null)}>
               {t('form.cancel')}
             </Button>
-            <Button variant="danger" loading={remove.isPending} onClick={() => deleting && remove.mutate(deleting.id)}>
+            <Button variant="danger" loading={remove.isPending} onClick={() => deleting && remove.mutate(deleting)}>
               {t('monitorForm.connections.deleteConfirm')}
             </Button>
           </>
         }
       />
     </Card>
+  );
+
+  const { listSavedQueries, saveSavedQuery, deleteSavedQuery } = source;
+  if (!listSavedQueries || !saveSavedQuery || !deleteSavedQuery) return connectionsCard;
+  return (
+    <Tabs
+      label={t('monitorForm.connections.title')}
+      value={tab}
+      onChange={setTab}
+      items={[
+        { value: 'connections', label: t('monitorForm.connections.title'), content: connectionsCard },
+        {
+          value: 'queries',
+          label: t('monitorForm.queries.title'),
+          content: <SavedQueries source={{ listSavedQueries, saveSavedQuery, deleteSavedQuery }} connections={connections} demo={demo} editable={editable} />,
+        },
+      ]}
+    />
   );
 }
 

@@ -6,8 +6,11 @@ import { msg, type Message } from '@/shared/i18n/message';
 export interface ConnectionsSource {
   listConnections: () => Promise<Connection[]>;
   saveConnection: (id: string, connection: ConnectionInput) => Promise<Connection>;
-  deleteConnection: (id: string) => Promise<void>;
+  /** `force` pauses the SQL monitors that use it and deletes anyway. */
+  deleteConnection: (id: string, force?: boolean) => Promise<void>;
   testConnection: (id: string) => Promise<ConnectionTestResult>;
+  /** Tests typed settings without saving (with `id`, an empty password uses the stored one). */
+  testConnectionDraft?: (draft: ConnectionInput & { id?: string }) => Promise<ConnectionTestResult>;
 }
 
 /** Same key as the monitor form's connection list, so a new connection shows up there at once. */

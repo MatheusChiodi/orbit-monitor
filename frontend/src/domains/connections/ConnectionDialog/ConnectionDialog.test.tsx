@@ -46,4 +46,14 @@ describe('ConnectionDialog', () => {
     expect(await screen.findByText("Couldn't save the connection. jdbcUrl is invalid")).toBeInTheDocument();
     expect(onSaved).not.toHaveBeenCalled();
   });
+
+  it('tests typed settings before saving, using the stored password on edit', async () => {
+    const onTestDraft = vi.fn().mockResolvedValue({ ok: true, ms: 12, error: null });
+    const onSave = vi.fn();
+    render(<ConnectionDialog open connection={stored} onClose={vi.fn()} takenIds={['pg']} onSave={onSave} onSaved={vi.fn()} onTestDraft={onTestDraft} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Test connection' }));
+    expect(onTestDraft).toHaveBeenCalledWith({ id: 'pg', name: 'Orders', jdbcUrl: 'jdbc:postgresql://h/db', username: 'orbit' });
+    expect(await screen.findByText('Connected in 12 ms')).toBeInTheDocument();
+    expect(onSave).not.toHaveBeenCalled();
+  });
 });

@@ -155,6 +155,26 @@ describe('MonitorForm (guided flow)', () => {
     expect(p.onSave).toHaveBeenCalledWith(expect.objectContaining({ name: 'Portal', url: 'https://portal/health', conditions: [] }));
   });
 
+  it('SQL: the SELECT can be kept in the query catalog', async () => {
+    const onSaveSavedQuery = vi.fn().mockImplementation(async (q) => q);
+    setup({ initialType: 'SQL', onSaveSavedQuery });
+    await userEvent.type(screen.getByLabelText('Name'), 'Queue');
+    await userEvent.selectOptions(screen.getByLabelText('Connection'), 'ora');
+    fireEvent.change(screen.getByRole('textbox', { name: 'SQL query' }), { target: { value: 'SELECT COUNT(*) QTY FROM QUEUE' } });
+    await userEvent.click(screen.getByRole('button', { name: 'Save to catalog' }));
+    const dialog = screen.getByRole('dialog', { name: 'Add saved query' });
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Save query' }));
+    expect(onSaveSavedQuery).toHaveBeenCalledWith(expect.objectContaining({ name: 'Queue', connectionId: 'ora', sql: 'SELECT COUNT(*) QTY FROM QUEUE' }));
+  });
+
+  it('edit mode can delete the monitor after a confirmation', async () => {
+    const onDelete = vi.fn().mockResolvedValue(undefined);
+    setup({ mode: 'edit', onDelete, initialState: { ...initialFormState(), type: 'HTTP', name: 'Portal', groupId: 'pay', url: 'https://portal/health' } });
+    await userEvent.click(screen.getByRole('button', { name: 'Delete monitor' }));
+    await userEvent.click(within(screen.getByRole('dialog', { name: 'Delete Portal?' })).getByRole('button', { name: 'Delete monitor' }));
+    expect(onDelete).toHaveBeenCalled();
+  });
+
   it('cancel', async () => {
     const p = setup();
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));

@@ -27,6 +27,8 @@ updated: 2026-10-24
 - `frontend/src/domains/monitor/form/fromDefinition.ts` (`stateFromDefinition`, `duplicateOf`, `stateFromTemplate`)
 - `frontend/src/app/console/screens/NewMonitorScreen/withKept.ts`
 
+- `frontend/src/domains/monitor/components/PushUrlPanel/PushUrlPanel.tsx`
+
 ## Tests
 - `frontend/src/domains/monitor/form/fromDefinition.test.ts`
 - `frontend/src/app/console/screens/EditMonitorScreen/EditMonitorScreen.test.tsx`
@@ -36,6 +38,9 @@ updated: 2026-10-24
 - `GET /api/monitors/{id}` returns the stored shape (`timeoutMs`, `downAfter`, fields with `key`/`series`, conditions as `{expression, level}`); `stateFromDefinition` maps it back to the form. Settings the form does not edit (`paused`, `hysteresis`, `openOnWarn`, `window`, `retry`, `parameters`, `maxRows`, `followRedirects`) are sent back unchanged so an edit never un-pauses a monitor.
 - Secrets stay masked: secret headers come back as `•••• (vault)` and are sent back as is (the server keeps the stored value); an empty OAuth client secret keeps the stored one.
 - Saved rules the visual editor cannot show (e.g. `contains`, `matches`) are listed as "kept as written" and saved back verbatim as `{expression, level}`.
+- Edit shows "Delete monitor" (danger, confirmation) in the action bar and "Move to group" is the group select of the Target step.
+- Push monitors: the URL is shown once with Copy after creation; in edit "Generate a new URL" (`POST /api/monitors/{id}/push-token`) after a confirmation.
 
 ## Changelog
 - 2026-10-24 — edit screen and duplicate support (status: done).
+- 2026-10-24 — delete from edit, push URL copy and regenerate.

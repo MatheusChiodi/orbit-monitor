@@ -98,7 +98,11 @@
     "schedule": "Agenda",
     "intervalHint": "Com que frequência o Orbit verifica (15 s a 1 dia).",
     "retriesHint": "Falhas seguidas antes de contar como Fora do ar.",
-    "nextShort": "Próximo"
+    "nextShort": "Próximo",
+    "delete": "Excluir monitor",
+    "deleteTitle": "Excluir {{name}}?",
+    "deleteBody": "O Orbit para de verificá-lo na hora. Não dá para desfazer.",
+    "deleted": "Monitor \"{{name}}\" excluído"
   },
   "group": {
     "new": "Novo grupo",
@@ -113,7 +117,10 @@
     "failed": "Não foi possível criar o grupo: {{error}}",
     "nameRequired": "Digite um nome para o grupo",
     "exists": "Já existe um grupo com este nome",
-    "required": "Escolha um grupo ou crie um"
+    "required": "Escolha um grupo ou crie um",
+    "renameTitle": "Renomear grupo",
+    "rename": "Renomear",
+    "renamed": "Grupo renomeado"
   },
   "rules": {
     "sentence": "{{level}} quando {{field}} {{operator}} {{value}}",
@@ -240,7 +247,8 @@
       "database": "Banco",
       "address": "Endereço",
       "user": "Usuário",
-      "status": "Último teste"
+      "status": "Último teste",
+      "usedBy": "Usada por"
     },
     "actions": "Ações de {{name}}",
     "notTested": "Não testada",
@@ -256,6 +264,49 @@
       "none": "Nenhuma conexão ainda",
       "choose": "Escolha uma conexão",
       "addHint": "Adicione o banco que o Orbit deve ler."
-    }
+    },
+    "usedBy_one": "{{count}} monitor",
+    "usedBy_other": "{{count}} monitores",
+    "notUsed": "Sem uso",
+    "deleteInUse_one": "{{count}} monitor SQL a usa. Excluir pausa esse monitor até você escolher outra conexão.",
+    "deleteInUse_other": "{{count}} monitores SQL a usam. Excluir pausa esses monitores até você escolher outra conexão.",
+    "deleteFailed": "Não foi possível excluir a conexão. {{error}}"
+  },
+  "push": {
+    "title": "URL de push",
+    "once": "Copie agora: o Orbit mostra esta URL só uma vez.",
+    "hidden": "O Orbit mostrou esta URL uma vez, ao criar o monitor. Perdeu? Gere uma nova; a antiga para de funcionar.",
+    "copy": "Copiar",
+    "copied": "URL de push copiada",
+    "regenerate": "Gerar nova URL",
+    "confirmTitle": "Gerar uma nova URL de push?",
+    "confirmBody": "Os jobs que chamam a URL atual param de reportar até receberem a nova.",
+    "failed": "Não foi possível gerar uma nova URL. {{error}}"
+  },
+  "queries": {
+    "title": "Consultas salvas",
+    "description": "SELECTs que servem de ponto de partida para monitores SQL. Aparecem no formulário do monitor para a conexão deles.",
+    "add": "Adicionar consulta",
+    "addTitle": "Adicionar consulta salva",
+    "editTitle": "Editar consulta salva",
+    "name": "Nome",
+    "connection": "Conexão",
+    "sql": "SQL",
+    "descriptionLabel": "Descrição (opcional)",
+    "save": "Salvar consulta",
+    "saved": "Consulta salva",
+    "deleted": "Consulta excluída",
+    "deleteTitle": "Excluir {{name}}?",
+    "deleteBody": "Monitores que já usam este SQL mantêm a cópia deles.",
+    "deleteConfirm": "Excluir consulta",
+    "emptyTitle": "Nenhuma consulta salva ainda",
+    "emptyBody": "Salve um SELECT que você usa com frequência para criar monitores SQL a partir dele.",
+    "needsConnection": "Adicione uma conexão antes; consultas salvas pertencem a uma conexão.",
+    "caption": "Consultas salvas",
+    "actions": "Ações de {{name}}",
+    "loadFailed": "Não foi possível carregar as consultas salvas.",
+    "required": "Digite um nome, escolha uma conexão e escreva o SELECT",
+    "saveFailed": "Não foi possível salvar a consulta. {{error}}",
+    "saveFromForm": "Salvar no catálogo"
   }
 }

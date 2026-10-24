@@ -5,7 +5,7 @@ import { useConsole, useGroups } from '../../ConsoleContext';
 
 type Services = Pick<
   MonitorFormProps,
-  'groups' | 'connections' | 'onPreview' | 'onLoadCatalog' | 'onLoadSavedQueries' | 'onCreateGroup' | 'onSaveConnection' | 'onTestConnection'
+  'groups' | 'connections' | 'onPreview' | 'onLoadCatalog' | 'onLoadSavedQueries' | 'onCreateGroup' | 'onSaveConnection' | 'onTestConnection' | 'onTestConnectionDraft' | 'onSaveSavedQuery'
 >;
 
 /** What the monitor form needs from the console (live API or demo), shared by the add and edit screens. */
@@ -32,5 +32,11 @@ export function useMonitorFormServices(): Services & { loading: boolean } {
       return saved;
     },
     onTestConnection: source.testConnection,
+    onTestConnectionDraft: source.testConnectionDraft,
+    onSaveSavedQuery: async (query) => {
+      const saved = await source.saveSavedQuery(query);
+      await queryClient.invalidateQueries({ queryKey: ['saved-queries', demo] });
+      return saved;
+    },
   };
 }

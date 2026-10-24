@@ -1,6 +1,7 @@
 import { mockSnapshot } from '@/domains/wall/mock';
 import type { ApiClient } from '@/shared/api/apiClient';
 import type { ConsoleEndpoints } from '@/shared/api/consoleEndpoints';
+import type { SavedQuery, SilenceRecord } from '@/shared/api/consoleTypes';
 import { createDemoExtras } from './demoExtras';
 import type { AccessInfo, Connection, MonitorDefinition, PreviewRequest, PreviewResult } from '@/shared/api/types';
 
@@ -52,7 +53,9 @@ const EXTENDED_KEYS = [
   'listMaintenance', 'listMaintenanceOccurrences', 'saveMaintenance', 'deleteMaintenance', 'listDependencies', 'saveDependency', 'deleteDependency',
   'listStatusPages', 'saveStatusPage', 'saveGroupOrder', 'queryAudit', 'getCatalog', 'getHistorySummary', 'getHistory', 'listSavedQueries',
   'getHistoryCoverage', 'getWorkspaceDefaults', 'saveWorkspaceDefaults', 'getSettings', 'saveSettings', 'getConfigHealth', 'exportConfig', 'importConfig',
-  'saveGroup', 'deleteGroup', 'deleteMonitor', 'saveConnection', 'deleteConnection', 'testConnection',
+  'saveGroup', 'deleteGroup', 'deleteMonitor', 'saveConnection', 'deleteConnection', 'testConnection', 'testConnectionDraft', 'regeneratePushToken', 'saveSavedQuery', 'deleteSavedQuery',
+  'pauseMonitor', 'resumeMonitor', 'duplicateMonitor', 'runMonitor', 'bulkMonitors', 'deleteStatusPage',
+  'listSilences', 'createSilence', 'liftSilence', 'getPostmortem', 'listEvents',
 ] as const satisfies readonly (keyof ConsoleEndpoints)[];
 
 const unavailable = () => Promise.reject(new Error('unavailable'));
@@ -69,6 +72,9 @@ export function createConsoleSource(api: ConsoleApi, demo: boolean): ConsoleSour
   const created: MonitorDefinition[] = [];
   const extras = createDemoExtras(snapshot);
   const connections: Connection[] = DEMO_CONNECTIONS.map((c) => ({ ...c }));
+  const savedQueries: SavedQuery[] = [];
+  const paused = new Set<string>();
+  const silences: SilenceRecord[] = [];
   return withFallbacks({
     ...extras,
     getAccess: async () => DEMO_ACCESS,
@@ -91,12 +97,54 @@ export function createConsoleSource(api: ConsoleApi, demo: boolean): ConsoleSour
       snapshot.groups = [...snapshot.groups.filter((g) => g.id !== id), group];
       return group;
     },
-    deleteGroup: async (id) => {
+    deleteGroup: async (id, moveTo) => {
+      snapshot.monitors = snapshot.monitors.map((m) => (m.groupId === id && moveTo ? { ...m, groupId: moveTo } : m));
       snapshot.groups = snapshot.groups.filter((g) => g.id !== id);
     },
     deleteMonitor: async (id) => {
       snapshot.monitors = snapshot.monitors.filter((m) => m.id !== id);
     },
+    // Monitor actions in demo mode change this browser's copy only.
+    getMonitor: async (id) => {
+      const detail = await extras.getMonitor(id);
+      return { ...detail, definition: { ...detail.definition, paused: paused.has(id) } };
+    },
+    pauseMonitor: async (id) => {
+      paused.add(id);
+      return extras.getMonitor(id);
+    },
+    resumeMonitor: async (id) => {
+      paused.delete(id);
+      return extras.getMonitor(id);
+    },
+    duplicateMonitor: async (id) => {
+      const original = snapshot.monitors.find((m) => m.id === id);
+      if (!original) throw new Error(`Monitor ${id} not found`);
+      const copy = { ...original, id: `${id}-copy-${snapshot.monitors.length}`, name: `${original.name} (copy)` };
+      snapshot.monitors = [...snapshot.monitors, copy];
+      return extras.getMonitor(copy.id);
+    },
+    runMonitor: async () => ({ state: 'OK', latencyMs: 42, error: null, checkedAt: new Date().toISOString() }),
+    bulkMonitors: async (ids, action, groupId) => {
+      for (const id of ids) {
+        if (action === 'pause') paused.add(id);
+        if (action === 'resume') paused.delete(id);
+      }
+      if (action === 'delete') snapshot.monitors = snapshot.monitors.filter((m) => !ids.includes(m.id));
+      if (action === 'move' && groupId) snapshot.monitors = snapshot.monitors.map((m) => (ids.includes(m.id) ? { ...m, groupId } : m));
+      return { action, results: ids.map((id) => ({ id, ok: true })) };
+    },
+    listSilences: async () => silences,
+    createSilence: async ({ target, reason, minutes }) => {
+      const silence = { id: `sil_${silences.length + 1}`, target, reason, createdBy: 'loopback', createdAt: new Date().toISOString(), until: new Date(Date.now() + minutes * 60_000).toISOString() };
+      silences.push(silence);
+      return silence;
+    },
+    liftSilence: async (id) => {
+      const index = silences.findIndex((s) => s.id === id);
+      if (index >= 0) silences.splice(index, 1);
+    },
+    listEvents: async () => [],
     saveConnection: async (id, input) => {
       const saved: Connection = { id, name: input.name, kind: 'POSTGRES', jdbcUrl: input.jdbcUrl, username: input.username, password: '•••• (vault)' };
       const index = connections.findIndex((c) => c.id === id);
@@ -109,6 +157,18 @@ export function createConsoleSource(api: ConsoleApi, demo: boolean): ConsoleSour
       if (index >= 0) connections.splice(index, 1);
     },
     testConnection: async () => ({ ok: true, ms: 42, error: null }),
+    testConnectionDraft: async () => ({ ok: true, ms: 42, error: null }),
+    listSavedQueries: async (connectionId) => savedQueries.filter((q) => !connectionId || q.connectionId === connectionId),
+    saveSavedQuery: async (query) => {
+      const index = savedQueries.findIndex((q) => q.id === query.id);
+      if (index >= 0) savedQueries[index] = query;
+      else savedQueries.push(query);
+      return query;
+    },
+    deleteSavedQuery: async (id) => {
+      const index = savedQueries.findIndex((q) => q.id === id);
+      if (index >= 0) savedQueries.splice(index, 1);
+    },
     previewMonitor: mockPreview,
     createMonitor: async (definition) => {
       // Saving an existing monitor (edit, pause) updates it in place instead of adding a copy.

@@ -31,6 +31,8 @@ Adding a monitor works on a fresh install: choose Website/API or Database query 
 - `frontend/src/domains/monitor/conditions/alertRules.ts`, `conditions.ts`, `conditionText.ts`
 - `frontend/src/domains/monitor/display/display.ts` (`dedupeFields`, `systemFieldKey`, `mergeSuggested`)
 
+- `frontend/src/domains/monitor/components/GroupDialog/GroupDialog.tsx` (create/rename, reused by the Monitors screen)
+
 ## Tests
 - `frontend/src/domains/monitor/components/MonitorForm/MonitorForm.test.tsx`, `MonitorForm.kinds.test.tsx`, `MonitorForm.motion.test.tsx`, `TargetFields.test.tsx`
 - `frontend/src/domains/monitor/components/KindChooser/KindChooser.test.tsx`, `GroupSelect/GroupSelect.test.tsx`
@@ -48,6 +50,8 @@ Adding a monitor works on a fresh install: choose Website/API or Database query 
 - The preview has a reserved height and scrolls inside; Data is its own step, so running a preview no longer pushes the page.
 - Fresh install: with no groups the select shows "Default (created when you save)"; the form creates the group (`PUT /api/groups/default`) right before saving. With one group it is preselected.
 - Duplicate: `#/monitors/new?from=<id>` loads the monitor, drops id, pause and masked secrets (must be retyped), names it "Copy of …".
+- `GroupDialog` creates or renames a group; a rename sends `order`, `color` and `description` back so the group keeps its place.
 
 ## Changelog
 - 2026-10-24 — guided flow, inline groups, defaults per kind, alert-style rules, simplified Data step (status: done).
+- 2026-10-24 — reusable GroupDialog (create/rename).

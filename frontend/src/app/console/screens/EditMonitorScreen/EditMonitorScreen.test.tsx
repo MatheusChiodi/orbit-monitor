@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactElement } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -7,6 +7,7 @@ import { ConsoleProvider, type ConsoleContextValue } from '../../ConsoleContext'
 import type { ConsoleSource } from '../../consoleSource';
 import EditMonitorScreen from './EditMonitorScreen';
 import { NewMonitorScreen } from '../NewMonitorScreen';
+import { parseRoute } from '../../routes';
 
 const definition = {
   type: 'HTTP',
@@ -78,6 +79,33 @@ describe('EditMonitorScreen', () => {
   it('explains a monitor that cannot be loaded', async () => {
     renderIn(<EditMonitorScreen id="gone" />, source({ getMonitor: vi.fn().mockRejectedValue(new Error('Monitor gone not found')) }));
     expect(await screen.findByRole('alert')).toBeInTheDocument();
+  });
+});
+
+describe('EditMonitorScreen actions', () => {
+  it('deletes the monitor after a confirmation', async () => {
+    const src = source({ deleteMonitor: vi.fn().mockResolvedValue(undefined) });
+    const navigate = renderIn(<EditMonitorScreen id="req_portal" />, src);
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete monitor' }));
+    const dialog = screen.getByRole('dialog', { name: 'Delete Portal?' });
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Delete monitor' }));
+    expect(src.deleteMonitor).toHaveBeenCalledWith('req_portal');
+    expect(navigate).toHaveBeenCalledWith({ name: 'monitors' });
+  });
+
+  it('a push monitor can get a new URL', async () => {
+    const src = source({
+      getMonitor: vi.fn().mockResolvedValue({ definition: { type: 'PUSH', id: 'push_job', name: 'Job', groupId: 'web', maxSilenceSeconds: 3600, conditions: [] }, status: { name: 'Job' } }),
+      regeneratePushToken: vi.fn().mockResolvedValue({ monitorId: 'push_job', pushUrl: 'http://orbit/api/push/n3w' }),
+    });
+    renderIn(<EditMonitorScreen id="push_job" />, src);
+    await userEvent.click(await screen.findByRole('button', { name: 'Generate a new URL' }));
+    await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Generate a new URL' }));
+    expect(await screen.findByDisplayValue('http://orbit/api/push/n3w')).toBeInTheDocument();
+  });
+
+  it('the duplicate address is a new-monitor route', () => {
+    expect(parseRoute('#/monitors/new?from=req_portal')).toEqual({ name: 'new-monitor' });
   });
 });
 

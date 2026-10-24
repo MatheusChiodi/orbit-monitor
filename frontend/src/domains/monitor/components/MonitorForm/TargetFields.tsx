@@ -30,9 +30,11 @@ export interface TargetFieldsProps {
   onAddConnection?: () => void;
   /** Result of the last test of the chosen connection. */
   connectionTest?: ConnectionTestState;
+  /** "Save to catalog": keeps this SELECT as a saved query of the connection. */
+  onSaveQuery?: () => void;
 }
 
-function SqlTarget({ state, connections, onChange, catalog = EMPTY_CATALOG, catalogStatus = 'idle', savedQueries = [], onAddConnection, connectionTest }: TargetFieldsProps) {
+function SqlTarget({ state, connections, onChange, catalog = EMPTY_CATALOG, catalogStatus = 'idle', savedQueries = [], onAddConnection, connectionTest, onSaveQuery }: TargetFieldsProps) {
   const { t } = useTranslation();
   const none = connections.length === 0;
   return (
@@ -86,6 +88,13 @@ function SqlTarget({ state, connections, onChange, catalog = EMPTY_CATALOG, cata
         </FormField>
       )}
       <SqlCodeEditor value={state.sql} catalog={catalog} onChange={(sql) => onChange({ sql })} />
+      {onSaveQuery && state.connectionId && state.sql.trim() && (
+        <div>
+          <Button variant="ghost" size="sm" onClick={onSaveQuery}>
+            {t('monitorForm.queries.saveFromForm')}
+          </Button>
+        </div>
+      )}
       {catalogStatus === 'loading' && <p className="m-0 text-xs text-dim">{t('monitorForm.catalogLoading')}</p>}
       {catalogStatus === 'unavailable' && <p className="m-0 text-xs text-dim">{t('monitorForm.catalogUnavailable')}</p>}
     </>

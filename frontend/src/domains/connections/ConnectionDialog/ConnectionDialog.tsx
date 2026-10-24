@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { ConnectionInput } from '@/shared/api/consoleTypes';
+import type { ConnectionInput, ConnectionTestResult } from '@/shared/api/consoleTypes';
 import type { Connection, DatabaseKind } from '@/shared/api/types';
 import { translate } from '@/shared/i18n/message';
 import { Button, Checkbox, Dialog, Field, SecretInput, Select, TextInput } from '@/shared/ui';
@@ -15,6 +15,7 @@ import {
   type ConnectionDraft,
   type DraftErrors,
 } from '../model';
+import { ConnectionTestStatus, type ConnectionTestState } from '../ConnectionTestStatus';
 
 export interface ConnectionDialogProps {
   open: boolean;
@@ -27,6 +28,8 @@ export interface ConnectionDialogProps {
   onClose: () => void;
   onSave: (id: string, input: ConnectionInput) => Promise<Connection>;
   onSaved: (connection: Connection) => void;
+  /** "Test connection" before saving; absent when the server cannot test typed settings. */
+  onTestDraft?: (draft: ConnectionInput & { id?: string }) => Promise<ConnectionTestResult>;
 }
 
 /** Add or edit a database connection. The password is write-only: typed here, sealed by the server, never shown. */
@@ -35,18 +38,34 @@ export function ConnectionDialog(props: ConnectionDialogProps) {
   return props.open ? <ConnectionForm {...props} /> : null;
 }
 
-function ConnectionForm({ connection, rotate = false, takenIds, onClose, onSave, onSaved }: ConnectionDialogProps) {
+function ConnectionForm({ connection, rotate = false, takenIds, onClose, onSave, onSaved, onTestDraft }: ConnectionDialogProps) {
   const { t } = useTranslation();
   const [draft, setDraft] = useState<ConnectionDraft>(() => emptyDraft(connection));
   const [kind, setKind] = useState<DatabaseKind>(() => kindOfJdbcUrl(connection?.jdbcUrl ?? '') ?? 'POSTGRES');
   const [errors, setErrors] = useState<DraftErrors>({});
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [test, setTest] = useState<ConnectionTestState | undefined>();
   const stored = Boolean(connection?.password);
   const formId = 'connection-dialog-form';
 
   const patch = (next: Partial<ConnectionDraft>) => setDraft((d) => ({ ...d, ...next }));
   const error = (key: keyof DraftErrors) => (errors[key] ? translate(t, errors[key]) : undefined);
+
+  async function runTest() {
+    if (!onTestDraft) return;
+    const found = validateDraft(draft, stored);
+    setErrors(found);
+    if (Object.keys(found).length > 0) return;
+    setTest({ phase: 'testing' });
+    let result: ConnectionTestResult;
+    try {
+      result = await onTestDraft({ ...toInput(draft), ...(connection ? { id: connection.id } : {}) });
+    } catch (e) {
+      result = { ok: false, ms: 0, error: e instanceof Error ? e.message : null };
+    }
+    setTest({ phase: 'done', result });
+  }
 
   async function submit() {
     const found = validateDraft(draft, stored);
@@ -76,6 +95,11 @@ function ConnectionForm({ connection, rotate = false, takenIds, onClose, onSave,
           <Button variant="ghost" onClick={onClose}>
             {t('form.cancel')}
           </Button>
+          {onTestDraft && (
+            <Button variant="secondary" loading={test?.phase === 'testing'} onClick={() => void runTest()}>
+              {t('monitorForm.connections.test')}
+            </Button>
+          )}
           <Button variant="primary" type="submit" form={formId} loading={saving}>
             {t('monitorForm.connections.save')}
           </Button>
@@ -150,6 +174,7 @@ function ConnectionForm({ connection, rotate = false, takenIds, onClose, onSave,
           )}
           <Checkbox label={t('monitorForm.connections.useEnv')} checked={draft.useEnv} onChange={(e) => patch({ useEnv: e.target.checked })} />
         </div>
+        {test && <ConnectionTestStatus state={test} />}
         {saveError && (
           <p role="alert" className="m-0 rounded-sm border border-down/40 bg-down/10 px-3 py-2 text-sm text-down-text">
             {saveError}

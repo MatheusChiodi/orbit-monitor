@@ -55,7 +55,7 @@ describe('ConnectionsSettings', () => {
     await userEvent.click(screen.getByRole('menuitem', { name: 'Delete' }));
     const dialog = screen.getByRole('dialog', { name: 'Delete Orders?' });
     await userEvent.click(within(dialog).getByRole('button', { name: 'Delete connection' }));
-    expect(api.deleteConnection).toHaveBeenCalledWith('pg');
+    expect(api.deleteConnection).toHaveBeenCalledWith('pg', false);
   });
 
   it('is read-only away from the Orbit machine', async () => {
@@ -63,5 +63,25 @@ describe('ConnectionsSettings', () => {
     expect(await screen.findByText('Orders')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Add connection' })).toBeNull();
     expect(screen.getByText('Connections can only be changed on the machine that runs Orbit.')).toBeInTheDocument();
+  });
+
+  it('opens "Add connection" from the command palette address', async () => {
+    window.location.hash = '#/settings/connections?action=add-connection';
+    renderWithQuery(<ConnectionsSettings source={source()} demo={false} />);
+    expect(await screen.findByRole('dialog', { name: 'Add connection' })).toBeInTheDocument();
+    expect(window.location.hash).toBe('#/settings/connections');
+    window.location.hash = '';
+  });
+
+  it('says how many monitors use a connection and pauses them when it is deleted', async () => {
+    const api = source([{ ...pg, usedBy: 2 }]);
+    renderWithQuery(<ConnectionsSettings source={api} demo={false} />);
+    expect(await screen.findByText('2 monitors')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Actions for Orders' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Delete' }));
+    const dialog = screen.getByRole('dialog', { name: 'Delete Orders?' });
+    expect(within(dialog).getByText(/2 SQL monitors use it/)).toBeInTheDocument();
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Delete connection' }));
+    expect(api.deleteConnection).toHaveBeenCalledWith('pg', true);
   });
 });

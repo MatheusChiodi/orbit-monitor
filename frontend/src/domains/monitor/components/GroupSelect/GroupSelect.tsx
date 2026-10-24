@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { GroupInput } from '@/shared/api/consoleTypes';
 import type { Group } from '@/shared/api/types';
-import { newId } from '@/domains/connections/model';
-import { Button, Dialog, Field, IconPlus, Select, TextInput, useToast } from '@/shared/ui';
+import { Button, Field, IconPlus, Select } from '@/shared/ui';
+import { GroupDialog } from '../GroupDialog';
 
 /** Value of the group select on a fresh install: a "Default" group is created when the monitor is saved. */
 export const AUTO_GROUP = '__default__';
@@ -41,91 +41,17 @@ export function GroupSelect({ groups, value, onChange, onCreate, error }: GroupS
         )}
       </div>
       {onCreate && (
-        <NewGroupDialog
+        <GroupDialog
           open={creating}
           groups={groups}
           onClose={() => setCreating(false)}
-          onCreate={onCreate}
-          onCreated={(group) => {
+          onSave={onCreate}
+          onSaved={(group) => {
             setCreating(false);
             onChange(group.id);
           }}
         />
       )}
     </Field>
-  );
-}
-
-interface NewGroupDialogProps {
-  open: boolean;
-  groups: readonly Group[];
-  onClose: () => void;
-  onCreate: (group: GroupInput) => Promise<Group>;
-  onCreated: (group: Group) => void;
-}
-
-function NewGroupDialog({ open, groups, onClose, onCreate, onCreated }: NewGroupDialogProps) {
-  const { t } = useTranslation();
-  const { toast } = useToast();
-  const [name, setName] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-  const formId = 'new-group-form';
-
-  function close() {
-    setName('');
-    setError(null);
-    onClose();
-  }
-
-  async function submit() {
-    const trimmed = name.trim();
-    if (!trimmed) return setError(t('monitorForm.group.nameRequired'));
-    if (groups.some((g) => g.name.trim().toLowerCase() === trimmed.toLowerCase())) return setError(t('monitorForm.group.exists'));
-    setSaving(true);
-    try {
-      const group = await onCreate({ id: newId(trimmed, groups.map((g) => g.id)), name: trimmed, order: groups.length });
-      toast({ title: t('monitorForm.group.created'), tone: 'OK' });
-      setName('');
-      setError(null);
-      onCreated(group);
-    } catch (e) {
-      setError(t('monitorForm.group.failed', { error: e instanceof Error ? e.message : '' }));
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  return (
-    <Dialog
-      open={open}
-      size="sm"
-      onClose={close}
-      title={t('monitorForm.group.newTitle')}
-      description={t('monitorForm.group.newDescription')}
-      footer={
-        <>
-          <Button variant="ghost" onClick={close}>
-            {t('form.cancel')}
-          </Button>
-          <Button variant="primary" type="submit" form={formId} loading={saving}>
-            {t('monitorForm.group.create')}
-          </Button>
-        </>
-      }
-    >
-      <form
-        id={formId}
-        noValidate
-        onSubmit={(e) => {
-          e.preventDefault();
-          void submit();
-        }}
-      >
-        <Field label={t('monitorForm.group.name')} error={error ?? undefined}>
-          <TextInput value={name} autoComplete="off" onChange={(e) => setName(e.target.value)} />
-        </Field>
-      </form>
-    </Dialog>
   );
 }

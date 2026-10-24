@@ -24,6 +24,9 @@ export interface Group {
   id: string;
   name: string;
   color?: string;
+  /** Present in `GET /api/groups`; a rename sends it back so the group keeps its place. */
+  order?: number;
+  description?: string | null;
 }
 
 export interface MonitorView {
@@ -230,4 +233,6 @@ export interface Connection {
   password?: string | null;
   poolSize?: number;
   updatedAt?: string;
+  /** SQL monitors that read from this connection. */
+  usedBy?: number;
 }

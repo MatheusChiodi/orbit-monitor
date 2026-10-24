@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { MonitorForm } from '@/domains/monitor/components/MonitorForm';
+import { PushUrlPanel } from '@/domains/monitor/components/PushUrlPanel';
 import { stateFromDefinition } from '@/domains/monitor/form';
 import type { MonitorDefinition } from '@/shared/api/types';
 import { useToast } from '@/shared/ui';
@@ -52,6 +53,15 @@ export default function EditMonitorScreen({ id }: EditMonitorScreenProps) {
           await save.mutateAsync(withKept(definition, loaded));
         }}
         onCancel={back}
+        notice={
+          loaded.state.type === 'PUSH' ? <PushUrlPanel url={null} onRegenerate={async () => (await source.regeneratePushToken(id)).pushUrl} /> : undefined
+        }
+        onDelete={async () => {
+          await source.deleteMonitor(id);
+          await queryClient.invalidateQueries({ queryKey: ['monitors', demo] });
+          toast({ title: t('monitorForm.flow.deleted', { name: loaded.state.name }), tone: 'OK' });
+          navigate({ name: 'monitors' });
+        }}
       />
     );
   }

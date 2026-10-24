@@ -2,6 +2,8 @@ import type {
   AuditEntry,
   AuditFilter,
   AuditPage,
+  BulkMonitorAction,
+  BulkMonitorResult,
   CatalogTable,
   ConfigFileChange,
   ConfigFileHealthRecord,
@@ -10,14 +12,18 @@ import type {
   DependencyItem,
   EscalationStep,
   GroupInput,
+  HistoryEventRecord,
   HistoryCoverageInfo,
   HistorySummary,
   IncidentRecord,
   MaintenanceItem,
   MaintenanceOccurrence,
   MonitorDetailRecord,
+  MonitorRunResult,
   OrbitSettingsRecord,
+  PostmortemRecord,
   SavedQuery,
+  SilenceRecord,
   StatusPageRecord,
 } from './consoleTypes';
 import type { HistoryResponse } from '@/domains/telemetry/history/historyApi';
@@ -107,19 +113,44 @@ export function createConsoleEndpoints(request: JsonRequest, raw: RawRequest, is
     deleteDependency: (id: string) => remove('dependencies', id),
     listStatusPages: () => list<StatusPageRecord>('/api/status-pages'),
     saveStatusPage: (item: StatusPageRecord) => put('status-pages', item),
+    deleteStatusPage: (id: string) => remove('status-pages', id),
 
     /** FE-13: group order and, optionally, each group's monitors in order (a monitor listed elsewhere moves). */
     saveGroupOrder: (order: GroupOrder) => request<Group[]>('/api/groups/order', { method: 'PUT', body: order }),
     /** Creates or renames a group (`PUT /api/groups/{id}`). */
     saveGroup: ({ id, ...group }: GroupInput) => request<Group>(`/api/groups/${enc(id)}`, { method: 'PUT', body: group }),
-    deleteGroup: (id: string) => remove('groups', id),
+    /** 409 `group-not-empty` while monitors belong to it; `moveTo` moves them to that group first. */
+    deleteGroup: (id: string, moveTo?: string) =>
+      request<void>(`/api/groups/${enc(id)}${query({ moveTo })}`, { method: 'DELETE' }),
     deleteMonitor: (id: string) => remove('monitors', id),
+    pauseMonitor: (id: string) => request<MonitorDetailRecord>(`/api/monitors/${enc(id)}/pause`, { method: 'POST' }),
+    resumeMonitor: (id: string) => request<MonitorDetailRecord>(`/api/monitors/${enc(id)}/resume`, { method: 'POST' }),
+    /** The copy (new id, "<name> (copy)", not paused; secrets copied on the server). */
+    duplicateMonitor: (id: string) => request<MonitorDetailRecord>(`/api/monitors/${enc(id)}/duplicate`, { method: 'POST' }),
+    /** "Run now": runs the check at once and answers with its result. */
+    runMonitor: (id: string) => request<MonitorRunResult>(`/api/monitors/${enc(id)}/run`, { method: 'POST' }),
+    bulkMonitors: (ids: string[], action: BulkMonitorAction, groupId?: string) =>
+      request<BulkMonitorResult>('/api/monitors/bulk', { method: 'POST', body: { ids, action, groupId } }),
+    listSilences: () => list<SilenceRecord>('/api/silences'),
+    createSilence: (silence: { target: string; reason: string; minutes: number }) =>
+      request<SilenceRecord>('/api/silences', { method: 'POST', body: silence }),
+    liftSilence: (id: string) => remove('silences', id),
+    getPostmortem: (id: string) => request<PostmortemRecord>(`/api/incidents/${enc(id)}/postmortem`),
+    listEvents: (filter: { monitorId?: string; from?: string; to?: string; limit?: number } = {}) =>
+      request<HistoryEventRecord[]>(`/api/events${query(filter)}`),
 
     /** Database connections (orbit.connections.json); passwords are write-only. */
     saveConnection: (id: string, connection: ConnectionInput) =>
       request<Connection>(`/api/connections/${enc(id)}`, { method: 'PUT', body: connection }),
-    deleteConnection: (id: string) => remove('connections', id),
+    /** 409 `connection-in-use` while SQL monitors use it; `force` pauses those monitors and deletes. */
+    deleteConnection: (id: string, force = false) =>
+      request<void>(`/api/connections/${enc(id)}${force ? '?force=true' : ''}`, { method: 'DELETE' }),
     testConnection: (id: string) => request<ConnectionTestResult>(`/api/connections/${enc(id)}/test`, { method: 'POST' }),
+    /** Tests typed settings without saving; with `id` and no password the stored password is used. */
+    testConnectionDraft: (draft: ConnectionInput & { id?: string }) =>
+      request<ConnectionTestResult>('/api/connections/test', { method: 'POST', body: draft }),
+    /** New secret push URL for a push monitor; the old one stops working at once. */
+    regeneratePushToken: (id: string) => request<{ monitorId: string; pushUrl: string }>(`/api/monitors/${enc(id)}/push-token`, { method: 'POST' }),
 
     /** BE-46: newest first; the number of matching entries comes in `X-Total-Count`. */
     queryAudit: async (filter: AuditFilter): Promise<AuditPage> => {
@@ -135,6 +166,8 @@ export function createConsoleEndpoints(request: JsonRequest, raw: RawRequest, is
       return itemsOfCatalog(data);
     },
     listSavedQueries: (connectionId: string) => list<SavedQuery>(`/api/query-catalog${query({ connectionId })}`),
+    saveSavedQuery: ({ id, ...saved }: SavedQuery) => request<SavedQuery>(`/api/query-catalog/${enc(id)}`, { method: 'PUT', body: saved }),
+    deleteSavedQuery: (id: string) => remove('query-catalog', id),
     getHistorySummary: (monitorId: string, range: { from: string; to: string }) =>
       request<HistorySummary>(`/api/history/${enc(monitorId)}/summary${query(range)}`),
     /** BE-52 `GET /api/history/{id}?from&to&resolution` (FE-58 history window). */
