@@ -30,10 +30,6 @@ describe('FE-51 SqlCodeEditor motion', () => {
     expect(screen.queryByRole('alert')).toBeNull();
   });
 
-  it('guard chips are static badges that enter with the editor', () => {
-    renderWithMotion(<SqlCodeEditor catalog={catalog} value="" onChange={vi.fn()} />, 'standard');
-    expect(entersAnimated(screen.getByText('SELECT only'))).toBe(true);
-  });
 
   it('prefers-reduced-motion forces off', () => {
     renderWithMotion(<SqlCodeEditor catalog={catalog} value="DELETE FROM x" onChange={vi.fn()} />, 'expressive', 'en', { reducedMotion: true });

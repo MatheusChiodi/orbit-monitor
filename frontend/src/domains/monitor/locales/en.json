@@ -111,7 +111,8 @@
     "created": "Group created",
     "failed": "Couldn't create the group: {{error}}",
     "nameRequired": "Enter a name for the group",
-    "exists": "There is already a group with this name"
+    "exists": "There is already a group with this name",
+    "required": "Choose a group or create one"
   },
   "rules": {
     "sentence": "{{level}} when {{field}} {{operator}} {{value}}",
@@ -144,7 +145,8 @@
     "value": "Limit",
     "textMode": "Edit as text",
     "visualMode": "Edit with fields",
-    "textHint": "One rule per line, written as the healthy state: [RESPONSE_TIME] <= 1000 → WARN"
+    "textHint": "One rule per line, written as the healthy state: [RESPONSE_TIME] <= 1000 → WARN",
+    "rangeError": "Enter both ends of the range"
   },
   "fieldNames": {
     "STATUS": "HTTP status",
@@ -171,7 +173,9 @@
     "builtIn": "built-in value",
     "history": "Keep a history chart",
     "pickFromBody": "Add a value from the response",
-    "pickHint": "Choose any value in the answer to keep it or use it in a rule."
+    "pickHint": "Choose any value in the answer to keep it or use it in a rule.",
+    "add": "Add",
+    "addValue": "Add value at {{path}}"
   },
   "review": {
     "name": "Name",

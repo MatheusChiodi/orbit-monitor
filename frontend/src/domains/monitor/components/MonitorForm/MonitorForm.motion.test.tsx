@@ -18,6 +18,7 @@ function deferred() {
 function form(onPreview: () => Promise<PreviewResult>) {
   return (
     <MonitorForm
+      initialType="SQL"
       groups={[{ id: 'pay', name: 'Payments' }]}
       connections={[{ id: 'ora', name: 'Core Oracle', kind: 'ORACLE' }]}
       onPreview={onPreview}
@@ -38,7 +39,7 @@ describe('FE-51 MonitorForm motion', () => {
     renderWithMotion(form(() => d.promise), 'standard');
     await fill();
     await userEvent.click(screen.getByRole('button', { name: 'Run preview' }));
-    const skeleton = screen.getByRole('status');
+    const skeleton = screen.getByText('Running…');
     expect(skeleton).toHaveAttribute('aria-busy', 'true');
     expect(skeleton).toHaveAttribute('data-skeleton');
     expect(skeleton.className).toContain('anim-shimmer');
@@ -52,27 +53,24 @@ describe('FE-51 MonitorForm motion', () => {
     renderWithMotion(form(() => d.promise), 'off');
     await fill();
     await userEvent.click(screen.getByRole('button', { name: 'Run preview' }));
-    expect(screen.getByRole('status').className).not.toContain('anim-shimmer');
+    expect(screen.getByText('Running…').className).not.toContain('anim-shimmer');
     d.resolve(preview);
     const table = await screen.findByRole('table', { name: 'Preview result' });
     expect(isStatic(table.closest('[data-motion-level]') as HTMLElement)).toBe(true);
   });
 
-  it('the Data & display section expands into view', async () => {
+  it('each step enters when it opens', async () => {
     renderWithMotion(form(() => Promise.resolve(preview)), 'standard');
-    await fill();
-    await userEvent.click(screen.getByRole('button', { name: 'Run preview' }));
-    const section = await screen.findByRole('region', { name: 'Data & display' });
-    expect(section).toHaveAttribute('data-motion', 'expand');
-    expect(entersAnimated(section)).toBe(true);
+    await userEvent.click(screen.getByRole('button', { name: 'Next: Data' }));
+    const step = screen.getByRole('heading', { name: 'Data' }).closest('[data-motion="step"]') as HTMLElement;
+    expect(entersAnimated(step)).toBe(true);
   });
 
   it('prefers-reduced-motion forces off', async () => {
     renderWithMotion(form(() => Promise.resolve(preview)), 'expressive', 'en', { reducedMotion: true });
-    await fill();
-    await userEvent.click(screen.getByRole('button', { name: 'Run preview' }));
-    const section = await screen.findByRole('region', { name: 'Data & display' });
-    expect(section).toHaveAttribute('data-motion-level', 'off');
-    expect(isStatic(section)).toBe(true);
+    await userEvent.click(screen.getByRole('button', { name: 'Next: Data' }));
+    const step = screen.getByRole('heading', { name: 'Data' }).closest('[data-motion="step"]') as HTMLElement;
+    expect(step).toHaveAttribute('data-motion-level', 'off');
+    expect(isStatic(step)).toBe(true);
   });
 });

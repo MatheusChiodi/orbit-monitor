@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { PreviewResult } from '@/shared/api/types';
-import { humanizeLabel, suggestFields, suggestReadMode } from './display';
+import { dedupeFields, humanizeLabel, mergeSuggested, suggestFields, suggestReadMode, systemFieldKey } from './display';
 
 function preview(columns: PreviewResult['columns'], rows: PreviewResult['rows']): PreviewResult {
   return { columns, rows, elapsedMs: 10 };
@@ -91,5 +91,42 @@ describe('suggestFields', () => {
   it('a decimal number becomes decimal with 2 places', () => {
     const [f] = suggestFields(preview([{ name: 'AMOUNT', type: 'number' }], [{ AMOUNT: 10.5 }]), 'SQL');
     expect(f).toMatchObject({ format: 'decimal', decimals: 2 });
+  });
+});
+
+describe('built-in values from the HTTP preview (no duplicates)', () => {
+  const http = preview(
+    [
+      { name: '[STATUS]', type: 'number' },
+      { name: '[RESPONSE_TIME]', type: 'number' },
+      { name: '$.mode', type: 'text' },
+    ],
+    [{ '[STATUS]': 200, '[RESPONSE_TIME]': 111, '$.mode': 'edit' }],
+  );
+
+  it('keeps one entry per key with the friendly label', () => {
+    const fields = suggestFields(http, 'HTTP');
+    expect(fields.map((f) => f.field)).toEqual(['[STATUS]', '[RESPONSE_TIME]', '$.mode']);
+    expect(fields[0]).toMatchObject({ label: 'HTTP status', selected: true, storeAsSeries: false });
+    expect(fields[1]).toMatchObject({ label: 'Response time', format: 'duration', selected: true });
+  });
+
+  it('dedupes by key, first wins', () => {
+    const a = { field: 'X', selected: true, label: 'A', format: 'text' as const, storeAsSeries: false, display: 'text' as const };
+    expect(dedupeFields([a, { ...a, label: 'B' }])).toEqual([a]);
+  });
+
+  it('names system placeholders', () => {
+    expect(systemFieldKey('[RESPONSE_TIME]')).toBe('RESPONSE_TIME');
+    expect(systemFieldKey('$.status')).toBeNull();
+  });
+});
+
+describe('mergeSuggested', () => {
+  it('keeps the saved choices and order of the new preview', () => {
+    const base = { selected: true, format: 'text' as const, storeAsSeries: false, display: 'text' as const };
+    const saved = [{ ...base, field: '$.b', label: 'My B' }, { ...base, field: '$.gone', label: 'Gone' }];
+    const suggested = [{ ...base, field: '$.a', label: 'A' }, { ...base, field: '$.b', label: 'B' }];
+    expect(mergeSuggested(saved, suggested).map((f) => f.label)).toEqual(['A', 'My B', 'Gone']);
   });
 });

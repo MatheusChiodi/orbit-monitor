@@ -3,7 +3,7 @@ import { AnimatePresence, m } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { translate } from '@/shared/i18n/message';
 import { useMotionPreset } from '@/shared/motion/useMotionPreset';
-import { Badge, Button } from '@/shared/ui';
+import { Button } from '@/shared/ui';
 import { checkSelect } from '../../sql';
 import { formatSql, suggest, tokenizeSql, type SqlCatalog, type SqlSuggestion, type SqlTokenKind } from './sqlTokens';
 
@@ -13,7 +13,6 @@ export interface SqlCodeEditorProps {
   catalog: SqlCatalog;
 }
 
-const GUARDS = ['sql.guard.selectOnly', 'sql.guard.timeout', 'sql.guard.maxRows', 'sql.guard.vault'] as const;
 
 const TOKEN_CLASS: Record<SqlTokenKind, string> = {
   keyword: 'text-info',
@@ -25,7 +24,7 @@ const TOKEN_CLASS: Record<SqlTokenKind, string> = {
   space: '',
 };
 
-const SHARED = 'm-0 min-h-[9rem] w-full whitespace-pre-wrap break-words p-[0.7rem] font-mono text-[0.85rem] leading-[1.5]';
+const SHARED = 'm-0 min-h-36 w-full whitespace-pre-wrap break-words p-3 font-mono text-base leading-normal';
 
 /**
  * FE-33: SELECT editor with highlighting (a token layer under a transparent textarea), catalog
@@ -36,6 +35,8 @@ export function SqlCodeEditor({ value, onChange, catalog }: SqlCodeEditorProps) 
   const enter = useMotionPreset('enter');
   const listId = useId();
   const errorId = useId();
+  const inputId = useId();
+  const guardsId = useId();
   const area = useRef<HTMLTextAreaElement>(null);
   const [suggestions, setSuggestions] = useState<SqlSuggestion[] | null>(null);
   const [active, setActive] = useState(0);
@@ -97,8 +98,11 @@ export function SqlCodeEditor({ value, onChange, catalog }: SqlCodeEditorProps) 
   const open = suggestions !== null && suggestions.length > 0;
 
   return (
-    <div className="flex flex-col gap-[0.5rem]">
-      <div className="relative rounded-[0.45rem] border border-line-2 bg-bg focus-within:border-info">
+    <div className="flex flex-col gap-2">
+      <label htmlFor={inputId} className="text-sm font-medium text-text">
+        {t('monitorForm.sqlEditor.label')}
+      </label>
+      <div className="relative rounded-sm border border-line-2 bg-bg focus-within:border-accent">
         <pre aria-hidden className={`${SHARED} pointer-events-none absolute inset-0 overflow-hidden`}>
           {tokenizeSql(value).map((token, i) => (
             <span key={i} data-token={token.kind} className={TOKEN_CLASS[token.kind]}>
@@ -109,9 +113,9 @@ export function SqlCodeEditor({ value, onChange, catalog }: SqlCodeEditorProps) 
         </pre>
         <textarea
           ref={area}
-          aria-label={t('sql.label')}
+          id={inputId}
           aria-invalid={error ? 'true' : undefined}
-          aria-describedby={error ? errorId : undefined}
+          aria-describedby={error ? `${guardsId} ${errorId}` : guardsId}
           aria-autocomplete="list"
           aria-expanded={open}
           aria-controls={open ? listId : undefined}
@@ -134,7 +138,7 @@ export function SqlCodeEditor({ value, onChange, catalog }: SqlCodeEditorProps) 
             id={listId}
             role="listbox"
             aria-label={t('sql.suggestions')}
-            className="absolute right-[0.5rem] bottom-[0.5rem] z-10 m-0 max-h-[10rem] list-none overflow-auto rounded-[0.45rem] border border-line-2 bg-s1 p-[0.25rem]"
+            className="absolute right-2 bottom-2 z-10 m-0 max-h-40 list-none overflow-auto rounded-sm border border-line-2 bg-s1 p-1 shadow-popover"
           >
             {suggestions.map((s, i) => (
               <li
@@ -145,7 +149,7 @@ export function SqlCodeEditor({ value, onChange, catalog }: SqlCodeEditorProps) 
                   e.preventDefault();
                   insert(s);
                 }}
-                className={`cursor-pointer rounded-[0.3rem] px-[0.5rem] py-[0.2rem] font-mono text-[0.8rem] ${i === active ? 'bg-info/15' : ''}`}
+                className={`cursor-pointer rounded-sm px-2 py-1 font-mono text-sm ${i === active ? 'bg-accent/15' : ''}`}
               >
                 {s.label}
               </li>
@@ -153,15 +157,11 @@ export function SqlCodeEditor({ value, onChange, catalog }: SqlCodeEditorProps) 
           </ul>
         )}
       </div>
-      <div className="flex flex-wrap items-center gap-[0.4rem]">
-        <ul className="m-0 flex list-none flex-wrap gap-[0.4rem] p-0" aria-label={t('sql.guards')}>
-          {GUARDS.map((guard) => (
-            <li key={guard}>
-              <Badge tone="INFO">{t(guard)}</Badge>
-            </li>
-          ))}
-        </ul>
-        <Button variant="ghost" className="ml-auto" onClick={() => onChange(formatSql(value))}>
+      <div className="flex flex-wrap items-center gap-2">
+        <p id={guardsId} className="m-0 text-sm text-muted">
+          {t('monitorForm.sqlEditor.guards')}
+        </p>
+        <Button variant="ghost" size="sm" className="ml-auto" onClick={() => onChange(formatSql(value))}>
           {t('sql.format')}
         </Button>
       </div>
@@ -176,7 +176,7 @@ export function SqlCodeEditor({ value, onChange, catalog }: SqlCodeEditorProps) 
             data-motion-level={enter.level}
             id={errorId}
             role="alert"
-            className="m-0 text-[0.85rem] text-down-text"
+            className="m-0 text-sm text-down-text"
           >
             {translate(t, error)}
           </m.p>

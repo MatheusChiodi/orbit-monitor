@@ -10,6 +10,7 @@ function setup(overrides: Partial<MonitorFormProps> = {}) {
     onPreview: vi.fn(),
     onSave: vi.fn().mockResolvedValue(undefined),
     onCancel: vi.fn(),
+    initialType: 'SQL',
     ...overrides,
   };
   render(<MonitorForm {...props} />);
@@ -17,12 +18,12 @@ function setup(overrides: Partial<MonitorFormProps> = {}) {
 }
 
 describe('MonitorForm: kinds, catalog, condition builder and JSON explorer', () => {
-  it('offers every monitor kind', () => {
-    setup();
-    const kinds = within(screen.getByRole('radiogroup', { name: 'Type' })).getAllByRole('radio');
-    expect(kinds.map((k) => k.closest('label')?.textContent)).toEqual([
-      'SQL', 'HTTP', 'HTTP steps', 'TCP', 'Ping', 'Push', 'DNS', 'Certificate', 'gRPC', 'Kafka lag',
-    ]);
+  it('shows the chosen kind and offers to change it while creating', async () => {
+    const onChangeKind = vi.fn();
+    setup({ initialType: 'HTTP', onChangeKind });
+    expect(screen.getByText('Type: HTTP')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Change type' }));
+    expect(onChangeKind).toHaveBeenCalled();
   });
 
   it('FE-33: choosing a connection loads its catalog for autocomplete', async () => {
@@ -52,15 +53,16 @@ describe('MonitorForm: kinds, catalog, condition builder and JSON explorer', () 
     expect(await screen.findByText('Table suggestions are unavailable for this connection.')).toBeInTheDocument();
   });
 
-  it('FE-34: conditions use the builder with visual and text tabs', () => {
+  it('FE-34: rules are edited with fields, or as text on demand', async () => {
     setup();
-    const conditions = screen.getByRole('region', { name: 'Conditions' });
-    expect(within(conditions).getByRole('tab', { name: 'Visual' })).toBeInTheDocument();
-    expect(within(conditions).getByRole('tab', { name: 'Text' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /Conditions/ }));
+    expect(screen.getByRole('button', { name: 'Add rule' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Edit as text' })).toBeInTheDocument();
   });
 
-  it('FE-35: an HTTP preview with a JSON body opens the explorer; picking adds the field', async () => {
+  it('FE-35: an HTTP preview with a JSON body offers the explorer in Data; picking adds the value', async () => {
     setup({
+      initialType: 'HTTP',
       onPreview: vi.fn().mockResolvedValue({
         columns: [{ name: '$.status', type: 'text' }],
         rows: [{ '$.status': 'UP' }],
@@ -69,33 +71,42 @@ describe('MonitorForm: kinds, catalog, condition builder and JSON explorer', () 
         body: '{"status":"UP","queue":{"size":42}}',
       }),
     });
-    await userEvent.click(screen.getByRole('radio', { name: 'HTTP' }));
     await userEvent.type(screen.getByLabelText('URL'), 'https://portal/health');
     await userEvent.click(screen.getByRole('button', { name: 'Run preview' }));
-    const tree = await screen.findByRole('tree', { name: 'Response body' });
+    await screen.findByText('HTTP 200');
+    await userEvent.click(screen.getByRole('button', { name: 'Next: Data' }));
+    await userEvent.click(screen.getByText('Add a value from the response'));
+    const tree = screen.getByRole('tree', { name: 'Response body' });
     await userEvent.click(within(tree).getByRole('treeitem', { name: 'queue' }));
-    await userEvent.click(within(tree).getByRole('button', { name: 'Use $.queue.size as a field' }));
-    expect(screen.getByDisplayValue('Size')).toBeInTheDocument();
+    await userEvent.click(within(tree).getByRole('button', { name: 'Add value at $.queue.size' }));
+    expect(screen.getByRole('group', { name: 'Size' })).toBeInTheDocument();
   });
 
-  it('kinds without a preview explain it and still save with their own condition fields', async () => {
-    const p = setup();
-    await userEvent.click(screen.getByRole('radio', { name: 'TCP' }));
+  it('kinds without a preview explain it, skip Data and save with their own condition fields', async () => {
+    const p = setup({ initialType: 'TCP' });
     expect(screen.getByText("This monitor type has no live preview; conditions use the probe's own fields.")).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Run preview' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Next: Conditions' })).toBeInTheDocument();
     await userEvent.type(screen.getByLabelText('Name'), 'Postgres port');
-    await userEvent.selectOptions(screen.getByLabelText('Group'), 'pay');
     await userEvent.type(screen.getByLabelText('Host'), 'db.internal');
     await userEvent.type(screen.getByLabelText('Port'), '5432');
-    await userEvent.click(screen.getByRole('button', { name: 'Save monitor' }));
-    expect(p.onSave).toHaveBeenCalledWith(expect.objectContaining({ type: 'TCP', host: 'db.internal', port: 5432, name: 'Postgres port' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Add monitor' }));
+    expect(p.onSave).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'TCP',
+        host: 'db.internal',
+        port: 5432,
+        name: 'Postgres port',
+        groupId: 'pay',
+        conditions: [{ field: '[RESPONSE_TIME]', operator: '<=', value: '1000', level: 'WARN' }],
+      }),
+    );
   });
 
   it('kind errors are listed before saving', async () => {
-    const p = setup();
-    await userEvent.click(screen.getByRole('radio', { name: 'Kafka lag' }));
-    await userEvent.click(screen.getByRole('button', { name: 'Save monitor' }));
-    expect(screen.getByRole('alert')).toHaveTextContent('Enter the bootstrap servers and the consumer group');
+    const p = setup({ initialType: 'KAFKA' });
+    await userEvent.click(screen.getByRole('button', { name: 'Add monitor' }));
+    expect(screen.getByText('Enter the bootstrap servers and the consumer group')).toBeInTheDocument();
     expect(p.onSave).not.toHaveBeenCalled();
   });
 
@@ -114,10 +125,5 @@ describe('MonitorForm: kinds, catalog, condition builder and JSON explorer', () 
     expect(await screen.findByText('This query took 4.2 s; run it every 300 s or more.')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Use 300 s' }));
     expect(screen.getByLabelText('Interval (s)')).toHaveValue(300);
-  });
-
-  it('starts on the kind given by the route', () => {
-    setup({ initialType: 'HTTP' });
-    expect(screen.getByRole('radio', { name: 'HTTP' })).toBeChecked();
   });
 });

@@ -13,3 +13,4 @@ export {
   type MonitorKind,
   type StepDraft,
 } from './targets';
+export * from './fromDefinition';

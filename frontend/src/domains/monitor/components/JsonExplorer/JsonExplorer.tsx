@@ -2,7 +2,7 @@ import { useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { detectSensitive, safeText } from '@/shared/privacy/redact';
 import { SafeValue } from '@/shared/privacy/SafeValue';
-import { Badge, Button } from '@/shared/ui';
+import { Badge, Button, IconButton, IconCopy } from '@/shared/ui';
 import { jsonFieldType, jsonPathOf, type JsonFieldType, type JsonPathSegment } from './jsonPath';
 
 export interface JsonPick {
@@ -75,9 +75,9 @@ function Node({ name, value, path, expanded, toggle, onPick, onKeyDown, first }:
         if (branch) toggle(jsonPath);
       }}
       onKeyDown={(event) => onKeyDown(event, { path: jsonPath, branch, pick })}
-      className="cursor-default rounded-[0.3rem] px-[0.3rem] py-[0.15rem] focus:outline-2 focus:outline-info"
+      className="cursor-default rounded-sm px-1 py-0.5 focus:outline-2 focus:outline-accent"
     >
-      <span className="flex flex-wrap items-center gap-[0.4rem] font-mono text-[0.8rem]">
+      <span className="flex flex-wrap items-center gap-2 font-mono text-sm">
         <span aria-hidden>{branch ? (open ? '▾' : '▸') : '·'}</span>
         <span className="text-text">{name}</span>
         {!branch && (
@@ -85,26 +85,25 @@ function Node({ name, value, path, expanded, toggle, onPick, onKeyDown, first }:
             <SafeValue value={displayValue(value)} field={key} className="text-muted" />
             {pci && <Badge tone="WARN">{t('explorer.pci')}</Badge>}
             {pick && (
-              <Button variant="ghost" onClick={(e) => { stop(e); onPick(pick); }}>
-                {t('explorer.use', { path: jsonPath })}
+              <Button variant="ghost" size="sm" aria-label={t('monitorForm.data.addValue', { path: jsonPath })} onClick={(e) => { stop(e); onPick(pick); }}>
+                {t('monitorForm.data.add')}
               </Button>
             )}
-            <Button
-              variant="ghost"
-              aria-label={t('explorer.copy', { path: jsonPath })}
+            <IconButton
+              size="sm"
+              icon={IconCopy}
+              label={t('explorer.copy', { path: jsonPath })}
               onClick={(e) => {
                 stop(e);
                 const text = typeof value === 'string' ? safeText(value, key) : safeText(displayValue(value), key);
                 void navigator.clipboard?.writeText(text);
               }}
-            >
-              ⧉
-            </Button>
+            />
           </>
         )}
       </span>
       {open && (
-        <ul role="group" className="m-0 list-none pl-[1rem]">
+        <ul role="group" className="m-0 list-none pl-4">
           {children(value, path).map((child) => (
             <Node key={child.key} name={child.key} value={child.value} path={child.path} expanded={expanded} toggle={toggle} onPick={onPick} onKeyDown={onKeyDown} first={false} />
           ))}
@@ -126,7 +125,7 @@ export function JsonExplorer({ value, onPick, defaultExpanded = false }: JsonExp
   const tree = useRef<HTMLUListElement>(null);
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set(defaultExpanded ? allBranchPaths(value) : []));
 
-  if (!isBranch(value)) return <p className="m-0 text-[0.85rem] text-muted">{t('explorer.empty')}</p>;
+  if (!isBranch(value)) return <p className="m-0 text-sm text-muted">{t('explorer.empty')}</p>;
 
   const toggle = (path: string, force?: boolean) =>
     setExpanded((current) => {

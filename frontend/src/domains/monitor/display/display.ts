@@ -75,6 +75,17 @@ function systemField(field: string, label: string, format: FieldDisplay['format'
   return { field, selected: false, label, format, storeAsSeries: false, display: 'hidden', dataClass: null, masked: false };
 }
 
+/** `[RESPONSE_TIME]` → `RESPONSE_TIME`; null for columns and JSON paths. */
+export function systemFieldKey(field: string): string | null {
+  return /^\[([A-Z_]+)\]$/.exec(field)?.[1] ?? null;
+}
+
+/** One entry per key (the HTTP preview already lists `[STATUS]`/`[RESPONSE_TIME]` as columns); first wins. */
+export function dedupeFields(fields: readonly FieldDisplay[]): FieldDisplay[] {
+  const seen = new Set<string>();
+  return fields.filter((f) => (seen.has(f.field) ? false : (seen.add(f.field), true)));
+}
+
 /**
  * Step 1 of "Data & display": fields with suggested label, format and display.
  * System field labels are written in the operator's language because they are saved as labels.
@@ -82,12 +93,23 @@ function systemField(field: string, label: string, format: FieldDisplay['format'
 export function suggestFields(preview: PreviewResult, kind: 'SQL' | 'HTTP', locale: Locale = DEFAULT_LOCALE): FieldDisplay[] {
   const labels = messages(locale).fields.system;
   const fields = preview.columns.map((column) => columnField(column, preview));
-  if (kind === 'SQL') {
-    fields.push(systemField('[ROWS]', labels.rows, 'integer'), systemField('[EXEC_TIME]', labels.execTime, 'duration'));
-  } else {
-    fields.push(systemField('[STATUS]', labels.status, 'integer'), systemField('[RESPONSE_TIME]', labels.responseTime, 'duration'));
+  const system: [string, string, FieldDisplay['format']][] =
+    kind === 'SQL'
+      ? [['[ROWS]', labels.rows, 'integer'], ['[EXEC_TIME]', labels.execTime, 'duration']]
+      : [['[STATUS]', labels.status, 'integer'], ['[RESPONSE_TIME]', labels.responseTime, 'duration']];
+  for (const [field, label, format] of system) {
+    const index = fields.findIndex((f) => f.field === field);
+    // A built-in value the probe already returned keeps its column (selected) with the friendly label.
+    if (index >= 0) fields[index] = { ...fields[index]!, label, format, storeAsSeries: field !== '[STATUS]' };
+    else fields.push(systemField(field, label, format));
   }
-  return fields;
+  return dedupeFields(fields);
+}
+
+/** A new preview keeps what the operator already chose for a field (edit mode); fields it no longer returns stay at the end. */
+export function mergeSuggested(current: readonly FieldDisplay[], suggested: readonly FieldDisplay[]): FieldDisplay[] {
+  const merged = suggested.map((s) => current.find((c) => c.field === s.field) ?? s);
+  return [...merged, ...current.filter((c) => !suggested.some((s) => s.field === c.field))];
 }
 
 /** FE-35: a JSONPath picked in the response explorer becomes (or re-selects) a field; sensitive rules still apply. */

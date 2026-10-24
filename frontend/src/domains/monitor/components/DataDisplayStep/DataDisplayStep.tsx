@@ -1,15 +1,19 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { AnimatePresence } from 'motion/react';
-import { moveItem } from '@/domains/workspace/reorder/reorder';
 import { useTranslation } from 'react-i18next';
-import type { DisplayMode, FieldDisplay } from '@/shared/api/types';
+import { moveItem } from '@/domains/workspace/reorder/reorder';
+import type { DisplayMode, FieldDisplay, PreviewRow } from '@/shared/api/types';
 import type { FieldFormat } from '@/shared/format';
+import { SafeValue } from '@/shared/privacy/SafeValue';
 import { safeText, type DataClass } from '@/shared/privacy/redact';
-import { AnimatedItem, Badge, FlashValue, INPUT_CLASS, SELECT_CLASS } from '@/shared/ui';
+import { AnimatedItem, Badge, Checkbox, Field, FlashValue, IconChevronDown, Select, TextInput } from '@/shared/ui';
+import { systemFieldKey } from '../../display';
 
 export interface DataDisplayStepProps {
   fields: readonly FieldDisplay[];
   onChange: (fields: FieldDisplay[]) => void;
+  /** First row of the preview, for the live value of each field. */
+  values?: PreviewRow;
 }
 
 const FORMATS: FieldFormat[] = ['integer', 'decimal', 'currency', 'percent', 'duration', 'relative', 'text'];
@@ -31,15 +35,17 @@ function PrivacyBadge({ dataClass }: { dataClass: DataClass | null | undefined }
 }
 
 /**
- * "Data & display" step: choose what to store and how each field appears.
- * Unchecked fields are not stored. Card data is always masked and never stored as a series;
- * personal data is masked by default; neither can go to the wall.
+ * "Data & display" step: one simple row per value (keep it, its name, the value now, how it shows) and the
+ * rest behind "Formatting". Unchecked values are not stored. Card data is always masked and never kept as
+ * a history chart; personal data is masked by default; neither can go to the wall.
  */
-export function DataDisplayStep({ fields, onChange }: DataDisplayStepProps) {
+export function DataDisplayStep({ fields, onChange, values = {} }: DataDisplayStepProps) {
   const { t } = useTranslation();
+  const baseId = useId();
   // FE-14: keyboard reorder (Space grabs/drops, arrows move, Escape cancels) on a local draft.
   const [draft, setDraft] = useState<FieldDisplay[] | null>(null);
   const [grabbed, setGrabbed] = useState<string | null>(null);
+  const [open, setOpen] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState('');
   const root = useRef<HTMLDivElement>(null);
   const shown = draft ?? fields;
@@ -49,7 +55,10 @@ export function DataDisplayStep({ fields, onChange }: DataDisplayStepProps) {
     root.current?.querySelector<HTMLElement>(`[data-reorder-handle="${CSS.escape(grabbed)}"]`)?.focus();
   });
 
-  function onHandleKey(event: KeyboardEvent<HTMLButtonElement>, key: string) {
+  const nameOf = (field: FieldDisplay) => safeText(field.label) || field.field;
+
+  function onHandleKey(event: KeyboardEvent<HTMLButtonElement>, field: FieldDisplay) {
+    const key = field.field;
     const index = shown.findIndex((f) => f.field === key);
     if (event.key === ' ' || event.key === 'Enter') {
       event.preventDefault();
@@ -70,14 +79,11 @@ export function DataDisplayStep({ fields, onChange }: DataDisplayStepProps) {
       event.preventDefault();
       const next = moveItem(shown, index, index + (event.key === 'ArrowDown' ? 1 : -1));
       setDraft(next);
-      setAnnouncement(
-        t('layout.dnd.position', { name: key, position: next.findIndex((f) => f.field === key) + 1, total: next.length }),
-      );
+      setAnnouncement(t('layout.dnd.position', { name: nameOf(field), position: next.findIndex((f) => f.field === key) + 1, total: next.length }));
     }
   }
 
-  function update(index: number, patch: Partial<FieldDisplay>) {
-    const key = (draft ?? fields)[index]?.field;
+  function update(key: string, patch: Partial<FieldDisplay>) {
     const current = fields.find((f) => f.field === key);
     if (!current) return;
     // Card data rules cannot be relaxed from the UI (the API rejects them too).
@@ -90,128 +96,125 @@ export function DataDisplayStep({ fields, onChange }: DataDisplayStepProps) {
   const hasCardData = fields.some((f) => isPci(f.dataClass));
 
   return (
-    <div ref={root} className="flex flex-col gap-[0.5rem]">
+    <div ref={root} className="flex flex-col gap-3">
       <p role="status" aria-live="polite" className="sr-only">
         {announcement}
       </p>
-      <p className="m-0 text-[0.8rem] text-muted">
-        <FlashValue value={selected}>{t('fields.count', { selected, total: fields.length })}</FlashValue>
+      <p className="m-0 flex flex-wrap items-baseline justify-between gap-2 text-sm text-muted">
+        <span>{t('monitorForm.data.intro')}</span>
+        <FlashValue value={selected}>{t('monitorForm.data.count', { selected, total: fields.length })}</FlashValue>
       </p>
-      {hasCardData && <p className="m-0 text-[0.8rem] text-warn-text">{t('privacy.pciNotice')}</p>}
+      {hasCardData && <p className="m-0 text-sm text-warn-text">{t('privacy.pciNotice')}</p>}
       <AnimatePresence>
-      {shown.map((field, index) => {
-        const off = !field.selected;
-        const pci = isPci(field.dataClass);
-        const sensitive = isSensitive(field.dataClass);
-        const masked = pci || Boolean(field.masked);
-        return (
-          <AnimatedItem
-            as="div"
-            key={field.field}
-            index={index}
-            count={fields.length}
-            role="group"
-            aria-label={field.field}
-            className={`grid grid-cols-1 items-center gap-[0.4rem] rounded-[0.45rem] border border-line p-[0.55rem] md:grid-cols-[minmax(9rem,1.2fr)_1.2fr_1fr_0.6fr_auto_1fr_auto] ${off ? 'bg-transparent' : 'bg-s1'}`}
-          >
-            <span className="flex min-w-0 items-center gap-[0.35rem]">
-            <button
-              type="button"
-              data-reorder-handle={field.field}
-              aria-label={t('layout.dnd.reorder', { name: field.field })}
-              aria-pressed={grabbed === field.field}
-              onKeyDown={(e) => onHandleKey(e, field.field)}
-              className="cursor-grab rounded-[0.3rem] px-[0.2rem] text-muted hover:text-text"
+        {shown.map((field, index) => {
+          const off = !field.selected;
+          const pci = isPci(field.dataClass);
+          const sensitive = isSensitive(field.dataClass);
+          const name = nameOf(field);
+          const expanded = open === field.field;
+          const panelId = `${baseId}-format-${index}`;
+          const system = systemFieldKey(field.field);
+          const source = system ? t('monitorForm.data.builtIn') : field.field;
+          return (
+            <AnimatedItem
+              as="div"
+              key={field.field}
+              index={index}
+              count={fields.length}
+              role="group"
+              aria-label={name}
+              className={`flex flex-col gap-3 rounded-md border border-line p-3 ${off ? 'bg-transparent' : 'bg-s2'}`}
             >
-              ⋮⋮
-            </button>
-            <label className="flex min-w-0 flex-wrap items-center gap-[0.45rem] font-mono text-[0.8rem]">
-              <input
-                type="checkbox"
-                aria-label={t('fields.store', { field: field.field })}
-                checked={field.selected}
-                onChange={(e) => update(index, { selected: e.target.checked })}
-              />
-              <span className="truncate">{field.field}</span>
-              <PrivacyBadge dataClass={field.dataClass} />
-            </label>
-            </span>
-            <input
-              aria-label={t('fields.label')}
-              className={INPUT_CLASS}
-              value={safeText(field.label)}
-              disabled={off}
-              onChange={(e) => update(index, { label: e.target.value })}
-            />
-            <select
-              aria-label={t('fields.format')}
-              className={SELECT_CLASS}
-              value={field.format}
-              disabled={off || pci}
-              onChange={(e) => update(index, { format: e.target.value as FieldFormat })}
-            >
-              {FORMATS.map((f) => (
-                <option key={f} value={f}>
-                  {t(`fields.formats.${f}`)}
-                </option>
-              ))}
-            </select>
-            <input
-              aria-label={t('fields.unit')}
-              className={INPUT_CLASS}
-              value={field.unit ?? ''}
-              placeholder={t('fields.unitPlaceholder')}
-              disabled={off}
-              onChange={(e) => update(index, { unit: e.target.value || undefined })}
-            />
-            <label className="flex items-center gap-[0.35rem] text-[0.78rem] whitespace-nowrap text-muted">
-              <input
-                type="checkbox"
-                aria-label={t('fields.series')}
-                checked={field.storeAsSeries && !pci}
-                disabled={off || pci}
-                onChange={(e) => update(index, { storeAsSeries: e.target.checked })}
-              />
-              {t('fields.seriesShort')}
-            </label>
-            <select
-              aria-label={t('fields.display')}
-              className={SELECT_CLASS}
-              value={field.display}
-              disabled={off}
-              onChange={(e) => update(index, { display: e.target.value as DisplayMode })}
-            >
-              {DISPLAYS.map((d) => (
-                <option key={d} value={d}>
-                  {t(`fields.displays.${d}`)}
-                </option>
-              ))}
-            </select>
-            <span className="flex flex-col gap-[0.2rem] text-[0.75rem] whitespace-nowrap text-muted">
-              <label className="flex items-center gap-[0.35rem]">
-                <input
-                  type="checkbox"
-                  aria-label={t('privacy.masked')}
-                  checked={masked}
-                  disabled={pci || !sensitive}
-                  onChange={(e) => update(index, { masked: e.target.checked })}
-                />
-                {t('privacy.masked')}
-              </label>
-              <label className="flex items-center gap-[0.35rem]">
-                <input
-                  type="checkbox"
-                  aria-label={t('privacy.showOnWall')}
-                  checked={!sensitive && field.showOnWall !== false}
-                  disabled={sensitive || off}
-                  onChange={(e) => update(index, { showOnWall: e.target.checked })}
-                />
-                {t('privacy.showOnWall')}
-              </label>
-            </span>
-          </AnimatedItem>
-        );
-      })}
+              <div className="grid grid-cols-1 items-center gap-3 md:grid-cols-12">
+                <span className="flex min-w-0 items-start gap-2 md:col-span-5">
+                  <button
+                    type="button"
+                    data-reorder-handle={field.field}
+                    aria-label={t('layout.dnd.reorder', { name })}
+                    aria-pressed={grabbed === field.field}
+                    onKeyDown={(e) => onHandleKey(e, field)}
+                    className="mt-0.5 cursor-grab rounded-sm px-1 text-muted hover:text-text"
+                  >
+                    ⋮⋮
+                  </button>
+                  <Checkbox
+                    className="min-w-0"
+                    label={
+                      <span className="flex flex-wrap items-center gap-2">
+                        {name}
+                        <PrivacyBadge dataClass={field.dataClass} />
+                      </span>
+                    }
+                    description={<span className="break-all font-mono text-xs">{t('monitorForm.data.source', { source })}</span>}
+                    aria-label={t('monitorForm.data.keep', { name })}
+                    checked={field.selected}
+                    onChange={(e) => update(field.field, { selected: e.target.checked })}
+                  />
+                </span>
+                <span className="flex min-w-0 items-baseline gap-2 md:col-span-2">
+                  <span className="text-xs text-dim md:sr-only">{t('monitorForm.data.value')}</span>
+                  <SafeValue value={values[field.field] ?? null} field={field.field} className="truncate font-mono text-sm text-text" />
+                </span>
+                <span className="md:col-span-3">
+                  <Select aria-label={t('monitorForm.data.display')} value={field.display} disabled={off} onChange={(e) => update(field.field, { display: e.target.value as DisplayMode })}>
+                    {DISPLAYS.map((d) => (
+                      <option key={d} value={d}>
+                        {t(`fields.displays.${d}`)}
+                      </option>
+                    ))}
+                  </Select>
+                </span>
+                <span className="md:col-span-2 md:justify-self-end">
+                  <button
+                    type="button"
+                    aria-expanded={expanded}
+                    aria-controls={panelId}
+                    aria-label={t('monitorForm.data.formattingFor', { name })}
+                    onClick={() => setOpen(expanded ? null : field.field)}
+                    className="inline-flex h-8 items-center gap-1 rounded-sm px-2 text-sm text-muted hover:bg-s3 hover:text-text"
+                  >
+                    {t('monitorForm.data.formatting')}
+                    <IconChevronDown size={16} className={expanded ? 'rotate-180' : ''} />
+                  </button>
+                </span>
+              </div>
+              {expanded && (
+                <div id={panelId} className="grid grid-cols-1 gap-3 border-t border-line pt-3 sm:grid-cols-3">
+                  <Field label={t('monitorForm.data.name')}>
+                    <TextInput value={safeText(field.label)} disabled={off} onChange={(e) => update(field.field, { label: e.target.value })} />
+                  </Field>
+                  <Field label={t('fields.format')}>
+                    <Select value={field.format} disabled={off || pci} onChange={(e) => update(field.field, { format: e.target.value as FieldFormat })}>
+                      {FORMATS.map((f) => (
+                        <option key={f} value={f}>
+                          {t(`fields.formats.${f}`)}
+                        </option>
+                      ))}
+                    </Select>
+                  </Field>
+                  <Field label={t('fields.unit')}>
+                    <TextInput value={field.unit ?? ''} placeholder={t('fields.unitPlaceholder')} disabled={off} onChange={(e) => update(field.field, { unit: e.target.value || undefined })} />
+                  </Field>
+                  <div className="flex flex-col gap-2 sm:col-span-3 sm:flex-row sm:gap-6">
+                    <Checkbox
+                      label={t('monitorForm.data.history')}
+                      checked={field.storeAsSeries && !pci}
+                      disabled={off || pci}
+                      onChange={(e) => update(field.field, { storeAsSeries: e.target.checked })}
+                    />
+                    <Checkbox label={t('privacy.masked')} checked={pci || Boolean(field.masked)} disabled={pci || !sensitive} onChange={(e) => update(field.field, { masked: e.target.checked })} />
+                    <Checkbox
+                      label={t('privacy.showOnWall')}
+                      checked={!sensitive && field.showOnWall !== false}
+                      disabled={sensitive || off}
+                      onChange={(e) => update(field.field, { showOnWall: e.target.checked })}
+                    />
+                  </div>
+                </div>
+              )}
+            </AnimatedItem>
+          );
+        })}
       </AnimatePresence>
     </div>
   );

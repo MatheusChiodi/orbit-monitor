@@ -40,7 +40,7 @@ export function PreviewTable({ preview, maxRows = 50 }: PreviewTableProps) {
           <span className="font-mono text-text">{t('preview.httpStatus', { status: preview.status })}</span>
         )}
         <span className="font-mono">{summary}</span>
-        <span className="ml-auto text-info">{t('preview.suggestion', { mode })}</span>
+        <span className="ml-auto text-muted">{t('preview.suggestion', { mode })}</span>
       </div>
       {hasCardData && (
         <p role="note" className="m-0 rounded-[0.45rem] border border-warn/50 bg-warn/12 px-[0.6rem] py-[0.35rem] text-[0.8rem] text-warn-text">

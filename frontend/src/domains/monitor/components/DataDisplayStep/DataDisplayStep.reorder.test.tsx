@@ -14,28 +14,28 @@ const fields: FieldDisplay[] = [
 describe('FE-14 reorder fields in Data & display', () => {
   it('each field has a drag handle reachable by keyboard', () => {
     render(<DataDisplayStep fields={fields} onChange={vi.fn()} />);
-    expect(screen.getByRole('button', { name: 'Reorder PENDING_QTY' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Reorder Pending' })).toBeInTheDocument();
   });
 
   it('Space + ArrowDown + Space moves a field down', async () => {
     const onChange = vi.fn();
     render(<DataDisplayStep fields={fields} onChange={onChange} />);
-    screen.getByRole('button', { name: 'Reorder PENDING_QTY' }).focus();
+    screen.getByRole('button', { name: 'Reorder Pending' }).focus();
     await userEvent.keyboard(' {ArrowDown} ');
     expect(onChange).toHaveBeenLastCalledWith([fields[1], fields[0], fields[2]]);
-    expect(screen.getByRole('status')).toHaveTextContent('PENDING_QTY moved to position 2 of 3');
+    expect(screen.getByRole('status')).toHaveTextContent('Pending moved to position 2 of 3');
   });
 
   it('Esc cancels the reorder', async () => {
     const onChange = vi.fn();
     render(<DataDisplayStep fields={fields} onChange={onChange} />);
-    screen.getByRole('button', { name: 'Reorder PENDING_QTY' }).focus();
+    screen.getByRole('button', { name: 'Reorder Pending' }).focus();
     await userEvent.keyboard(' {ArrowDown}{Escape}');
     expect(onChange).not.toHaveBeenCalled();
   });
 
   it('handle label in pt-BR', () => {
     renderWithLocale(<DataDisplayStep fields={fields} onChange={vi.fn()} />, 'pt-BR');
-    expect(screen.getByRole('button', { name: 'Reordenar PENDING_QTY' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Reordenar Pending' })).toBeInTheDocument();
   });
 });

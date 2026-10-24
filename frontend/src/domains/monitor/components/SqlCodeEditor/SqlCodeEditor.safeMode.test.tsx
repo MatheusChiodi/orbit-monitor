@@ -6,16 +6,17 @@ import { SqlCodeEditor } from './SqlCodeEditor';
 const catalog = { tables: [] };
 
 describe('SqlCodeEditor safe mode (ported from SqlEditor)', () => {
-  it('shows the visible guards', () => {
+  it('shows a visible label and the guards as plain text (not chips)', () => {
     render(<SqlCodeEditor catalog={catalog} value="SELECT 1" onChange={vi.fn()} />);
-    for (const guard of ['SELECT only', 'Timeout 5s', 'Max. 500 rows', 'Credential in vault']) {
-      expect(screen.getByText(guard)).toBeInTheDocument();
-    }
+    expect(screen.getByText('SQL query', { selector: 'label' })).toBeInTheDocument();
+    const guards = screen.getByText('SELECT only · stops after 5 s · at most 500 rows · the password stays in the vault');
+    expect(guards.tagName).toBe('P');
+    expect(screen.getByRole('textbox', { name: 'SQL query' })).toHaveAccessibleDescription(guards.textContent!);
   });
 
   it('guards and errors in pt-BR', () => {
     renderWithLocale(<SqlCodeEditor catalog={catalog} value="DELETE FROM x" onChange={vi.fn()} />, 'pt-BR');
-    expect(screen.getByText('Credencial no cofre')).toBeInTheDocument();
+    expect(screen.getByText(/a senha fica no cofre/)).toBeInTheDocument();
     expect(screen.getByRole('alert')).toHaveTextContent('Somente SELECT ou WITH');
     expect(screen.getByRole('textbox', { name: 'Consulta SQL' })).toBeInTheDocument();
   });

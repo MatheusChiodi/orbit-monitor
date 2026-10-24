@@ -74,7 +74,7 @@ describe('validateCondition', () => {
     expect(validateCondition(c('PENDING_QTY', '<', ' '), fields)).toEqual({ key: 'conditions.errors.valueRequired' });
   });
   it('between needs two numbers', () => {
-    expect(validateCondition(c('PENDING_QTY', 'between', '10'), fields)).toEqual({ key: 'conditions.errors.range' });
+    expect(validateCondition(c('PENDING_QTY', 'between', '10'), fields)).toEqual({ key: 'monitorForm.rules.rangeError' });
   });
   it('older_than needs a duration', () => {
     expect(validateCondition(c('LAST_BATCH_AT', 'older_than', 'yesterday'), fields)).toEqual({

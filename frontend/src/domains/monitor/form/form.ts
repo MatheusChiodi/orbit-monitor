@@ -8,6 +8,7 @@ import type {
 } from '@/shared/api/types';
 import { msg, type Message } from '@/shared/i18n/message';
 import type { EvaluationContext } from '../conditions';
+import { normalizeCondition } from '../conditions/alertRules';
 import { checkSelect } from '../sql';
 import { buildMonitorTarget, initialKindFields, isPreviewable, parseHeaders, validateKind, type KindFields, type MonitorKind } from './targets';
 
@@ -93,7 +94,7 @@ export function buildDefinition(state: MonitorFormState): MonitorDefinition {
     intervalSeconds: state.intervalSeconds,
     timeoutSeconds: state.timeoutSeconds,
     retries: state.retries,
-    conditions: state.conditions,
+    conditions: state.conditions.map(normalizeCondition),
     fields: state.fields,
     ...buildMonitorTarget(state),
   };

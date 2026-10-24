@@ -14,7 +14,7 @@ function step(fields: FieldDisplay[]) {
 describe('FE-51 DataDisplayStep motion', () => {
   it('standard: field rows enter as list items', () => {
     renderWithMotion(step([qty, rows]), 'standard');
-    const row = screen.getByRole('group', { name: 'QTY' });
+    const row = screen.getByRole('group', { name: 'Qty' });
     expect(row).toHaveAttribute('data-motion', 'listItem');
     expect(row).toHaveAttribute('data-motion-level', 'standard');
     expect(entersAnimated(row)).toBe(true);
@@ -22,25 +22,25 @@ describe('FE-51 DataDisplayStep motion', () => {
 
   it('off: static', () => {
     renderWithMotion(step([qty, rows]), 'off');
-    expect(isStatic(screen.getByRole('group', { name: 'QTY' }))).toBe(true);
+    expect(isStatic(screen.getByRole('group', { name: 'Qty' }))).toBe(true);
   });
 
   it('a removed field leaves through AnimatePresence in standard', async () => {
     const { rerender } = renderWithMotion(step([qty, rows]), 'standard');
     rerender(step([qty]));
-    expect(screen.queryByRole('group', { name: '[ROWS]' })).not.toBeNull();
+    expect(screen.queryByRole('group', { name: 'Rows' })).not.toBeNull();
     await flushMotion(500);
-    expect(screen.queryByRole('group', { name: '[ROWS]' })).toBeNull();
+    expect(screen.queryByRole('group', { name: 'Rows' })).toBeNull();
   });
 
   it('the stored-fields counter swaps in place with a flash', () => {
     const { rerender } = renderWithMotion(step([qty, rows]), 'standard');
     rerender(step([qty, { ...rows, selected: true }]));
-    expect(screen.getByText('2 of 2 fields will be stored')).toHaveAttribute('data-flash', 'up');
+    expect(screen.getByText('2 of 2 kept')).toHaveAttribute('data-flash', 'up');
   });
 
   it('prefers-reduced-motion forces off', () => {
     renderWithMotion(step([qty]), 'expressive', 'en', { reducedMotion: true });
-    expect(screen.getByRole('group', { name: 'QTY' })).toHaveAttribute('data-motion-level', 'off');
+    expect(screen.getByRole('group', { name: 'Qty' })).toHaveAttribute('data-motion-level', 'off');
   });
 });

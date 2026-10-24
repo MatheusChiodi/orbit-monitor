@@ -1,44 +1,42 @@
-import { useId, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { m } from 'motion/react';
 import { useTranslation } from 'react-i18next';
+import { ConnectionDialog } from '@/domains/connections/ConnectionDialog';
+import { useConnectionTests } from '@/domains/connections/ConnectionTestStatus';
+import { newId } from '@/domains/connections/model';
 import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import { currentLocale } from '@/shared/i18n/i18n';
-import { translate } from '@/shared/i18n/message';
-import type { CatalogTable, SavedQuery } from '@/shared/api/consoleTypes';
+import { translate, type Message } from '@/shared/i18n/message';
+import type { CatalogTable, ConnectionInput, ConnectionTestResult, GroupInput, SavedQuery } from '@/shared/api/consoleTypes';
 import type { MonitorSaveResult } from '@/shared/api/monitorTargets';
 import type { Connection, Group, MonitorDefinition, PreviewRequest, PreviewResult } from '@/shared/api/types';
-import { Button, INPUT_CLASS, SELECT_CLASS } from '@/shared/ui';
-import { addPickedField, suggestFields } from '../../display';
+import { Button, StickyActionBar } from '@/shared/ui';
+import { defaultConditions, validateCondition } from '../../conditions';
+import { mergeSuggested, suggestFields } from '../../display';
 import {
-  MONITOR_KINDS,
   buildDefinition,
   buildTarget,
-  conditionFieldsFor,
   initialFormState,
   isPreviewable,
   previewContext,
   validateForm,
   validateTarget,
+  type KeptCondition,
   type MonitorFormState,
   type MonitorKind,
 } from '../../form';
 import { ConditionBuilder } from '../ConditionBuilder';
-import { DataDisplayStep } from '../DataDisplayStep';
-import { JsonExplorer } from '../JsonExplorer';
-import { PreviewTable } from '../PreviewTable';
-import { FormField, TargetFields } from './TargetFields';
+import { useConditionSentence } from '../ConditionEditor';
+import { FormStepper } from '../FormStepper';
+import { AUTO_GROUP } from '../GroupSelect';
+import { PreviewPanel } from '../PreviewPanel';
+import { ReviewStep } from '../ReviewStep';
+import { TargetStep } from '../TargetStep';
+import { DataStep } from './DataStep';
+import { reviewItems } from './reviewItems';
+import { conditionFields, stepsFor, type StepId } from './steps';
+import { TargetFields } from './TargetFields';
 import { useCatalog, useSavedQueries } from './useCatalog';
-
-function parseJson(body: string | null | undefined): unknown {
-  if (!body) return undefined;
-  const trimmed = body.trim();
-  if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) return undefined;
-  try {
-    return JSON.parse(trimmed) as unknown;
-  } catch {
-    return undefined;
-  }
-}
 
 export interface MonitorFormProps {
   groups: readonly Group[];
@@ -47,89 +45,96 @@ export interface MonitorFormProps {
   /** May resolve with the save result (a new push monitor carries its one-time `pushUrl`). */
   onSave: (definition: MonitorDefinition) => Promise<MonitorSaveResult | void>;
   onCancel: () => void;
-  /** Kind preselected by the route (`#/monitors/new/http`). */
+  /** Kind of a new monitor (step 0 or the route `#/monitors/new/http`). */
   initialType?: MonitorKind;
+  /** Edit, duplicate or template: the form starts from this state. */
+  initialState?: MonitorFormState;
+  mode?: 'create' | 'edit';
+  /** Saved rules the visual editor cannot show; the screen saves them back unchanged. */
+  keptConditions?: readonly KeptCondition[];
   /** FE-33: tables and columns of a connection for SQL autocomplete (`/api/connections/{id}/catalog`). */
   onLoadCatalog?: (connectionId: string) => Promise<CatalogTable[]>;
   /** BE-12: saved queries of a connection (`/api/query-catalog?connectionId=`). */
   onLoadSavedQueries?: (connectionId: string) => Promise<SavedQuery[]>;
+  onCreateGroup?: (group: GroupInput) => Promise<Group>;
+  onSaveConnection?: (id: string, connection: ConnectionInput) => Promise<Connection>;
+  onTestConnection?: (id: string) => Promise<ConnectionTestResult>;
+  /** Back to the kind chooser (create only). */
+  onChangeKind?: () => void;
+  /** Shown above the steps (e.g. "secrets are not copied"). */
+  notice?: ReactNode;
 }
 
-interface SectionProps {
-  title: string;
-  children: ReactNode;
-  className?: string;
-  /** `expand`: the section grows into view (height + opacity). */
-  motionKind?: 'expand';
-}
+const noTest = async (): Promise<ConnectionTestResult> => ({ ok: false, ms: 0, error: null });
 
-function Section({ title, children, className = '', motionKind }: SectionProps) {
-  const id = useId();
-  const expand = useMotionPreset('expand');
-  const motionProps = motionKind
-    ? { initial: expand.initial, animate: expand.animate, exit: expand.exit, transition: expand.transition }
-    : { initial: false as const };
-  return (
-    <m.section
-      {...motionProps}
-      data-motion={motionKind}
-      data-motion-level={expand.level}
-      aria-labelledby={id}
-      className={`flex min-w-0 flex-col gap-[0.8rem] rounded-[0.9rem] border border-line bg-s1 p-[1rem] ${className}`}>
-      <h2 id={id} className="section-label m-0">
-        {title}
-      </h2>
-      {children}
-    </m.section>
-  );
-}
-
-function ErrorList({ errors }: { errors: readonly string[] }) {
-  if (errors.length === 0) return null;
-  return (
-    <ul role="alert" className="m-0 list-none p-0 text-[0.85rem] text-down-text">
-      {errors.map((e) => (
-        <li key={e}>{e}</li>
-      ))}
-    </ul>
-  );
-}
-
-/** Monitor form: configuration on the left, live preview on the right. */
-export function MonitorForm({ groups, connections, onPreview, onSave, onCancel, onLoadCatalog, onLoadSavedQueries, initialType = 'SQL' }: MonitorFormProps) {
+/** Guided monitor form: Target → Data → Conditions → Review, with Save always in the sticky bar. */
+export function MonitorForm(props: MonitorFormProps) {
+  const { groups, connections, onPreview, onSave, onCancel, initialType = 'HTTP', initialState, mode = 'create', keptConditions = [] } = props;
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
-  const skeletonShimmer = useMotionPreset('enter').level === 'off' ? '' : 'anim-shimmer';
-  const [state, setState] = useState<MonitorFormState>(() => ({ ...initialFormState(), type: initialType }));
+  const enter = useMotionPreset('enter');
+  const [state, setState] = useState<MonitorFormState>(
+    () => initialState ?? { ...initialFormState(), type: initialType, conditions: defaultConditions(initialType) },
+  );
+  const [step, setStep] = useState<StepId>('target');
   const [preview, setPreview] = useState<PreviewResult | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
-  const [saveErrors, setSaveErrors] = useState<string[]>([]);
+  const [attempted, setAttempted] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [addingConnection, setAddingConnection] = useState(false);
+  const [added, setAdded] = useState<Connection[]>([]);
+  const heading = useRef<HTMLHeadingElement>(null);
+  const moved = useRef(false);
+  const { tests, run: testConnection } = useConnectionTests(props.onTestConnection ?? noTest);
+  const sentence = useConditionSentence();
 
   const patch = (next: Partial<MonitorFormState>) => setState((s) => ({ ...s, ...next }));
-  const targetErrors = validateTarget(state);
+  const steps = stepsFor(state.type);
+  const current = steps.includes(step) ? step : 'target';
+  const index = steps.indexOf(current);
   const previewable = isPreviewable(state.type);
-  const fieldNames = previewable ? state.fields.map((f) => f.field) : conditionFieldsFor(state.type);
-  const catalog = useCatalog(state.type === 'SQL' ? state.connectionId : '', onLoadCatalog);
-  const savedQueries = useSavedQueries(state.type === 'SQL' ? state.connectionId : '', onLoadSavedQueries);
-  const json = state.type === 'HTTP' ? parseJson(preview?.body) : undefined;
+  const allConnections = [...connections, ...added.filter((a) => !connections.some((c) => c.id === a.id))];
+  const autoGroup = groups.length === 0 && (!state.groupId || state.groupId === AUTO_GROUP);
+  const groupId = autoGroup ? AUTO_GROUP : state.groupId || (groups.length === 1 ? groups[0]!.id : '');
+  const fields = conditionFields(state.type, state.fields, state.conditions, preview, t);
+  const catalog = useCatalog(state.type === 'SQL' ? state.connectionId : '', props.onLoadCatalog);
+  const savedQueries = useSavedQueries(state.type === 'SQL' ? state.connectionId : '', props.onLoadSavedQueries);
 
-  function switchType(type: MonitorFormState['type']) {
-    patch({ type, fields: [], conditions: [] });
-    setPreview(null);
-    setPreviewError(null);
+  useEffect(() => {
+    if (moved.current) heading.current?.focus();
+  }, [current]);
+
+  const formErrors: Message[] = attempted ? validateForm({ ...state, groupId }) : [];
+  const ruleErrors = attempted
+    ? state.conditions.flatMap((c, i) => {
+        const error = validateCondition(c, fields.map((f) => f.key));
+        return error ? [`${t('monitorForm.rules.rule', { n: i + 1 })}: ${translate(t, error)}`] : [];
+      })
+    : [];
+  const errorText = (m: Message) => (m.key === 'form.errors.groupRequired' ? t('monitorForm.group.required') : translate(t, m));
+  const nameError = formErrors.find((m) => m.key === 'form.errors.nameRequired');
+  const groupError = formErrors.find((m) => m.key === 'form.errors.groupRequired');
+  const otherErrors = formErrors.filter((m) => m !== nameError && m !== groupError).map(errorText);
+  const problems = formErrors.length + ruleErrors.length;
+  const invalid: StepId[] = [...(formErrors.length ? (['target'] as const) : []), ...(ruleErrors.length ? (['conditions'] as const) : [])];
+  const targetErrors = validateTarget(state);
+
+  function go(next: StepId) {
+    moved.current = true;
+    setStep(next);
   }
 
   async function runPreview() {
+    if (state.type !== 'SQL' && state.type !== 'HTTP') return;
     setRunning(true);
     setPreviewError(null);
     try {
-      if (state.type !== 'SQL' && state.type !== 'HTTP') return;
       const target = buildTarget(state);
       const result = await onPreview(target.type === 'SQL' ? { ...target, intervalSeconds: state.intervalSeconds } : target);
       setPreview(result);
-      patch({ fields: suggestFields(result, state.type, locale) });
+      patch({ fields: mergeSuggested(state.fields, suggestFields(result, state.type, locale)) });
     } catch (e) {
       setPreview(null);
       setPreviewError(e instanceof Error ? e.message : t('form.previewFailed'));
@@ -139,157 +144,167 @@ export function MonitorForm({ groups, connections, onPreview, onSave, onCancel, 
   }
 
   async function save() {
-    const errors = validateForm(state).map((m) => translate(t, m));
-    setSaveErrors(errors);
-    if (errors.length > 0) return;
+    setAttempted(true);
+    setServerError(null);
+    const blocking = validateForm({ ...state, groupId }).length > 0 || state.conditions.some((c) => validateCondition(c, fields.map((f) => f.key)));
+    if (blocking) {
+      go(validateForm({ ...state, groupId }).length > 0 ? 'target' : 'conditions');
+      return;
+    }
     setSaving(true);
     try {
-      await onSave(buildDefinition(state));
+      let id = groupId;
+      if (autoGroup) {
+        if (!props.onCreateGroup) throw new Error(t('monitorForm.group.required'));
+        const name = t('monitorForm.group.defaultName');
+        id = (await props.onCreateGroup({ id: newId(name), name, order: 0 })).id;
+        patch({ groupId: id });
+      }
+      await onSave(buildDefinition({ ...state, groupId: id }));
     } catch (e) {
-      setSaveErrors([e instanceof Error ? e.message : t('form.saveFailed')]);
+      setServerError(e instanceof Error ? e.message : t('form.saveFailed'));
     } finally {
       setSaving(false);
     }
   }
 
-  return (
-    <div className="flex flex-col gap-[1rem]">
-      <div className="grid grid-cols-1 gap-[1rem] lg:grid-cols-2">
-        <Section title={t('form.configuration')}>
-          <div role="radiogroup" aria-label={t('form.type')} className="flex flex-wrap gap-[0.4rem]">
-            {MONITOR_KINDS.map((type) => (
-              <label
-                key={type}
-                className={`flex h-[2.2rem] cursor-pointer items-center gap-[0.4rem] rounded-[0.45rem] border px-[0.8rem] text-[0.85rem] font-semibold ${state.type === type ? 'border-info bg-info/12 text-info' : 'border-line-2 text-muted'}`}
-              >
-                <input type="radio" name="monitor-type" className="sr-only" checked={state.type === type} onChange={() => switchType(type)} />
-                {t(`monitorForm.types.${type}`)}
-              </label>
-            ))}
-          </div>
-          <div className="grid grid-cols-1 gap-[0.6rem] sm:grid-cols-2">
-            <FormField label={t('form.name')}>
-              {(id) => <input id={id} className={INPUT_CLASS} value={state.name} onChange={(e) => patch({ name: e.target.value })} />}
-            </FormField>
-            <FormField label={t('form.group')}>
-              {(id) => (
-                <select id={id} className={SELECT_CLASS} value={state.groupId} onChange={(e) => patch({ groupId: e.target.value })}>
-                  <option value="">{t('form.choose')}</option>
-                  {groups.map((g) => (
-                    <option key={g.id} value={g.id}>
-                      {g.name}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </FormField>
-            <FormField label={t('form.interval')}>
-              {(id) => (
-                <input
-                  id={id}
-                  type="number"
-                  min={15}
-                  max={86400}
-                  className={`${INPUT_CLASS} font-mono`}
-                  value={state.intervalSeconds}
-                  onChange={(e) => patch({ intervalSeconds: Number(e.target.value) })}
-                />
-              )}
-            </FormField>
-            <FormField label={t('form.retries')}>
-              {(id) => (
-                <input
-                  id={id}
-                  type="number"
-                  min={0}
-                  max={10}
-                  className={`${INPUT_CLASS} font-mono`}
-                  value={state.retries}
-                  onChange={(e) => patch({ retries: Number(e.target.value) })}
-                />
-              )}
-            </FormField>
-          </div>
-          <TargetFields state={state} connections={connections} onChange={patch} catalog={catalog.catalog} catalogStatus={catalog.status} savedQueries={savedQueries} />
-          {previewable && (
-            <div>
-              <Button variant="primary" onClick={runPreview} disabled={running || targetErrors.length > 0}>
-                {t('form.runPreview')}
-              </Button>
-            </div>
-          )}
-        </Section>
-
-        <Section title={t('form.preview')}>
-          {previewError && (
-            <p role="alert" className="m-0 font-mono text-[0.85rem] text-down-text">
-              {previewError}
-            </p>
-          )}
-          {running && (
-            <p
-              role="status"
-              aria-busy="true"
-              data-skeleton
-              className={`m-0 rounded-[0.45rem] p-[0.6rem] text-muted ${skeletonShimmer}`}
-            >
-              {t('form.running')}
-            </p>
-          )}
-          {!previewable ? (
-            <p className="m-0 text-[0.85rem] text-muted">{t('monitorForm.noPreview')}</p>
-          ) : preview ? (
-            <>
-              {preview.cost && preview.cost.level !== 'NONE' && (
-                <div role="note" className="flex flex-wrap items-center gap-[0.6rem] rounded-[0.45rem] border border-warn/50 bg-warn/12 px-[0.7rem] py-[0.4rem] text-[0.85rem] text-warn-text">
-                  <span>{preview.cost.message}</span>
-                  {preview.cost.suggestedIntervalSeconds > state.intervalSeconds && (
-                    <Button variant="ghost" onClick={() => patch({ intervalSeconds: preview.cost!.suggestedIntervalSeconds })}>
-                      {t('monitorForm.useInterval', { seconds: preview.cost.suggestedIntervalSeconds })}
-                    </Button>
-                  )}
-                </div>
-              )}
-              <PreviewTable preview={preview} />
-            </>
-          ) : (
-            !previewError && !running && <p className="m-0 text-[0.85rem] text-muted">{t('form.previewEmpty')}</p>
-          )}
-        </Section>
-      </div>
-
-      {preview && (
-        <Section title={t('form.dataDisplay')} motionKind="expand">
-          {json !== undefined && (
-            <div className="flex flex-col gap-[0.4rem]">
-              <span className="text-[0.8rem] text-muted">{t('monitorForm.jsonExplorerHint')}</span>
-              <div className="max-h-[18rem] overflow-auto rounded-[0.6rem] border border-line p-[0.5rem]">
-                <JsonExplorer value={json} onPick={(pick) => patch({ fields: addPickedField(state.fields, pick, preview) })} />
-              </div>
-            </div>
-          )}
-          <DataDisplayStep fields={state.fields} onChange={(fields) => patch({ fields })} />
-        </Section>
+  const stepLabel = (s: StepId) => t(`monitorForm.flow.steps.${s}`);
+  const reason = targetErrors[0] ? translate(t, targetErrors[0]) : null;
+  const previewAction = previewable ? (
+    <div className="flex flex-wrap items-center gap-3">
+      <Button variant="secondary" onClick={runPreview} loading={running} disabled={running || reason !== null} aria-describedby={reason ? 'preview-reason' : undefined}>
+        {t('form.runPreview')}
+      </Button>
+      {reason && (
+        <span id="preview-reason" className="text-sm text-muted">
+          {t('monitorForm.flow.previewNeeds', { reason })}
+        </span>
       )}
+    </div>
+  ) : null;
 
-      <Section title={t('form.conditions')}>
+  let body: ReactNode;
+  if (current === 'target') {
+    body = (
+      <TargetStep
+        state={state}
+        onChange={patch}
+        groups={groups}
+        groupId={groupId}
+        onCreateGroup={props.onCreateGroup}
+        nameError={nameError ? errorText(nameError) : undefined}
+        groupError={groupError ? errorText(groupError) : undefined}
+        onChangeKind={mode === 'create' ? props.onChangeKind : undefined}
+        previewAction={previewAction}
+        target={
+          <TargetFields
+            state={state}
+            connections={allConnections}
+            onChange={patch}
+            catalog={catalog.catalog}
+            catalogStatus={catalog.status}
+            savedQueries={savedQueries}
+            onAddConnection={props.onSaveConnection ? () => setAddingConnection(true) : undefined}
+            connectionTest={tests[state.connectionId]}
+          />
+        }
+        preview={
+          <PreviewPanel
+            previewable={previewable}
+            preview={preview}
+            error={previewError}
+            running={running}
+            intervalSeconds={state.intervalSeconds}
+            onUseInterval={(intervalSeconds) => patch({ intervalSeconds })}
+          />
+        }
+      />
+    );
+  } else if (current === 'data') {
+    body = <DataStep state={state} preview={preview} onChange={patch} onGoToTarget={() => go('target')} />;
+  } else if (current === 'conditions') {
+    body = (
+      <div className="flex flex-col gap-3 rounded-md border border-line bg-s1 p-4">
         <ConditionBuilder
           conditions={state.conditions}
-          fields={fieldNames}
+          fields={fields}
           context={preview ? previewContext(preview) : null}
           onChange={(conditions) => patch({ conditions })}
+          addDisabledReason={t('monitorForm.rules.addNeedsPreview')}
         />
-      </Section>
+        {keptConditions.length > 0 && (
+          <p className="m-0 text-sm text-muted">
+            {t('monitorForm.flow.keptRules', { count: keptConditions.length, rules: keptConditions.map((k) => k.expression).join('; ') })}
+          </p>
+        )}
+      </div>
+    );
+  } else {
+    body = (
+      <ReviewStep
+        items={reviewItems({ state, groups, groupId, connections: allConnections, keptConditions, sentences: state.conditions.map((c) => sentence(c, fields)), t })}
+        onEdit={(s) => go(s as StepId)}
+      />
+    );
+  }
 
-      <ErrorList errors={saveErrors} />
-      <div className="flex justify-end gap-[0.6rem]">
+  return (
+    <div className="flex flex-col gap-6">
+      {props.notice}
+      <FormStepper steps={steps} current={current} invalid={invalid} label={stepLabel} onSelect={go} />
+      {(otherErrors.length > 0 || ruleErrors.length > 0 || serverError) && (
+        <ul role="alert" className="m-0 flex list-none flex-col gap-1 rounded-sm border border-down/40 bg-down/10 px-3 py-2 text-sm text-down-text">
+          {[...otherErrors, ...ruleErrors, ...(serverError ? [serverError] : [])].map((e) => (
+            <li key={e}>{e}</li>
+          ))}
+        </ul>
+      )}
+      <m.div key={current} initial={enter.initial} animate={enter.animate} transition={enter.transition} data-motion="step" data-motion-level={enter.level} className="flex flex-col gap-4">
+        <h2 ref={heading} tabIndex={-1} className="m-0 text-lg font-semibold text-text focus:outline-none">
+          {stepLabel(current)}
+        </h2>
+        {body}
+      </m.div>
+      <StickyActionBar
+        status={
+          problems > 0 ? (
+            <span className="text-down-text">{t('monitorForm.flow.problems', { count: problems })}</span>
+          ) : (
+            t('monitorForm.flow.stepOf', { n: index + 1, total: steps.length })
+          )
+        }
+      >
         <Button variant="ghost" onClick={onCancel}>
           {t('form.cancel')}
         </Button>
-        <Button variant="primary" onClick={save} disabled={saving}>
-          {t('form.save')}
+        {index > 0 && (
+          <Button variant="secondary" onClick={() => go(steps[index - 1]!)}>
+            {t('monitorForm.flow.back')}
+          </Button>
+        )}
+        {index < steps.length - 1 && (
+          <Button variant="secondary" onClick={() => go(steps[index + 1]!)}>
+            {t('monitorForm.flow.next', { step: stepLabel(steps[index + 1]!) })}
+          </Button>
+        )}
+        <Button variant="primary" onClick={save} loading={saving}>
+          {mode === 'edit' ? t('monitorForm.flow.saveChanges') : t('monitorForm.flow.add')}
         </Button>
-      </div>
+      </StickyActionBar>
+      {props.onSaveConnection && (
+        <ConnectionDialog
+          open={addingConnection}
+          takenIds={allConnections.map((c) => c.id)}
+          onClose={() => setAddingConnection(false)}
+          onSave={props.onSaveConnection}
+          onSaved={(connection) => {
+            setAddingConnection(false);
+            setAdded((list) => [...list.filter((c) => c.id !== connection.id), connection]);
+            patch({ connectionId: connection.id });
+            if (props.onTestConnection) void testConnection(connection.id);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import {
   fieldKindOf,
   joinList,
   joinRange,
+  normalizeCondition,
   parseExpression,
   splitList,
   splitRange,
@@ -78,5 +79,12 @@ describe('alert rules', () => {
     expect(joinRange('1', '5')).toBe('1 and 5');
     expect(splitList('(a, b)')).toEqual(['a', 'b']);
     expect(joinList(['a', 'b'])).toBe('(a, b)');
+  });
+
+  it('sends values in server syntax', () => {
+    const base = { field: 'X', level: 'DOWN' as const };
+    expect(normalizeCondition({ ...base, operator: 'between', value: '10..50' }).value).toBe('10 and 50');
+    expect(normalizeCondition({ ...base, operator: 'in', value: 'UP, OK' }).value).toBe('(UP, OK)');
+    expect(normalizeCondition({ ...base, operator: '<', value: ' 5 ' }).value).toBe('5');
   });
 });

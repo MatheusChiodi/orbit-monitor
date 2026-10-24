@@ -111,7 +111,8 @@
     "created": "Grupo criado",
     "failed": "Não foi possível criar o grupo: {{error}}",
     "nameRequired": "Digite um nome para o grupo",
-    "exists": "Já existe um grupo com este nome"
+    "exists": "Já existe um grupo com este nome",
+    "required": "Escolha um grupo ou crie um"
   },
   "rules": {
     "sentence": "{{level}} quando {{field}} {{operator}} {{value}}",
@@ -144,7 +145,8 @@
     "value": "Limite",
     "textMode": "Editar como texto",
     "visualMode": "Editar com campos",
-    "textHint": "Uma regra por linha, escrita como o estado saudável: [RESPONSE_TIME] <= 1000 → WARN"
+    "textHint": "Uma regra por linha, escrita como o estado saudável: [RESPONSE_TIME] <= 1000 → WARN",
+    "rangeError": "Preencha os dois limites do intervalo"
   },
   "fieldNames": {
     "STATUS": "Status HTTP",
@@ -171,7 +173,9 @@
     "builtIn": "valor próprio",
     "history": "Guardar gráfico de histórico",
     "pickFromBody": "Adicionar um valor da resposta",
-    "pickHint": "Escolha qualquer valor da resposta para guardá-lo ou usá-lo em uma regra."
+    "pickHint": "Escolha qualquer valor da resposta para guardá-lo ou usá-lo em uma regra.",
+    "add": "Adicionar",
+    "addValue": "Adicionar valor em {{path}}"
   },
   "review": {
     "name": "Nome",

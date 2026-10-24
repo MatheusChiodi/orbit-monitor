@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { renderWithLocale } from '@/test/renderWithLocale';
 import { initialFormState } from '../../form';
@@ -9,8 +10,23 @@ const connections = [{ id: 'pg', name: 'BI Postgres', kind: 'POSTGRES' as const 
 describe('TargetFields', () => {
   it('SQL: connection and editor', () => {
     render(<TargetFields state={initialFormState()} connections={connections} onChange={vi.fn()} />);
-    expect(screen.getByRole('option', { name: 'BI Postgres · POSTGRES' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'BI Postgres · PostgreSQL' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'SQL query' })).toBeInTheDocument();
+  });
+
+  it('SQL without connections invites to add one from the form', async () => {
+    const onAdd = vi.fn();
+    render(<TargetFields state={initialFormState()} connections={[]} onChange={vi.fn()} onAddConnection={onAdd} />);
+    expect(screen.getByRole('option', { name: 'No connections yet' })).toBeInTheDocument();
+    expect(screen.getByText('Add the database Orbit should read from.')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Add connection' }));
+    expect(onAdd).toHaveBeenCalled();
+  });
+
+  it('SQL shows the test result of the chosen connection', () => {
+    const state = { ...initialFormState(), connectionId: 'pg' };
+    render(<TargetFields state={state} connections={connections} onChange={vi.fn()} connectionTest={{ phase: 'done', result: { ok: false, ms: 10, error: 'timed out' } }} />);
+    expect(screen.getByText("Couldn't connect. timed out")).toBeInTheDocument();
   });
 
   it('HTTP GET has no body; POST does', () => {

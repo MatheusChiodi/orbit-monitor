@@ -117,7 +117,7 @@ export function evaluateCondition(condition: Condition, ctx: EvaluationContext):
 export function validateCondition(condition: Condition, fields: readonly string[]): Message | null {
   if (!fields.includes(condition.field)) return msg('conditions.errors.unknownField');
   if (condition.value.trim() === '') return msg('conditions.errors.valueRequired');
-  if (condition.operator === 'between' && !splitRange(condition.value)) return msg('conditions.errors.range');
+  if (condition.operator === 'between' && !splitRange(condition.value)) return msg('monitorForm.rules.rangeError');
   if ((condition.operator === 'older_than' || condition.operator === 'newer_than') && parseDurationText(condition.value) === null) {
     return msg('conditions.errors.duration');
   }

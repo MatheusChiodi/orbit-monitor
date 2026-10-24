@@ -81,9 +81,9 @@ describe('FE-33 SQL editor', () => {
     expect(screen.getByRole('textbox', { name: 'SQL query' })).toHaveValue('SELECT 1\nFROM dual');
   });
 
-  it('keeps the guard chips visible and the safe-mode error', () => {
+  it('keeps the guards visible and the safe-mode error', () => {
     render(<SqlCodeEditor value="DELETE FROM T" onChange={vi.fn()} catalog={catalog} />);
-    expect(screen.getByRole('list', { name: 'Query guards' })).toHaveTextContent('SELECT only');
+    expect(screen.getByText(/^SELECT only/)).toBeInTheDocument();
     expect(screen.getByRole('alert')).toHaveTextContent('SELECT or WITH only');
   });
 

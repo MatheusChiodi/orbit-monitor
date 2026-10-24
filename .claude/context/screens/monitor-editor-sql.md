@@ -4,7 +4,7 @@ title: "SQL monitor editor"
 route: "index.html#/monitors/new/sql"
 status: in-progress
 spec: docs/02-features.md §2.2
-updated: 2026-10-22
+updated: 2026-10-24
 ---
 
 # SQL monitor editor
@@ -13,7 +13,7 @@ updated: 2026-10-22
 Connection, SQL editor with guards, preview with detected types, read mode suggestion, conditions.
 
 ## Layout and components
-`NewMonitorScreen` (`#/monitors/new`, `#/monitors/new/sql`) → `MonitorForm`: kind picker, `TargetFields` (connection + `SqlCodeEditor` with the connection catalog via `useCatalog`), preview (`PreviewTable`), Data & display (`DataDisplayStep`), conditions (`ConditionBuilder`).
+`NewMonitorScreen` (`#/monitors/new` → "Database query", or `#/monitors/new/sql`) and `EditMonitorScreen` → `MonitorForm` (see monitor-editor-http): Target = connection select with "Add connection" (`ConnectionDialog`, then an automatic test shown by `ConnectionTestStatus`), saved queries, `SqlCodeEditor` (visible label, guards as one line of text, catalog autocomplete via `useCatalog`), preview (`PreviewPanel` + `PreviewTable`); Data (`DataDisplayStep`); Conditions (`ConditionBuilder`, `[ROWS]`/`[EXEC_TIME]` always available); Review.
 
 ## States
 - Loading, empty, error, stale data
@@ -29,6 +29,9 @@ Connection, SQL editor with guards, preview with detected types, read mode sugge
 - [CORE-16 · Sensitive data protection (LGPD / PCI DSS)](../features/CORE-16-sensitive-data-protection-lgpd-pci-dss.md) — done
 - [FE-33 · SQL editor](../features/FE-33-sql-editor.md) — done
 - [FE-34 · Condition builder](../features/FE-34-condition-builder.md) — done
+- [FE-66 · Guided monitor flow](../features/FE-66-guided-monitor-flow.md) — done
+- [FE-67 · Monitor edit](../features/FE-67-monitor-edit.md) — done
+- [FE-65 · Connections UI](../features/FE-65-connections-ui.md) — done
 
 ## Code
 - `frontend/src/domains/monitor/components/MonitorForm/MonitorForm.tsx`
@@ -38,6 +41,13 @@ Connection, SQL editor with guards, preview with detected types, read mode sugge
 - `frontend/src/domains/monitor/conditions/conditions.ts`
 - `frontend/src/app/console/screens/NewMonitorScreen/NewMonitorScreen.tsx`
 - `frontend/src/domains/monitor/components/SqlCodeEditor/SqlCodeEditor.tsx`
+- `frontend/src/domains/monitor/components/KindChooser/KindChooser.tsx`
+- `frontend/src/domains/monitor/components/MonitorForm/steps.ts`
+- `frontend/src/domains/monitor/components/GroupSelect/GroupSelect.tsx`
+- `frontend/src/domains/monitor/conditions/alertRules.ts`
+- `frontend/src/domains/monitor/form/fromDefinition.ts`
+- `frontend/src/app/console/screens/EditMonitorScreen/EditMonitorScreen.tsx`
+- `frontend/src/domains/connections/ConnectionDialog/ConnectionDialog.tsx`
 
 ## Tests
 - `frontend/src/domains/monitor/components/MonitorForm/MonitorForm.test.tsx`
@@ -47,8 +57,13 @@ Connection, SQL editor with guards, preview with detected types, read mode sugge
 - `frontend/src/domains/monitor/conditions/conditions.test.ts`
 - `frontend/src/domains/monitor/components/MonitorForm/MonitorForm.kinds.test.tsx`
 - `frontend/src/domains/monitor/components/MonitorForm/TargetFields.kinds.test.tsx`
+- `frontend/src/domains/monitor/components/KindChooser/KindChooser.test.tsx`
+- `frontend/src/domains/monitor/components/GroupSelect/GroupSelect.test.tsx`
+- `frontend/src/app/console/screens/EditMonitorScreen/EditMonitorScreen.test.tsx`
+- `frontend/src/domains/connections/ConnectionDialog/ConnectionDialog.test.tsx`
 
 ## Changelog
 - 2026-10-18 — context file created.
 - 2026-10-18 — SQL editor screen with client-side safe mode, preview, data step and conditions; en/pt-BR.
 - 2026-10-22 — SQL editor with catalog, condition builder and kind picker in the form.
+- 2026-10-24 — connection select offers "Add connection" and shows the test result; visible SQL label; guard chips became plain text; guided steps (FE-65, FE-66, FE-67).

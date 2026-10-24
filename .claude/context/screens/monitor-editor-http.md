@@ -4,7 +4,7 @@ title: "HTTP monitor editor"
 route: "index.html#/monitors/new/http"
 status: in-progress
 spec: docs/02-features.md §2.1
-updated: 2026-10-22
+updated: 2026-10-24
 ---
 
 # HTTP monitor editor
@@ -13,7 +13,7 @@ updated: 2026-10-22
 Request config left, live preview right (status, time, headers, body), conditions.
 
 ## Layout and components
-`NewMonitorScreen` (`#/monitors/new/http`, also `/http-steps`, `/tcp`, `/ping`, `/push`, `/dns`, `/cert`, `/grpc`, `/kafka`) → `MonitorForm`: HTTP fields + `OAuthFields` (write-only secret), `HttpStepsFields`, `CheckTargetFields`; HTTP preview with the JSON explorer in Data & display; a created push monitor shows its URL once.
+`NewMonitorScreen` (`#/monitors/new` → `KindChooser`: Website or API / Database query, "Other kinds" disclosure, templates; `#/monitors/new/http`, `/http-steps`, `/tcp`, `/ping`, `/push`, `/dns`, `/cert`, `/grpc`, `/kafka`; `?from=<id>` duplicates) and `EditMonitorScreen` (`#/monitors/:id/edit`) → `MonitorForm`: `FormStepper` Target → Data → Conditions → Review (kinds without preview skip Data), `StickyActionBar` with Cancel / Back / Next / Add monitor or Save changes. Target = name, `GroupSelect` (inline "New group", Default on a fresh install), HTTP fields + `OAuthFields`, schedule, `PreviewPanel` beside it (fixed height, scrolls inside). Data = `JsonExplorer` behind "Add a value from the response" + `DataDisplayStep`. Conditions = `ConditionBuilder` (alert sentences, text on demand). Review = plain-language summary with Edit links. A created push monitor shows its URL once.
 
 ## States
 - Loading, empty, error, stale data
@@ -28,6 +28,8 @@ Request config left, live preview right (status, time, headers, body), condition
 - [CORE-16 · Sensitive data protection (LGPD / PCI DSS)](../features/CORE-16-sensitive-data-protection-lgpd-pci-dss.md) — done
 - [FE-34 · Condition builder](../features/FE-34-condition-builder.md) — done
 - [FE-35 · JSON explorer](../features/FE-35-json-explorer.md) — done
+- [FE-66 · Guided monitor flow](../features/FE-66-guided-monitor-flow.md) — done
+- [FE-67 · Monitor edit](../features/FE-67-monitor-edit.md) — done
 
 ## Code
 - `frontend/src/domains/monitor/components/MonitorForm/MonitorForm.tsx`
@@ -37,6 +39,12 @@ Request config left, live preview right (status, time, headers, body), condition
 - `frontend/src/domains/monitor/components/HttpStepsFields/HttpStepsFields.tsx`
 - `frontend/src/domains/monitor/components/CheckTargetFields/CheckTargetFields.tsx`
 - `frontend/src/domains/monitor/form/targets.ts`
+- `frontend/src/domains/monitor/components/KindChooser/KindChooser.tsx`
+- `frontend/src/domains/monitor/components/MonitorForm/steps.ts`
+- `frontend/src/domains/monitor/components/GroupSelect/GroupSelect.tsx`
+- `frontend/src/domains/monitor/conditions/alertRules.ts`
+- `frontend/src/domains/monitor/form/fromDefinition.ts`
+- `frontend/src/app/console/screens/EditMonitorScreen/EditMonitorScreen.tsx`
 
 ## Tests
 - `frontend/src/domains/monitor/components/MonitorForm/MonitorForm.test.tsx`
@@ -44,8 +52,12 @@ Request config left, live preview right (status, time, headers, body), condition
 - `frontend/src/domains/monitor/form/targets.test.ts`
 - `frontend/src/domains/monitor/components/MonitorForm/TargetFields.kinds.test.tsx`
 - `frontend/src/app/console/ConsoleApp.routes.test.tsx`
+- `frontend/src/domains/monitor/components/KindChooser/KindChooser.test.tsx`
+- `frontend/src/domains/monitor/components/GroupSelect/GroupSelect.test.tsx`
+- `frontend/src/app/console/screens/EditMonitorScreen/EditMonitorScreen.test.tsx`
 
 ## Changelog
 - 2026-10-18 — context file created.
 - 2026-10-18 — HTTP variant of the monitor form; en/pt-BR.
 - 2026-10-22 — every monitor kind, OAuth2, HTTP steps and the one-time push URL.
+- 2026-10-24 — guided flow (kind chooser, stepper, sticky actions, inline groups, HTTP default rules, deduped fields) and edit/duplicate (FE-66, FE-67).

@@ -125,3 +125,13 @@ export function parseExpression(expression: string, level: Severity): Condition 
   else return null;
   return { field, operator, value: value!.trim(), level };
 }
+
+/** The value in server syntax: ranges as `min and max`, lists in parentheses. */
+export function normalizeCondition(condition: Condition): Condition {
+  if (condition.operator === 'between') {
+    const range = splitRange(condition.value);
+    return range ? { ...condition, value: joinRange(...range) } : condition;
+  }
+  if (condition.operator === 'in') return { ...condition, value: joinList(splitList(condition.value)) };
+  return { ...condition, value: condition.value.trim() };
+}

@@ -35,7 +35,7 @@ describe('FE-35 JSON explorer', () => {
     const onPick = vi.fn();
     render(<JsonExplorer value={body} onPick={onPick} />);
     await userEvent.click(screen.getByRole('treeitem', { name: /queue/ }));
-    await userEvent.click(screen.getByRole('button', { name: 'Use $.queue.size as a field' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Add value at $.queue.size' }));
     expect(onPick).toHaveBeenCalledWith({ path: '$.queue.size', type: 'number' });
   });
 
@@ -43,7 +43,7 @@ describe('FE-35 JSON explorer', () => {
     const onPick = vi.fn();
     render(<JsonExplorer value={body} onPick={onPick} />);
     await userEvent.click(screen.getByRole('treeitem', { name: /items/ }));
-    await userEvent.click(screen.getByRole('button', { name: 'Use $.items[*].value as a field' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Add value at $.items[*].value' }));
     expect(onPick).toHaveBeenCalledWith({ path: '$.items[*].value', type: 'number' });
   });
 
@@ -77,7 +77,7 @@ describe('FE-35 JSON explorer', () => {
     const onPick = vi.fn();
     render(<JsonExplorer value={body} onPick={onPick} defaultExpanded />);
     expect(screen.getByText('PCI · masked')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Use $.payer.card_number as a field' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Add value at $.payer.card_number' })).toBeNull();
   });
 
   it('copying a value copies only the masked text', async () => {
