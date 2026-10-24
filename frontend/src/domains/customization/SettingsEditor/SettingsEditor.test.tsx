@@ -57,7 +57,7 @@ describe('SettingsEditor (generated from the registry)', () => {
     const api = fakeApi();
     const store = createCustomizationStore({ api });
     render(<SettingsEditor store={store} editable />);
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Editing' }), 'workspace');
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Applies to' }), 'workspace');
     await user.click(screen.getByRole('checkbox', { name: 'Glass panels' }));
     expect(api.saveScope).toHaveBeenCalledWith('workspace', null, { 'shape.glass': false });
     await user.click(screen.getByRole('button', { name: 'Reset Shape and surface' }));
@@ -106,7 +106,7 @@ describe('SettingsEditor (generated from the registry)', () => {
     const user = userEvent.setup();
     const api = fakeApi();
     render(<SettingsEditor store={createCustomizationStore({ api })} editable layoutIds={['noc', 'exec']} />);
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Editing' }), 'layout');
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Applies to' }), 'layout');
     await user.selectOptions(screen.getByRole('combobox', { name: 'Layout' }), 'exec');
     await user.selectOptions(screen.getByRole('combobox', { name: 'Card size' }), 'compact');
     expect(api.saveScope).toHaveBeenCalledWith('layout', 'exec', { 'card.monitor.variant': 'compact' });

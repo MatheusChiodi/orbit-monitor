@@ -6,7 +6,7 @@ group: "Customization"
 status: done
 screens: [wall, monitor-list, settings]
 spec: docs/07-customization.md
-updated: 2026-10-22
+updated: 2026-10-24
 ---
 
 # FE-53 · Customize mode and inspector
@@ -49,3 +49,4 @@ Ctrl+. toggles Customize mode; inspector with Content, Appearance, Behavior and 
 ## Changelog
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-22 — Customize mode with handles, inspector tabs, apply-scope chooser, live preview, undo, save and discard in the console and on the wall (status: done).
+- 2026-10-24 — FE-72: the toggle moved from the header to Settings › Advanced (switch); `Ctrl+.` now lives in `CustomizeLayer`; the bar reserves its height as body padding (`--customize-bar-height`) and the inspector stops above it; gear handle uses the accent tokens.

@@ -1,10 +1,10 @@
 ---
 screen: preferences
 title: "Device preferences"
-route: "index.html#/settings/preferences"
+route: "index.html#/settings/advanced"
 status: in-progress
 spec: docs/05-extended-features.md FE-06..FE-09, FE-47, FE-48, FE-50
-updated: 2026-10-22
+updated: 2026-10-24
 ---
 
 # Device preferences
@@ -13,6 +13,7 @@ updated: 2026-10-22
 Language, animation level, density, viewing distance, night mode, sounds, notifications.
 
 ## Layout and components
+- FE-72: part of the one Settings area. Theme, density, text size and animation moved to Settings › Appearance; language to Settings › General; viewing distance (explained), the device preferences file, wall sound and Motion details live in Settings › Advanced. `#/settings/preferences` redirects to Appearance.
 - Console header button "Device preferences" (or `index.html#/settings/preferences`) → `ConsoleApp` view `preferences`
   - `DevicePreferences` (Panel): theme, animation level (+ reduced-motion notice), density, language, viewing distance (no operator name); "workspace default" markers; export / import JSON; reset
 - State: `createPreferencesStore()` (`shared/preferences/preferences.ts`), applied by `app/console/usePreferenceEffects.ts`
@@ -44,6 +45,10 @@ Language, animation level, density, viewing distance, night mode, sounds, notifi
 - `frontend/src/app/console/ConsoleApp.tsx`
 - `frontend/src/domains/workspace/MotionSettingsPanel/MotionSettingsPanel.tsx`
 
+- `frontend/src/app/settings/AdvancedSettings/AdvancedSettings.tsx`
+- `frontend/src/app/settings/AdvancedSettings/WallSoundCard.tsx`
+- `frontend/src/domains/settings/appearance/DisplayControls/DisplayControls.tsx`
+
 ## Tests
 - `frontend/src/domains/workspace/DevicePreferences/DevicePreferences.test.tsx`
 - `frontend/src/shared/preferences/preferences.test.ts`
@@ -57,3 +62,4 @@ Language, animation level, density, viewing distance, night mode, sounds, notifi
 - 2026-10-22 — density and animation level are also editable from the customization settings (bridged to the device preferences).
 - 2026-10-22 — FE-06 animation settings panel with live preview embedded.
 - 2026-10-22 — operator name field removed.
+- 2026-10-24 — FE-72: device preferences split between Appearance (theme, density, text size, one animation control) and Advanced (viewing distance, file, sound, motion details); duplicate controls removed.

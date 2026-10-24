@@ -20,7 +20,7 @@
   },
   "scopeHint": {
     "device": "Salvo apenas neste navegador.",
-    "workspace": "Vale para todos que usam este Orbit.",
+    "workspace": "Vale para todo dispositivo que usa este Orbit, a menos que o dispositivo tenha escolhido o próprio valor.",
     "layout": "Vale para o layout de parede {{layout}}."
   },
   "settings": {
@@ -120,7 +120,7 @@
   },
   "editor": {
     "search": "Buscar configurações",
-    "scope": "Editando",
+    "scope": "Vale para",
     "layout": "Layout",
     "modifiedOnly": "Somente alteradas",
     "reset": "Restaurar",

@@ -6,7 +6,7 @@ group: "Drag and drop and layout"
 status: done
 screens: [layout-editor]
 spec: docs/05-extended-features.md
-updated: 2026-10-18
+updated: 2026-10-24
 ---
 
 # FE-16 · Layout templates
@@ -35,3 +35,4 @@ NOC, Executive, Team, Single incident
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
 - 2026-10-18 — layout templates (status: done).
+- 2026-10-24 — FE-72: template names and one-line descriptions; the template select starts on a disabled placeholder.

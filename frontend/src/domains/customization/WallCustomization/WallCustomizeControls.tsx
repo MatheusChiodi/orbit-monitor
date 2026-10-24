@@ -5,7 +5,7 @@ import { CustomizeToggle } from '../CustomizeToggle';
 export default function WallCustomizeControls() {
   return (
     <>
-      <div className="fixed left-[1rem] bottom-[1rem] z-30">
+      <div className="fixed bottom-4 left-4 z-30">
         <CustomizeToggle className="bg-s1/90" />
       </div>
       <CustomizeLayer />

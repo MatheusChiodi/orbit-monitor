@@ -6,7 +6,7 @@ group: "Drag and drop and layout"
 status: done
 screens: [layout-editor]
 spec: docs/05-extended-features.md
-updated: 2026-10-22
+updated: 2026-10-24
 ---
 
 # FE-11 · Wall layout editor
@@ -68,3 +68,4 @@ updated: 2026-10-22
 - 2026-10-22 — wall renders saved layouts by slug (LayoutGrid, all block kinds, on-call clock).
 - 2026-10-22 — console route for the layout editor; block options (status: done; extra fields need BE-41).
 - 2026-10-22 — block options persisted by BE-41.
+- 2026-10-24 — FE-72: human block names and live block previews, create dialog with name and template, sticky Save; lives in Settings › Wall layouts.

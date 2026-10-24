@@ -20,7 +20,7 @@
   },
   "scopeHint": {
     "device": "Saved in this browser only.",
-    "workspace": "Applies to everyone using this Orbit.",
+    "workspace": "Applies to every device using this Orbit, unless a device chose its own value.",
     "layout": "Applies to the wall layout {{layout}}."
   },
   "settings": {
@@ -120,7 +120,7 @@
   },
   "editor": {
     "search": "Search settings",
-    "scope": "Editing",
+    "scope": "Applies to",
     "layout": "Layout",
     "modifiedOnly": "Modified only",
     "reset": "Reset",

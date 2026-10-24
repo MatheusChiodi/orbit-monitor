@@ -7,7 +7,7 @@ import { settingsForTarget } from '@/shared/customization/registry';
 import type { CustomizationStore } from '@/shared/customization/store';
 import type { TerminologyStore } from '@/shared/customization/terminology';
 import { INSPECTOR_TABS, type InspectorTab } from '@/shared/customization/types';
-import { Button } from '@/shared/ui';
+import { IconButton, IconClose, Tabs } from '@/shared/ui';
 import { SettingField } from '../SettingField';
 import { TerminologyEditor } from '../TerminologyEditor';
 import { NAME_KEYS } from './nameKeys';
@@ -40,47 +40,40 @@ export function CustomizeInspector({ store, mode, terminology, layoutId }: Custo
     <aside
       role="dialog"
       aria-labelledby={titleId}
-      className="fixed inset-y-0 right-0 z-40 flex w-[min(26rem,100vw)] flex-col gap-[0.8rem] overflow-y-auto border-l border-line bg-s1 p-[1rem] shadow-[0_0_2rem_rgb(0_0_0/0.4)]"
+      style={{ bottom: 'var(--customize-bar-height, 0px)' }}
+      className="fixed top-0 right-0 z-40 flex w-full max-w-sm flex-col gap-3 overflow-y-auto border-l border-line bg-s1 p-4 shadow-popover"
     >
-      <header className="flex items-start justify-between gap-[0.6rem]">
+      <header className="flex items-start justify-between gap-2">
         <div>
           <p className="section-label m-0">{t(`customization.mode.types.${selected.type === 'card.monitor' ? 'monitor' : 'group'}`)}</p>
-          <h2 id={titleId} className="m-0 text-[1.05rem] font-semibold">
+          <h2 id={titleId} className="m-0 text-md font-semibold">
             {title}
           </h2>
         </div>
-        <Button variant="ghost" aria-label={t('customization.mode.close')} onClick={() => mode.getState().select(null)}>
-          ✕
-        </Button>
+        <IconButton label={t('customization.mode.close')} icon={IconClose} onClick={() => mode.getState().select(null)} />
       </header>
 
-      <fieldset className="m-0 flex flex-col gap-[0.3rem] border-0 p-0">
-        <legend className="mb-[0.3rem] text-[0.8rem] text-muted">{t('customization.mode.applyTo')}</legend>
+      <fieldset className="m-0 flex flex-col gap-1 border-0 p-0">
+        <legend className="mb-1 text-sm text-muted">{t('customization.mode.applyTo')}</legend>
         {APPLY_TO.map((a) => (
-          <label key={a} className="flex items-center gap-[0.45rem] text-[0.85rem]">
-            <input type="radio" name={`${titleId}-apply`} value={a} checked={applyTo === a} disabled={!allowed(a)} onChange={() => mode.getState().setApplyTo(a)} />
+          <label key={a} className="flex items-center gap-2 text-base">
+            <input className="accent-accent" type="radio" name={`${titleId}-apply`} value={a} checked={applyTo === a} disabled={!allowed(a)} onChange={() => mode.getState().setApplyTo(a)} />
             {t(`customization.scopes.${a}`)}
           </label>
         ))}
       </fieldset>
 
-      <div role="tablist" aria-label={title} className="flex gap-[0.3rem] border-b border-line pb-[0.4rem]">
-        {INSPECTOR_TABS.map((id) => (
-          <Button key={id} role="tab" variant={tab === id ? 'neutral' : 'ghost'} aria-selected={tab === id} onClick={() => setTab(id)}>
-            {t(`customization.mode.tabs.${id}`)}
-          </Button>
-        ))}
-      </div>
+      <Tabs label={title} value={tab} onChange={setTab} items={INSPECTOR_TABS.map((id) => ({ value: id, label: t(`customization.mode.tabs.${id}`) }))} />
 
-      <div role="tabpanel" className="flex flex-col gap-[0.9rem]">
+      <div role="tabpanel" className="flex flex-col gap-4">
         {tab === 'names' ? (
           terminology ? (
             <TerminologyEditor store={terminology} editable keys={NAME_KEYS[selected.type]} />
           ) : (
-            <p className="m-0 text-[0.85rem] text-muted">{t('customization.mode.nothing')}</p>
+            <p className="m-0 text-sm text-muted">{t('customization.mode.nothing')}</p>
           )
         ) : onTab.length === 0 ? (
-          <p className="m-0 text-[0.85rem] text-muted">{t('customization.mode.nothing')}</p>
+          <p className="m-0 text-sm text-muted">{t('customization.mode.nothing')}</p>
         ) : (
           onTab.map((def) => {
             const resolved = state.resolve(def.id, { instanceId, layoutId });

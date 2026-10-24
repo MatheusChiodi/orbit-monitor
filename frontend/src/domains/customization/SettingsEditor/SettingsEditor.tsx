@@ -5,7 +5,7 @@ import { settingLabel } from '@/shared/customization/labels';
 import { SETTINGS } from '@/shared/customization/registry';
 import type { CustomizationStore } from '@/shared/customization/store';
 import { CATEGORIES, type Scope, type SettingDefinition } from '@/shared/customization/types';
-import { Button, INPUT_CLASS, LABEL_CLASS, Panel, SELECT_CLASS } from '@/shared/ui';
+import { Button, Card, Checkbox, Field, Select, TextInput } from '@/shared/ui';
 import { JsonSettingsView } from '../JsonSettingsView';
 import { SettingField } from '../SettingField';
 
@@ -48,54 +48,55 @@ export function SettingsEditor({ store, editable, layoutIds = [] }: SettingsEdit
   const sections = CATEGORIES.map((category) => ({ category, settings: SETTINGS.filter((s) => s.category === category && matches(s)) })).filter((s) => s.settings.length > 0);
 
   return (
-    <div className="flex flex-col gap-[1rem]">
-      {!editable && <p className="m-0 text-[0.85rem] text-warn-text">{t('customization.editor.viewOnly')}</p>}
+    <div className="flex flex-col gap-4">
+      {!editable && <p className="m-0 text-sm text-warn-text">{t('customization.editor.viewOnly')}</p>}
       {state.error && (
-        <p role="alert" className="m-0 text-[0.85rem] text-down-text">
+        <p role="alert" className="m-0 text-sm text-down-text">
           {t(state.error.key, state.error.params ?? {})}
         </p>
       )}
-      <div className="flex flex-wrap items-end gap-[0.8rem]">
-        <div className={LABEL_CLASS}>
-          <label htmlFor={ids.scope}>{t('customization.editor.scope')}</label>
-          <select id={ids.scope} className={SELECT_CLASS} value={scope} onChange={(e) => setScope(e.target.value as EditableScope)}>
+      <div className="flex flex-wrap items-end gap-3">
+        <Field label={t('customization.editor.scope')} id={ids.scope} className="w-full max-w-56">
+          <Select value={scope} onChange={(e) => setScope(e.target.value as EditableScope)}>
             {scopes.map((s) => (
               <option key={s} value={s}>
                 {t(`customization.scopes.${s}`)}
               </option>
             ))}
-          </select>
-        </div>
+          </Select>
+        </Field>
         {scope === 'layout' && (
-          <div className={LABEL_CLASS}>
-            <label htmlFor={ids.layout}>{t('customization.editor.layout')}</label>
-            <select id={ids.layout} className={SELECT_CLASS} value={layoutId ?? ''} onChange={(e) => setLayoutId(e.target.value)}>
+          <Field label={t('customization.editor.layout')} id={ids.layout} className="w-full max-w-56">
+            <Select value={layoutId ?? ''} onChange={(e) => setLayoutId(e.target.value)}>
               {layoutIds.map((l) => (
                 <option key={l} value={l}>
                   {l}
                 </option>
               ))}
-            </select>
-          </div>
+            </Select>
+          </Field>
         )}
-        <input
+        <TextInput
           type="search"
           aria-label={t('customization.editor.search')}
           placeholder={t('customization.editor.search')}
-          className={`${INPUT_CLASS} min-w-[12rem] flex-1`}
+          className="max-w-xs min-w-48 flex-1"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <label className="flex items-center gap-[0.4rem] text-[0.85rem] text-muted">
-          <input type="checkbox" checked={modifiedOnly} onChange={(e) => setModifiedOnly(e.target.checked)} />
-          {t('customization.editor.modifiedOnly')}
-        </label>
-        <Button variant="ghost" aria-pressed={json} onClick={() => setJson(!json)}>
-          {json ? t('customization.editor.formView') : t('customization.editor.jsonView')}
-        </Button>
-        {editable && Object.keys(stored).length > 0 && <Button onClick={() => void state.resetScope(scope, target)}>{t('customization.editor.resetAll')}</Button>}
+        <Checkbox label={t('customization.editor.modifiedOnly')} checked={modifiedOnly} onChange={(e) => setModifiedOnly(e.target.checked)} className="self-center" />
+        <span className="ml-auto flex gap-2">
+          <Button variant="ghost" size="sm" aria-pressed={json} onClick={() => setJson(!json)}>
+            {json ? t('customization.editor.formView') : t('customization.editor.jsonView')}
+          </Button>
+          {editable && Object.keys(stored).length > 0 && (
+            <Button size="sm" onClick={() => void state.resetScope(scope, target)}>
+              {t('customization.editor.resetAll')}
+            </Button>
+          )}
+        </span>
       </div>
-      <p className="m-0 text-[0.78rem] text-dim">
+      <p className="m-0 text-sm text-dim">
         {scope === 'layout' ? t('customization.scopeHint.layout', { layout: layoutId ?? '' }) : t(`customization.scopeHint.${scope}`)}
       </p>
 
@@ -115,19 +116,18 @@ export function SettingsEditor({ store, editable, layoutIds = [] }: SettingsEdit
           const name = t(`customization.categories.${category}`);
           const hasModified = settings.some((s) => s.id in stored);
           return (
-            <Panel
+            <Card
               key={category}
               title={name}
-              surface="solid"
               actions={
                 editable && hasModified ? (
-                  <Button variant="ghost" aria-label={t('customization.editor.resetCategory', { category: name })} onClick={() => void state.resetCategory(scope, category, target)}>
+                  <Button variant="ghost" size="sm" aria-label={t('customization.editor.resetCategory', { category: name })} onClick={() => void state.resetCategory(scope, category, target)}>
                     {t('customization.editor.reset')}
                   </Button>
                 ) : undefined
               }
             >
-              <div className="grid gap-[0.9rem] md:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-2">
                 {settings.map((def) => {
                   const resolved = state.resolve(def.id, { layoutId: target });
                   return (
@@ -144,7 +144,7 @@ export function SettingsEditor({ store, editable, layoutIds = [] }: SettingsEdit
                   );
                 })}
               </div>
-            </Panel>
+            </Card>
           );
         })
       )}

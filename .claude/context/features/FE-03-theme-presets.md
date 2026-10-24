@@ -6,7 +6,7 @@ group: "Theming and personalization"
 status: done
 screens: [theme-editor]
 spec: docs/05-extended-features.md
-updated: 2026-10-22
+updated: 2026-10-24
 ---
 
 # FE-03 · Theme gallery
@@ -68,3 +68,4 @@ Default Orbit Dark or 30 built-in editor-inspired themes (Dracula, Nord, Tokyo N
 - 2026-10-18 — gallery (Settings → Appearance) with live mini walls, filters, search, favorites, hover preview, duplicate & edit, import/export implemented; waiting for the route mount.
 - 2026-10-18 — chart palette extended to 8 series exposed as --viz-1..8.
 - 2026-10-22 — ThemeProvider mounted in console (FE-50 device theme, BE-40 defaults, custom themes) and wall; Settings → Appearance route (status: done).
+- 2026-10-24 — FE-72: gallery shows 8 suggested themes + "Show all"; card actions in a "…" menu; preview-then-apply replaces hover preview.

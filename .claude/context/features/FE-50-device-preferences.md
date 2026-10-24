@@ -6,7 +6,7 @@ group: "Wall runtime and preferences"
 status: done
 screens: [preferences, settings]
 spec: docs/05-extended-features.md
-updated: 2026-10-22
+updated: 2026-10-24
 ---
 
 # FE-50 · Device preferences
@@ -51,3 +51,4 @@ Theme, animation level, density, language and scale saved on the device (no oper
 - 2026-10-22 — implemented preferences store, export/import, DevicePreferences screen and console wiring (status: done).
 - 2026-10-22 — workspace defaults read from /api/settings/defaults; FE-06 motion panel embedded.
 - 2026-10-22 — operator name removed from the preferences (store, screen, export/import); legacy `orbit.operator` key cleared on boot.
+- 2026-10-24 — FE-72: no separate screen; theme/density/text size/animation in Settings › Appearance, language in General, viewing distance and the preferences file in Advanced.

@@ -54,6 +54,28 @@ describe('FE-53 Customize mode', () => {
     expect(screen.getByRole('button', { name: 'Customize Payments' })).toBeInTheDocument();
   });
 
+  it('Ctrl+. works without the header toggle (the toggle now lives in Settings › Advanced)', async () => {
+    const store = createCustomizationStore({ api: fakeApi() });
+    const mode = createCustomizeModeStore(store);
+    render(
+      <CustomizationProvider store={store} mode={mode}>
+        <CustomizeLayer />
+      </CustomizationProvider>,
+    );
+    await userEvent.keyboard('{Control>}.{/Control}');
+    expect(mode.getState().enabled).toBe(true);
+    expect(screen.getByRole('region', { name: 'Customize' })).toBeInTheDocument();
+  });
+
+  it('reserves room at the bottom of the page so the bar never covers content', async () => {
+    const { mode } = setup();
+    mode.getState().toggle(true);
+    expect(await screen.findByRole('region', { name: 'Customize' })).toBeInTheDocument();
+    expect(document.body.style.paddingBottom).not.toBe('');
+    mode.getState().toggle(false);
+    await vi.waitFor(() => expect(document.body.style.paddingBottom).toBe(''));
+  });
+
   it('opens an inspector with tabs, previews a change live and saves it to the chosen scope', async () => {
     const user = userEvent.setup();
     const { api } = setup();

@@ -6,7 +6,7 @@ group: "Customization"
 status: done
 screens: [settings]
 spec: docs/07-customization.md
-updated: 2026-10-22
+updated: 2026-10-24
 ---
 
 # CORE-21 · Customization registry
@@ -69,3 +69,4 @@ Registry of every customizable setting with schema, useSetting(id, {instanceId})
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-22 — registry, scopes and precedence, `useSetting`, generated Settings UI with search, categories, modified filter, resets and JSON view, BE-51 API client, console and wall wiring (status: done).
 - 2026-10-22 — API client aligned to the merged BE-51 endpoints (values/terms bodies, scope paths, instance target encoding, profile file format) and BE-41 layout slugs.
+- 2026-10-24 — FE-72: registry editor in Settings › Advanced › All settings; scope selector reads "Applies to" with a hint that matches where values are stored.

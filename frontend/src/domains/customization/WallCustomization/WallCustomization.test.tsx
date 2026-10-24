@@ -35,7 +35,8 @@ describe('customization on the wall', () => {
         <Probe />
       </WallCustomization>,
     );
-    expect(await screen.findByRole('button', { name: 'Customize' })).toBeInTheDocument();
+    // The editor chunk is imported on demand; under a full parallel run that can take a few seconds.
+    expect(await screen.findByRole('button', { name: 'Customize' }, { timeout: 5000 })).toBeInTheDocument();
   });
 
   it('FE-53: view-only walls never show Customize', async () => {

@@ -6,7 +6,7 @@ group: "Theming and personalization"
 status: done
 screens: [preferences, wall]
 spec: docs/05-extended-features.md §1.2
-updated: 2026-10-22
+updated: 2026-10-24
 ---
 
 # FE-06 · Animation settings
@@ -66,3 +66,4 @@ Settings → Animation: preset level (off/minimal/standard/expressive/custom), i
 - 2026-10-22 — wall uses `resolveMotion` with the layout override from the layout editor.
 - 2026-10-22 — layout animation override persisted by BE-41.
 - 2026-10-22 — FX layer reads the background/intros switches and the intensity; wall resolves layout overrides (status: done).
+- 2026-10-24 — FE-72: one animation control in Settings › Appearance; the detailed controls are Settings › Advanced › Motion details (no second preset button, precedence text kept in docs only).

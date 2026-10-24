@@ -1,4 +1,4 @@
-import type { SettingsApi, WorkspaceSettings } from '@/app/settings/SettingsScreen/SettingsScreen';
+import type { SettingsApi, WorkspaceSettings } from '@/app/settings/GeneralSettings';
 import { isLocale } from '@/shared/i18n/i18n';
 import type { WorkspacePreferenceDefaults } from '@/shared/preferences/preferences';
 import type { ConsoleSource } from '../../consoleSource';

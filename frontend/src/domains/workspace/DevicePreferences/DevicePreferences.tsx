@@ -1,21 +1,10 @@
-import { useId, useState, type ChangeEvent, type ReactNode } from 'react';
+import { useId, useRef, useState, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useStore } from 'zustand';
-import { SUPPORTED_LOCALES } from '@/shared/i18n/i18n';
 import { translate, type Message } from '@/shared/i18n/message';
-import { ANIMATION_LEVELS, systemPrefersReducedMotion } from '@/shared/motion/animationLevel';
-import { MotionSettingsPanel } from '../MotionSettingsPanel';
-import { DENSITIES } from '@/shared/preferences/density';
-import {
-  exportPreferences,
-  parsePreferencesFile,
-  type PreferenceKey,
-  type Preferences,
-  type PreferencesStore,
-} from '@/shared/preferences/preferences';
-import { VIEWING_DISTANCES } from '@/shared/preferences/viewingDistance';
-import { BUILT_IN_THEMES } from '@/shared/theme/registry';
-import { Button, Panel, SELECT_CLASS } from '@/shared/ui';
+import { exportPreferences, parsePreferencesFile, type PreferencesStore } from '@/shared/preferences/preferences';
+import { VIEWING_DISTANCES, isViewingDistance } from '@/shared/preferences/viewingDistance';
+import { Button, Card, Field, IconDownload, IconUpload, Select } from '@/shared/ui';
 
 export interface DevicePreferencesProps {
   store: PreferencesStore;
@@ -37,69 +26,27 @@ async function readText(file: File): Promise<string> {
   return typeof file.text === 'function' ? file.text() : new Response(file).text();
 }
 
-interface FieldProps {
-  label: string;
-  fromWorkspace: boolean;
-  children: (id: string, describedBy: string | undefined) => ReactNode;
-}
-
-/** Label above the control; the "workspace default" marker stays outside the label text. */
-function Field({ label, fromWorkspace, children }: FieldProps) {
-  const { t } = useTranslation();
-  const id = useId();
-  const markerId = `${id}-default`;
-  return (
-    <div className="flex flex-col gap-[0.3rem]">
-      <div className="flex items-baseline justify-between gap-[0.5rem] text-[0.8rem]">
-        <label htmlFor={id} className="text-muted">
-          {label}
-        </label>
-        {fromWorkspace && (
-          <span id={markerId} className="text-[0.72rem] text-dim">
-            {t('preferences.workspaceDefault')}
-          </span>
-        )}
-      </div>
-      {children(id, fromWorkspace ? markerId : undefined)}
-    </div>
-  );
-}
-
-/** FE-50: theme, animation level, density, language and viewing distance for this device (no operator name). */
+/**
+ * FE-50 in Settings › Advanced: the viewing distance (explained) and the device preferences file.
+ * Theme, density and animation live in Appearance; the language in General.
+ */
 export function DevicePreferences({ store }: DevicePreferencesProps) {
   const { t } = useTranslation();
+  const importId = useId();
+  const input = useRef<HTMLInputElement>(null);
   const device = useStore(store, (s) => s.device);
-  const effective = useStore(store, (s) => s.effective);
-  const set = useStore(store, (s) => s.set);
-  const replace = useStore(store, (s) => s.replace);
-  const reset = useStore(store, (s) => s.reset);
-  const setAnimationPreset = useStore(store, (s) => s.setAnimationPreset);
-  const [reducedMotion] = useState(systemPrefersReducedMotion);
+  const scale = useStore(store, (s) => s.effective.scale);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<Message | null>(null);
 
-  const fromWorkspace = (key: PreferenceKey) => device[key] === undefined;
-  const onSelect =
-    <K extends PreferenceKey>(key: K) =>
-    (event: ChangeEvent<HTMLSelectElement>) => {
-      // FE-06: a preset sets every animation control at once (device overrides are cleared).
-      if (key === 'animation') setAnimationPreset(event.target.value as Preferences['animation']);
-      else set(key, event.target.value as Preferences[K]);
-      setNotice(null);
-    };
-
-  const themes = BUILT_IN_THEMES.some((theme) => theme.id === effective.theme)
-    ? BUILT_IN_THEMES.map((theme) => ({ id: theme.id, name: theme.name }))
-    : [{ id: effective.theme, name: effective.theme }, ...BUILT_IN_THEMES.map((theme) => ({ id: theme.id, name: theme.name }))];
-
   async function onImport(event: ChangeEvent<HTMLInputElement>) {
-    const input = event.currentTarget;
-    const file = input.files?.[0];
+    const target = event.currentTarget;
+    const file = target.files?.[0];
     if (!file) return;
     const result = parsePreferencesFile(await readText(file));
-    input.value = '';
+    target.value = '';
     if (result.ok) {
-      replace(result.preferences);
+      store.getState().replace(result.preferences);
       setError(null);
       setNotice(t('preferences.imported'));
     } else {
@@ -109,104 +56,64 @@ export function DevicePreferences({ store }: DevicePreferencesProps) {
   }
 
   return (
-    <Panel surface="solid" className="gap-[1rem]">
-      <p className="m-0 text-[0.88rem] text-muted">{t('preferences.hint')}</p>
+    <Card title={t('settingsHub.advanced.device')} description={t('settingsHub.advanced.deviceHint')}>
+      <Field label={t('settingsHub.advanced.viewingDistance')} hint={t('settingsHub.advanced.viewingDistanceHint')} className="max-w-md">
+        <Select
+          value={scale}
+          onChange={(e) => {
+            if (isViewingDistance(e.target.value)) store.getState().set('scale', e.target.value);
+          }}
+        >
+          {VIEWING_DISTANCES.map((distance) => (
+            <option key={distance} value={distance}>
+              {t(`preferences.scales.${distance}`)}
+            </option>
+          ))}
+        </Select>
+      </Field>
 
-      <div className="grid gap-[1rem] sm:grid-cols-2">
-        <Field label={t('preferences.theme')} fromWorkspace={fromWorkspace('theme')}>
-          {(id, describedBy) => (
-            <select id={id} aria-describedby={describedBy} className={SELECT_CLASS} value={effective.theme} onChange={onSelect('theme')}>
-              {themes.map((theme) => (
-                <option key={theme.id} value={theme.id}>
-                  {theme.name}
-                </option>
-              ))}
-            </select>
-          )}
-        </Field>
-
-        <Field label={t('preferences.animation')} fromWorkspace={fromWorkspace('animation')}>
-          {(id, describedBy) => (
-            <>
-              <select id={id} aria-describedby={describedBy} className={SELECT_CLASS} value={effective.animation} onChange={onSelect('animation')}>
-                {ANIMATION_LEVELS.map((level) => (
-                  <option key={level} value={level}>
-                    {t(`preferences.animationLevels.${level}`)}
-                  </option>
-                ))}
-              </select>
-            </>
-          )}
-        </Field>
-
-        <Field label={t('preferences.density')} fromWorkspace={fromWorkspace('density')}>
-          {(id, describedBy) => (
-            <select id={id} aria-describedby={describedBy} className={SELECT_CLASS} value={effective.density} onChange={onSelect('density')}>
-              {DENSITIES.map((density) => (
-                <option key={density} value={density}>
-                  {t(`preferences.densities.${density}`)}
-                </option>
-              ))}
-            </select>
-          )}
-        </Field>
-
-        <Field label={t('preferences.language')} fromWorkspace={fromWorkspace('locale')}>
-          {(id, describedBy) => (
-            <select id={id} aria-describedby={describedBy} className={SELECT_CLASS} value={effective.locale} onChange={onSelect('locale')}>
-              {SUPPORTED_LOCALES.map((locale) => (
-                <option key={locale} value={locale}>
-                  {t(`app.languages.${locale}`)}
-                </option>
-              ))}
-            </select>
-          )}
-        </Field>
-
-        <Field label={t('preferences.scale')} fromWorkspace={fromWorkspace('scale')}>
-          {(id, describedBy) => (
-            <select id={id} aria-describedby={describedBy} className={SELECT_CLASS} value={effective.scale} onChange={onSelect('scale')}>
-              {VIEWING_DISTANCES.map((distance) => (
-                <option key={distance} value={distance}>
-                  {t(`preferences.scales.${distance}`)}
-                </option>
-              ))}
-            </select>
-          )}
-        </Field>
-
-      </div>
-
-      <MotionSettingsPanel store={store} reducedMotion={reducedMotion} />
-
-      <div className="flex flex-wrap items-center gap-[0.6rem]">
-        <Button onClick={() => download(exportPreferences(device))}>{t('preferences.export')}</Button>
-        <label className="inline-flex h-[2.2rem] cursor-pointer items-center rounded-[0.45rem] border border-line-2 bg-s3 px-[0.9rem] text-[0.85rem] font-semibold text-text hover:bg-s2 focus-within:outline-2 focus-within:outline-info">
-          {t('preferences.import')}
-          <input type="file" accept="application/json,.json" className="sr-only" onChange={(event) => void onImport(event)} />
-        </label>
+      <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
+        <Button size="sm" onClick={() => download(exportPreferences(device))}>
+          <IconDownload />
+          {t('settingsHub.advanced.exportDevice')}
+        </Button>
+        <input
+          ref={input}
+          id={importId}
+          type="file"
+          accept="application/json,.json"
+          aria-label={t('settingsHub.advanced.importDevice')}
+          tabIndex={-1}
+          className="sr-only"
+          onChange={(event) => void onImport(event)}
+        />
+        <Button size="sm" onClick={() => input.current?.click()}>
+          <IconUpload />
+          {t('settingsHub.advanced.importDevice')}
+        </Button>
         <Button
+          size="sm"
           variant="ghost"
           onClick={() => {
-            reset();
+            store.getState().reset();
             setNotice(null);
             setError(null);
           }}
         >
-          {t('preferences.reset')}
+          {t('settingsHub.advanced.resetDevice')}
         </Button>
       </div>
 
       {notice && (
-        <p role="status" className="m-0 text-[0.85rem] text-ok-text">
+        <p role="status" className="m-0 text-sm text-ok-text">
           {notice}
         </p>
       )}
       {error && (
-        <p role="alert" className="m-0 text-[0.85rem] text-down-text">
+        <p role="alert" className="m-0 text-sm text-down-text">
           {translate(t, error)}
         </p>
       )}
-    </Panel>
+    </Card>
   );
 }

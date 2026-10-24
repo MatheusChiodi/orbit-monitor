@@ -1,21 +1,25 @@
 ---
 screen: settings
-title: "Settings and config files"
-route: "index.html#/settings"
+title: "Settings"
+route: "index.html#/settings[/:section]"
 status: in-progress
 spec: docs/06-configuration-files.md
-updated: 2026-10-22
+updated: 2026-10-24
 ---
 
-# Settings and config files
+# Settings
 
 ## Purpose
-Access mode banner (edit / view-only), workspace defaults, config export/import, config file health.
+The one Settings area (FE-72): sub-nav with General · Appearance · Wall layouts · Connections · Advanced.
 
 ## Layout and components
-- `SettingsScreen` (`frontend/src/app/settings/SettingsScreen/`): edit-mode note or `ViewOnlyBanner`, workspace defaults (default language), config files table (OK / Not created yet / Invalid + error), Export config (no secrets), Import config (file → dry-run diff → Apply import)
-- Pending: theme/animation/density defaults (FE-50), wiring to the backend endpoints and console navigation
-- `CustomizationScreen` (`index.html#/settings/customization`, header button "Customization"): tabs Customization (registry-generated settings with scope selector, search, modified filter, resets, JSON view), Names and terminology (FE-54), Profiles (FE-57)
+- `SettingsRoute` (`frontend/src/app/console/screens/SettingsRoute/`): PageHeader "Settings", sub-nav (`SettingsNav`: link list from 1024 px, section select below), section h2 and body.
+- General (`GeneralSettings`): device language, access as read-only status (or the view-only notice), workspace language default (Save defaults → toast), config files table, Export configuration, Import configuration with the styled `FilePicker` → dry-run diff → Apply import.
+- Appearance (`AppearancePage` → `AppearanceSettings`): see theme-editor.md.
+- Wall layouts (`LayoutsPage`): see layout-editor.md.
+- Connections: `domains/connections/ConnectionsSettings` (owned by the monitor-creation bucket).
+- Advanced (`AdvancedSettings`): Customize mode switch (`Ctrl+.`), This device (viewing distance explained, export/import/reset device preferences), Wall sound, Motion details, then tabs All settings (registry with scope "Applies to", search, modified filter, resets, JSON view) · Names and terms · Profiles.
+- Legacy hashes (`#/settings/preferences`, `#/settings/themes`, `#/settings/customization`, `#/layouts[/:id]`) redirect in the shell.
 
 ## States
 - Loading, empty, error, stale data
@@ -35,11 +39,16 @@ Access mode banner (edit / view-only), workspace defaults, config export/import,
 - [FE-54 · Terminology editor](../features/FE-54-terminology-editor.md) — done
 - [FE-56 · Typography, shape and density settings](../features/FE-56-typography-shape-density.md) — done
 - [FE-57 · Customization profiles](../features/FE-57-customization-profiles.md) — done
+- [FE-72 · Settings hub](../features/FE-72-settings-hub.md) — done
 
 ## Code
 - `frontend/src/domains/security/ViewOnlyBanner/ViewOnlyBanner.tsx`
 - `frontend/src/shared/i18n/LanguageSelector/LanguageSelector.tsx`
-- `frontend/src/app/settings/SettingsScreen/SettingsScreen.tsx`
+- `frontend/src/app/settings/GeneralSettings/GeneralSettings.tsx`
+- `frontend/src/app/settings/GeneralSettings/ConfigImport.tsx`
+- `frontend/src/app/settings/SettingsNav/SettingsNav.tsx`
+- `frontend/src/app/settings/sections.ts`
+- `frontend/src/app/settings/AdvancedSettings/AdvancedSettings.tsx`
 - `frontend/src/app/settings/configTransfer.ts`
 - `frontend/src/app/console/screens/SettingsRoute/SettingsRoute.tsx`
 - `frontend/src/app/console/screens/SettingsRoute/settingsApi.ts`
@@ -48,7 +57,8 @@ Access mode banner (edit / view-only), workspace defaults, config export/import,
 ## Tests
 - `frontend/src/domains/security/ViewOnlyBanner/ViewOnlyBanner.test.tsx`
 - `frontend/src/shared/i18n/LanguageSelector/LanguageSelector.test.tsx`
-- `frontend/src/app/settings/SettingsScreen/SettingsScreen.test.tsx`
+- `frontend/src/app/settings/GeneralSettings/GeneralSettings.test.tsx`
+- `frontend/src/app/console/screens/SettingsRoute/SettingsRoute.test.tsx`
 - `frontend/src/app/settings/configTransfer.test.ts`
 - `frontend/src/app/console/screens/SettingsRoute/settingsApi.test.ts`
 - frontend/src/app/console/ConsoleApp.customization.test.tsx
@@ -63,3 +73,4 @@ Access mode banner (edit / view-only), workspace defaults, config export/import,
 - 2026-10-22 — customization screen (settings, names, profiles) added to the console.
 - 2026-10-22 — workspace defaults (language, animation level, density) through /api/settings/defaults.
 - 2026-10-22 — operator name field and `OperatorPrompt` removed (BE-45 retired in the UI).
+- 2026-10-24 — FE-72: one Settings area with sub-nav (General, Appearance, Wall layouts, Connections, Advanced); `SettingsScreen` became `GeneralSettings` with the styled file picker; Customize mode, registry, profiles and terminology moved to Advanced.

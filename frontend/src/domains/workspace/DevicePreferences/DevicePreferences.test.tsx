@@ -18,67 +18,54 @@ function setup() {
   return store;
 }
 
-describe('FE-50 device preferences — screen', () => {
-  it('lists theme, animation level, density, language and viewing scale (no operator name)', () => {
+describe('FE-50 device preferences — Settings › Advanced', () => {
+  it('keeps only what Appearance and General do not show: viewing distance and the device file', () => {
     setup();
-    for (const label of ['Theme', 'Animation level', 'Density', 'Language', 'Viewing distance']) {
-      expect(screen.getByLabelText(label)).toBeInTheDocument();
-    }
+    expect(screen.getByLabelText('Viewing distance')).toBeInTheDocument();
+    for (const label of ['Theme', 'Animation level', 'Density', 'Language']) expect(screen.queryByLabelText(label)).toBeNull();
     expect(screen.queryByLabelText('Operator name')).toBeNull();
   });
 
-  it('explains that preferences stay on this device', () => {
+  it('explains what the viewing distance does', () => {
     setup();
-    expect(screen.getByText('Saved on this device only. Workspace defaults apply to anything you leave unchanged.')).toBeInTheDocument();
+    expect(screen.getByText(/makes text and charts bigger for screens seen from farther away/)).toBeInTheDocument();
   });
 
-  it('changing a value persists it on the device', async () => {
+  it('changing the distance persists it on the device', async () => {
     setup();
-    await userEvent.selectOptions(screen.getByLabelText('Density'), 'compact');
-    expect(loadPreferences()).toEqual({ density: 'compact' });
-  });
-
-  it('marks values that come from the workspace defaults', () => {
-    setup();
-    expect(screen.getAllByText('workspace default').length).toBeGreaterThan(0);
-  });
-
-  it('warns when reduced motion caps the animation level', () => {
-    vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: true } as MediaQueryList);
-    setup();
-    expect(screen.getByText('Your system asks for reduced motion, so animations stay off.')).toBeInTheDocument();
+    await userEvent.selectOptions(screen.getByLabelText('Viewing distance'), '5m');
+    expect(loadPreferences()).toEqual({ scale: '5m' });
   });
 
   it('exports a JSON file and imports one back', async () => {
     const createObjectURL = vi.fn(() => 'blob:prefs');
     Object.assign(URL, { createObjectURL, revokeObjectURL: vi.fn() });
     const store = setup();
-    await userEvent.click(screen.getByRole('button', { name: 'Export preferences' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Export device preferences' }));
     expect(createObjectURL).toHaveBeenCalled();
     const file = new File([JSON.stringify({ version: 1, preferences: { scale: '5m' } })], 'prefs.json', { type: 'application/json' });
-    await userEvent.upload(screen.getByLabelText('Import preferences'), file);
+    await userEvent.upload(screen.getByLabelText('Import device preferences'), file);
     expect(await screen.findByRole('status')).toHaveTextContent('Preferences imported');
     expect(store.getState().effective.scale).toBe('5m');
   });
 
   it('an invalid import shows an error and keeps the current preferences', async () => {
     const store = setup();
-    await userEvent.upload(screen.getByLabelText('Import preferences'), new File(['nope'], 'x.json', { type: 'application/json' }));
+    await userEvent.upload(screen.getByLabelText('Import device preferences'), new File(['nope'], 'x.json', { type: 'application/json' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('This file is not valid JSON');
     expect(store.getState().effective).toMatchObject(defaults);
   });
 
-  it('reset returns to the workspace defaults', async () => {
+  it('reset returns this device to the workspace defaults', async () => {
     const store = setup();
-    await userEvent.selectOptions(screen.getByLabelText('Density'), 'spacious');
-    await userEvent.click(screen.getByRole('button', { name: 'Reset to workspace defaults' }));
+    store.getState().set('density', 'spacious');
+    await userEvent.click(screen.getByRole('button', { name: 'Reset this device' }));
     expect(store.getState().effective.density).toBe('comfortable');
   });
 
   it('renders in pt-BR', () => {
     renderWithLocale(<DevicePreferences store={createPreferencesStore(defaults)} />, 'pt-BR');
-    expect(screen.getByLabelText('Nível de animação')).toBeInTheDocument();
-    expect(screen.getByLabelText('Densidade')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Exportar preferências' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Distância de visualização')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Exportar preferências do dispositivo' })).toBeInTheDocument();
   });
 });

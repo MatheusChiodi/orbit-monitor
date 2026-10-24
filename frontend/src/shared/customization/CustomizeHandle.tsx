@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useStore } from 'zustand';
+import { IconSettings } from '@/shared/ui/icons';
 import { createCustomizeModeStore } from './customizeMode';
 import { useCustomization } from './CustomizationProvider';
 import { createCustomizationStore } from './store';
@@ -14,7 +15,7 @@ export interface CustomizeHandleProps {
 
 const idle = createCustomizeModeStore(createCustomizationStore({ storage: false }));
 
-/** FE-53: ⚙ handle shown on a customizable item while Customize mode is on (nothing otherwise). */
+/** FE-53: gear handle shown on a customizable item while Customize mode is on (nothing otherwise). */
 export function CustomizeHandle({ type, targetId, label }: CustomizeHandleProps) {
   const { t } = useTranslation();
   const { mode } = useCustomization();
@@ -32,9 +33,9 @@ export function CustomizeHandle({ type, targetId, label }: CustomizeHandleProps)
         event.stopPropagation();
         mode.getState().select({ type, targetId, label });
       }}
-      className={`ml-[0.35rem] inline-flex h-[1.4rem] w-[1.4rem] shrink-0 items-center justify-center rounded-full border text-[0.75rem] ${active ? 'border-info bg-info text-bg' : 'border-info/60 bg-s2 text-info hover:bg-info/20'}`}
+      className={`ml-1.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full border ${active ? 'border-accent bg-accent text-on-accent' : 'border-accent/60 bg-s2 text-accent hover:bg-accent/20'}`}
     >
-      <span aria-hidden>⚙</span>
+      <IconSettings />
     </button>
   );
 }
