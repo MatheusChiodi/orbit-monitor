@@ -92,7 +92,7 @@ public class WallViewFactory {
         return new WallViews.MonitorView(def.id(), def.name(), def.groupId(), def.kind().name(), status.state().name(),
                 primary == null ? null : primary.value(), primary == null ? null : primary.unit(), rule, status.since(),
                 Statistics.minuteSeries(status.history(), clock.instant(), SERIES_MINUTES), status.lastCheckAt(),
-                latest.map(CheckResult::error).orElse(null));
+                latest.map(CheckResult::error).orElse(null), def.paused());
     }
 
     public Optional<WallViews.MonitorView> monitorView(String monitorId) {

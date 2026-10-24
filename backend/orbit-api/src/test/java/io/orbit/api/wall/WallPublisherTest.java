@@ -38,7 +38,7 @@ class WallPublisherTest {
 
     @Test
     void finishedCheckPushesTheMonitorView() {
-        var view = new WallViews.MonitorView("m", "Queue", null, "SQL", "OK", 1.0, null, null, NOW, List.of(), NOW, null);
+        var view = new WallViews.MonitorView("m", "Queue", null, "SQL", "OK", 1.0, null, null, NOW, List.of(), NOW, null, false);
         when(views.monitorView("m")).thenReturn(Optional.of(view));
 
         publisher.onCheck(new CheckResult("m", MonitorState.OK, 3, null, List.of(), null, NOW));

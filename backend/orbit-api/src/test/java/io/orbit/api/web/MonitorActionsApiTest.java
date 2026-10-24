@@ -71,7 +71,9 @@ class MonitorActionsApiTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.definition.paused").value(true))
                 .andExpect(jsonPath("$.definition.window.from").value("08:00"))
-                .andExpect(jsonPath("$.definition.secretHeaders.Authorization").value("•••• (vault)"));
+                .andExpect(jsonPath("$.definition.secretHeaders.Authorization").value("•••• (vault)"))
+                .andExpect(jsonPath("$.status.paused").value(true));
+        mvc.perform(get("/api/monitors")).andExpect(jsonPath("$[?(@.id == '" + id + "')].paused").value(true));
         mvc.perform(post("/api/monitors/" + id + "/resume"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.definition.paused").value(false));

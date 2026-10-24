@@ -22,10 +22,11 @@ public final class WallViews {
      * @param status OK, WARN, DOWN or UNKNOWN (no check finished yet)
      * @param value  current primary value; null when there is no answer
      * @param series last 60 points (1 per minute), null gaps
+     * @param paused BE-54: the monitor is paused (not scheduled)
      */
     public record MonitorView(String id, String name, String groupId, String type, String status, Double value,
                               String unit, RuleView rule, Instant since, List<Double> series, Instant lastCheckAt,
-                              String error) {
+                              String error, boolean paused) {
     }
 
     public record GroupView(String id, String name, String color, String status) {

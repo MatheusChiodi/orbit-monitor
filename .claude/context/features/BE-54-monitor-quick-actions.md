@@ -27,6 +27,8 @@ Act on a saved monitor without resending its definition (the client only has mas
 - `backend/orbit-monitor/src/main/java/io/orbit/monitor/definition/MonitorDefinitions.java`
 - `backend/orbit-api/src/main/java/io/orbit/api/web/MonitorActionsController.java`
 - `backend/orbit-api/src/main/java/io/orbit/api/web/MonitorController.java`
+- `backend/orbit-api/src/main/java/io/orbit/api/wall/WallViews.java`
+- `backend/orbit-api/src/main/java/io/orbit/api/wall/WallViewFactory.java`
 
 ## Tests
 - `backend/orbit-monitor/src/test/java/io/orbit/monitor/definition/MonitorEditsTest.java`
@@ -40,6 +42,8 @@ Act on a saved monitor without resending its definition (the client only has mas
 | POST | `/api/monitors/{id}/duplicate` | → 201 `MonitorDetail` of the copy: new id (`<prefix>_<name>_copy_xxxxxx`), name `<name> (copy)`, `paused: false`, sealed secrets copied server side; a push copy gets its own token and `pushUrl` |
 | POST | `/api/monitors/{id}/push-token` | → 200 `{ monitorId, pushUrl }`; the old URL stops working at once; 400 when not a push monitor; 404 unknown |
 
+`GET /api/monitors` and the wall snapshot list `paused: boolean` on every `MonitorView` (always false for `orbit_self`).
+
 Audit actions: `monitor.pause`, `monitor.resume`, `monitor.duplicate` (detail `from <id>`), `monitor.push-token` (no detail, never the token).
 
 ## Decisions and notes
@@ -50,3 +54,4 @@ Audit actions: `monitor.pause`, `monitor.resume`, `monitor.duplicate` (detail `f
 
 ## Changelog
 - 2026-10-24 — pause/resume, duplicate and push token rotation endpoints (status: done).
+- 2026-10-24 — `paused` added to WallViews.MonitorView (monitor list and wall snapshot).

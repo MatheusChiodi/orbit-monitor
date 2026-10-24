@@ -56,6 +56,6 @@ public class SelfMonitor {
         return new WallViews.MonitorView(ID, NAME, null, "SELF", status.state().name(),
                 status.lastLatencyMs() == null ? null : status.lastLatencyMs().doubleValue(), "ms", null,
                 status.since(), Statistics.minuteSeries(status.history(), now, SERIES_MINUTES), status.lastCheckAt(),
-                status.state() == MonitorState.DOWN ? "Orbit health check is not UP" : null);
+                status.state() == MonitorState.DOWN ? "Orbit health check is not UP" : null, false);
     }
 }
