@@ -92,12 +92,14 @@ describe('FE-02 contrast guard', () => {
   it('fixTheme repairs every issue and lists the tokens it changed', () => {
     const broken = {
       ...ORBIT_DARK,
-      colors: { ...ORBIT_DARK.colors, text: '#30363d', warn: '#ff3d50', dim: '#20252c' },
+      colors: { ...ORBIT_DARK.colors, text: '#30363d', warn: '#ff5c6b', dim: '#20252c' },
       syntax: { ...ORBIT_DARK.syntax, comment: '#151a20' },
     };
     const { theme, adjusted } = fixTheme(broken);
     expect(checkPalette(theme)).toEqual([]);
-    expect(adjusted).toEqual(expect.arrayContaining(['text', 'warn', 'dim', 'syntax.comment']));
+    expect(adjusted).toEqual(expect.arrayContaining(['text', 'dim', 'syntax.comment']));
+    // One of the two colliding status colors moves apart.
+    expect(adjusted.some((token) => token === 'warn' || token === 'down')).toBe(true);
     expect(adjusted).not.toContain('bg');
     expect(theme.colors.bg).toBe(ORBIT_DARK.colors.bg);
   });

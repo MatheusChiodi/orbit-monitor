@@ -16,19 +16,21 @@ describe('FE-03 built-in themes', () => {
     expect(BUILT_IN_THEMES.filter((t) => t.category === 'editor' && t.mode === 'light')).toHaveLength(5);
   });
 
-  it('Orbit Dark mirrors the tokens of docs/03-design.md', () => {
+  it('Orbit Dark mirrors the quiet instrument palette (docs/03-design.md)', () => {
     expect(ORBIT_DARK.colors).toMatchObject({
-      bg: '#07090d',
-      s1: '#0d1117',
-      s2: '#121820',
-      s3: '#182029',
-      text: '#eef2f7',
-      muted: '#8b96a6',
-      dim: '#5a6575',
-      ok: '#22c55e',
-      warn: '#f5a524',
-      down: '#ff3b4f',
-      info: '#3b9eff',
+      bg: '#0b0e13',
+      s1: '#11151c',
+      s2: '#171c25',
+      s3: '#202734',
+      line: '#242b37',
+      text: '#e7ebf2',
+      muted: '#9ba5b6',
+      dim: '#677184',
+      ok: '#3fd38f',
+      warn: '#f3b640',
+      down: '#ff5a6a',
+      info: '#6e9bff',
+      accent: '#6e9bff',
     });
     expect(ORBIT_DARK.adjusted).toBeUndefined();
   });

@@ -1,5 +1,5 @@
 import { luminance, mix } from './color';
-import { BODY_RATIO, suggestReadable } from './contrast';
+import { BODY_RATIO, contrastRatio, suggestReadable } from './contrast';
 import { COLOR_TOKENS, FX_TOKENS, SYNTAX_TOKENS, type ColorToken, type OrbitTheme } from './types';
 
 /** Color cross-fade when the theme changes (docs/05 §1.3); skipped when animations are off (FE-06). */
@@ -17,6 +17,7 @@ export function themeVariables(theme: OrbitTheme): Record<string, string> {
     const tinted = mix(colors[status], dark ? '#ffffff' : '#000000', 0.6);
     vars[`--${status}-text`] = suggestReadable(tinted, colors.s1, BODY_RATIO);
   }
+  vars['--on-accent'] = onAccent(colors.accent);
   theme.chart.forEach((color, i) => {
     vars[`--chart-${i + 1}`] = color;
     vars[`--viz-${i + 1}`] = color;
@@ -24,6 +25,17 @@ export function themeVariables(theme: OrbitTheme): Record<string, string> {
   for (const token of SYNTAX_TOKENS) vars[`--syntax-${token}`] = theme.syntax[token];
   for (const token of FX_TOKENS) vars[`--fx-${token}`] = theme.fx[token];
   return vars;
+}
+
+/** FE-60: text color on an accent fill (primary button); near-black, else white, else pure black. */
+export function onAccent(accent: string): string {
+  const dark = '#0b0e13';
+  const light = '#ffffff';
+  const options = [dark, light, '#000000'];
+  return (
+    options.find((c) => contrastRatio(c, accent) >= BODY_RATIO) ??
+    options.reduce((best, c) => (contrastRatio(c, accent) > contrastRatio(best, accent) ? c : best))
+  );
 }
 
 export interface ApplyOptions {

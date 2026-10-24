@@ -11,11 +11,11 @@ describe('FE-07 density', () => {
     expect(DENSITIES).toEqual(['compact', 'comfortable', 'spacious']);
   });
 
-  it('console font size grows with density and stays within 13–16 px', () => {
+  it('console font size grows with density and stays within 15–17 px (16 px root: the rem type scale reads as designed)', () => {
     expect(densityFontSize('compact')).toBeLessThan(densityFontSize('comfortable'));
-    expect(densityFontSize('comfortable')).toBe(15);
-    expect(densityFontSize('spacious')).toBeLessThanOrEqual(16);
-    expect(densityFontSize('compact')).toBeGreaterThanOrEqual(13);
+    expect(densityFontSize('comfortable')).toBe(16);
+    expect(densityFontSize('spacious')).toBeLessThanOrEqual(17);
+    expect(densityFontSize('compact')).toBeGreaterThanOrEqual(15);
   });
 
   it('applyDensity marks the console root and sets the spacing scale', () => {

@@ -28,6 +28,15 @@ describe('FE-05 applyTheme', () => {
     expect(el.dataset.theme).toBe('oled-black');
   });
 
+  it('FE-60: every built-in theme gets a readable --on-accent for text on accent buttons', async () => {
+    const { BUILT_IN_THEMES } = await import('./registry');
+    for (const theme of BUILT_IN_THEMES) {
+      const vars = themeVariables(theme);
+      expect(vars['--on-accent'], theme.id).toMatch(/^#[0-9a-f]{6}$/);
+      expect(contrastRatio(vars['--on-accent']!, theme.colors.accent), theme.id).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
   it('sets color-scheme from the background luminance', () => {
     const el = document.createElement('div');
     applyTheme(light, el);
