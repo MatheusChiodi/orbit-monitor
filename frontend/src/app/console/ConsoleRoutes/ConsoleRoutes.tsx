@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { PreferencesStore } from '@/shared/preferences/preferences';
 import { Button, EmptyState, IconSearch } from '@/shared/ui';
 import { useConsole } from '../ConsoleContext';
-import type { ConsoleRoute, SettingsSection } from '../routes';
+import type { ConsoleRoute } from '../routes';
 import { AuditScreen } from '../screens/AuditScreen';
 import { DependenciesScreen } from '../screens/DependenciesScreen';
 import { IncidentScreen } from '../screens/IncidentScreen';
@@ -27,22 +27,12 @@ export interface ConsoleServices {
   saveDefaults: (defaults: WorkspacePreferenceDefaults) => Promise<WorkspacePreferenceDefaults>;
 }
 
-/** What `#/settings[/:section[/:layoutId]]` hands the Settings area (FE-63 contract with its owner). */
-export interface SettingsRouteProps {
-  section: SettingsSection;
-  layoutId?: string;
-  preferences: PreferencesStore;
-  services: ConsoleServices;
-}
-
 export interface ConsoleRoutesProps {
   route: ConsoleRoute;
   preferences: PreferencesStore;
   services: ConsoleServices;
   onMonitorSaved: (name: string) => void;
 }
-
-const Settings = SettingsRoute as ComponentType<SettingsRouteProps>;
 
 /** `#/monitors/:id/edit` (owned by the monitor-form screens); resolved at build time so a missing file never breaks the shell. */
 const editScreens = import.meta.glob<{ default: ComponentType<{ id: string }> }>('../screens/EditMonitorScreen/EditMonitorScreen.tsx');
@@ -98,7 +88,7 @@ export function ConsoleRoutes({ route, preferences, services, onMonitorSaved }: 
     case 'audit':
       return <AuditScreen />;
     case 'settings':
-      return <Settings section={route.section} layoutId={route.layoutId} preferences={preferences} services={services} />;
+      return <SettingsRoute section={route.section} layoutId={route.layoutId} preferences={preferences} services={services} />;
     case 'not-found':
       return <NotFound />;
     default:

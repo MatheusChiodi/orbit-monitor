@@ -464,7 +464,7 @@
   "shortcuts": {
     "title": "Atalhos de teclado",
     "openPalette": "Abrir paleta de comandos",
-    "newMonitor": "Novo monitor",
+    "newMonitor": "Adicionar monitor",
     "help": "Mostrar atalhos de teclado",
     "undo": "Desfazer",
     "redo": "Refazer",

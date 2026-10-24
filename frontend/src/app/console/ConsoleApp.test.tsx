@@ -57,7 +57,7 @@ describe('ConsoleApp (no login)', () => {
 
   it('edit mode (loopback) shows edit actions', async () => {
     render(<ConsoleApp api={onlineApi('edit')} />);
-    expect(await screen.findByRole('button', { name: 'New monitor' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Add monitor' })).toBeInTheDocument();
     expect(screen.queryByText(/View-only/)).toBeNull();
   });
 
@@ -65,7 +65,7 @@ describe('ConsoleApp (no login)', () => {
     render(<ConsoleApp api={onlineApi('view-only')} />);
     expect(await screen.findByText('Web portal')).toBeInTheDocument();
     expect(screen.getByText('View-only: edits are allowed only on the machine running Orbit')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'New monitor' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Add monitor' })).toBeNull();
   });
 
   it('without a backend shows that the server is unreachable and never invents data', async () => {
@@ -75,7 +75,7 @@ describe('ConsoleApp (no login)', () => {
     expect(screen.queryByText('Reconciliation queue')).toBeNull();
     expect(screen.queryByText('Showing demo data')).toBeNull();
     expect(screen.getByRole('link', { name: 'Explore with demo data' })).toHaveAttribute('href', expect.stringContaining('?demo'));
-    expect(screen.queryByRole('button', { name: 'New monitor' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Add monitor' })).toBeNull();
     await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(api.getAccess).toHaveBeenCalledTimes(2);
   });
@@ -126,8 +126,8 @@ describe('FE-28 / FE-29 in the console', () => {
     render(<ConsoleApp api={onlineApi('edit')} />);
     await screen.findByText('Web portal');
     await userEvent.keyboard('{Control>}k{/Control}');
-    await userEvent.keyboard('New monitor{Enter}');
-    expect(await screen.findByRole('heading', { name: 'New monitor' })).toBeInTheDocument();
+    await userEvent.keyboard('Add monitor{Enter}');
+    expect(await screen.findByRole('heading', { name: 'Add monitor' })).toBeInTheDocument();
   });
 
   it('the palette lists the monitors', async () => {
@@ -141,13 +141,13 @@ describe('FE-28 / FE-29 in the console', () => {
     render(<ConsoleApp api={onlineApi('edit')} />);
     await screen.findByText('Web portal');
     await userEvent.keyboard('n');
-    expect(await screen.findByRole('heading', { name: 'New monitor' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Add monitor' })).toBeInTheDocument();
   });
 
   it('"N" does nothing in view-only mode', async () => {
     render(<ConsoleApp api={onlineApi('view-only')} />);
     await screen.findByText('Web portal');
     await userEvent.keyboard('n');
-    expect(screen.queryByRole('heading', { name: 'New monitor' })).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Add monitor' })).toBeNull();
   });
 });

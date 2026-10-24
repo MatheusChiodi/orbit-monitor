@@ -464,7 +464,7 @@
   "shortcuts": {
     "title": "Keyboard shortcuts",
     "openPalette": "Open command palette",
-    "newMonitor": "New monitor",
+    "newMonitor": "Add monitor",
     "help": "Show keyboard shortcuts",
     "undo": "Undo",
     "redo": "Redo",

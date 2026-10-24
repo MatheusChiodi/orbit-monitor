@@ -178,12 +178,6 @@
     "retry": "Try again",
     "keyboardShortcuts": "Keyboard shortcuts",
     "customizeMode": "Toggle Customize mode",
-    "settingsSections": {
-      "general": "General",
-      "appearance": "Appearance",
-      "wall-layouts": "Wall layouts",
-      "connections": "Connections",
-      "advanced": "Advanced"
-    }
+    "addMonitor": "Add monitor"
   }
 }

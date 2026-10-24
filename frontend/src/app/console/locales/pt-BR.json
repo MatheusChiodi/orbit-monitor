@@ -178,12 +178,6 @@
     "retry": "Tentar novamente",
     "keyboardShortcuts": "Atalhos de teclado",
     "customizeMode": "Ligar ou desligar o modo Personalizar",
-    "settingsSections": {
-      "general": "Geral",
-      "appearance": "Aparência",
-      "wall-layouts": "Layouts do wall",
-      "connections": "Conexões",
-      "advanced": "Avançado"
-    }
+    "addMonitor": "Adicionar monitor"
   }
 }

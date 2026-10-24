@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
+import { isSettingsSection, settingsHref, type SettingsSection } from '@/app/settings/sections';
 import { MONITOR_KINDS, type MonitorKind } from '@/domains/monitor/form';
 
-/** Sections of `#/settings/:section` (FE-63); `general` is `#/settings`. */
-export const SETTINGS_SECTIONS = ['general', 'appearance', 'wall-layouts', 'connections', 'advanced'] as const;
-export type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
+/** Sections of `#/settings/:section` are owned by the Settings area (FE-72); `general` is `#/settings`. */
+export { SETTINGS_SECTIONS, type SettingsSection } from '@/app/settings/sections';
 
 /** Console screens addressed by the URL hash (`index.html#/incidents/inc-1`); no router dependency. */
 export type ConsoleRoute =
@@ -71,10 +71,6 @@ function pathOf(hash: string): string {
   return hash.replace(/^#/, '').replace(/^\/+|\/+$/g, '');
 }
 
-function isSection(value: string): value is SettingsSection {
-  return (SETTINGS_SECTIONS as readonly string[]).includes(value);
-}
-
 function withId(path: string, pattern: RegExp, build: (id: string) => ConsoleRoute): ConsoleRoute | null {
   const raw = pattern.exec(path)?.[1];
   if (raw === undefined) return null;
@@ -94,7 +90,7 @@ export function parseRoute(hash: string): ConsoleRoute {
   const match = MONITOR_KINDS.find((k) => k === kind);
   if (match) return { name: 'new-monitor', kind: match };
   const section = /^settings\/([a-z-]+)$/.exec(path)?.[1];
-  if (section && isSection(section)) return { name: 'settings', section };
+  if (section && isSettingsSection(section)) return { name: 'settings', section };
   return (
     withId(path, /^monitors\/([^/]+)\/edit$/, (id) => ({ name: 'edit-monitor', id })) ??
     withId(path, /^monitors\/(?!new$)([^/]+)$/, (id) => ({ name: 'monitor', id })) ??
@@ -109,12 +105,6 @@ export function parseRoute(hash: string): ConsoleRoute {
 export function redirectFor(hash: string): string | null {
   const route = parseLegacy(pathOf(hash));
   return route ? routeHref(route) : null;
-}
-
-function settingsHref(section: SettingsSection, layoutId?: string): string {
-  if (section === 'general') return '#/settings';
-  const base = `#/settings/${section}`;
-  return section === 'wall-layouts' && layoutId ? `${base}/${encodeURIComponent(layoutId)}` : base;
 }
 
 export function routeHref(route: RouteTarget): string {

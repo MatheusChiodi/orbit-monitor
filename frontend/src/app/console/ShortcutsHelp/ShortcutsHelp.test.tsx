@@ -49,7 +49,7 @@ describe('FE-29 keyboard shortcuts', () => {
     const rows = screen.getAllByRole('row');
     expect(rows.length).toBeGreaterThanOrEqual(DEFAULT_SHORTCUTS.length);
     expect(dialog).toHaveTextContent('Open command palette');
-    expect(dialog).toHaveTextContent('New monitor');
+    expect(dialog).toHaveTextContent('Add monitor');
   });
 
   it('a global shortcut runs its action, but not while typing', async () => {

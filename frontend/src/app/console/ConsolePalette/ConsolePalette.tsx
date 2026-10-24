@@ -47,11 +47,11 @@ export function ConsolePalette({ open, onOpenChange, onNewMonitor, onShowShortcu
     ...SETTINGS_SECTIONS.filter((s) => s !== 'general').map((section) => ({
       id: `page:settings-${section}`,
       kind: 'page' as const,
-      label: t(`screens.shell.settingsSections.${section}`),
+      label: t(`settingsHub.nav.${section}`),
       hint: t('screens.nav.settings'),
       run: go({ name: 'settings', section }),
     })),
-    { id: 'action:new-monitor', kind: 'action', label: t('console.monitors.new'), requiresEdit: true, run: onNewMonitor },
+    { id: 'action:new-monitor', kind: 'action', label: t('screens.shell.addMonitor'), requiresEdit: true, run: onNewMonitor },
     { id: 'action:open-wall', kind: 'action', label: t('console.openWall'), run: () => window.open('/wall.html', '_blank', 'noopener') },
     { id: 'action:shortcuts', kind: 'action', label: t('screens.shell.keyboardShortcuts'), run: onShowShortcuts },
     ...(onToggleCustomize

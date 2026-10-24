@@ -46,8 +46,8 @@ The console's frame for the redesign: a 232 px left sidebar (≥ 1024 px) with M
 ## Decisions and notes
 - Routing stays a hash parser (`useSyncExternalStore` on `hashchange`), no router dependency. Alternatives: wouter (~2 KB, MIT) and TanStack Router (typed, much larger); neither adds what 15 flat routes need. Legacy hashes are replaced with `history.replaceState` (no extra history entry); `routeHref` still accepts the old route names so callers keep compiling.
 - `#/monitors/:id/edit` loads `screens/EditMonitorScreen/EditMonitorScreen.tsx` through `import.meta.glob` + `lazy`, so the shell builds before that screen exists; view-only clients get the detail screen.
-- Settings contract: `SettingsRoute({ section, layoutId?, preferences, services })`, sections `general · appearance · wall-layouts · connections · advanced`; `#/settings` is `general`.
-- Command palette: kept the in-house list (combobox + listbox, accent/case-insensitive ranking) on the `Dialog` primitive instead of cmdk (MIT, ~8 KB + Radix dialog) — same keyboard model, no new dependency. Searches monitors, open incidents (by monitor name), groups, every page and Settings section, and actions (New monitor, Open wall, Keyboard shortcuts, Customize mode). Controlled from the top bar; `Ctrl/⌘ K` stays inside.
+- Settings contract: `SettingsRoute({ section, layoutId?, preferences, services })`. The section list, `isSettingsSection` and `settingsHref` come from `app/settings/sections.ts` (FE-72 owns them); `#/settings` is `general`. The palette names sections with `settingsHub.nav.*`.
+- Command palette: kept the in-house list (combobox + listbox, accent/case-insensitive ranking) on the `Dialog` primitive instead of cmdk (MIT, ~8 KB + Radix dialog) — same keyboard model, no new dependency. Searches monitors, open incidents (by monitor name), groups, every page and Settings section, and actions (Add monitor, Open wall, Keyboard shortcuts, Customize mode). Controlled from the top bar; `Ctrl/⌘ K` stays inside.
 - Mobile drawer: a portal panel with `role="dialog"`, focus moved to the current link, Tab trapped (`shared/ui/popover/focus`), Esc/backdrop close, focus back to the menu button, closes after navigation. The `Dialog` primitive is centred, so the drawer is local; a `Sheet` primitive in `shared/ui` would replace it.
 - Customize mode has no header button: `Ctrl+.` lives in CustomizeLayer (FE-53) and the palette offers "Toggle Customize mode" to editors.
 - Demo (`?demo`): no `/api/access`, no wall socket, no customization/terminology/themes/layouts/defaults requests (in-memory `createDemoServices`). Verified in the browser: zero `/api/*` requests and no `/ws/wall`.
@@ -56,3 +56,4 @@ The console's frame for the redesign: a 232 px left sidebar (≥ 1024 px) with M
 
 ## Changelog
 - 2026-10-24 — new console shell, routes for edit and settings sections, legacy redirects, palette and shortcuts on Dialog, demo without API (status: done).
+- 2026-10-24 — settings sections read from the Settings area; "Add monitor" wording in the palette and shortcut sheet.
