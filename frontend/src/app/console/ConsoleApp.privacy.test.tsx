@@ -44,7 +44,8 @@ afterEach(() => {
 
 async function runPreview() {
   render(<ConsoleApp api={api()} />);
-  await userEvent.click(await screen.findByRole('button', { name: 'New monitor' }));
+  // Empty workspace: the onboarding offers the database query flow.
+  await userEvent.click(await screen.findByRole('button', { name: /Monitor a SELECT/ }));
   await userEvent.selectOptions(await screen.findByLabelText('Connection'), 'c');
   fireEvent.change(screen.getByRole('textbox', { name: 'SQL query' }), { target: { value: 'SELECT CARD FROM X' } });
   await userEvent.click(screen.getByRole('button', { name: 'Run preview' }));

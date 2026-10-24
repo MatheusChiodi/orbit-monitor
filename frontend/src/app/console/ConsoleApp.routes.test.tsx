@@ -154,16 +154,17 @@ describe('console routes', () => {
     render(<ConsoleApp api={api({ createMonitor })} />);
     await screen.findByText('Web portal');
     await go('#/monitors/new/push');
-    expect(await screen.findByRole('radio', { name: 'Push' })).toBeChecked();
+    expect(await screen.findByText(/Type: Push/)).toBeInTheDocument();
     await userEvent.type(screen.getByLabelText('Name'), 'Nightly export');
-    await userEvent.selectOptions(screen.getByLabelText('Group'), 'g');
-    await userEvent.click(screen.getByRole('button', { name: 'Save monitor' }));
+    // The only group is preselected.
+    expect(screen.getByLabelText('Group')).toHaveValue('g');
+    await userEvent.click(within(screen.getByRole('main')).getByRole('button', { name: 'Add monitor' }));
     expect(createMonitor.mock.calls[0]?.[0]).toMatchObject({ type: 'PUSH', maxSilenceSeconds: 3600 });
     const url = await screen.findByLabelText('Push URL (shown once, keep it secret)');
     expect(url).toHaveValue('http://127.0.0.1:8080/api/push/s3cr3t');
     expect(localStorage.getItem('orbit.preferences') ?? '').not.toContain('s3cr3t');
     await userEvent.click(screen.getByRole('button', { name: 'Done' }));
-    expect(await screen.findByText('Monitor "Nightly export" saved')).toBeInTheDocument();
+    expect(await screen.findByText('Monitor added')).toBeInTheDocument();
     expect(screen.queryByDisplayValue(/s3cr3t/)).toBeNull();
   });
 

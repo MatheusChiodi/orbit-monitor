@@ -105,7 +105,8 @@ function Workspace({ api, access, demo, preferences, connectFeed, services }: Wo
               services={services}
               onMonitorSaved={(name) => {
                 navigate({ name: 'monitors' });
-                toast({ title: t('console.monitors.saved', { name }), tone: 'OK' });
+                // The verb matches the form's button ("Add monitor" → "Monitor added").
+                toast({ title: t('monitorForm.flow.added'), description: name, tone: 'OK' });
               }}
             />
           </ScreenTransition>

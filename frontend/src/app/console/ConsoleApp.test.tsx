@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderWithLocale } from '@/test/renderWithLocale';
@@ -86,16 +86,17 @@ describe('ConsoleApp (no login)', () => {
     expect(await screen.findByText('Reconciliation queue')).toBeInTheDocument();
     expect(screen.getByRole('note')).toHaveTextContent('Showing demo data');
     expect(screen.getByRole('link', { name: 'Exit demo' })).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'New monitor' }));
+    await userEvent.click(within(screen.getByRole('main')).getByRole('button', { name: 'Add monitor' }));
+    await userEvent.click(await screen.findByRole('button', { name: /Database query/ }));
     await userEvent.type(screen.getByLabelText('Name'), 'Late batches');
     await userEvent.selectOptions(screen.getByLabelText('Group'), 'core');
     await userEvent.selectOptions(await screen.findByLabelText('Connection'), 'ora-core');
     fireEvent.change(screen.getByRole('textbox', { name: 'SQL query' }), { target: { value: 'SELECT COUNT(*) FROM BATCH' } });
     await userEvent.click(screen.getByRole('button', { name: 'Run preview' }));
     expect(await screen.findByRole('table', { name: 'Preview result' })).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Save monitor' }));
-    expect(await screen.findByText('Monitor "Late batches" saved')).toBeInTheDocument();
-    expect(await screen.findByText('Late batches')).toBeInTheDocument();
+    await userEvent.click(within(screen.getByRole('main')).getByRole('button', { name: 'Add monitor' }));
+    expect(await screen.findByText('Monitor added')).toBeInTheDocument();
+    expect(await within(screen.getByRole('main')).findByText('Late batches')).toBeInTheDocument();
   });
 
   it('the header has no "Change name" button', async () => {
