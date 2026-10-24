@@ -69,30 +69,6 @@ html:is([data-fx='standard'], [data-fx='expressive']) .fx-glass::before {
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
 }
 
-/* Hover tilt with a light sheen (console only; transform is written by useTilt). */
-.fx-tilt {
-  transform-style: preserve-3d;
-  transition: transform 280ms var(--fx-ease-out);
-  will-change: transform;
-}
-.fx-tilt::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  opacity: 0;
-  background: radial-gradient(
-    24rem circle at var(--fx-sheen-x, 50%) var(--fx-sheen-y, 0%),
-    color-mix(in srgb, var(--text) 7%, transparent),
-    transparent 60%
-  );
-  transition: opacity 200ms ease;
-}
-.fx-tilt[data-tilting='true']::after {
-  opacity: 1;
-}
-
 /* DOWN: restrained red glow on the hero edge. Inset only, so the text keeps its contrast. */
 .fx-down-glow::after {
   content: '';
@@ -132,8 +108,4 @@ html:is([data-fx='standard'], [data-fx='expressive']) .fx-down-glow::after {
 @keyframes fx-orb-enter {
   from { opacity: 0; transform: scale(0.96); }
   to { opacity: 1; transform: scale(1); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .fx-tilt { transform: none !important; }
 }

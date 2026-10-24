@@ -26,7 +26,6 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - `frontend/src/shared/fx/fxLevel.ts` — `resolveFx()`: the single decision of which effects run per level
 - `frontend/src/shared/fx/frameMonitor.ts` — EMA frame-time monitor (> 20 ms for 3 s → downgrade)
 - `frontend/src/shared/fx/FxProvider.tsx` — `FxProvider` / `useFxLevel()`, sets `<html data-fx>`
-- `frontend/src/shared/fx/TiltCard/TiltCard.tsx` — glass card with hover tilt (≤ 4°, mouse only) and sheen
 - `frontend/src/shared/fx/OrbitField/orbitGeometry.ts` — orbit field geometry, luminance cap, canvas 2D renderer
 - `frontend/src/shared/fx/OrbitField/OrbitField.tsx` — lazy canvas component (30 fps, DPR ≤ 1.5, freezes when paused)
 - `frontend/src/shared/fx/FxBackground/FxBackground.tsx` — fixed backdrop; mounts the orbit field after first paint
@@ -38,7 +37,6 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - `frontend/remotion/` — Remotion entry (`index.ts`, `Root.tsx`), `palette.ts`, `compositions/` (`OrbitBoot` with `@remotion/three`, `CheckFlow`, `FirstMonitor`, `RemotionOrb`, `registry.ts`), `render.mjs` (MP4 to `remotion/out/`, README GIFs to `docs/assets/readme/` with a 5 MB guard)
 - `frontend/package.json` — `remotion:studio`, `remotion:render` scripts
 - `docs/assets/readme/{orbit-boot,check-flow,first-monitor}.gif` — rendered compositions (1.2 MB, 248 KB, 158 KB)
-- `frontend/src/shared/fx/OrbitIntro/` — `OrbitIntro` gate (poster + play at standard, autoplay at expressive), lazy `IntroPlayer` (`@remotion/player`), `introProps` (i18n + live palette)
 - `frontend/src/shared/fx/FxDowngradeNotice/FxDowngradeNotice.tsx` — one self-dismissing toast (Toast primitive, "Restore effects") the first time a device is downgraded; renders nothing itself
 - `frontend/src/shared/fx/fxDowngrade.ts` — per-device memory of the automatic downgrade (`orbit.fx.downgraded`, `orbit.fx.downgradeNoticed` in localStorage)
 - `frontend/src/shared/i18n/locales/{en,pt-BR}.json` — `fx.*` keys
@@ -49,7 +47,6 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - `frontend/src/shared/fx/fxLevel.test.ts`
 - `frontend/src/shared/fx/frameMonitor.test.ts`
 - `frontend/src/shared/fx/FxProvider.test.tsx`
-- `frontend/src/shared/fx/TiltCard/TiltCard.test.tsx`
 - `frontend/src/shared/fx/OrbitField/orbitGeometry.test.ts`
 - `frontend/src/shared/fx/FxBackground/FxBackground.test.tsx`
 - `frontend/src/shared/fx/HeroOrb/HeroOrb.test.tsx`
@@ -59,8 +56,6 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - `frontend/src/domains/wall/components/HeroCalm/HeroCalm.fx.test.tsx`
 - `frontend/src/domains/wall/components/Hero/Hero.fx.test.tsx`
 - `frontend/src/shared/ui/Panel/Panel.fx.test.tsx`
-- `frontend/src/shared/fx/OrbitIntro/introProps.test.ts`
-- `frontend/src/shared/fx/OrbitIntro/OrbitIntro.test.tsx`
 - `frontend/src/shared/fx/FxDowngradeNotice/FxDowngradeNotice.test.tsx`
 - `frontend/src/app/console/ConsoleApp.fx.test.tsx`
 
@@ -91,3 +86,4 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - 2026-10-18 — Live 3D hero orb (React Three Fiber) with 2D fallback.
 - 2026-10-24 — Silent downgrade remembered per device; one self-dismissing toast in the console instead of the fixed notice.
 - 2026-10-24 — glass edge is a neutral light gradient (no blue→green border; color on the wall means state); the console never shows glass (B1, customization.css).
+- 2026-10-24 — removed `OrbitIntro` (Remotion player intros) and `TiltCard` (+ `.fx-tilt` CSS and the `fx.intro/boot/checkFlow/firstMonitor` strings): nothing mounts them after the console redesign (orbit rail, Onboarding empty state). `frontend/remotion/` compositions stay for the README GIFs; `@remotion/player` is now unused by the app (package.json is B1's).
