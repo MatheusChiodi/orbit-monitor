@@ -14,7 +14,7 @@ Header with global status and clock, hero (incident / all operational), also act
 
 ## Layout and components
 - `WallApp` (store + feed + clock) → `WallScreen`
-  - `WallHeader`: brand (`WorkspaceBrand` with sanitized logo when the snapshot has `branding`, FE-10), environment, global status pill (`aria-live`), counters, updated, clock, sound toggle (speaker icon + "Sound off/on"), fullscreen icon; desktop notifications only for clients with edit access and never in kiosk
+  - `WallHeader`: brand (`WorkspaceBrand` with sanitized logo when the snapshot has `branding`, FE-10), environment, global status pill (`aria-live`), counters, updated, clock, sound switch (`role="switch"`, speaker icon, visible name "Sound alerts", on/off track), fullscreen icon; desktop notifications only for clients with edit access and never in kiosk
   - left column (action): `Hero` / `HeroCalm` (swapped with `AnimatePresence` + `layoutId`), then `AlsoActive` and `NearLimit`
   - right column (context): `MonitorMatrix`, `Timeline`
 - Layout CSS in `frontend/src/app/theme.css` (`.wall-layout`): full 16:9 grid at ≥ 1100 px and wider than 4:3, otherwise one scrollable column in phone order

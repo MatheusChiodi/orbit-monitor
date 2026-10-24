@@ -43,3 +43,4 @@ Per-severity sounds and volume, muted by default
 - 2026-10-18 — pending test suite written (status: tests-pending).
 - 2026-10-18 — sound alerts (status: done).
 - 2026-10-24 — toggle shows a speaker icon and its state ("Sound off" / "Sound on"); still `aria-pressed` with the name "Sound alerts".
+- 2026-10-24 — now a `role="switch"` named by its visible text "Sound alerts" (WCAG 2.5.3 label in name) with an on/off track; fixes the a11y spec `test.fixme` on label-content-name-mismatch.

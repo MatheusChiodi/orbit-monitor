@@ -13,6 +13,6 @@ describe('WallControls', () => {
   it('a TV (view-only, LAN or kiosk) gets no notification button', () => {
     render(<WallControls sound={sound} onSoundChange={vi.fn()} notifications={false} />);
     expect(screen.queryByRole('button', { name: /desktop notifications/ })).toBeNull();
-    expect(screen.getByRole('button', { name: 'Sound alerts' })).toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: 'Sound alerts' })).toBeInTheDocument();
   });
 });
