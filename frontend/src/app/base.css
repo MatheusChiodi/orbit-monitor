@@ -144,6 +144,62 @@ body {
   background: color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
+/* FE-61 overlay motion: CSS transitions with @starting-style (interruptible, off the main thread). */
+.ui-pop,
+.ui-dialog,
+.ui-toast,
+.ui-backdrop {
+  transition-property: opacity, transform;
+  transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+}
+.ui-pop { transition-duration: 150ms; }
+.ui-dialog { transition-duration: 200ms; }
+.ui-toast { transition-duration: 220ms; }
+.ui-backdrop { transition-duration: 200ms; }
+@starting-style {
+  .ui-pop { opacity: 0; scale: 0.97; }
+  .ui-dialog { opacity: 0; scale: 0.98; translate: 0 4px; }
+  .ui-toast { opacity: 0; translate: 0 8px; }
+  .ui-backdrop { opacity: 0; }
+}
+.ui-pop,
+.ui-dialog,
+.ui-toast { transition-property: opacity, scale, translate; }
+:root[data-animation='off'] :is(.ui-pop, .ui-dialog, .ui-toast, .ui-backdrop) { transition: none; }
+
+/* FE-61 Table: below 640 px each row is a card of label/value lines. */
+@media (max-width: 639px) {
+  .ui-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .ui-table tbody tr {
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.75rem;
+  }
+  .ui-table tbody td {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    height: auto;
+    padding: 0;
+    text-align: right;
+  }
+  .ui-table tbody td[data-label]::before {
+    content: attr(data-label);
+    color: var(--muted);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    text-align: left;
+  }
+  .ui-table tbody td[colspan] { justify-content: center; }
+  .ui-table tbody td[colspan]::before { content: none; }
+}
+
 /* Console: fixed root size set by the density (FE-07, 15–17 px; 16 px comfortable) */
 html.console {
   font-size: var(--density-font, 16px);
