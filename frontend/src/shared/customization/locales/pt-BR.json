@@ -185,14 +185,19 @@
     "original": "Original",
     "custom": "Seu texto",
     "reset": "Restaurar {{key}}",
-    "resetAll": "Restaurar tudo em {{language}}",
+    "resetAll": "Restaurar nomes originais em {{language}}",
     "save": "Salvar nomes",
     "saved": "Nomes salvos",
     "empty": "Um rótulo não pode ficar vazio: restaure-o para usar o original.",
     "tooLong": "Use menos de {{max}} caracteres.",
     "modifiedOnly": "Somente renomeados",
     "count": "{{shown}} de {{total}} rótulos",
-    "more": "Mostrando os primeiros {{count}}. Busque para filtrar."
+    "more": "Mostrando os primeiros {{count}}. Busque para filtrar.",
+    "restoreTitle": "Restaurar os nomes originais em {{language}}?",
+    "restoreBody": "Todo rótulo renomeado em {{language}} volta ao texto original, para todos que usam este Orbit.",
+    "restoreConfirm": "Restaurar nomes originais",
+    "cancel": "Cancelar",
+    "restored": "Nomes originais restaurados em {{language}}"
   },
   "profiles": {
     "title": "Perfis",

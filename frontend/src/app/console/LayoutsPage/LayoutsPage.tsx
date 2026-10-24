@@ -12,14 +12,15 @@ import { settingsHref } from '@/app/settings/sections';
 import type { Group, MonitorView } from '@/shared/api/types';
 import { safeText } from '@/shared/privacy/redact';
 import { findTheme, useTheme } from '@/shared/theme';
-import { Badge, Button, Card, EmptyState, IconExternal, IconPlus, IconWall, Select, StickyActionBar, useToast } from '@/shared/ui';
+import { Badge, Button, Card, Dialog, EmptyState, IconCopy, IconExternal, IconPlus, IconTrash, IconWall, Menu, Select, StickyActionBar, useToast, type MenuItem } from '@/shared/ui';
 import { CreateLayoutDialog } from './CreateLayoutDialog';
 import { uniqueSlug } from './slug';
 
 export const LAYOUTS_QUERY_KEY = ['config', 'layouts'] as const;
 
 export interface LayoutsPageProps {
-  api: Pick<LayoutsApi, 'list' | 'save'>;
+  /** `remove` is optional: without it the layout cannot be deleted from here. */
+  api: Pick<LayoutsApi, 'list' | 'save'> & Partial<Pick<LayoutsApi, 'remove'>>;
   editable: boolean;
   /** Layout id from the route (`#/settings/wall-layouts/<id>`). */
   selectedId: string | null;
@@ -48,6 +49,7 @@ export function LayoutsPage({ api, editable, selectedId: routeId, monitors, grou
   const [blockOptions, setBlockOptions] = useState<Record<string, BlockOptions>>({});
   const [selectedBlock, setSelectedBlock] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const saved = layouts.data ?? [];
   const all = useMemo(() => [...saved, ...(draft ? [draft] : [])], [saved, draft]);
@@ -84,6 +86,41 @@ export function LayoutsPage({ api, editable, selectedId: routeId, monitors, grou
     setDraft(layout);
   }
 
+  function duplicate(source: WallLayout) {
+    const name = t('settingsHub.layouts.copyOf', { name: source.name });
+    setDraft({
+      ...source,
+      ...(settings ?? {}),
+      id: `layout-${Date.now().toString(36)}`,
+      name,
+      slug: uniqueSlug(name, saved.map((l) => l.slug)),
+      blocks: (blocks ?? source.blocks).map((b) => ({ ...b, ...blockOptions[b.id] })),
+    });
+  }
+
+  async function copyAddress(url: string) {
+    try {
+      await navigator.clipboard.writeText(url);
+      toast({ title: t('settingsHub.layouts.addressCopied'), description: url, tone: 'OK' });
+    } catch {
+      toast({ title: t('settingsHub.layouts.copyFailed'), description: url, tone: 'WARN' });
+    }
+  }
+
+  const remove = useMutation({
+    mutationFn: (layout: WallLayout) => (api.remove ? api.remove(layout.id) : Promise.resolve()),
+    onSuccess: async (_, layout) => {
+      setDeleting(false);
+      toast({ title: t('settingsHub.layouts.deleted', { name: safeText(layout.name) }), tone: 'OK' });
+      await queryClient.invalidateQueries({ queryKey: LAYOUTS_QUERY_KEY });
+      window.location.hash = settingsHref('wall-layouts');
+    },
+    onError: (e: Error) => {
+      setDeleting(false);
+      setError(t('settingsHub.layouts.deleteError', { message: e.message }));
+    },
+  });
+
   const save = useMutation({
     mutationFn: (layout: WallLayout) => api.save(layout),
     onSuccess: async (_, layout) => {
@@ -108,6 +145,14 @@ export function LayoutsPage({ api, editable, selectedId: routeId, monitors, grou
   const themeChoices = themes.map((theme) => ({ id: theme.id, name: theme.name }));
   const previewTheme = current?.themeId ? findTheme(current.themeId, themes) : null;
   const wallUrl = current ? `/wall/${encodeURIComponent(current.slug)}` : '';
+  const isDraft = Boolean(draft && selected && draft.id === selected.id);
+  const actions: MenuItem[] = selected
+    ? [
+        { id: 'copy-url', label: t('settingsHub.layouts.copyAddress'), icon: IconCopy, disabled: isDraft, onSelect: () => void copyAddress(`${window.location.origin}${wallUrl}`) },
+        ...(editable ? [{ id: 'duplicate', label: t('settingsHub.layouts.duplicate'), icon: IconCopy, disabled: isDraft, onSelect: () => duplicate(selected) }] : []),
+        ...(editable && api.remove ? [{ id: 'delete', label: t('settingsHub.layouts.delete'), icon: IconTrash, danger: true, disabled: isDraft, onSelect: () => setDeleting(true) }] : []),
+      ]
+    : [];
 
   return (
     <div className="flex flex-col gap-4">
@@ -169,12 +214,15 @@ export function LayoutsPage({ api, editable, selectedId: routeId, monitors, grou
             }
             description={<span className="font-mono">{t('settingsHub.layouts.address', { url: wallUrl })}</span>}
             actions={
-              draft?.id === selected.id ? undefined : (
-                <a href={wallUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-sm text-accent hover:underline">
-                  {t('settingsHub.layouts.openOnWall')}
-                  <IconExternal />
-                </a>
-              )
+              <span className="flex items-center gap-1">
+                {!isDraft && (
+                  <a href={wallUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-2 text-sm text-accent hover:underline">
+                    {t('settingsHub.layouts.openOnWall')}
+                    <IconExternal />
+                  </a>
+                )}
+                <Menu label={t('settingsHub.layouts.actions', { name: safeText(current.name) })} items={actions} />
+              </span>
             }
           >
             <LayoutSettings
@@ -221,6 +269,27 @@ export function LayoutsPage({ api, editable, selectedId: routeId, monitors, grou
             </StickyActionBar>
           )}
         </>
+      )}
+
+      {selected && (
+        <Dialog
+          open={deleting}
+          onClose={() => setDeleting(false)}
+          size="sm"
+          title={t('settingsHub.layouts.deleteTitle', { name: safeText(selected.name) })}
+          footer={
+            <>
+              <Button variant="ghost" onClick={() => setDeleting(false)}>
+                {t('settingsHub.layouts.cancel')}
+              </Button>
+              <Button variant="danger" loading={remove.isPending} onClick={() => remove.mutate(selected)}>
+                {t('settingsHub.layouts.deleteConfirm')}
+              </Button>
+            </>
+          }
+        >
+          <p className="m-0 text-base text-muted">{t('settingsHub.layouts.deleteBody', { url: wallUrl })}</p>
+        </Dialog>
       )}
 
       <CreateLayoutDialog open={creating} onClose={() => setCreating(false)} onCreate={create} />

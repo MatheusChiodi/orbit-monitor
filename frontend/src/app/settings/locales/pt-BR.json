@@ -132,32 +132,139 @@
     "blockPlaceholder": "Escolha um bloco",
     "unsaved": "Alterações não salvas",
     "saveLayout": "Salvar layout",
-    "saved": "Layout {{name}} salvo"
+    "saved": "Layout {{name}} salvo",
+    "actions": "Mais ações para {{name}}",
+    "copyAddress": "Copiar endereço da TV",
+    "addressCopied": "Endereço da TV copiado",
+    "copyFailed": "Não foi possível copiar: selecione o endereço abaixo",
+    "duplicate": "Duplicar",
+    "copyOf": "{{name}} (cópia)",
+    "delete": "Excluir layout",
+    "deleteTitle": "Excluir {{name}}?",
+    "deleteBody": "Telas abertas em {{url}} voltam para o layout padrão. Não dá para desfazer.",
+    "deleteConfirm": "Excluir layout",
+    "deleted": "Layout {{name}} excluído",
+    "deleteError": "Não foi possível excluir o layout: {{message}}"
   },
   "blocks": {
-    "hero": { "name": "Status principal", "description": "O pior problema agora, ou um tudo certo quando nada está errado." },
-    "also-active": { "name": "Outros problemas", "description": "Todos os outros monitores fora do ar ou em alerta." },
-    "near-limit": { "name": "Perto do limite", "description": "Monitores cujo valor está chegando perto da regra." },
-    "matrix": { "name": "Grade de monitores", "description": "Um quadro por monitor, colorido pelo estado." },
-    "timeline": { "name": "Eventos recentes", "description": "Mudanças de estado e incidentes, os mais novos primeiro." },
-    "value": { "name": "Valor único", "description": "O valor atual de um monitor em letras grandes." },
-    "indicators": { "name": "Indicadores", "description": "Os principais valores de um grupo lado a lado." },
-    "series": { "name": "Gráfico de histórico", "description": "Os valores de um monitor ao longo do tempo." },
-    "live-table": { "name": "Tabela ao vivo", "description": "Linhas retornadas por um monitor SQL; dados pessoais ficam ocultos." },
-    "ranking": { "name": "Ranking", "description": "Monitores ordenados pelo valor atual." },
-    "uptime": { "name": "Disponibilidade", "description": "Percentual de disponibilidade no período." },
-    "clock": { "name": "Relógio", "description": "Hora e data atuais." },
-    "text": { "name": "Texto", "description": "Um recado curto escrito por você." }
+    "hero": {
+      "name": "Status principal",
+      "description": "O pior problema agora, ou um tudo certo quando nada está errado."
+    },
+    "also-active": {
+      "name": "Outros problemas",
+      "description": "Todos os outros monitores fora do ar ou em alerta."
+    },
+    "near-limit": {
+      "name": "Perto do limite",
+      "description": "Monitores cujo valor está chegando perto da regra."
+    },
+    "matrix": {
+      "name": "Grade de monitores",
+      "description": "Um quadro por monitor, colorido pelo estado."
+    },
+    "timeline": {
+      "name": "Eventos recentes",
+      "description": "Mudanças de estado e incidentes, os mais novos primeiro."
+    },
+    "value": {
+      "name": "Valor único",
+      "description": "O valor atual de um monitor em letras grandes."
+    },
+    "indicators": {
+      "name": "Indicadores",
+      "description": "Os principais valores de um grupo lado a lado."
+    },
+    "series": {
+      "name": "Gráfico de histórico",
+      "description": "Os valores de um monitor ao longo do tempo."
+    },
+    "live-table": {
+      "name": "Tabela ao vivo",
+      "description": "Linhas retornadas por um monitor SQL; dados pessoais ficam ocultos."
+    },
+    "ranking": {
+      "name": "Ranking",
+      "description": "Monitores ordenados pelo valor atual."
+    },
+    "uptime": {
+      "name": "Disponibilidade",
+      "description": "Percentual de disponibilidade no período."
+    },
+    "clock": {
+      "name": "Relógio",
+      "description": "Hora e data atuais."
+    },
+    "text": {
+      "name": "Texto",
+      "description": "Um recado curto escrito por você."
+    }
   },
   "templates": {
-    "noc": { "name": "Central de operações", "description": "Status principal, problemas, grade de monitores e eventos: o quadro completo para uma tela de NOC." },
-    "executive": { "name": "Resumo executivo", "description": "Status geral, disponibilidade e indicadores principais." },
-    "team": { "name": "Tela da equipe", "description": "Status, um gráfico de histórico, a grade de monitores e um relógio." },
-    "single-incident": { "name": "Incidente único", "description": "Um problema em tela cheia com os eventos recentes." }
+    "noc": {
+      "name": "Central de operações",
+      "description": "Status principal, problemas, grade de monitores e eventos: o quadro completo para uma tela de NOC."
+    },
+    "executive": {
+      "name": "Resumo executivo",
+      "description": "Status geral, disponibilidade e indicadores principais."
+    },
+    "team": {
+      "name": "Tela da equipe",
+      "description": "Status, um gráfico de histórico, a grade de monitores e um relógio."
+    },
+    "single-incident": {
+      "name": "Incidente único",
+      "description": "Um problema em tela cheia com os eventos recentes."
+    }
   },
   "preview": {
     "allClear": "Tudo certo",
     "noMonitors": "Nenhum monitor ainda",
     "sample": "Exemplo"
+  },
+  "variables": {
+    "title": "Variáveis",
+    "hint": "Valores reutilizáveis nos monitores: escreva {{example}} numa URL, cabeçalho ou consulta. Segredos ficam lacrados no cofre e nunca são exibidos de novo.",
+    "add": "Adicionar variável",
+    "edit": "Editar variável",
+    "name": "Nome",
+    "nameHint": "Letras, dígitos, _ . e -; começa com letra ou _.",
+    "nameInvalid": "Use letras, dígitos, _ . ou -, começando com letra ou _",
+    "kind": "Tipo",
+    "kinds": {
+      "var": "Valor simples",
+      "vault": "Segredo"
+    },
+    "value": "Valor",
+    "secretValue": "Valor secreto",
+    "secretKeep": "Deixe vazio para manter o segredo atual. ${env:NOME} lê uma variável de ambiente.",
+    "description": "Descrição",
+    "save": "Salvar variável",
+    "cancel": "Cancelar",
+    "saved": "Variável {{name}} salva",
+    "deleted": "Variável {{name}} excluída",
+    "delete": "Excluir",
+    "deleteTitle": "Excluir {{name}}?",
+    "deleteBody": "Os monitores que a usam vão falhar até você adicioná-la de novo.",
+    "actions": "Ações para {{name}}",
+    "empty": "Nenhuma variável ainda.",
+    "loadError": "Não foi possível carregar as variáveis",
+    "columns": {
+      "name": "Nome",
+      "kind": "Tipo",
+      "value": "Valor",
+      "description": "Descrição"
+    }
+  },
+  "reset": {
+    "title": "Restaurar padrões do workspace",
+    "hint": "Os padrões do workspace, a personalização do workspace e os rótulos renomeados voltam aos valores de fábrica. Monitores, layouts, conexões e as escolhas deste dispositivo são mantidos.",
+    "action": "Restaurar padrões do workspace…",
+    "confirmTitle": "Restaurar os padrões do workspace?",
+    "confirm": "Restaurar padrões",
+    "cancel": "Cancelar",
+    "done": "Padrões do workspace restaurados",
+    "failed": "Não foi possível restaurar: {{message}}"
   }
 }

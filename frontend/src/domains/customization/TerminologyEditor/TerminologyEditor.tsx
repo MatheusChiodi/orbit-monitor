@@ -4,7 +4,7 @@ import { useStore } from 'zustand';
 import { LABEL_MAX_LENGTH } from '@/shared/customization/api';
 import { catalogEntries, type TerminologyStore } from '@/shared/customization/terminology';
 import { SUPPORTED_LOCALES, isLocale, type Locale } from '@/shared/i18n/i18n';
-import { Button, INPUT_CLASS, LABEL_CLASS, SELECT_CLASS } from '@/shared/ui';
+import { Button, Dialog, INPUT_CLASS, LABEL_CLASS, SELECT_CLASS } from '@/shared/ui';
 
 export interface TerminologyEditorProps {
   store: TerminologyStore;
@@ -30,6 +30,7 @@ export function TerminologyEditor({ store, editable, keys }: TerminologyEditorPr
   const [query, setQuery] = useState('');
   const [renamedOnly, setRenamedOnly] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState(false);
 
   const draft = drafts[locale] ?? saved[locale];
   const entries = useMemo(() => {
@@ -58,6 +59,14 @@ export function TerminologyEditor({ store, editable, keys }: TerminologyEditorPr
     delete next[key];
     update(next);
   };
+
+  async function restoreDefaults() {
+    setConfirming(false);
+    if (await store.getState().reset(locale)) {
+      setDrafts({ ...drafts, [locale]: undefined });
+      setNotice(t('customization.terminology.restored', { language: t(`app.languages.${locale}`) }));
+    }
+  }
 
   async function save() {
     if (await store.getState().save(locale, draft)) {
@@ -95,7 +104,7 @@ export function TerminologyEditor({ store, editable, keys }: TerminologyEditorPr
         </label>
         {editable && (
           <>
-            <Button disabled={Object.keys(draft).length === 0} onClick={() => update({})}>
+            <Button disabled={Object.keys(saved[locale]).length === 0 && Object.keys(draft).length === 0} onClick={() => setConfirming(true)}>
               {t('customization.terminology.resetAll', { language: languageName })}
             </Button>
             <Button variant="primary" disabled={!dirty || invalid.length > 0} onClick={() => void save()}>
@@ -159,6 +168,24 @@ export function TerminologyEditor({ store, editable, keys }: TerminologyEditorPr
         </tbody>
       </table>
       {visible.length > MAX_ROWS && <p className="m-0 text-[0.78rem] text-dim">{t('customization.terminology.more', { count: MAX_ROWS })}</p>}
+      <Dialog
+        open={confirming}
+        onClose={() => setConfirming(false)}
+        size="sm"
+        title={t('customization.terminology.restoreTitle', { language: languageName })}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setConfirming(false)}>
+              {t('customization.terminology.cancel')}
+            </Button>
+            <Button variant="danger" onClick={() => void restoreDefaults()}>
+              {t('customization.terminology.restoreConfirm')}
+            </Button>
+          </>
+        }
+      >
+        <p className="m-0 text-base text-muted">{t('customization.terminology.restoreBody', { language: languageName })}</p>
+      </Dialog>
     </div>
   );
 }

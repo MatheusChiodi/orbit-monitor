@@ -185,14 +185,19 @@
     "original": "Original",
     "custom": "Your text",
     "reset": "Reset {{key}}",
-    "resetAll": "Reset all in {{language}}",
+    "resetAll": "Restore original names in {{language}}",
     "save": "Save names",
     "saved": "Names saved",
     "empty": "A label cannot be empty: reset it to use the original.",
     "tooLong": "Keep it under {{max}} characters.",
     "modifiedOnly": "Renamed only",
     "count": "{{shown}} of {{total}} labels",
-    "more": "Showing the first {{count}}. Search to narrow it down."
+    "more": "Showing the first {{count}}. Search to narrow it down.",
+    "restoreTitle": "Restore the original names in {{language}}?",
+    "restoreBody": "Every renamed label in {{language}} goes back to its original text, for everyone using this Orbit.",
+    "restoreConfirm": "Restore original names",
+    "cancel": "Cancel",
+    "restored": "Original names restored in {{language}}"
   },
   "profiles": {
     "title": "Profiles",

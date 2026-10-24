@@ -36,8 +36,8 @@ describe('customization on the wall', () => {
       </WallCustomization>,
     );
     // The editor chunk is imported on demand; under a full parallel run that can take a few seconds.
-    expect(await screen.findByRole('button', { name: 'Customize' }, { timeout: 5000 })).toBeInTheDocument();
-  });
+    expect(await screen.findByRole('button', { name: 'Customize' }, { timeout: 12_000 })).toBeInTheDocument();
+  }, 15_000);
 
   it('FE-53: view-only walls never show Customize', async () => {
     const api = { load: vi.fn(async () => fromEntries([])), loadTerminology: vi.fn(async () => ({ en: {}, 'pt-BR': {} })) } as unknown as CustomizationApi;

@@ -53,16 +53,21 @@ describe('FE-54 terminology editor', () => {
     expect(saveTerminology).not.toHaveBeenCalled();
   });
 
-  it('filters to renamed labels and resets a whole language', async () => {
+  it('filters to renamed labels and restores a whole language after confirming (DELETE /api/terminology/{locale})', async () => {
     const user = userEvent.setup();
-    const { s, saveTerminology, ready } = store();
-    await ready;
+    const resetTerminology = vi.fn(async () => undefined);
+    const api = { loadTerminology: vi.fn(async () => ({ en: { 'status.label.DOWN': 'Offline' }, 'pt-BR': {} })), saveTerminology: vi.fn(), resetTerminology } as unknown as CustomizationApi;
+    const s = createTerminologyStore(api);
+    await s.getState().load();
     render(<TerminologyEditor store={s} editable />);
     await user.click(screen.getByRole('checkbox', { name: 'Renamed only' }));
     expect(screen.getAllByRole('row')).toHaveLength(2);
-    await user.click(screen.getByRole('button', { name: 'Reset all in English' }));
-    await user.click(screen.getByRole('button', { name: 'Save names' }));
-    expect(saveTerminology).toHaveBeenCalledWith('en', {});
+    await user.click(screen.getByRole('button', { name: 'Restore original names in English' }));
+    const dialog = screen.getByRole('dialog', { name: 'Restore the original names in English?' });
+    await user.click(within(dialog).getByRole('button', { name: 'Restore original names' }));
+    expect(resetTerminology).toHaveBeenCalledWith('en');
+    expect(s.getState().labels.en).toEqual({});
+    expect(screen.getByText('Original names restored in English')).toBeInTheDocument();
   });
 
   it('is read-only for view-only clients', async () => {

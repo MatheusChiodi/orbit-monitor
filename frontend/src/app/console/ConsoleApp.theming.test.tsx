@@ -74,6 +74,7 @@ describe('FE-03 / FE-50 / BE-40 console theme (Settings › Appearance)', () => 
     await waitFor(() => expect(document.documentElement.dataset.theme).toBe('nord'));
   });
 
+  // Rendering every live mini wall (37 themes) is slow when the whole suite runs in parallel.
   it('choosing a theme previews it; "Use on this device" makes it the device preference', async () => {
     window.location.hash = '#/settings/appearance';
     const { preferences, configClient } = setup();
@@ -84,7 +85,7 @@ describe('FE-03 / FE-50 / BE-40 console theme (Settings › Appearance)', () => 
     await userEvent.click(screen.getByRole('button', { name: 'Use on this device' }));
     expect(preferences.getState().device.theme).toBe('kanagawa');
     expect(configClient.list).toHaveBeenCalledWith('themes');
-  });
+  }, 15_000);
 
   it('custom themes from /api/themes are listed and "Make workspace default" saves BE-40 defaults', async () => {
     window.location.hash = '#/settings/appearance';

@@ -82,6 +82,8 @@ export interface TerminologyState {
   error: Message | null;
   load: () => Promise<void>;
   save: (locale: Locale, labels: Record<string, string>) => Promise<boolean>;
+  /** Removes every renamed label of a language (restores the product defaults). */
+  reset: (locale: Locale) => Promise<boolean>;
 }
 
 export function createTerminologyStore(api?: CustomizationApi) {
@@ -102,6 +104,17 @@ export function createTerminologyStore(api?: CustomizationApi) {
       try {
         await api?.saveTerminology(locale, clean);
         set({ labels: { ...get().labels, [locale]: clean }, error: null });
+        return true;
+      } catch (error) {
+        set({ error: errorMessage(error) });
+        return false;
+      }
+    },
+    async reset(locale) {
+      try {
+        if (api?.resetTerminology) await api.resetTerminology(locale);
+        else await api?.saveTerminology(locale, {});
+        set({ labels: { ...get().labels, [locale]: {} }, error: null });
         return true;
       } catch (error) {
         set({ error: errorMessage(error) });

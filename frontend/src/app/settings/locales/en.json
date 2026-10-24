@@ -132,32 +132,139 @@
     "blockPlaceholder": "Choose a block",
     "unsaved": "Unsaved changes",
     "saveLayout": "Save layout",
-    "saved": "Layout {{name}} saved"
+    "saved": "Layout {{name}} saved",
+    "actions": "More actions for {{name}}",
+    "copyAddress": "Copy TV address",
+    "addressCopied": "TV address copied",
+    "copyFailed": "Copy failed: select the address below",
+    "duplicate": "Duplicate",
+    "copyOf": "{{name}} (copy)",
+    "delete": "Delete layout",
+    "deleteTitle": "Delete {{name}}?",
+    "deleteBody": "Screens opened at {{url}} fall back to the built-in layout. This cannot be undone.",
+    "deleteConfirm": "Delete layout",
+    "deleted": "Layout {{name}} deleted",
+    "deleteError": "The layout could not be deleted: {{message}}"
   },
   "blocks": {
-    "hero": { "name": "Main status", "description": "The worst problem right now, or an all-clear when everything is fine." },
-    "also-active": { "name": "Other problems", "description": "Every other monitor that is down or in warning." },
-    "near-limit": { "name": "Near threshold", "description": "Monitors whose value is getting close to their rule." },
-    "matrix": { "name": "Monitor grid", "description": "One tile per monitor, colored by state." },
-    "timeline": { "name": "Recent events", "description": "State changes and incidents, newest first." },
-    "value": { "name": "Single value", "description": "One monitor's current value in large type." },
-    "indicators": { "name": "Indicators", "description": "Key values of a group side by side." },
-    "series": { "name": "History chart", "description": "A monitor's values over time." },
-    "live-table": { "name": "Live table", "description": "Rows returned by a SQL monitor; personal data stays hidden." },
-    "ranking": { "name": "Ranking", "description": "Monitors ordered by their current value." },
-    "uptime": { "name": "Availability", "description": "Uptime percentage over the period." },
-    "clock": { "name": "Clock", "description": "Current time and date." },
-    "text": { "name": "Text", "description": "A short note you write." }
+    "hero": {
+      "name": "Main status",
+      "description": "The worst problem right now, or an all-clear when everything is fine."
+    },
+    "also-active": {
+      "name": "Other problems",
+      "description": "Every other monitor that is down or in warning."
+    },
+    "near-limit": {
+      "name": "Near threshold",
+      "description": "Monitors whose value is getting close to their rule."
+    },
+    "matrix": {
+      "name": "Monitor grid",
+      "description": "One tile per monitor, colored by state."
+    },
+    "timeline": {
+      "name": "Recent events",
+      "description": "State changes and incidents, newest first."
+    },
+    "value": {
+      "name": "Single value",
+      "description": "One monitor's current value in large type."
+    },
+    "indicators": {
+      "name": "Indicators",
+      "description": "Key values of a group side by side."
+    },
+    "series": {
+      "name": "History chart",
+      "description": "A monitor's values over time."
+    },
+    "live-table": {
+      "name": "Live table",
+      "description": "Rows returned by a SQL monitor; personal data stays hidden."
+    },
+    "ranking": {
+      "name": "Ranking",
+      "description": "Monitors ordered by their current value."
+    },
+    "uptime": {
+      "name": "Availability",
+      "description": "Uptime percentage over the period."
+    },
+    "clock": {
+      "name": "Clock",
+      "description": "Current time and date."
+    },
+    "text": {
+      "name": "Text",
+      "description": "A short note you write."
+    }
   },
   "templates": {
-    "noc": { "name": "Operations center", "description": "Main status, problems, monitor grid and events: the full picture for a NOC screen." },
-    "executive": { "name": "Executive summary", "description": "Overall status, availability and key indicators." },
-    "team": { "name": "Team screen", "description": "Status, a history chart, the monitor grid and a clock." },
-    "single-incident": { "name": "Single incident", "description": "One problem in full screen with its recent events." }
+    "noc": {
+      "name": "Operations center",
+      "description": "Main status, problems, monitor grid and events: the full picture for a NOC screen."
+    },
+    "executive": {
+      "name": "Executive summary",
+      "description": "Overall status, availability and key indicators."
+    },
+    "team": {
+      "name": "Team screen",
+      "description": "Status, a history chart, the monitor grid and a clock."
+    },
+    "single-incident": {
+      "name": "Single incident",
+      "description": "One problem in full screen with its recent events."
+    }
   },
   "preview": {
     "allClear": "All clear",
     "noMonitors": "No monitors yet",
     "sample": "Sample"
+  },
+  "variables": {
+    "title": "Variables",
+    "hint": "Reusable values for monitors: write {{example}} in a URL, header or query. Secrets are sealed in the vault and never shown again.",
+    "add": "Add variable",
+    "edit": "Edit variable",
+    "name": "Name",
+    "nameHint": "Letters, digits, _ . and -; starts with a letter or _.",
+    "nameInvalid": "Use letters, digits, _ . or -, starting with a letter or _",
+    "kind": "Kind",
+    "kinds": {
+      "var": "Plain value",
+      "vault": "Secret"
+    },
+    "value": "Value",
+    "secretValue": "Secret value",
+    "secretKeep": "Leave empty to keep the current secret. ${env:NAME} reads an environment variable.",
+    "description": "Description",
+    "save": "Save variable",
+    "cancel": "Cancel",
+    "saved": "Variable {{name}} saved",
+    "deleted": "Variable {{name}} deleted",
+    "delete": "Delete",
+    "deleteTitle": "Delete {{name}}?",
+    "deleteBody": "Monitors that use it will fail until you add it again.",
+    "actions": "Actions for {{name}}",
+    "empty": "No variables yet.",
+    "loadError": "Variables could not be loaded",
+    "columns": {
+      "name": "Name",
+      "kind": "Kind",
+      "value": "Value",
+      "description": "Description"
+    }
+  },
+  "reset": {
+    "title": "Restore workspace defaults",
+    "hint": "Workspace defaults, workspace customization and renamed labels go back to the built-in values. Monitors, layouts, connections and this device's choices are kept.",
+    "action": "Restore workspace defaults…",
+    "confirmTitle": "Restore workspace defaults?",
+    "confirm": "Restore defaults",
+    "cancel": "Cancel",
+    "done": "Workspace defaults restored",
+    "failed": "Could not restore: {{message}}"
   }
 }

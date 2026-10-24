@@ -42,6 +42,13 @@ describe('FE-11 layouts API (/api/layouts, mirrors orbit.layouts.json)', () => {
     expect(JSON.parse(String(init?.body))).toMatchObject({ slug: 'noc', blocks: noc.blocks });
   });
 
+  it('deletes with DELETE /api/layouts/{id}', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(new Response(null, { status: 204 }));
+    await createLayoutsApi({ fetch: fetchMock }).remove('lay_noc');
+    expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/layouts/lay_noc');
+    expect(fetchMock.mock.calls[0]?.[1]?.method).toBe('DELETE');
+  });
+
   it('a view-only client gets 403 and the error says so', async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(json({ detail: 'Edits only from loopback' }, 403));
     await expect(createLayoutsApi({ fetch: fetchMock }).save(noc)).rejects.toMatchObject({ status: 403 });

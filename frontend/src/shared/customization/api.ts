@@ -113,6 +113,8 @@ export interface CustomizationApi {
   saveProfile: (profile: CustomizationProfile) => Promise<void>;
   loadTerminology: () => Promise<Terminology>;
   saveTerminology: (locale: Locale, labels: Record<string, string>) => Promise<void>;
+  /** `DELETE /api/terminology/{locale}`: every label of the language goes back to its original text. */
+  resetTerminology?: (locale: Locale) => Promise<void>;
   /** Ids of the wall layouts (`orbit.layouts.json`) that can hold layout-scoped values. */
   listLayoutIds?: () => Promise<string[]>;
 }
@@ -155,6 +157,9 @@ export function createCustomizationApi(options: ApiClientOptions = {}): Customiz
     },
     async saveTerminology(locale: Locale, labels: Record<string, string>): Promise<void> {
       await request(`/api/terminology/${encodeURIComponent(locale)}`, { method: 'PUT', body: { terms: sanitizeLabels(labels) } });
+    },
+    async resetTerminology(locale: Locale): Promise<void> {
+      await request(`/api/terminology/${encodeURIComponent(locale)}`, { method: 'DELETE' });
     },
     /** BE-41 `GET /api/layouts` returns the layouts; the wall addresses them by slug (`/wall/<slug>`). */
     async listLayoutIds(): Promise<string[]> {

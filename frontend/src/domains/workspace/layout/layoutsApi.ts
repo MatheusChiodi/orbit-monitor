@@ -105,6 +105,7 @@ export function createLayoutsApi(options: ApiClientOptions = {}) {
       request<unknown>(`/api/layouts/${encodeURIComponent(layout.id)}`, { method: 'PUT', body: toRequest(layout) }).then(
         (saved) => normalizeLayout(saved) ?? layout,
       ),
+    remove: (id: string) => request<void>(`/api/layouts/${encodeURIComponent(id)}`, { method: 'DELETE' }),
   };
 }
 

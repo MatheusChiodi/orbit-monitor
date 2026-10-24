@@ -81,7 +81,7 @@ export function SettingsRoute({ section, layoutId = null, preferences, services 
       body = <ConnectionsSettings source={source} demo={demo} editable={editable} />;
       break;
     case 'advanced':
-      body = <AdvancedSettings preferences={preferences} editable={editable} />;
+      body = <AdvancedSettings preferences={preferences} editable={editable} demo={demo} />;
       break;
     default:
       body = <GeneralSettings api={api} preferences={preferences} />;

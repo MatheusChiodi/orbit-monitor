@@ -19,7 +19,7 @@ const noc: WallLayout = {
 };
 
 function setup(layouts: WallLayout[] = [noc], selectedId: string | null = null) {
-  const api = { list: vi.fn().mockResolvedValue(layouts), save: vi.fn().mockResolvedValue(undefined) };
+  const api = { list: vi.fn().mockResolvedValue(layouts), save: vi.fn().mockResolvedValue(undefined), remove: vi.fn().mockResolvedValue(undefined) };
   render(
     <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
       <ThemeProvider target={document.createElement('div')} search="">
@@ -78,6 +78,36 @@ describe('FE-72 Settings › Wall layouts', () => {
     await userEvent.click(save);
     expect(api.save).toHaveBeenCalledWith(expect.objectContaining({ id: 'lay-noc', blocks: expect.arrayContaining([expect.objectContaining({ kind: 'clock' })]) }));
     expect(await screen.findByText('Layout NOC room saved')).toBeInTheDocument();
+  });
+
+  it('copies the TV address from the layout menu', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+    setup();
+    await userEvent.click(await screen.findByRole('button', { name: 'More actions for NOC room' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Copy TV address' }));
+    expect(writeText).toHaveBeenCalledWith(`${window.location.origin}/wall/noc`);
+    expect(await screen.findByText('TV address copied')).toBeInTheDocument();
+  });
+
+  it('duplicates a layout into an unsaved copy with its own address', async () => {
+    const api = setup();
+    await userEvent.click(await screen.findByRole('button', { name: 'More actions for NOC room' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Duplicate' }));
+    expect(await screen.findByRole('heading', { name: /NOC room \(copy\)/ })).toBeInTheDocument();
+    expect(screen.getByText('Wall address: /wall/noc-room-copy')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Save layout' }));
+    expect(api.save).toHaveBeenCalledWith(expect.objectContaining({ name: 'NOC room (copy)', slug: 'noc-room-copy', blocks: noc.blocks }));
+  });
+
+  it('deletes a layout after confirming', async () => {
+    const api = setup();
+    await userEvent.click(await screen.findByRole('button', { name: 'More actions for NOC room' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Delete layout' }));
+    const dialog = screen.getByRole('dialog', { name: 'Delete NOC room?' });
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Delete layout' }));
+    expect(api.remove).toHaveBeenCalledWith('lay-noc');
+    expect(await screen.findByText('Layout NOC room deleted')).toBeInTheDocument();
   });
 
   it('builds the wall address from the name', () => {
