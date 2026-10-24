@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useStore } from 'zustand';
-import { IconSettings } from '@/shared/ui/icons';
+import { IconSettings } from '@/shared/ui/icons/IconSettings';
 import { createCustomizeModeStore } from './customizeMode';
 import { useCustomization } from './CustomizationProvider';
 import { createCustomizationStore } from './store';
