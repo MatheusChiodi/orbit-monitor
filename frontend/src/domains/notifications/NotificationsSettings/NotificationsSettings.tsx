@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { createApiCore } from '@/shared/api/client';
@@ -35,11 +35,6 @@ export function NotificationsSettings({ api: given, editable: forced, initialTab
   const editable = forced ?? access.data?.mode !== 'view-only';
   const [tab, setTab] = useState<NotificationsTab>(initialTab);
   const context = useMemo(() => ({ api, editable }), [api, editable]);
-  const root = useRef<HTMLDivElement>(null);
-  // On a phone the tab row scrolls sideways: bring a deep-linked tab into view once.
-  useEffect(() => {
-    root.current?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
-  }, []);
 
   const panels: Record<NotificationsTab, ReactNode> = {
     channels: <ChannelsTab />,
@@ -51,7 +46,7 @@ export function NotificationsSettings({ api: given, editable: forced, initialTab
 
   return (
     <NotificationsContext.Provider value={context}>
-      <div ref={root} className="flex min-w-0 flex-col gap-4">
+      <div className="flex min-w-0 flex-col gap-4">
         {!editable && <p className="m-0 text-sm text-muted">{t('notificationSettings.readOnly')}</p>}
         <Tabs
           label={t('notificationSettings.tabsLabel')}
