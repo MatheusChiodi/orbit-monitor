@@ -6,19 +6,21 @@ import type historyRangeEn from '@/domains/telemetry/history/locales/en.json';
 import type customizationEn from '@/shared/customization/locales/en.json';
 import type screensEn from '@/app/console/locales/en.json';
 import type monitorFormEn from '@/domains/monitor/locales/en.json';
+import type uiEn from '@/shared/ui/locales/en.json';
 
 export const SUPPORTED_LOCALES = ['en', 'pt-BR'] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = 'en';
 export const LOCALE_STORAGE_KEY = 'orbit.locale';
 
-/** Feature messages live with their features (theme, history range, customization, console screens, monitor form). */
+/** Feature messages live with their features (theme, history range, customization, console screens, monitor form, UI primitives). */
 export type Messages = typeof en & {
   theme: typeof themeEn;
   historyRange: typeof historyRangeEn;
   customization: typeof customizationEn;
   screens: typeof screensEn;
   monitorForm: typeof monitorFormEn;
+  ui: typeof uiEn;
 };
 
 type Json = { default: object };
@@ -46,11 +48,12 @@ const NAMESPACES: Record<Namespace, Record<Locale, Loader>> = {
   },
   screens: { en: () => import('@/app/console/locales/en.json'), 'pt-BR': () => import('@/app/console/locales/pt-BR.json') },
   monitorForm: { en: () => import('@/domains/monitor/locales/en.json'), 'pt-BR': () => import('@/domains/monitor/locales/pt-BR.json') },
+  ui: { en: () => import('@/shared/ui/locales/en.json'), 'pt-BR': () => import('@/shared/ui/locales/pt-BR.json') },
 };
 
 export const ALL_NAMESPACES = Object.keys(NAMESPACES) as Namespace[];
 /** The wall renders no console screens, monitor form or theme editor: it skips those namespaces. */
-export const WALL_NAMESPACES: readonly Namespace[] = ['customization', 'historyRange'];
+export const WALL_NAMESPACES: readonly Namespace[] = ['customization', 'historyRange', 'ui'];
 export type { Namespace as LocaleNamespace };
 
 /** Namespaces this page loads for every language (`loadLocale` sets it; `setLocale` reuses it). */

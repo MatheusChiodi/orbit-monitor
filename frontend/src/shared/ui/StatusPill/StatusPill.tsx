@@ -8,7 +8,7 @@ import { DOT_CLASS, SOFT_CLASS, TEXT_CLASS } from '../tones';
 
 /** Status colors cross-fade in `duration.slow`; nothing transitions when the level is off. */
 export function statusColorClass(level: string): string {
-  return level === 'off' ? 'transition-none' : 'transition-colors duration-[400ms]';
+  return level === 'off' ? 'transition-none' : 'transition-colors duration-400';
 }
 
 export interface StatusDotProps {
@@ -29,7 +29,7 @@ export function StatusDot({ status, blink = false, className = '' }: StatusDotPr
       aria-label={t(`status.label.${status}`)}
       data-status={status}
       data-pulse={pulse ? 'once' : undefined}
-      className={`inline-block size-[0.55rem] shrink-0 rounded-full ${DOT_CLASS[status]} ${statusColorClass(level)} ${blink ? 'anim-blink' : ''} ${pulse ? 'anim-pulse-once' : ''} ${className}`}
+      className={`inline-block size-2 shrink-0 rounded-full ${DOT_CLASS[status]} ${statusColorClass(level)} ${blink ? 'anim-blink' : ''} ${pulse ? 'anim-pulse-once' : ''} ${className}`}
     />
   );
 }
@@ -40,7 +40,10 @@ export interface StatusPillProps {
   className?: string;
 }
 
-/** State pill: dot + text. The dot blinks only in red; the label cross-fades on a change. */
+/**
+ * State pill: dot + text. The dot blinks only in red; the label cross-fades on a change.
+ * Wall and legacy screens; console screens use StatusBadge (sentence case).
+ */
 export function StatusPill({ status, children, className = '' }: StatusPillProps) {
   const { t } = useTranslation();
   const fade = useMotionPreset('status');
@@ -50,11 +53,11 @@ export function StatusPill({ status, children, className = '' }: StatusPillProps
     <span
       data-status={status}
       data-motion-level={fade.level}
-      className={`inline-flex items-center gap-[0.45rem] rounded-full border px-[0.75rem] py-[0.25rem] text-[0.85rem] font-semibold ${SOFT_CLASS[status]} ${TEXT_CLASS[status]} ${statusColorClass(fade.level)} ${className}`}
+      className={`inline-flex items-center gap-2 rounded-full border px-2.5 py-0.5 text-sm font-semibold ${SOFT_CLASS[status]} ${TEXT_CLASS[status]} ${statusColorClass(fade.level)} ${className}`}
     >
       <span
         aria-hidden
-        className={`size-[0.55rem] rounded-full ${DOT_CLASS[status]} ${statusColorClass(fade.level)} ${status === 'DOWN' ? 'anim-blink' : ''}`}
+        className={`size-2 rounded-full ${DOT_CLASS[status]} ${statusColorClass(fade.level)} ${status === 'DOWN' ? 'anim-blink' : ''}`}
       />
       <span className="inline-grid">
         <AnimatePresence initial={false}>

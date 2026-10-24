@@ -36,4 +36,46 @@ describe('Button', () => {
     render(<Button block>Y</Button>);
     expect(screen.getByRole('button').className).toContain('w-full');
   });
+
+  it('FE-61: secondary by default; neutral stays as an alias', () => {
+    render(<Button>Default</Button>);
+    expect(screen.getByRole('button')).toHaveAttribute('data-variant', 'secondary');
+    expect(screen.getByRole('button').className).toContain('bg-s2');
+  });
+
+  it('FE-61: primary uses the accent token, never a status color', () => {
+    render(<Button variant="primary">Save</Button>);
+    expect(screen.getByRole('button').className).toContain('bg-accent');
+    expect(screen.getByRole('button').className).toContain('text-on-accent');
+  });
+
+  it('FE-61: sizes sm and md map to the 32/36 px control heights', () => {
+    render(
+      <>
+        <Button size="sm">S</Button>
+        <Button>M</Button>
+      </>,
+    );
+    expect(screen.getByRole('button', { name: 'S' }).className).toContain('h-8');
+    expect(screen.getByRole('button', { name: 'M' }).className).toContain('h-9');
+  });
+
+  it('FE-61: loading is busy, announces it and ignores clicks', async () => {
+    const onClick = vi.fn();
+    render(
+      <Button loading onClick={onClick}>
+        Save
+      </Button>,
+    );
+    const button = screen.getByRole('button');
+    expect(button).toHaveAttribute('aria-busy', 'true');
+    expect(button).toHaveTextContent('Loading…');
+    await userEvent.click(button);
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  it('FE-61: iconOnly renders a square button', () => {
+    render(<Button iconOnly aria-label="Close">x</Button>);
+    expect(screen.getByRole('button', { name: 'Close' }).className).toContain('size-9');
+  });
 });

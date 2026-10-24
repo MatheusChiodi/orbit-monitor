@@ -1,0 +1,23 @@
+{
+  "close": "Fechar",
+  "dismiss": "Dispensar",
+  "moreActions": "Mais ações",
+  "loading": "Carregando…",
+  "required": "obrigatório",
+  "notifications": "Notificações",
+  "status": {
+    "OK": "OK",
+    "WARN": "Atenção",
+    "DOWN": "Fora",
+    "INFO": "Info",
+    "neutral": "Desconhecido"
+  },
+  "filePicker": {
+    "choose": "Escolher arquivo",
+    "none": "Nenhum arquivo escolhido",
+    "clear": "Remover arquivo"
+  },
+  "table": {
+    "empty": "Nada para mostrar ainda"
+  }
+}

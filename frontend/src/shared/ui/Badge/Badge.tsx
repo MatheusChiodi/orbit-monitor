@@ -21,7 +21,7 @@ export function Badge({ tone = 'neutral', mono = false, children, className = ''
       transition={preset.transition}
       data-motion-level={preset.level}
       data-tone={tone}
-      className={`inline-flex items-center rounded-[0.4rem] border px-[0.5rem] py-[0.1rem] text-[0.78rem] font-medium ${SOFT_CLASS[tone]} ${TEXT_CLASS[tone]} ${mono ? 'font-mono' : ''} ${className}`}
+      className={`inline-flex items-center rounded-sm border px-2 py-0.5 text-xs font-medium ${SOFT_CLASS[tone]} ${TEXT_CLASS[tone]} ${mono ? 'font-mono' : ''} ${className}`}
     >
       {children}
     </m.span>

@@ -9,7 +9,7 @@ describe('FE-51 Button motion', () => {
     const button = screen.getByRole('button', { name: 'Acknowledge' });
     expect(button).toHaveAttribute('data-motion', 'press');
     expect(button).toHaveAttribute('data-motion-level', 'standard');
-    expect(button.className).toContain('duration-[120ms]');
+    expect(button.className).toContain('duration-120');
     expect(button.className).not.toContain('transition-none');
   });
 
@@ -23,7 +23,7 @@ describe('FE-51 Button motion', () => {
   it('minimal keeps color transitions but no press scale', () => {
     renderWithMotion(<Button>Ok</Button>, 'minimal');
     const button = screen.getByRole('button', { name: 'Ok' });
-    expect(button.className).not.toContain('active:scale-[.98]');
+    expect(button.className).not.toContain('active:scale-98');
     expect(button.className).not.toContain('transition-none');
   });
 

@@ -1,4 +1,8 @@
-/* FE-56: typography, shape and density overrides, active only when a value differs from the default. */
+/*
+ * FE-56: typography, shape and density overrides, active only when a value differs from the default.
+ * FE-60: the controls change design tokens (radius, panel padding, panel shadow, surfaces, border width);
+ * primitives read the tokens or mark themselves with `data-surface`, so markup changes cannot break them.
+ */
 html.console[data-type-base] { font-size: var(--type-base); }
 html.console[data-type-scale] { font-size: max(13px, calc(var(--type-base, var(--density-font, 16px)) * var(--type-scale))); }
 html.wall[data-type-scale] { font-size: clamp(12px, calc((.7vw + .45vh) * var(--wall-scale, 1) * var(--type-scale)), 36px); }
@@ -7,24 +11,56 @@ html[data-letter-spacing='tight'] body { letter-spacing: -0.01em; }
 html[data-letter-spacing='wide'] body { letter-spacing: 0.02em; }
 html[data-mono-values='off'] .font-mono { font-family: var(--font-sans); }
 
-html[data-radius='sharp'] :where([class*='rounded-']) { border-radius: 0.12rem; }
-html[data-radius='round'] :where([class*='rounded-[0.45rem]'], [class*='rounded-[0.3rem]']) { border-radius: 0.8rem; }
-html[data-radius='round'] :where([class*='rounded-[0.9rem]']) { border-radius: 1.4rem; }
-html[data-border='thick'] :where(.border) { border-width: 2px; }
+/* Radius: rounded-sm / rounded-md / rounded-lg read these tokens. */
+html[data-radius='sharp'] {
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+}
+html[data-radius='round'] {
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+}
 
+/* Borders: primitives draw with `border` and mark containers with data-surface. */
+html[data-border='thick'] { --control-border-width: 2px; }
+html[data-border='thick'] :where(.border, [data-surface]) { border-width: var(--control-border-width); }
+
+/* Surfaces: flat folds the raised levels (s2, s3) into the panel color. */
+html[data-surfaces='flat'] {
+  --surface-2: var(--s1);
+  --surface-3: var(--s1);
+}
+
+/* Panels and cards (data-surface="panel"): padding and shadow tokens. */
+html[data-shadows='on'] { --panel-shadow: 0 0.4rem 1.4rem rgb(0 0 0 / 0.28); }
+html[data-panel-padding='tight'] { --panel-padding: 0.625rem; }
+html[data-panel-padding='roomy'] { --panel-padding: 1.5rem; }
+
+/* Glass (FE-52) belongs to the wall: console panels stay solid; the wall can turn it off. */
+html.console[data-fx] .fx-glass,
 html[data-glass='off'][data-fx] .fx-glass {
   background: var(--s1);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   border-color: var(--line);
-  box-shadow: none;
+  box-shadow: var(--panel-shadow);
 }
+html.console[data-fx] .fx-glass::before,
 html[data-glass='off'][data-fx] .fx-glass::before { display: none; }
-html[data-surfaces='flat'] :where(.bg-s2, .bg-s3) { background-color: var(--s1); }
-html[data-shadows='on'] :where(section.rounded-\[0\.9rem\]) { box-shadow: 0 0.4rem 1.4rem rgb(0 0 0 / 0.28); }
-html[data-panel-padding='tight'] :where(section.p-\[0\.9rem\]) { padding: 0.55rem; }
-html[data-panel-padding='roomy'] :where(section.p-\[0\.9rem\]) { padding: 1.3rem; }
 
-/* FE-53: Customize mode outlines every customizable item. */
-html[data-customize='on'] [data-customizable] { outline: 1px dashed color-mix(in srgb, var(--info) 55%, transparent); outline-offset: 2px; }
-html[data-customize='on'] [data-customizable]:hover { outline: 2px solid var(--info); }
+/*
+ * Legacy hooks for markup not yet on the tokens (arbitrary radius/padding classes). Remove once no file
+ * uses rounded-[0.45rem] / rounded-[0.3rem] / rounded-[0.9rem] / p-[0.9rem] (redesign wave, 2026-10).
+ */
+html[data-radius='sharp'] :where([class*='rounded-[']) { border-radius: 0.12rem; }
+html[data-radius='round'] :where([class*='rounded-[0.45rem]'], [class*='rounded-[0.3rem]']) { border-radius: 0.8rem; }
+html[data-radius='round'] :where([class*='rounded-[0.9rem]']) { border-radius: 1.4rem; }
+html[data-shadows='on'] :where(section.rounded-\[0\.9rem\]) { box-shadow: var(--panel-shadow); }
+html[data-panel-padding='tight'] :where(section.p-\[0\.9rem\]) { padding: var(--panel-padding); }
+html[data-panel-padding='roomy'] :where(section.p-\[0\.9rem\]) { padding: var(--panel-padding); }
+
+/* FE-53: Customize mode outlines a customizable item on hover or focus only. */
+html[data-customize='on'] [data-customizable]:hover,
+html[data-customize='on'] [data-customizable]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
