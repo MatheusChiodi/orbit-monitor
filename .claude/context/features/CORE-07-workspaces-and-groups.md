@@ -6,7 +6,7 @@ group: "Workspace"
 status: done
 screens: [monitor-list, wall]
 spec: docs/01-architecture.md, docs/02-features.md, docs/04-data-protection.md
-updated: 2026-10-22
+updated: 2026-10-24
 ---
 
 # CORE-07 · Workspaces and groups
@@ -67,3 +67,4 @@ Group state = worst monitor state; color, icon, owner, tags.
 - 2026-10-22 — backend: workspaces store and maintenance-aware group state; WorkspaceServiceTest un-pended.
 - 2026-10-22 — backend: /api/workspaces CRUD, PUT /api/groups/order (group and monitor order, moves between groups), group state ignores maintenance on the wall and status pages.
 - 2026-10-22 — frontend verified against GET /api/groups (array) and PUT /api/groups/order; stale notes removed (status: done).
+- 2026-10-24 — group delete refuses groups with monitors (409 members) unless moveTo; moving a monitor keeps window, retry, steps, OAuth and probe settings; see BE-55, BE-54.

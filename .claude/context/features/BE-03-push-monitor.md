@@ -6,7 +6,7 @@ group: "Probes"
 status: done
 screens: []
 spec: docs/05-extended-features.md
-updated: 2026-10-22
+updated: 2026-10-24
 ---
 
 # BE-03 · Push monitor
@@ -47,3 +47,4 @@ Generated URL with secret token; "no signal for X min" = down
 - 2026-10-18 — pending tests and stubs added (status: tests-pending).
 - 2026-10-18 — push registry with constant-time token check implemented; push endpoint pending.
 - 2026-10-22 — push endpoint and push monitor API wired; token sealed in the vault, never written in plain text (status: done).
+- 2026-10-24 — push URL can be regenerated (POST /api/monitors/{id}/push-token) and duplicated push monitors get their own token; see BE-54.

@@ -10,6 +10,7 @@ import io.orbit.probe.http.HttpProbeException;
 import io.orbit.probe.http.SsrfBlockedException;
 import io.orbit.probe.sql.SqlProbeException;
 import io.orbit.security.vault.VaultException;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -68,6 +69,15 @@ public class ProblemHandler {
     @ExceptionHandler({NotFoundException.class, IncidentNotFoundException.class})
     ProblemDetail notFound(RuntimeException e) {
         return problem(HttpStatus.NOT_FOUND, "not-found", e.getMessage());
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    ProblemDetail dependants(ConflictException e) {
+        ProblemDetail problem = problem(HttpStatus.CONFLICT, e.code(),
+                messages.getOr("problem." + e.code() + ".detail", e.getMessage(),
+                        LocaleContextHolder.getLocale(), e.args()));
+        e.properties().forEach(problem::setProperty);
+        return problem;
     }
 
     @ExceptionHandler(IllegalStateException.class)

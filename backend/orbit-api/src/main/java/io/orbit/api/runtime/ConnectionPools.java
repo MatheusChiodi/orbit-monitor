@@ -6,6 +6,8 @@ import io.orbit.monitor.definition.ConnectionDef;
 import io.orbit.security.vault.SecretResolver;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,6 +39,27 @@ public class ConnectionPools implements AutoCloseable {
             return new Pool(connection, create(connection));
         });
         return pool.dataSource();
+    }
+
+    /**
+     * BE-57: opens one connection to a draft target that is not saved (no pooled state kept) and closes it.
+     * The plain password lives only for this call.
+     */
+    public boolean testOnce(String jdbcUrl, String username, String password) throws SQLException {
+        HikariConfig config = new HikariConfig();
+        config.setPoolName("orbit-draft-test");
+        config.setJdbcUrl(jdbcUrl);
+        config.setUsername(username);
+        config.setPassword(password);
+        config.setMaximumPoolSize(1);
+        config.setMinimumIdle(0);
+        config.setReadOnly(true);
+        config.setConnectionTimeout(10_000);
+        config.setInitializationFailTimeout(-1);
+        try (HikariDataSource dataSource = new HikariDataSource(config);
+             Connection connection = dataSource.getConnection()) {
+            return connection.isValid(5);
+        }
     }
 
     public void evict(String connectionId) {

@@ -124,8 +124,7 @@ public class MonitorController {
                         push.forget(check.id());
                         throw e;
                     }
-                    pushUrl = ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/push/{token}")
-                            .buildAndExpand(token).toUriString();
+                    pushUrl = pushUrl(token);
                 } else {
                     saved = definitions.saveCheck(check, operator);
                 }
@@ -139,7 +138,13 @@ public class MonitorController {
         return detail(saved, pushUrl);
     }
 
-    private String newPushToken(CheckMonitorDef check) {
+    /** The URL a job calls, built from the address the operator used to reach Orbit. */
+    static String pushUrl(String token) {
+        return ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/push/{token}")
+                .buildAndExpand(token).toUriString();
+    }
+
+    String newPushToken(CheckMonitorDef check) {
         int silence = check.maxSilenceSeconds() == null ? 0 : check.maxSilenceSeconds();
         return push.register(check.id(), Duration.ofSeconds(silence));
     }
@@ -202,7 +207,7 @@ public class MonitorController {
         return new ConditionInfo(c.expression(), c.placeholder().name(), c.path(), c.operator().symbol(), level.name());
     }
 
-    private MonitorDetail detail(MonitorDef def, String pushUrl) {
+    MonitorDetail detail(MonitorDef def, String pushUrl) {
         MonitorStatus status = telemetry.status(def.id());
         ResultView last = runtime.latest(def.id()).map(MonitorController::result).orElse(null);
         return new MonitorDetail(maskedDefinition(def), views.monitorView(def), last, status.uptime(),

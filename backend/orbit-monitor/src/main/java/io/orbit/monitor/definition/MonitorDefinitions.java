@@ -128,26 +128,48 @@ public class MonitorDefinitions {
     /** FE-13 / CORE-07: moves a monitor of any kind to another group (null = no group); false when unknown. */
     public synchronized boolean moveToGroup(String monitorId, String groupId, String operator) {
         Optional<MonitorDef> found = monitor(monitorId);
-        if (found.isEmpty()) {
-            return false;
+        found.ifPresent(m -> save(MonitorEdits.withGroup(m, groupId), operator));
+        return found.isPresent();
+    }
+
+    /** BE-54: pauses or resumes a monitor of any kind, keeping every other setting; false when unknown. */
+    public synchronized boolean setPaused(String monitorId, boolean paused, String operator) {
+        Optional<MonitorDef> found = monitor(monitorId);
+        found.ifPresent(m -> save(MonitorEdits.withPaused(m, paused), operator));
+        return found.isPresent();
+    }
+
+    /** Saves a monitor of any kind in its own file. */
+    public synchronized MonitorDef save(MonitorDef monitor, String operator) {
+        return switch (monitor) {
+            case SqlMonitorDef s -> saveSelect(s, operator);
+            case HttpMonitorDef h -> saveRequest(h, operator);
+            case CheckMonitorDef c -> saveCheck(c, operator);
+            default -> throw new IllegalArgumentException("Unknown monitor kind: " + monitor.kind());
+        };
+    }
+
+    /** Deletes a monitor of any kind; false when unknown. */
+    public synchronized boolean delete(String monitorId) {
+        return deleteSelect(monitorId) || deleteRequest(monitorId) || deleteCheck(monitorId);
+    }
+
+    /** BE-57: ids of the SELECT monitors that read from a connection. */
+    public List<String> connectionUsers(String connectionId) {
+        return selects.items().stream().filter(s -> connectionId.equals(s.connectionId())).map(SqlMonitorDef::id)
+                .toList();
+    }
+
+    /**
+     * BE-57: deletes a connection. Without {@code force} a connection still in use is refused; with it,
+     * the monitors that use it are paused first (they cannot run without it) and keep their definition.
+     */
+    public synchronized boolean deleteConnection(String id, boolean force, String operator) {
+        if (force && connection(id).isPresent()) {
+            connectionUsers(id).forEach(monitorId -> setPaused(monitorId, true, operator));
+            return remove(connections, id);
         }
-        switch (found.get()) {
-            case SqlMonitorDef s -> saveSelect(new SqlMonitorDef(s.id(), s.name(), groupId, s.connectionId(), s.sql(),
-                    s.intervalSeconds(), s.timeoutMs(), s.maxRows(), s.downAfter(), s.hysteresis(), s.openOnWarn(),
-                    s.conditions(), s.fields(), s.paused(), s.updatedAt(), s.updatedBy(), s.parameters()), operator);
-            case HttpMonitorDef h -> saveRequest(new HttpMonitorDef(h.id(), h.name(), groupId, h.method(), h.url(),
-                    h.headers(), h.secretHeaders(), h.body(), h.intervalSeconds(), h.timeoutMs(), h.followRedirects(),
-                    h.downAfter(), h.hysteresis(), h.openOnWarn(), h.conditions(), h.fields(), h.paused(),
-                    h.updatedAt(), h.updatedBy()), operator);
-            case CheckMonitorDef c -> saveCheck(new CheckMonitorDef(c.id(), c.name(), groupId, c.type(), c.host(),
-                    c.port(), c.pushToken(), c.maxSilenceSeconds(), c.intervalSeconds(), c.timeoutMs(), c.downAfter(),
-                    c.hysteresis(), c.openOnWarn(), c.conditions(), c.fields(), c.paused(), c.updatedAt(),
-                    c.updatedBy()), operator);
-            default -> {
-                return false;
-            }
-        }
-        return true;
+        return deleteConnection(id);
     }
 
     /** Reloads files edited outside Orbit; returns true when anything changed. */

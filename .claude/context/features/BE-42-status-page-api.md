@@ -6,7 +6,7 @@ group: "Workspace and configuration"
 status: done
 screens: []
 spec: docs/05-extended-features.md
-updated: 2026-10-22
+updated: 2026-10-24
 ---
 
 # BE-42 · Status page API
@@ -58,3 +58,4 @@ Public/internal read-only, cached, no personal data
 - 2026-10-18 — pending tests and stubs added (status: tests-pending).
 - 2026-10-22 — status page view builder implemented; StatusPageBuilderTest un-pended (store and endpoint pending).
 - 2026-10-22 — orbit.status-pages.json store, editor CRUD and cached read-only GET /api/status/{slug} with ETag; internal pages only for editors (status: done).
+- 2026-10-24 — server-rendered HTML page at /status/{slug} reuses this view, visibility and caching; see BE-59.

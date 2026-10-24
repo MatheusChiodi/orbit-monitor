@@ -6,7 +6,7 @@ group: "Security and platform"
 status: done
 screens: []
 spec: docs/05-extended-features.md
-updated: 2026-10-18
+updated: 2026-10-24
 ---
 
 # BE-49 · Problem Details errors
@@ -39,3 +39,4 @@ RFC 9457 responses with stable codes and i18n messages; OpenAPI
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — Problem Details handler with stable codes.
 - 2026-10-18 — i18n Problem Details and OpenAPI covered (status: done).
+- 2026-10-24 — ConflictException: 409 with specific codes (group-not-empty, connection-in-use) and dependants as extension members; see BE-55, BE-57.

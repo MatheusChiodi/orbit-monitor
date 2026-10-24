@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
@@ -101,14 +102,34 @@ public class GroupController {
         return response(saved, statusOf(id));
     }
 
+    /** A member listed in the 409 answer to deleting a group that still has monitors. */
+    public record Member(String id, String name) {
+    }
+
+    /**
+     * BE-55: a group is never deleted with monitors in it. Without {@code moveTo} a group with members
+     * answers 409 {@code group-not-empty} listing them; with it they move to that group first.
+     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id,
+    public ResponseEntity<Void> delete(@PathVariable String id, @RequestParam(required = false) String moveTo,
                                        HttpServletRequest request) {
         String operator = Actors.current();
-        if (!groups.delete(id)) {
+        if (groups.find(id).isEmpty()) {
             throw new NotFoundException("Group", id);
         }
-        audit.record(operator, "group.delete", id, null, request.getRemoteAddr());
+        List<MonitorDef> members = definitions.monitors().stream().filter(m -> id.equals(m.groupId())).toList();
+        if (moveTo != null && (moveTo.equals(id) || groups.find(moveTo).isEmpty())) {
+            throw new IllegalArgumentException("moveTo must be another existing group");
+        }
+        if (!members.isEmpty() && moveTo == null) {
+            throw new ConflictException("group-not-empty", "Group " + id + " has " + members.size() + " monitors",
+                    Map.of("members", members.stream().map(m -> new Member(m.id(), m.name())).toList()),
+                    members.size());
+        }
+        members.forEach(m -> definitions.moveToGroup(m.id(), moveTo, operator));
+        groups.delete(id);
+        audit.record(operator, "group.delete", id, members.isEmpty() ? null
+                : members.size() + " monitors moved to " + moveTo, request.getRemoteAddr());
         return ResponseEntity.noContent().build();
     }
 

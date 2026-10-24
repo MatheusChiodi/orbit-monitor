@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -69,18 +70,28 @@ public class StatusPageController {
     @GetMapping("/api/status/{slug}")
     public ResponseEntity<StatusPageBuilder.View> view(@PathVariable String slug, HttpServletRequest request,
                                                        HttpServletResponse response) {
-        boolean editor = editors.isEditor(request);
-        StatusPageBuilder.View view = pages.view(slug, editor, groupInputs())
-                .orElseThrow(() -> new NotFoundException("Status page", slug));
-        boolean pub = pages.bySlug(slug).map(StatusPageBuilder.StatusPage::pub).orElse(false);
+        StatusPageBuilder.View view = render(slug, request).orElseThrow(() -> new NotFoundException("Status page", slug));
         String etag = etag(view);
-        // Set on the servlet response so it replaces the API-wide "no-store" of the access filter.
-        response.setHeader("Cache-Control", (pub ? "public" : "private") + ", max-age=" + MAX_AGE_SECONDS);
+        cacheHeaders(slug, response);
         response.setHeader("ETag", etag);
         if (etag.equals(request.getHeader("If-None-Match"))) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
         }
         return ResponseEntity.ok(view);
+    }
+
+    /** The page as the client may see it; empty when unknown or internal for a view-only client. */
+    Optional<StatusPageBuilder.View> render(String slug, HttpServletRequest request) {
+        return pages.view(slug, editors.isEditor(request), groupInputs());
+    }
+
+    boolean isPublic(String slug) {
+        return pages.bySlug(slug).map(StatusPageBuilder.StatusPage::pub).orElse(false);
+    }
+
+    /** Set on the servlet response so it replaces the API-wide "no-store" of the access filter. */
+    void cacheHeaders(String slug, HttpServletResponse response) {
+        response.setHeader("Cache-Control", (isPublic(slug) ? "public" : "private") + ", max-age=" + MAX_AGE_SECONDS);
     }
 
     @PostMapping("/api/status-pages")
