@@ -778,8 +778,7 @@
     },
     "downgrade": {
       "notice": "Os efeitos foram simplificados para manter a tela fluida.",
-      "keep": "Manter simplificado",
-      "retry": "Tentar de novo"
+      "restore": "Restaurar efeitos"
     },
     "orb": {
       "label": "Orbe do sistema",

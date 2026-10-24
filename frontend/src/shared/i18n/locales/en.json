@@ -778,8 +778,7 @@
     },
     "downgrade": {
       "notice": "Effects were simplified to keep the screen smooth.",
-      "keep": "Keep simplified",
-      "retry": "Try again"
+      "restore": "Restore effects"
     },
     "orb": {
       "label": "System orb",

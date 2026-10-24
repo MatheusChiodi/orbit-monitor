@@ -2,12 +2,13 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { useAnimationLevel, useProvidedMotionSettings } from '@/shared/motion/animationLevel';
 import { settingsFor } from '@/shared/motion/motionSettings';
 import { createFrameMonitor } from './frameMonitor';
+import { loadDowngraded, saveDowngraded } from './fxDowngrade';
 import { applyFxSettings, parseFxLevel, resolveFx, type FxLevel, type FxState } from './fxLevel';
 import './fx.css';
 
 export interface FxContextValue extends FxState {
   downgraded: boolean;
-  /** "Try again" after an automatic downgrade. */
+  /** "Restore effects" after an automatic downgrade; also forgets it on this device. */
   restore: () => void;
 }
 
@@ -53,7 +54,7 @@ export function FxProvider({ level, incidentActive = false, monitorFrames = true
   const animationLevel = useAnimationLevel();
   const requested = level ?? fromUrl ?? animationLevel;
   const reducedMotion = usePrefersReducedMotion();
-  const [downgraded, setDowngraded] = useState(false);
+  const [downgraded, setDowngraded] = useState(loadDowngraded);
 
   // FE-06: background, intros and intensity follow the animation settings (`useMotionSettings`).
   // `?motion=` wins over everything (its preset); otherwise the provider's settings, else the level's preset.
@@ -64,7 +65,12 @@ export function FxProvider({ level, incidentActive = false, monitorFrames = true
 
   useEffect(() => {
     if (!monitorFrames || !animated) return;
-    const monitor = createFrameMonitor({ onDowngrade: () => setDowngraded(true) });
+    const monitor = createFrameMonitor({
+      onDowngrade: () => {
+        saveDowngraded(true);
+        setDowngraded(true);
+      },
+    });
     let frame = 0;
     const loop = (timestamp: number) => {
       monitor.sample(timestamp);
@@ -79,7 +85,14 @@ export function FxProvider({ level, incidentActive = false, monitorFrames = true
   }, [fx.level]);
 
   const value = useMemo<FxContextValue>(
-    () => ({ ...fx, downgraded, restore: () => setDowngraded(false) }),
+    () => ({
+      ...fx,
+      downgraded,
+      restore: () => {
+        saveDowngraded(false);
+        setDowngraded(false);
+      },
+    }),
     // `fx` is derived from exactly these inputs.
     [requested, reducedMotion, incidentActive, downgraded, settings.intensity, settings.background, settings.intros],
   );

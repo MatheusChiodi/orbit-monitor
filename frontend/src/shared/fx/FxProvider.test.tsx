@@ -29,6 +29,7 @@ function mockReducedMotion(matches: boolean) {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  localStorage.clear();
   delete document.documentElement.dataset.fx;
 });
 
@@ -111,6 +112,33 @@ describe('FE-52 FxProvider / useFxLevel', () => {
     expect(screen.getByText('downgraded')).toBeInTheDocument();
     act(() => screen.getByRole('button', { name: 'restore' }).click());
     expect(screen.getByTestId('fx')).toHaveAttribute('data-level', 'standard');
+  });
+
+  it('remembers the downgrade on this device; restore forgets it', () => {
+    let tick: FrameRequestCallback | null = null;
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
+      tick = cb;
+      return 1;
+    });
+    vi.stubGlobal('cancelAnimationFrame', vi.fn());
+    const first = render(
+      <FxProvider level="standard">
+        <Probe />
+      </FxProvider>,
+    );
+    act(() => {
+      for (let t = 0; t < 4_000; t += 40) tick?.(t);
+    });
+    first.unmount();
+    render(
+      <FxProvider level="standard">
+        <Probe />
+      </FxProvider>,
+    );
+    expect(screen.getByTestId('fx')).toHaveAttribute('data-level', 'minimal');
+    act(() => screen.getByRole('button', { name: 'restore' }).click());
+    expect(screen.getByTestId('fx')).toHaveAttribute('data-level', 'standard');
+    expect(localStorage.getItem('orbit.fx.downgraded')).toBeNull();
   });
 
   it('does not measure frames when nothing animates', () => {

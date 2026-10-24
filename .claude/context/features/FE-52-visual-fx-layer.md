@@ -6,7 +6,7 @@ group: "Theming and personalization"
 status: done
 screens: [wall, monitor-list, settings, preferences, data-and-display, layout-editor]
 spec: docs/03-design.md §4.2
-updated: 2026-10-18
+updated: 2026-10-24
 ---
 
 # FE-52 · Visual FX layer (3D, glass, Remotion)
@@ -39,7 +39,8 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - `frontend/package.json` — `remotion:studio`, `remotion:render` scripts
 - `docs/assets/readme/{orbit-boot,check-flow,first-monitor}.gif` — rendered compositions (1.2 MB, 248 KB, 158 KB)
 - `frontend/src/shared/fx/OrbitIntro/` — `OrbitIntro` gate (poster + play at standard, autoplay at expressive), lazy `IntroPlayer` (`@remotion/player`), `introProps` (i18n + live palette)
-- `frontend/src/shared/fx/FxDowngradeNotice/FxDowngradeNotice.tsx` — "Keep simplified" / "Try again" after an automatic downgrade
+- `frontend/src/shared/fx/FxDowngradeNotice/FxDowngradeNotice.tsx` — one self-dismissing toast (Toast primitive, "Restore effects") the first time a device is downgraded; renders nothing itself
+- `frontend/src/shared/fx/fxDowngrade.ts` — per-device memory of the automatic downgrade (`orbit.fx.downgraded`, `orbit.fx.downgradeNoticed` in localStorage)
 - `frontend/src/shared/i18n/locales/{en,pt-BR}.json` — `fx.*` keys
 - `frontend/src/shared/fx/palette.ts` — `readFxPalette()` / `useFxPalette()`: theme fx tokens (`--fx-from/to/glow`) with state-color fallbacks, re-read when the theme rewrites `<html>`
 - `frontend/src/shared/fx/fx.css` — glass, tilt sheen, DOWN glow, static backdrop (gated by `html[data-fx]`)
@@ -68,7 +69,8 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - Remotion is used for compositions (player/video), not for live UI state; live 3D uses React Three Fiber; micro-interactions stay on Motion (FE-51).
 - Level source: `FxProvider level` prop, else `?motion=`, else `useAnimationLevel()` (FE-06, default `standard`). `prefers-reduced-motion` forces `off`. Swap to `useMotionSettings()` once FE-06 lands.
 - Gating: `off`/`minimal` → static backdrop, no 3D, glass or tilt; `standard` → orb, glass, low background, tilt ≤ 2.5°; `expressive` → full background, tilt 4°, Remotion intros. DOWN glow: none / static / pulse.
-- Frame monitor smooths frame time (EMA, α 0.1), ignores gaps > 500 ms (hidden tab) and fires once; `restore()` is the "Try again" path. It only runs while something animates.
+- Frame monitor smooths frame time (EMA, α 0.1), ignores gaps > 500 ms (hidden tab) and fires once; `restore()` is the "Try again" path. It only runs while something animates. The downgrade is remembered per device (localStorage): the next load starts at `minimal` without measuring again; `restore()` forgets it.
+- Downgrade notice (2026-10-24 redesign): the old fixed bottom-right panel covered "Save monitor" and came back on every load. Now the downgrade is silent; the console shows one toast per device (8 s, through `showToast`, so the viewport keeps it above the sticky action bar). The wall never mounts the notice (a TV has nobody to answer it) and never imports the Toast primitive (wall budget).
 - Tilt writes `transform` directly on the element (no React state per pointer move), mouse pointers only; TiltCard is for navigational/onboarding cards, never around probe values.
 - Background: 6 tilted ellipses + particles with short trails on canvas 2D (no WebGL needed). Every mark's alpha is capped so `alpha × L(color) ≤ 0.06` (WCAG relative luminance over the black-ish `--bg`). Particles: ~28 at `standard`, 60 at `expressive`. Paused = one frozen frame at 35% opacity, no rAF loop.
 - Orb: no drei and no `transmission` pass (a transmissive material over a transparent canvas rendered as a flat grey disk and costs an extra pass); glass is an additive Fresnel + specular shader. No scene lights needed; `powerPreference: 'low-power'`, DPR ≤ 1.5. Parallax follows a mouse over the whole window; TVs without a mouse get a slow idle drift. The orb is `aria-hidden` and the hero text stays in the DOM beside it.
@@ -87,3 +89,4 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - 2026-10-18 — TiltCard glass surface with hover tilt and sheen.
 - 2026-10-18 — Animated orbit-field background (lazy, luminance-capped, paused on incident).
 - 2026-10-18 — Live 3D hero orb (React Three Fiber) with 2D fallback.
+- 2026-10-24 — Silent downgrade remembered per device; one self-dismissing toast in the console instead of the fixed notice.
