@@ -70,4 +70,9 @@ describe('FE-42 dependency graph', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Event bus · FORA' }));
     expect(screen.getByRole('status')).toHaveTextContent('Event bus impacta 3 monitores');
   });
+
+  it('draws one edge per dependency', () => {
+    const { container } = render(<DependencyGraph nodes={nodes} edges={edges} />);
+    expect(container.querySelectorAll('svg [data-edge]')).toHaveLength(edges.length);
+  });
 });

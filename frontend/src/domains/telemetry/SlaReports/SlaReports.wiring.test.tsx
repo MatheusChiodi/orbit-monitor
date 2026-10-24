@@ -18,7 +18,7 @@ describe('FE-43 SLA reports wired to the history store', () => {
 
   it('with the 30-day store a 7 d period inside the coverage is complete', () => {
     render(<SlaReports rows={rows} historyStart={new Date(now.getTime() - 10 * 24 * HOUR).toISOString()} now={now} onExport={vi.fn()} period="7d" windowHours={720} />);
-    expect(screen.getByRole('table', { name: 'Uptime by monitor' })).toHaveAttribute('data-partial', 'false');
+    expect(screen.getByRole('table', { name: 'Uptime by monitor' }).closest('[data-partial]')).toHaveAttribute('data-partial', 'false');
     expect(screen.getByText('History available: last 168 h')).toBeInTheDocument();
   });
 

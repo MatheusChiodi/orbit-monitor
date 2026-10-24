@@ -8,7 +8,8 @@ import { SlaReports, slaToPdf } from '@/domains/telemetry/SlaReports';
 import { formatClock } from '@/shared/format';
 import { useConsole, useGroups, useIncidents, useMonitors } from '../../ConsoleContext';
 import { downloadBlob } from '../../download';
-import { ScreenStatus, ScreenTitle } from '../ScreenStatus';
+import { PageHeader } from '@/shared/ui';
+import { ScreenStatus } from '../ScreenStatus';
 import { toSlaRow } from './slaRows';
 
 const HOUR = 3_600_000;
@@ -53,7 +54,7 @@ export function ReportsScreen() {
 
   return (
     <>
-      <ScreenTitle>{t('screens.reports.title')}</ScreenTitle>
+      <PageHeader title={t('screens.reports.title')} description={t('ops.reports.description')} />
       <ScreenStatus pending={pending} error={error} />
       {!pending && !error && (
         <SlaReports

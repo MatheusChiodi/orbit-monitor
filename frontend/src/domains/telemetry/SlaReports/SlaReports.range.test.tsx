@@ -23,6 +23,6 @@ describe('FE-58 one period control on the SLA screen', () => {
     expect(screen.getByRole('group', { name: 'History period' })).toBeInTheDocument();
     expect(screen.getByText('History available: last 30 days')).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('7 d uptime would be incomplete');
-    expect(screen.getByRole('table', { name: 'Uptime by monitor' })).toHaveAttribute('data-partial', 'true');
+    expect(screen.getByRole('table', { name: 'Uptime by monitor' }).closest('[data-partial]')).toHaveAttribute('data-partial', 'true');
   });
 });

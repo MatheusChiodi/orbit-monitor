@@ -50,7 +50,7 @@ describe('FE-43 SLA reports', () => {
     render(<SlaReports rows={rows} historyStart={historyStart} now={now} onExport={vi.fn()} />);
     await userEvent.click(screen.getByRole('radio', { name: '7 d' }));
     expect(screen.getByRole('status')).toHaveTextContent('Only the last 24 h are available; 7 d uptime would be incomplete.');
-    expect(screen.getByRole('table', { name: 'Uptime by monitor' })).toHaveAttribute('data-partial', 'true');
+    expect(screen.getByRole('table', { name: 'Uptime by monitor' }).closest('[data-partial]')).toHaveAttribute('data-partial', 'true');
     expect(screen.queryByText(/7 d uptime: /)).toBeNull();
   });
 
@@ -68,9 +68,9 @@ describe('FE-43 SLA reports', () => {
     expect(csv).toContain('•••• •••• •••• 1111');
   });
 
-  it('no data yet (fresh start, memory empty)', () => {
+  it('no data yet (fresh install)', () => {
     render(<SlaReports rows={[]} historyStart={null} now={now} onExport={vi.fn()} />);
-    expect(screen.getByText('No history yet. Orbit keeps the last 24 h in memory; it restarts empty.')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Nothing to report yet' })).toBeInTheDocument();
   });
 
   it('a card number never reaches the table', () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createsCycle, toGraph } from './dependencyNodes';
+import { createsCycle, dependencyOptions, toGraph } from './dependencyNodes';
 
 const groups = [{ id: 'bus', name: 'Service bus' }, { id: 'pay', name: 'Payments' }, { id: 'idle', name: 'Idle' }];
 const monitors = [
@@ -36,5 +36,12 @@ describe('FE-42 dependency graph data', () => {
     expect(createsCycle(edges, 'c', 'a')).toBe(true);
     expect(createsCycle(edges, 'a', 'c')).toBe(false);
     expect(createsCycle(edges, 'a', 'a')).toBe(true);
+  });
+
+  it('options split into groups and monitors and leave out the built-in health check', () => {
+    const self = { id: 'orbit_self', name: 'Orbit', groupId: '', type: 'SELF' as const, status: 'OK' as const, value: null, since: '' };
+    const options = dependencyOptions(groups, [self, ...monitors]);
+    expect(options.groups.map((o) => o.id)).toEqual(['bus', 'pay', 'idle']);
+    expect(options.monitors.map((o) => o.id)).toEqual(['m1', 'm2']);
   });
 });

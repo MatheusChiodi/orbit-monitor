@@ -25,3 +25,19 @@ export function toGraph(
 export function createsCycle(edges: readonly GraphEdge[], upstream: string, downstream: string): boolean {
   return upstream === downstream || impactRadius(edges, downstream).has(upstream);
 }
+
+export interface DependencyOption {
+  id: string;
+  label: string;
+}
+
+/** Choices of the dependency selects: groups and monitors apart; Orbit's own health check (`SELF`) is not a target. */
+export function dependencyOptions(
+  groups: readonly { id: string; name: string }[],
+  monitors: readonly { id: string; name: string; type: string }[],
+): { groups: DependencyOption[]; monitors: DependencyOption[] } {
+  return {
+    groups: groups.map((g) => ({ id: g.id, label: g.name })),
+    monitors: monitors.filter((m) => m.type !== 'SELF').map((m) => ({ id: m.id, label: m.name })),
+  };
+}

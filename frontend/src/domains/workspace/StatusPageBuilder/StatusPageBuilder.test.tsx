@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { mockSnapshot } from '@/domains/wall/mock';
 import { renderWithLocale } from '@/test/renderWithLocale';
 import { StatusPageBuilder, type StatusPageDraft } from './StatusPageBuilder';
-import { toStatusPageItem } from './statusPage';
+import { statusPageUrl, toStatusPageItem } from './statusPage';
 
 const snap = mockSnapshot('incident', new Date(2026, 9, 18, 17, 10, 0));
 
@@ -27,7 +27,7 @@ describe('FE-44 status page builder', () => {
     const preview = screen.getByRole('region', { name: 'Preview' });
     expect(within(preview).getByRole('heading', { name: 'Payments status' })).toBeInTheDocument();
     expect(within(preview).getByText('Payments')).toBeInTheDocument();
-    expect(within(preview).getByText('DOWN')).toBeInTheDocument();
+    expect(within(preview).getByText('Down')).toBeInTheDocument();
   });
 
   it('the preview shows states only: no values, rules or personal data', async () => {
@@ -44,10 +44,42 @@ describe('FE-44 status page builder', () => {
     expect(screen.getByText('Anyone with the link can see this page. Only group states are shown.')).toBeInTheDocument();
   });
 
-  it('the slug is derived from the title and validated', async () => {
+  it('the address is derived from the title and previewed as a full URL', async () => {
     setup();
     await userEvent.type(screen.getByRole('textbox', { name: 'Title' }), 'Payments & Cards');
-    expect(screen.getByRole('textbox', { name: 'Slug' })).toHaveValue('payments-cards');
+    expect(screen.getByRole('textbox', { name: 'Address' })).toHaveValue('payments-cards');
+    expect(screen.getByText(`Full address: ${window.location.origin}/api/status/payments-cards`)).toBeInTheDocument();
+  });
+
+  it('statusPageUrl builds the full address of a page', () => {
+    expect(statusPageUrl('payments', 'http://orbit.local:8080')).toBe('http://orbit.local:8080/api/status/payments');
+  });
+
+  it('internal and public are explained', async () => {
+    setup();
+    expect(screen.getByText(/Only people who can edit Orbit/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('radio', { name: 'Public' }));
+    expect(screen.queryByText(/Only people who can edit Orbit/)).toBeNull();
+  });
+
+  it('"All groups" selects and clears every group', async () => {
+    setup();
+    await userEvent.click(screen.getByRole('checkbox', { name: 'All groups' }));
+    for (const g of snap.groups) expect(screen.getByRole('checkbox', { name: g.name })).toBeChecked();
+    await userEvent.click(screen.getByRole('checkbox', { name: 'All groups' }));
+    for (const g of snap.groups) expect(screen.getByRole('checkbox', { name: g.name })).not.toBeChecked();
+  });
+
+  it('the preview is never blank', () => {
+    setup();
+    const preview = screen.getByRole('region', { name: 'Preview' });
+    expect(within(preview).getByRole('heading', { name: 'Untitled page' })).toBeInTheDocument();
+    expect(within(preview).getByText('Choose groups to see how the page looks.')).toBeInTheDocument();
+  });
+
+  it('each saved page links to its address', () => {
+    setup([{ title: 'Payments status', slug: 'payments-status', visibility: 'public', groupIds: ['pay'] }]);
+    expect(screen.getByRole('link', { name: /Open page/ })).toHaveAttribute('href', `${window.location.origin}/api/status/payments-status`);
   });
 
   it('saves the page', async () => {

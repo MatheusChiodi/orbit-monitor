@@ -1,19 +1,18 @@
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { DependencyGraph } from '@/domains/workspace/DependencyGraph';
 import { safeText } from '@/shared/privacy/redact';
-import { Button, LABEL_CLASS, Panel, SELECT_CLASS } from '@/shared/ui';
+import { Button, Field, IconButton, IconTrash, PageHeader, Panel, Select } from '@/shared/ui';
 import { useConsole, useGroups, useMonitors } from '../../ConsoleContext';
-import { ScreenStatus, ScreenTitle } from '../ScreenStatus';
-import { createsCycle, toGraph } from './dependencyNodes';
+import { ScreenStatus } from '../ScreenStatus';
+import { createsCycle, dependencyOptions, toGraph } from './dependencyNodes';
 
 /** FE-42: `#/dependencies` — graph with impact radius from `/api/dependencies`; editors add and remove links. */
 export function DependenciesScreen() {
   const { t } = useTranslation();
   const { source, demo, editable } = useConsole();
   const queryClient = useQueryClient();
-  const ids = { up: useId(), down: useId() };
   const groups = useGroups();
   const monitors = useMonitors();
   const items = useQuery({ queryKey: ['dependencies', demo], queryFn: source.listDependencies });
@@ -26,11 +25,9 @@ export function DependenciesScreen() {
   const remove = useMutation({ mutationFn: source.deleteDependency, onSuccess: refresh });
 
   const graph = toGraph(items.data ?? [], groups.data ?? [], monitors.data ?? []);
-  const options = [
-    ...(groups.data ?? []).map((g) => ({ id: g.id, label: g.name })),
-    ...(monitors.data ?? []).map((m) => ({ id: m.id, label: m.name })),
-  ];
-  const label = (id: string) => safeText(options.find((o) => o.id === id)?.label ?? id);
+  const options = dependencyOptions(groups.data ?? [], monitors.data ?? []);
+  const all = [...options.groups, ...options.monitors];
+  const label = (id: string) => safeText(all.find((o) => o.id === id)?.label ?? id);
 
   function add() {
     if (!upstream || !downstream || upstream === downstream) return setError(t('screens.dependencies.invalid'));
@@ -39,56 +36,78 @@ export function DependenciesScreen() {
     save.mutate({ id: `dep-${upstream}-${downstream}`, upstream, downstream });
   }
 
+  const choices = (
+    <>
+      {(['groups', 'monitors'] as const).map((kind) =>
+        options[kind].length > 0 ? (
+          <optgroup key={kind} label={t(`ops.dependencies.${kind}`)}>
+            {options[kind].map((o) => (
+              <option key={o.id} value={o.id}>
+                {safeText(o.label)}
+              </option>
+            ))}
+          </optgroup>
+        ) : null,
+      )}
+    </>
+  );
+  const message = error ?? save.error?.message;
+
   return (
     <>
-      <ScreenTitle>{t('screens.dependencies.title')}</ScreenTitle>
+      <PageHeader title={t('screens.dependencies.title')} description={t('ops.dependencies.description')} />
       <ScreenStatus pending={items.isPending} error={items.error} />
-      {items.data && <DependencyGraph nodes={graph.nodes} edges={graph.edges} />}
-      {editable && items.data && (
-        <Panel title={t('screens.dependencies.add')}>
-          <div className="flex flex-wrap items-end gap-[0.6rem]">
-            {(
-              [
-                [ids.up, 'upstream', upstream, setUpstream],
-                [ids.down, 'downstream', downstream, setDownstream],
-              ] as const
-            ).map(([id, key, value, set]) => (
-              <div key={key} className={LABEL_CLASS}>
-                <label htmlFor={id}>{t(`screens.dependencies.${key}`)}</label>
-                <select id={id} className={SELECT_CLASS} value={value} onChange={(e) => set(e.target.value)}>
-                  <option value="">{t('form.choose')}</option>
-                  {options.map((o) => (
-                    <option key={o.id} value={o.id}>
-                      {safeText(o.label)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ))}
-            <Button variant="primary" onClick={add} disabled={save.isPending}>
-              {t('screens.dependencies.add')}
-            </Button>
-          </div>
-          {(error ?? save.error?.message) && (
-            <p role="alert" className="m-0 mt-[0.5rem] text-[0.85rem] text-down-text">
-              {error ?? save.error?.message}
-            </p>
-          )}
-          <ul className="m-0 mt-[0.8rem] flex list-none flex-col gap-[0.3rem] p-0 text-[0.85rem]">
-            {(items.data ?? []).map((item) => {
-              const text = t('screens.dependencies.remove', { from: label(item.upstream), to: label(item.downstream) });
-              return (
-                <li key={item.id} className="flex items-center gap-[0.5rem]">
-                  <span className="font-mono">{`${label(item.upstream)} → ${label(item.downstream)}`}</span>
-                  <Button variant="ghost" aria-label={text} onClick={() => remove.mutate(item.id)}>
-                    ✕
-                  </Button>
+      <div className="flex flex-col gap-6">
+        {items.data && <DependencyGraph nodes={graph.nodes} edges={graph.edges} />}
+        {items.data && items.data.length > 0 && (
+          <section className="flex flex-col gap-2">
+            <h2 className="section-label m-0">{t('ops.dependencies.list')}</h2>
+            <ul className="m-0 flex list-none flex-col rounded-md border border-line p-0">
+              {items.data.map((item) => (
+                <li key={item.id} className="flex items-center gap-3 border-b border-line px-3 py-2 last:border-b-0">
+                  <span className="min-w-0 flex-1 text-base text-text">
+                    {t('ops.dependencies.sentence', { upstream: label(item.upstream), downstream: label(item.downstream) })}
+                  </span>
+                  {editable && (
+                    <IconButton
+                      label={t('screens.dependencies.remove', { from: label(item.upstream), to: label(item.downstream) })}
+                      icon={IconTrash}
+                      onClick={() => remove.mutate(item.id)}
+                    />
+                  )}
                 </li>
-              );
-            })}
-          </ul>
-        </Panel>
-      )}
+              ))}
+            </ul>
+          </section>
+        )}
+        {editable && items.data && (
+          <Panel title={t('screens.dependencies.add')} surface="solid">
+            <div className="flex flex-wrap items-end gap-3">
+              <Field label={t('screens.dependencies.upstream')} className="min-w-48 flex-1">
+                <Select placeholder={t('form.choose')} value={upstream} onChange={(e) => setUpstream(e.target.value)}>
+                  {choices}
+                </Select>
+              </Field>
+              <Field label={t('screens.dependencies.downstream')} className="min-w-48 flex-1">
+                <Select placeholder={t('form.choose')} value={downstream} onChange={(e) => setDownstream(e.target.value)}>
+                  {choices}
+                </Select>
+              </Field>
+              <Button variant="primary" onClick={add} loading={save.isPending}>
+                {t('screens.dependencies.add')}
+              </Button>
+            </div>
+            {upstream && downstream && upstream !== downstream && !message && (
+              <p className="m-0 mt-3 text-sm text-muted">{t('ops.dependencies.sentence', { upstream: label(upstream), downstream: label(downstream) })}</p>
+            )}
+            {message && (
+              <p role="alert" className="m-0 mt-3 text-base text-down-text">
+                {message}
+              </p>
+            )}
+          </Panel>
+        )}
+      </div>
     </>
   );
 }
