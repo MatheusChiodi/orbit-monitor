@@ -66,7 +66,7 @@ const COL = {
   rule: 'hidden w-56 pr-3 md:table-cell',
   value: 'w-24 pr-2 text-right sm:w-32',
   menu: 'w-10 text-right',
-  open: 'w-10 pr-3 text-right',
+  open: 'hidden w-10 pr-3 text-right sm:table-cell',
 } as const;
 
 function HeaderCell({ className, children }: { className: string; children: string }) {
