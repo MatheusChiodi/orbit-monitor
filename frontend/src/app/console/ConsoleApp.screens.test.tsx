@@ -100,16 +100,15 @@ describe('console screens wired to the data source (demo mode)', () => {
     expect(within(table).getAllByText('This machine')).toHaveLength(2);
     expect(within(table).getByText('Local network')).toBeInTheDocument();
     expect(within(table).queryByText(/self-declared/)).toBeNull();
+    // Filters are selects that apply as soon as they change (no Apply button).
+    expect(screen.queryByRole('button', { name: 'Apply' })).toBeNull();
     await userEvent.selectOptions(screen.getByLabelText('Client'), 'lan');
-    await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
-    expect(await within(await screen.findByRole('table', { name: 'Audit trail' })).findAllByRole('row')).toHaveLength(2);
-    await userEvent.type(screen.getByLabelText('Action'), 'monitor.delete');
-    await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+    await vi.waitFor(() => expect(within(screen.getByRole('table', { name: 'Audit trail' })).getAllByRole('row')).toHaveLength(2));
+    await userEvent.selectOptions(screen.getByLabelText('Action'), 'monitor');
     expect(await screen.findByText('No audit entries match.')).toBeInTheDocument();
-    await userEvent.clear(screen.getByLabelText('Action'));
+    await userEvent.selectOptions(screen.getByLabelText('Action'), '');
     await userEvent.selectOptions(screen.getByLabelText('Client'), '');
-    await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
-    const [show] = await screen.findAllByRole('button', { name: 'Show SELECT history for reconciliation' });
+    const [show] = await screen.findAllByRole('button', { name: 'View change: Reconciliation queue' });
     await userEvent.click(show!);
     expect(await screen.findAllByText(/line removed/)).not.toHaveLength(0);
   });

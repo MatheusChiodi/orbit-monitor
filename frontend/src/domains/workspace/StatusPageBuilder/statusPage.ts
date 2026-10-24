@@ -25,7 +25,7 @@ export function isValidSlug(slug: string): boolean {
   return /^[a-z0-9][a-z0-9-]{0,63}$/.test(slug);
 }
 
-/** Full address of a status page, as served by `GET /api/status/{slug}` (BE-42). */
+/** Full address of a status page: the HTML page the server renders at `GET /status/{slug}`. */
 export function statusPageUrl(slug: string, origin: string = window.location.origin): string {
-  return `${origin}/api/status/${slug}`;
+  return `${origin}/status/${slug}`;
 }

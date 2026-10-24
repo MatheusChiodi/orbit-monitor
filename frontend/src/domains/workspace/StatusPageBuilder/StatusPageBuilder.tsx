@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, type Ref } from 'react';
 import { useTranslation } from 'react-i18next';
 import { worstStatus } from '@/domains/monitor/status';
 import type { AccessMode, Group, MonitorView } from '@/shared/api/types';
+import { safeText } from '@/shared/privacy/redact';
 import { SafeValue } from '@/shared/privacy/SafeValue';
-import { Badge, Button, Checkbox, Field, IconExternal, Panel, SegmentedControl, StatusBadge, TextInput } from '@/shared/ui';
+import { Badge, Button, Checkbox, Field, IconButton, IconCopy, IconEdit, IconExternal, IconTrash, Panel, SegmentedControl, StatusBadge, TextInput } from '@/shared/ui';
 import { isValidSlug, slugify, statusPageUrl, toStatusPageItem, type StatusPageItem } from './statusPage';
 
 export type StatusPageDraft = StatusPageItem;
@@ -14,6 +15,15 @@ export interface StatusPageBuilderProps {
   pages: readonly StatusPageDraft[];
   mode: AccessMode;
   onSave: (page: StatusPageDraft) => void;
+  /** The saved page loaded into the form; `null` creates a new one. Remount (key) to load another. */
+  editing?: StatusPageDraft | null;
+  onEdit: (page: StatusPageDraft) => void;
+  onCancelEdit: () => void;
+  onDelete: (page: StatusPageDraft) => void;
+  /** Copies the full address. */
+  onCopy: (url: string) => void;
+  /** Focus target for "New status page" (command palette). */
+  titleRef?: Ref<HTMLInputElement>;
 }
 
 const LINK_CLASS = 'inline-flex items-center gap-1 rounded-sm text-base text-accent hover:underline focus-visible:outline-2 focus-visible:outline-accent';
@@ -30,12 +40,12 @@ export function StatusPageLink({ title, slug }: { title: string; slug: string })
 }
 
 /** FE-44: pick groups and preview a public/internal status page that shows group states only. */
-export function StatusPageBuilder({ groups, monitors, pages, mode, onSave }: StatusPageBuilderProps) {
+export function StatusPageBuilder({ groups, monitors, pages, mode, onSave, editing = null, onEdit, onCancelEdit, onDelete, onCopy, titleRef }: StatusPageBuilderProps) {
   const { t } = useTranslation();
-  const [title, setTitle] = useState('');
-  const [slugOverride, setSlugOverride] = useState<string | null>(null);
-  const [visibility, setVisibility] = useState<StatusPageDraft['visibility']>('internal');
-  const [groupIds, setGroupIds] = useState<string[]>([]);
+  const [title, setTitle] = useState(editing?.title ?? '');
+  const [slugOverride, setSlugOverride] = useState<string | null>(editing?.slug ?? null);
+  const [visibility, setVisibility] = useState<StatusPageDraft['visibility']>(editing?.visibility ?? 'internal');
+  const [groupIds, setGroupIds] = useState<string[]>(editing ? [...editing.groupIds] : []);
   const [error, setError] = useState(false);
   const slug = slugOverride ?? slugify(title);
   const editable = mode === 'edit';
@@ -70,14 +80,26 @@ export function StatusPageBuilder({ groups, monitors, pages, mode, onSave }: Sta
         ) : (
           <ul className="m-0 flex list-none flex-col rounded-md border border-line p-0">
             {pages.map((p) => (
-              <li key={p.slug} className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line px-3 py-2 last:border-b-0">
+              <li key={p.slug} aria-label={safeText(p.title)} className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line px-3 py-2 last:border-b-0">
                 <span className="font-medium text-text">
                   <SafeValue value={p.title} />
                 </span>
                 <Badge>{t(`statusPage.${p.visibility}`)}</Badge>
                 <span className="min-w-0 truncate font-mono text-sm text-dim">{statusPageUrl(p.slug)}</span>
-                <span className="ml-auto">
+                <span className="ml-auto flex items-center gap-1">
                   <StatusPageLink title={p.title} slug={p.slug} />
+                  <IconButton
+                    label={t('ops.statusPages.copy', { title: safeText(p.title) })}
+                    icon={IconCopy}
+                    size="sm"
+                    onClick={() => onCopy(statusPageUrl(p.slug))}
+                  />
+                  {editable && (
+                    <>
+                      <IconButton label={t('ops.statusPages.edit', { title: safeText(p.title) })} icon={IconEdit} size="sm" onClick={() => onEdit(p)} />
+                      <IconButton label={t('ops.statusPages.delete', { title: safeText(p.title) })} icon={IconTrash} size="sm" onClick={() => onDelete(p)} />
+                    </>
+                  )}
                 </span>
               </li>
             ))}
@@ -88,8 +110,11 @@ export function StatusPageBuilder({ groups, monitors, pages, mode, onSave }: Sta
       {editable && (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="flex flex-col gap-4">
+            <h2 className="section-label m-0">
+              {editing ? t('ops.statusPages.editing', { title: safeText(editing.title) }) : t('ops.statusPages.newPage')}
+            </h2>
             <Field label={t('statusPage.title')}>
-              <TextInput value={title} onChange={(e) => setTitle(e.target.value)} />
+              <TextInput ref={titleRef} value={title} onChange={(e) => setTitle(e.target.value)} />
             </Field>
             <Field label={t('ops.statusPages.address')} hint={t('ops.statusPages.addressHint', { url: statusPageUrl(slug || '…') })}>
               <TextInput className="font-mono" value={slug} onChange={(e) => setSlugOverride(slugify(e.target.value))} />
@@ -138,10 +163,15 @@ export function StatusPageBuilder({ groups, monitors, pages, mode, onSave }: Sta
                 {t('statusPage.groupRequired')}
               </p>
             )}
-            <div>
+            <div className="flex flex-wrap gap-2">
               <Button variant="primary" onClick={save}>
-                {t('statusPage.save')}
+                {editing ? t('ops.statusPages.saveChanges') : t('statusPage.save')}
               </Button>
+              {editing && (
+                <Button variant="secondary" onClick={onCancelEdit}>
+                  {t('ops.statusPages.cancelEdit')}
+                </Button>
+              )}
             </div>
           </div>
 

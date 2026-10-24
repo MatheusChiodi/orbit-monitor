@@ -42,3 +42,4 @@ Pick groups and preview the public/internal status page.
 - 2026-10-18 — context file created.
 - 2026-10-22 — screen routed and wired to the assumed `/api/status-pages` contract (status: in-progress).
 - 2026-10-24 — redesign: Address with full URL, Internal/Public explained, select all groups, non-empty preview, Open page after save.
+- 2026-10-24 — saved pages: Open ↗ (`/status/{slug}`, the server-rendered HTML page), Copy URL, Edit (loads the page into the form, Save changes keeps its id, Cancel editing) and Delete (confirm Dialog, toast); toasts for save (with Open) and delete; palette action `new-status-page` focuses a fresh form; dev proxy for `/status`.

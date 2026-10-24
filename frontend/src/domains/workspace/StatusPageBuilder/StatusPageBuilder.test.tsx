@@ -8,11 +8,13 @@ import { statusPageUrl, toStatusPageItem } from './statusPage';
 
 const snap = mockSnapshot('incident', new Date(2026, 9, 18, 17, 10, 0));
 
-function setup(pages: StatusPageDraft[] = [], mode: 'edit' | 'view-only' = 'edit') {
-  const onSave = vi.fn();
-  render(<StatusPageBuilder groups={snap.groups} monitors={snap.monitors} pages={pages} mode={mode} onSave={onSave} />);
-  return { onSave };
+function setup(pages: StatusPageDraft[] = [], mode: 'edit' | 'view-only' = 'edit', editing: StatusPageDraft | null = null) {
+  const handlers = { onSave: vi.fn(), onEdit: vi.fn(), onDelete: vi.fn(), onCopy: vi.fn(), onCancelEdit: vi.fn() };
+  render(<StatusPageBuilder groups={snap.groups} monitors={snap.monitors} pages={pages} mode={mode} editing={editing} {...handlers} />);
+  return handlers;
 }
+
+const saved: StatusPageDraft = { title: 'Payments status', slug: 'payments-status', visibility: 'public', groupIds: ['pay'] };
 
 describe('FE-44 status page builder', () => {
   it('toStatusPageItem builds an orbit.status-pages.json item without probe data', () => {
@@ -48,11 +50,11 @@ describe('FE-44 status page builder', () => {
     setup();
     await userEvent.type(screen.getByRole('textbox', { name: 'Title' }), 'Payments & Cards');
     expect(screen.getByRole('textbox', { name: 'Address' })).toHaveValue('payments-cards');
-    expect(screen.getByText(`Full address: ${window.location.origin}/api/status/payments-cards`)).toBeInTheDocument();
+    expect(screen.getByText(`Full address: ${window.location.origin}/status/payments-cards`)).toBeInTheDocument();
   });
 
   it('statusPageUrl builds the full address of a page', () => {
-    expect(statusPageUrl('payments', 'http://orbit.local:8080')).toBe('http://orbit.local:8080/api/status/payments');
+    expect(statusPageUrl('payments', 'http://orbit.local:8080')).toBe('http://orbit.local:8080/status/payments');
   });
 
   it('internal and public are explained', async () => {
@@ -79,7 +81,37 @@ describe('FE-44 status page builder', () => {
 
   it('each saved page links to its address', () => {
     setup([{ title: 'Payments status', slug: 'payments-status', visibility: 'public', groupIds: ['pay'] }]);
-    expect(screen.getByRole('link', { name: /Open page/ })).toHaveAttribute('href', `${window.location.origin}/api/status/payments-status`);
+    expect(screen.getByRole('link', { name: /Open page/ })).toHaveAttribute('href', `${window.location.origin}/status/payments-status`);
+  });
+
+  it('each saved page can be edited, deleted and its address copied', async () => {
+    const h = setup([saved]);
+    const row = screen.getByRole('listitem', { name: 'Payments status' });
+    await userEvent.click(within(row).getByRole('button', { name: 'Edit Payments status' }));
+    expect(h.onEdit).toHaveBeenCalledWith(saved);
+    await userEvent.click(within(row).getByRole('button', { name: 'Copy address of Payments status' }));
+    expect(h.onCopy).toHaveBeenCalledWith(`${window.location.origin}/status/payments-status`);
+    await userEvent.click(within(row).getByRole('button', { name: 'Delete Payments status' }));
+    expect(h.onDelete).toHaveBeenCalledWith(saved);
+  });
+
+  it('editing loads the page into the form and saves changes to the same page', async () => {
+    const h = setup([saved], 'edit', saved);
+    expect(screen.getByRole('textbox', { name: 'Title' })).toHaveValue('Payments status');
+    expect(screen.getByRole('radio', { name: 'Public' })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: 'Payments' })).toBeChecked();
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Core Banking' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+    expect(h.onSave).toHaveBeenCalledWith(expect.objectContaining({ slug: 'payments-status', groupIds: ['pay', 'core'] }));
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel editing' }));
+    expect(h.onCancelEdit).toHaveBeenCalled();
+  });
+
+  it('view-only clients get Open and Copy but no Edit or Delete', () => {
+    setup([saved], 'view-only');
+    expect(screen.getByRole('link', { name: /Open page/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Edit Payments status' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Delete Payments status' })).toBeNull();
   });
 
   it('saves the page', async () => {
@@ -110,7 +142,10 @@ describe('FE-44 status page builder', () => {
   });
 
   it('renders in pt-BR', () => {
-    renderWithLocale(<StatusPageBuilder groups={snap.groups} monitors={snap.monitors} pages={[]} mode="edit" onSave={vi.fn()} />, 'pt-BR');
+    renderWithLocale(
+      <StatusPageBuilder groups={snap.groups} monitors={snap.monitors} pages={[]} mode="edit" onSave={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} onCopy={vi.fn()} onCancelEdit={vi.fn()} />,
+      'pt-BR',
+    );
     expect(screen.getByRole('button', { name: 'Salvar página de status' })).toBeInTheDocument();
     expect(screen.getByText('Nenhuma página de status ainda.')).toBeInTheDocument();
   });

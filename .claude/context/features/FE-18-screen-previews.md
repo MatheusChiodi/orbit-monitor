@@ -6,7 +6,7 @@ group: "Drag and drop and layout"
 status: done
 screens: [layout-editor]
 spec: docs/05-extended-features.md
-updated: 2026-10-18
+updated: 2026-10-24
 ---
 
 # FE-18 · Screen previews
@@ -24,11 +24,9 @@ updated: 2026-10-18
 
 ## Code
 - `frontend/src/domains/workspace/layout/previews.ts`
-- `frontend/src/domains/workspace/ScreenPreview/ScreenPreview.tsx`
 
 ## Tests
 - `frontend/src/domains/workspace/layout/previews.test.ts`
-- `frontend/src/domains/workspace/ScreenPreview/ScreenPreview.test.tsx`
 
 ## Decisions and notes
 - Frames render at their real resolution with the wall's fluid font and are scaled down with `transform: scale()` (never up); 1080p / 4K / ultrawide / portrait radiogroup.
@@ -37,3 +35,4 @@ updated: 2026-10-18
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
 - 2026-10-18 — screen previews (status: done).
+- 2026-10-24 — `domains/workspace/ScreenPreview` removed: nothing outside its own tests rendered it (the redesigned layout editor draws its own previews). Previews stay in `layout/previews.ts`; recover the component from commit 33110a0 if a screen needs it.

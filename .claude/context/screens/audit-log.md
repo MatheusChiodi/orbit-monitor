@@ -44,3 +44,4 @@ Filterable trail with SELECT diff.
 - 2026-10-22 — audit trail screen with filters, pagination and SELECT history diff (status: done).
 - 2026-10-22 — operator name retired: the "Operator" column and filter became "Client" (client kind via `ActorLabel`, legacy names through `SafeValue`).
 - 2026-10-24 — redesign: select filters, human action labels, View change, responsive table.
+- 2026-10-24 — console route test follows the select filters (applied on change) and the "View change: <monitor>" button.
