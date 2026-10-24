@@ -44,9 +44,10 @@ describe('evaluateCondition', () => {
     expect(evaluateCondition(c('ACQ', 'in', 'Cielo, Rede'), ctx)).toBe('pass');
     expect(evaluateCondition(c('ACQ', 'in', 'Stone'), ctx)).toBe('fail');
   });
-  it('older_than on dates: passes when the date is newer than the limit', () => {
-    expect(evaluateCondition(c('LAST_BATCH_AT', 'older_than', '60min'), ctx)).toBe('pass');
-    expect(evaluateCondition(c('LAST_BATCH_AT', 'older_than', '10min'), ctx)).toBe('fail');
+  it('dates follow the server: newer_than passes when newer than the limit, older_than when older', () => {
+    expect(evaluateCondition(c('LAST_BATCH_AT', 'newer_than', '60min'), ctx)).toBe('pass');
+    expect(evaluateCondition(c('LAST_BATCH_AT', 'newer_than', '10min'), ctx)).toBe('fail');
+    expect(evaluateCondition(c('LAST_BATCH_AT', 'older_than', '10min'), ctx)).toBe('pass');
   });
   it('system fields [ROWS], [EXEC_TIME], [STATUS], [RESPONSE_TIME]', () => {
     expect(evaluateCondition(c('[ROWS]', '==', '0'), ctx)).toBe('fail');

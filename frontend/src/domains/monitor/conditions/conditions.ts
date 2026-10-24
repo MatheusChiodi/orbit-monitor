@@ -1,5 +1,6 @@
 import type { Condition, PreviewRow } from '@/shared/api/types';
 import { msg, type Message } from '@/shared/i18n/message';
+import { splitList, splitRange as splitRangeText } from './alertRules';
 
 /** Preview data the condition is tested against ("this condition would fail now"). */
 export interface EvaluationContext {
@@ -54,18 +55,12 @@ function resolveField(field: string, ctx: EvaluationContext): PreviewRow[string]
 }
 
 function splitRange(text: string): [number, number] | null {
-  const parts = text.includes('..') ? text.split('..') : text.split(',');
-  if (parts.length !== 2) return null;
+  const parts = splitRangeText(text);
+  if (!parts) return null;
   const [a, b] = parts.map((p) => toNumber(p, false));
   return a === null || a === undefined || b === null || b === undefined ? null : [Math.min(a, b), Math.max(a, b)];
 }
 
-function list(text: string): string[] {
-  return text
-    .split(',')
-    .map(unquote)
-    .filter((x) => x !== '');
-}
 
 function verdict(ok: boolean): EvaluationResult {
   return ok ? 'pass' : 'fail';
@@ -79,17 +74,20 @@ export function evaluateCondition(condition: Condition, ctx: EvaluationContext):
 
   switch (condition.operator) {
     case 'in':
-      return verdict(list(condition.value).includes(String(actual)));
+      return verdict(splitList(condition.value).includes(String(actual)));
     case 'between': {
       const range = splitRange(condition.value);
       if (!range || typeof actual !== 'number') return 'invalid';
       return verdict(actual >= range[0] && actual <= range[1]);
     }
-    case 'older_than': {
+    case 'older_than':
+    case 'newer_than': {
+      // Server semantics: `older than` passes when the time is older than the limit, `newer than` when newer.
       const limit = parseDurationText(condition.value);
       const time = Date.parse(String(actual));
       if (limit === null || Number.isNaN(time)) return 'invalid';
-      return verdict(ctx.now.getTime() - time <= limit);
+      const newer = ctx.now.getTime() - time <= limit;
+      return verdict(condition.operator === 'newer_than' ? newer : !newer);
     }
     case '==':
     case '!=': {
@@ -120,7 +118,7 @@ export function validateCondition(condition: Condition, fields: readonly string[
   if (!fields.includes(condition.field)) return msg('conditions.errors.unknownField');
   if (condition.value.trim() === '') return msg('conditions.errors.valueRequired');
   if (condition.operator === 'between' && !splitRange(condition.value)) return msg('conditions.errors.range');
-  if (condition.operator === 'older_than' && parseDurationText(condition.value) === null) {
+  if ((condition.operator === 'older_than' || condition.operator === 'newer_than') && parseDurationText(condition.value) === null) {
     return msg('conditions.errors.duration');
   }
   return null;
@@ -129,6 +127,6 @@ export function validateCondition(condition: Condition, fields: readonly string[
 /** Gatus-style text: `[COL].QTY < 200`, `[ROWS] == 0`. */
 export function conditionText(condition: Condition): string {
   const field = condition.field.startsWith('[') ? condition.field : `[COL].${condition.field}`;
-  const operator = condition.operator === 'older_than' ? 'older than' : condition.operator;
+  const operator = condition.operator.replace('_', ' ');
   return `${field} ${operator} ${condition.value.trim()}`;
 }

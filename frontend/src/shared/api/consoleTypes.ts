@@ -206,3 +206,32 @@ export interface SavedQuery {
   owner?: string | null;
   description?: string | null;
 }
+
+/** Body of `PUT /api/groups/{id}` (GroupController.GroupRequest). */
+export interface GroupInput {
+  id: string;
+  name: string;
+  color?: string | null;
+  description?: string | null;
+  order?: number;
+}
+
+/**
+ * Body of `PUT /api/connections/{id}`. `password` is sealed into the vault and never returned; omit it on an
+ * update to keep the stored one, or give `passwordEnv` (name of an environment variable) instead.
+ */
+export interface ConnectionInput {
+  name: string;
+  jdbcUrl: string;
+  username: string;
+  password?: string;
+  passwordEnv?: string;
+  poolSize?: number;
+}
+
+/** `POST /api/connections/{id}/test`. */
+export interface ConnectionTestResult {
+  ok: boolean;
+  ms: number;
+  error: string | null;
+}

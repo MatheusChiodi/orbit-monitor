@@ -18,7 +18,7 @@ export interface ParsedConditions {
 }
 
 const LINE =
-  /^(?:\[COL\]\.([\w$#.]+)|(\[[A-Z_]+\]))\s+(older than|<=|>=|==|!=|<|>|between|in)\s+(.+?)\s*(?:→|->)\s*(WARN|DOWN)$/i;
+  /^(?:\[COL\]\.([\w$#.]+)|(\[[A-Z_]+\]))\s+(older than|newer than|<=|>=|==|!=|<|>|between|in)\s+(.+?)\s*(?:→|->)\s*(WARN|DOWN)$/i;
 
 /** Parses the text mode back into conditions; each unreadable line is reported with its number. */
 export function parseConditionsText(text: string): ParsedConditions {
@@ -33,7 +33,7 @@ export function parseConditionsText(text: string): ParsedConditions {
       return;
     }
     const operatorText = m[3]!.toLowerCase();
-    const operator: ConditionOperator = operatorText === 'older than' ? 'older_than' : (operatorText as ConditionOperator);
+    const operator = operatorText.replace(' ', '_') as ConditionOperator;
     conditions.push({
       field: m[1] ?? m[2]!.toUpperCase(),
       operator,

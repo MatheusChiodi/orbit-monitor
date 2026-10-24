@@ -5,8 +5,11 @@ import type {
   CatalogTable,
   ConfigFileChange,
   ConfigFileHealthRecord,
+  ConnectionInput,
+  ConnectionTestResult,
   DependencyItem,
   EscalationStep,
+  GroupInput,
   HistoryCoverageInfo,
   HistorySummary,
   IncidentRecord,
@@ -19,7 +22,7 @@ import type {
 } from './consoleTypes';
 import type { HistoryResponse } from '@/domains/telemetry/history/historyApi';
 import type { WorkspacePreferenceDefaults } from '@/shared/preferences/preferences';
-import type { Group } from './types';
+import type { Connection, Group } from './types';
 
 /** Body of `PUT /api/groups/order`. */
 export interface GroupOrder {
@@ -107,6 +110,14 @@ export function createConsoleEndpoints(request: JsonRequest, raw: RawRequest, is
 
     /** FE-13: group order and, optionally, each group's monitors in order (a monitor listed elsewhere moves). */
     saveGroupOrder: (order: GroupOrder) => request<Group[]>('/api/groups/order', { method: 'PUT', body: order }),
+    /** Creates or renames a group (`PUT /api/groups/{id}`). */
+    saveGroup: ({ id, ...group }: GroupInput) => request<Group>(`/api/groups/${enc(id)}`, { method: 'PUT', body: group }),
+
+    /** Database connections (orbit.connections.json); passwords are write-only. */
+    saveConnection: (id: string, connection: ConnectionInput) =>
+      request<Connection>(`/api/connections/${enc(id)}`, { method: 'PUT', body: connection }),
+    deleteConnection: (id: string) => remove('connections', id),
+    testConnection: (id: string) => request<ConnectionTestResult>(`/api/connections/${enc(id)}/test`, { method: 'POST' }),
 
     /** BE-46: newest first; the number of matching entries comes in `X-Total-Count`. */
     queryAudit: async (filter: AuditFilter): Promise<AuditPage> => {

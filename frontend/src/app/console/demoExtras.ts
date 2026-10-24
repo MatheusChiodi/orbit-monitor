@@ -71,7 +71,8 @@ function demoAudit(now: Date): AuditEntry[] {
   ];
 }
 
-type Extras = Omit<ConsoleEndpoints, 'exportConfig' | 'importConfig' | 'getCatalog'>;
+// Groups and connections are created by consoleSource's demo branch, next to the demo connection list.
+type Extras = Omit<ConsoleEndpoints, 'exportConfig' | 'importConfig' | 'getCatalog' | 'saveGroup' | 'saveConnection' | 'deleteConnection' | 'testConnection'>;
 
 /** In-memory data for the console screens in demo mode; never persisted, never sent anywhere. */
 export function createDemoExtras(snapshot: WallSnapshot, now: Date = new Date()): Extras {

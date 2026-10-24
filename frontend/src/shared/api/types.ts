@@ -168,7 +168,7 @@ export interface HttpTarget {
 
 export type PreviewRequest = SqlTarget | HttpTarget;
 
-export type ConditionOperator = ComparisonOperator | 'between' | 'in' | 'older_than';
+export type ConditionOperator = ComparisonOperator | 'between' | 'in' | 'older_than' | 'newer_than';
 
 export interface Condition {
   field: string;
@@ -223,5 +223,11 @@ export type DatabaseKind = 'ORACLE' | 'POSTGRES' | 'SQLSERVER' | 'MYSQL';
 export interface Connection {
   id: string;
   name: string;
-  kind: DatabaseKind;
+  kind: DatabaseKind | 'UNKNOWN';
+  /** Present in `GET /api/connections`; the password only ever comes back masked (`•••• (vault)`). */
+  jdbcUrl?: string;
+  username?: string | null;
+  password?: string | null;
+  poolSize?: number;
+  updatedAt?: string;
 }

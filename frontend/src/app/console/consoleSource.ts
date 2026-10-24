@@ -52,6 +52,7 @@ const EXTENDED_KEYS = [
   'listMaintenance', 'listMaintenanceOccurrences', 'saveMaintenance', 'deleteMaintenance', 'listDependencies', 'saveDependency', 'deleteDependency',
   'listStatusPages', 'saveStatusPage', 'saveGroupOrder', 'queryAudit', 'getCatalog', 'getHistorySummary', 'getHistory', 'listSavedQueries',
   'getHistoryCoverage', 'getWorkspaceDefaults', 'saveWorkspaceDefaults', 'getSettings', 'saveSettings', 'getConfigHealth', 'exportConfig', 'importConfig',
+  'saveGroup', 'saveConnection', 'deleteConnection', 'testConnection',
 ] as const satisfies readonly (keyof ConsoleEndpoints)[];
 
 const unavailable = () => Promise.reject(new Error('unavailable'));
@@ -67,6 +68,7 @@ export function createConsoleSource(api: ConsoleApi, demo: boolean): ConsoleSour
   const snapshot = mockSnapshot('incident');
   const created: MonitorDefinition[] = [];
   const extras = createDemoExtras(snapshot);
+  const connections: Connection[] = DEMO_CONNECTIONS.map((c) => ({ ...c }));
   return withFallbacks({
     ...extras,
     getAccess: async () => DEMO_ACCESS,
@@ -83,7 +85,24 @@ export function createConsoleSource(api: ConsoleApi, demo: boolean): ConsoleSour
         since: new Date().toISOString(),
       })),
     ],
-    listConnections: async () => DEMO_CONNECTIONS,
+    listConnections: async () => connections,
+    saveGroup: async ({ id, name }) => {
+      const group = { id, name };
+      snapshot.groups = [...snapshot.groups.filter((g) => g.id !== id), group];
+      return group;
+    },
+    saveConnection: async (id, input) => {
+      const saved: Connection = { id, name: input.name, kind: 'POSTGRES', jdbcUrl: input.jdbcUrl, username: input.username, password: '•••• (vault)' };
+      const index = connections.findIndex((c) => c.id === id);
+      if (index >= 0) connections[index] = saved;
+      else connections.push(saved);
+      return saved;
+    },
+    deleteConnection: async (id) => {
+      const index = connections.findIndex((c) => c.id === id);
+      if (index >= 0) connections.splice(index, 1);
+    },
+    testConnection: async () => ({ ok: true, ms: 42, error: null }),
     previewMonitor: mockPreview,
     createMonitor: async (definition) => {
       created.push(definition);
