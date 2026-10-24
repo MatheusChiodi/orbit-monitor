@@ -6,6 +6,7 @@
     "jump": "Section",
     "general": "General",
     "appearance": "Appearance",
+    "notifications": "Notifications",
     "wall-layouts": "Wall layouts",
     "connections": "Connections",
     "advanced": "Advanced"
@@ -13,6 +14,7 @@
   "navHint": {
     "general": "Language, access and configuration files",
     "appearance": "Theme, density, text size and animation",
+    "notifications": "Channels, escalation and delivery failures",
     "wall-layouts": "What each wall screen shows",
     "connections": "Databases used by SQL monitors",
     "advanced": "Every setting, profiles, names and Customize mode"

@@ -1,5 +1,5 @@
 /** FE-72: the sections of the one Settings area (`#/settings/<section>`). */
-export const SETTINGS_SECTIONS = ['general', 'appearance', 'wall-layouts', 'connections', 'advanced'] as const;
+export const SETTINGS_SECTIONS = ['general', 'appearance', 'notifications', 'wall-layouts', 'connections', 'advanced'] as const;
 export type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
 
 export const DEFAULT_SETTINGS_SECTION: SettingsSection = 'general';

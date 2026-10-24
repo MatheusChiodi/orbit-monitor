@@ -6,6 +6,7 @@
     "jump": "Seção",
     "general": "Geral",
     "appearance": "Aparência",
+    "notifications": "Notificações",
     "wall-layouts": "Layouts do painel",
     "connections": "Conexões",
     "advanced": "Avançado"
@@ -13,6 +14,7 @@
   "navHint": {
     "general": "Idioma, acesso e arquivos de configuração",
     "appearance": "Tema, densidade, tamanho do texto e animação",
+    "notifications": "Canais, escalonamento e falhas de entrega",
     "wall-layouts": "O que cada tela do painel mostra",
     "connections": "Bancos usados pelos monitores SQL",
     "advanced": "Todas as configurações, perfis, nomes e modo Personalizar"

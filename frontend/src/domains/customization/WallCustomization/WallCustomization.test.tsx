@@ -51,4 +51,17 @@ describe('customization on the wall', () => {
     await vi.waitFor(() => expect(getAccess).toHaveBeenCalled());
     expect(screen.queryByRole('button', { name: 'Customize' })).not.toBeInTheDocument();
   });
+
+  it('a kiosk wall (?kiosk=1) never shows Customize, even with edit access', async () => {
+    const api = { load: vi.fn(async () => fromEntries([])), loadTerminology: vi.fn(async () => ({ en: {}, 'pt-BR': {} })) } as unknown as CustomizationApi;
+    const getAccess = vi.fn(async () => ({ mode: 'edit' as const, client: 'loopback' as const }));
+    render(
+      <WallCustomization store={createCustomizationStore({ api })} layoutId="noc" getAccess={getAccess} search="?kiosk=1">
+        <Probe />
+      </WallCustomization>,
+    );
+    await screen.findByText('regular');
+    expect(getAccess).not.toHaveBeenCalled();
+    expect(screen.queryByRole('button', { name: 'Customize' })).not.toBeInTheDocument();
+  });
 });

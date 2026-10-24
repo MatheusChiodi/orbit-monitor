@@ -36,13 +36,14 @@ function setup(section: SettingsSection, layoutId?: string) {
 afterEach(() => localStorage.clear());
 
 describe('FE-72 Settings area', () => {
-  it('is one page titled Settings with a sub-nav of five sections', () => {
+  it('is one page titled Settings with a sub-nav of six sections', () => {
     setup('general');
     expect(screen.getByRole('heading', { level: 1, name: 'Settings' })).toBeInTheDocument();
     const nav = screen.getByRole('navigation', { name: 'Settings sections' });
     expect(within(nav).getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual([
       '#/settings',
       '#/settings/appearance',
+      '#/settings/notifications',
       '#/settings/wall-layouts',
       '#/settings/connections',
       '#/settings/advanced',

@@ -23,24 +23,31 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.restoreAllMocks();
+  window.location.hash = '';
   delete document.documentElement.dataset.density;
   document.documentElement.style.removeProperty('--density-scale');
 });
 
-describe('FE-50 / FE-07 device preferences in the console', () => {
-  it('opens the preferences screen from the header and applies the density at once', async () => {
+function go(hash: string) {
+  window.location.hash = hash;
+  window.dispatchEvent(new HashChangeEvent('hashchange'));
+}
+
+describe('FE-50 / FE-07 device preferences in the console (Settings › Appearance)', () => {
+  it('density is set in Settings › Appearance and applies at once', async () => {
+    go('#/settings/appearance');
     render(<ConsoleApp api={api()} preferencesStore={createPreferencesStore()} />);
-    await userEvent.click(await screen.findByRole('button', { name: 'Device preferences' }));
-    expect(screen.getByRole('heading', { level: 1, name: 'Device preferences' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Settings' })).toBeInTheDocument();
     expect(document.documentElement.dataset.density).toBe('comfortable');
-    await userEvent.selectOptions(screen.getByLabelText('Density'), 'compact');
+    await userEvent.click(await screen.findByRole('radio', { name: 'Compact' }));
     expect(document.documentElement.dataset.density).toBe('compact');
   });
 
-  it('the preferences screen has no operator name field', async () => {
+  it('the header has no device preferences button and no operator name field anywhere', async () => {
+    go('#/settings/advanced');
     render(<ConsoleApp api={api()} preferencesStore={createPreferencesStore()} />);
-    await userEvent.click(await screen.findByRole('button', { name: 'Device preferences' }));
-    expect(screen.getByLabelText('Density')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Viewing distance')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Device preferences' })).toBeNull();
     expect(screen.queryByLabelText('Operator name')).toBeNull();
   });
 
@@ -48,7 +55,6 @@ describe('FE-50 / FE-07 device preferences in the console', () => {
     const preferences = createPreferencesStore();
     preferences.getState().set('animation', 'minimal');
     render(<ConsoleApp api={api()} preferencesStore={preferences} />);
-    await screen.findByRole('button', { name: 'Device preferences' });
-    expect(document.documentElement.dataset.animation).toBe('minimal');
+    await vi.waitFor(() => expect(document.documentElement.dataset.animation).toBe('minimal'));
   });
 });

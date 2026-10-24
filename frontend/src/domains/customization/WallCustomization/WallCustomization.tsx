@@ -3,6 +3,7 @@ import type { AccessInfo } from '@/shared/api/types';
 import type { CustomizationStore } from '@/shared/customization/store';
 import type { TerminologyStore } from '@/shared/customization/terminology';
 import { useAppearance } from '@/shared/customization/useAppearance';
+import { isKioskRequested } from '@/domains/wall/kiosk/kioskRequest';
 import { CustomizationRuntime } from '../CustomizationRuntime';
 import { CustomizeModeProvider } from '../CustomizeModeProvider';
 
@@ -15,15 +16,18 @@ export interface WallCustomizationProps {
   layoutId?: string | null;
   /** FE-53: Customize mode is offered only when the API grants edit access. */
   getAccess?: () => Promise<AccessInfo>;
+  /** Page query string; a kiosk wall (`?kiosk=1`) never offers Customize. */
+  search?: string;
   children: ReactNode;
 }
 
 /** Wall entry: customization is read-only unless this device may edit; editor code is a separate chunk. */
-export function WallCustomization({ store, terminology = null, layoutId = null, getAccess, children }: WallCustomizationProps) {
+export function WallCustomization({ store, terminology = null, layoutId = null, getAccess, search = window.location.search, children }: WallCustomizationProps) {
   useAppearance(store, layoutId);
   const [editable, setEditable] = useState(false);
+  const kiosk = isKioskRequested(search);
   useEffect(() => {
-    if (!getAccess) return;
+    if (!getAccess || kiosk) return;
     let alive = true;
     getAccess().then(
       (access) => alive && setEditable(access.mode === 'edit'),
@@ -32,7 +36,7 @@ export function WallCustomization({ store, terminology = null, layoutId = null, 
     return () => {
       alive = false;
     };
-  }, [getAccess]);
+  }, [getAccess, kiosk]);
   return (
     <CustomizationRuntime store={store} terminology={terminology} layoutId={layoutId}>
       <CustomizeModeProvider editable={editable}>

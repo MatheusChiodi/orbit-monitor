@@ -24,7 +24,7 @@ function customizationApi(): CustomizationApi {
     saveScope: vi.fn(async () => undefined),
     deleteEntry: vi.fn(async () => undefined),
     saveProfile: vi.fn(async () => undefined),
-    loadTerminology: vi.fn(async () => ({ en: { 'console.monitors.title': 'Checks' }, 'pt-BR': {} })),
+    loadTerminology: vi.fn(async () => ({ en: { 'ops.monitors.title': 'Checks' }, 'pt-BR': {} })),
     saveTerminology: vi.fn(async () => undefined),
   };
 }
@@ -38,15 +38,22 @@ afterEach(() => {
   vi.restoreAllMocks();
   for (const key of Object.keys(document.documentElement.dataset)) delete document.documentElement.dataset[key];
   document.documentElement.removeAttribute('style');
+  window.location.hash = '';
 });
 
-describe('CORE-21 customization in the console', () => {
-  it('loads the workspace customization and opens the generated settings screen', async () => {
+function go(hash: string) {
+  window.location.hash = hash;
+  window.dispatchEvent(new HashChangeEvent('hashchange'));
+}
+
+describe('CORE-21 customization in the console (Settings › Advanced)', () => {
+  it('loads the workspace customization and shows the generated settings in Advanced', async () => {
     const preferences = createPreferencesStore();
     const store = createCustomizationStore({ api: customizationApi(), preferences });
+    go('#/settings/advanced');
     render(<ConsoleApp api={api()} preferencesStore={preferences} customizationStore={store} />);
-    await userEvent.click(await screen.findByRole('button', { name: 'Customization' }));
-    expect(screen.getByRole('heading', { level: 1, name: 'Customization' })).toBeInTheDocument();
+    expect(await screen.findByRole('tab', { name: 'All settings' })).toBeInTheDocument();
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Applies to' }), 'workspace');
     expect(await screen.findByRole('combobox', { name: 'Corner radius' })).toHaveValue('sharp');
     expect(document.documentElement.dataset.radius).toBe('sharp');
   });
@@ -54,37 +61,42 @@ describe('CORE-21 customization in the console', () => {
   it('applies the renamed labels from orbit.terminology.json', async () => {
     const store = createCustomizationStore({ api: customizationApi() });
     render(<ConsoleApp api={api()} customizationStore={store} customizationApi={customizationApi()} />);
-    expect(await screen.findByRole('heading', { level: 1, name: 'Checks' })).toBeInTheDocument();
+    expect((await screen.findAllByText('Checks')).length).toBeGreaterThan(0);
   });
 
-  it('view-only clients see the settings but cannot change them', async () => {
+  it('view-only clients see the settings but cannot change them, and get no Customize mode', async () => {
     const store = createCustomizationStore({ api: customizationApi() });
+    go('#/settings/advanced');
     render(<ConsoleApp api={api('view-only')} customizationStore={store} />);
-    await userEvent.click(await screen.findByRole('button', { name: 'Customization' }));
     expect(await screen.findByRole('combobox', { name: 'Corner radius' })).toBeDisabled();
+    expect(screen.queryByRole('switch', { name: 'Customize mode' })).toBeNull();
+    expect(screen.getByText('Only available on the machine running Orbit.')).toBeInTheDocument();
   });
 
-  it('FE-53: editors get the Customize toggle (Ctrl+.) with handles on the monitor list', async () => {
+  it('FE-53: editors turn Customize mode on in Advanced and get handles on the monitor list', async () => {
     const store = createCustomizationStore({ api: customizationApi() });
+    go('#/settings/advanced');
     render(<ConsoleApp api={api()} customizationStore={store} />);
-    await userEvent.click(await screen.findByRole('button', { name: 'Customize' }));
+    await userEvent.click(await screen.findByRole('switch', { name: 'Customize mode' }));
+    go('#/');
     expect(await screen.findByRole('button', { name: 'Customize Queue' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Customize Queue' }));
     expect(screen.getByRole('dialog', { name: 'Customize Queue' })).toBeInTheDocument();
   });
 
-  it('FE-53: view-only clients never see Customize', async () => {
-    const store = createCustomizationStore({ api: customizationApi() });
-    render(<ConsoleApp api={api('view-only')} customizationStore={store} />);
-    expect(await screen.findByRole('button', { name: 'Customization' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Customize' })).not.toBeInTheDocument();
-  });
-
-  it('FE-57: the customization screen has a profiles tab with the built-in profiles', async () => {
+  it('FE-53: Ctrl+. toggles Customize mode anywhere for editors', async () => {
     const store = createCustomizationStore({ api: customizationApi() });
     render(<ConsoleApp api={api()} customizationStore={store} />);
-    await userEvent.click(await screen.findByRole('button', { name: 'Customization' }));
-    await userEvent.click(screen.getByRole('tab', { name: 'Profiles' }));
+    await screen.findAllByText('Queue');
+    await userEvent.keyboard('{Control>}.{/Control}');
+    expect(await screen.findByRole('button', { name: 'Customize Queue' })).toBeInTheDocument();
+  });
+
+  it('FE-57: Advanced has a profiles tab with the built-in profiles', async () => {
+    const store = createCustomizationStore({ api: customizationApi() });
+    go('#/settings/advanced');
+    render(<ConsoleApp api={api()} customizationStore={store} />);
+    await userEvent.click(await screen.findByRole('tab', { name: 'Profiles' }));
     expect(screen.getByRole('article', { name: 'TV wall' })).toBeInTheDocument();
   });
 });

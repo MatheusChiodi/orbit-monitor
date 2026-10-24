@@ -65,55 +65,51 @@ afterEach(() => {
   document.documentElement.removeAttribute('style');
 });
 
-describe('FE-03 / FE-50 / BE-40 console theme', () => {
+const use = (name: string) => userEvent.click(screen.getByRole('button', { name: `Use ${name}` }));
+
+describe('FE-03 / FE-50 / BE-40 console theme (Settings › Appearance)', () => {
   it('workspace defaults from /api/settings/defaults feed the preferences and apply when the device has no choice', async () => {
     const { preferences } = setup();
     await waitFor(() => expect(preferences.getState().defaults.theme).toBe('nord'));
     await waitFor(() => expect(document.documentElement.dataset.theme).toBe('nord'));
   });
 
-  it('the theme chosen in device preferences (FE-50) is applied to the console', async () => {
-    setup();
-    await userEvent.click(await screen.findByRole('button', { name: 'Device preferences' }));
-    await userEvent.selectOptions(screen.getByLabelText('Theme'), 'dracula');
-    await waitFor(() => expect(document.documentElement.dataset.theme).toBe('dracula'));
-  });
-
-  it('Settings → Appearance: choosing a theme in the gallery becomes the device preference', async () => {
+  it('choosing a theme previews it; "Use on this device" makes it the device preference', async () => {
+    window.location.hash = '#/settings/appearance';
     const { preferences, configClient } = setup();
-    await userEvent.click(await screen.findByRole('button', { name: 'Appearance' }));
-    expect(window.location.hash).toBe('#/settings/themes');
-    await userEvent.click(await screen.findByRole('button', { name: 'Use Kanagawa' }));
+    await userEvent.click(await screen.findByRole('button', { name: /Show all \d+ themes/ }));
+    await use('Kanagawa');
+    await waitFor(() => expect(document.documentElement.dataset.theme).toBe('kanagawa'));
+    expect(preferences.getState().device.theme).toBeUndefined();
+    await userEvent.click(screen.getByRole('button', { name: 'Use on this device' }));
     expect(preferences.getState().device.theme).toBe('kanagawa');
-    expect(document.documentElement.dataset.theme).toBe('kanagawa');
     expect(configClient.list).toHaveBeenCalledWith('themes');
   });
 
   it('custom themes from /api/themes are listed and "Make workspace default" saves BE-40 defaults', async () => {
+    window.location.hash = '#/settings/appearance';
     const { defaultsApi, preferences } = setup();
-    window.location.hash = '';
-    await userEvent.click(await screen.findByRole('button', { name: 'Appearance' }));
     expect(await screen.findByRole('button', { name: 'Use NOC night' })).toBeInTheDocument();
+    await use('Dracula');
     await userEvent.click(screen.getByRole('button', { name: 'Make workspace default' }));
-    await waitFor(() => expect(defaultsApi.save).toHaveBeenCalledWith(expect.objectContaining({ theme: expect.any(String) })));
-    await waitFor(() => expect(preferences.getState().defaults.theme).toBe(defaultsApi.save.mock.calls[0]?.[0].theme));
+    await waitFor(() => expect(defaultsApi.save).toHaveBeenCalledWith(expect.objectContaining({ theme: 'dracula', density: 'comfortable' })));
+    await waitFor(() => expect(preferences.getState().defaults.theme).toBe('dracula'));
   });
 
-  it('`#/settings/themes` opens Appearance directly', async () => {
+  it('the legacy `#/settings/themes` opens Appearance', async () => {
     window.location.hash = '#/settings/themes';
     setup();
-    expect(await screen.findByRole('heading', { level: 1, name: 'Appearance' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 2, name: 'Appearance' })).toBeInTheDocument();
   });
 });
 
-describe('FE-11 console route for the layout editor', () => {
-  it('`#/layouts` lists the saved layouts and edits one with its theme, animation and playlist', async () => {
-    window.location.hash = '#/layouts';
+describe('FE-11 layout editor in Settings › Wall layouts', () => {
+  it('lists the saved layouts and edits one with its theme, animation and playlist', async () => {
+    window.location.hash = '#/settings/wall-layouts';
     const { layoutsApi } = setup();
-    expect(await screen.findByRole('heading', { level: 1, name: 'Wall layouts' })).toBeInTheDocument();
-    await userEvent.click(await screen.findByRole('button', { name: 'Executive' }));
-    expect(window.location.hash).toBe('#/layouts/l-exec');
-    expect(screen.getByRole('link', { name: 'Open on the wall' })).toHaveAttribute('href', '/wall/exec');
+    await userEvent.selectOptions(await screen.findByRole('combobox', { name: 'Wall layouts' }), 'l-exec');
+    await waitFor(() => expect(window.location.hash).toBe('#/settings/wall-layouts/l-exec'));
+    expect(await screen.findByRole('link', { name: 'Open on the wall' })).toHaveAttribute('href', '/wall/exec');
 
     await userEvent.selectOptions(screen.getByLabelText('Theme on this wall'), 'nord');
     await userEvent.selectOptions(screen.getByLabelText('Animation on this wall'), 'minimal');
@@ -131,11 +127,11 @@ describe('FE-11 console route for the layout editor', () => {
       animationLevel: 'minimal',
       playlist: { entries: [{ layout: 'exec', seconds: 60 }, { layout: 'noc', seconds: 30 }] },
     });
-    expect(await screen.findByText('Layout "Executive" saved')).toBeInTheDocument();
+    expect(await screen.findByText('Layout Executive saved')).toBeInTheDocument();
   });
 
   it('the editor previews the grid in the layout theme', async () => {
-    window.location.hash = '#/layouts/l-exec';
+    window.location.hash = '#/settings/wall-layouts/l-exec';
     setup({ layoutsApi: { list: vi.fn().mockResolvedValue([{ ...exec, themeId: 'github-light' }]), save: vi.fn() } });
     const grid = await screen.findByRole('application', { name: 'Wall layout editor' });
     const scope = grid.closest<HTMLElement>('[data-theme-preview]');
@@ -143,18 +139,20 @@ describe('FE-11 console route for the layout editor', () => {
     expect(scope?.style.getPropertyValue('--color-bg')).not.toBe('');
   });
 
-  it('a new layout gets a free slug and can be saved', async () => {
-    window.location.hash = '#/layouts';
+  it('a new layout takes its address from the name and can be saved', async () => {
+    window.location.hash = '#/settings/wall-layouts';
     const { layoutsApi } = setup();
     await userEvent.click(await screen.findByRole('button', { name: 'New layout' }));
-    const slug = screen.getByLabelText('Address (/wall/…)');
-    expect((slug as HTMLInputElement).value).toBe('layout-3');
+    const dialog = screen.getByRole('dialog', { name: 'New wall layout' });
+    await userEvent.type(within(dialog).getByRole('textbox', { name: /Name/ }), 'Lobby TV');
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Create layout' }));
+    expect(screen.getByLabelText('Address (/wall/…)')).toHaveValue('lobby-tv');
     await userEvent.click(screen.getByRole('button', { name: 'Save layout' }));
-    await waitFor(() => expect(layoutsApi.save).toHaveBeenCalledWith(expect.objectContaining({ slug: 'layout-3' })));
+    await waitFor(() => expect(layoutsApi.save).toHaveBeenCalledWith(expect.objectContaining({ slug: 'lobby-tv', name: 'Lobby TV' })));
   });
 
   it('view-only clients see the layouts read-only', async () => {
-    window.location.hash = '#/layouts/l-noc';
+    window.location.hash = '#/settings/wall-layouts/l-noc';
     setup({ api: api('view-only') });
     const grid = await screen.findByRole('application', { name: 'Wall layout editor' });
     expect(grid).toHaveAttribute('aria-readonly', 'true');
@@ -162,4 +160,3 @@ describe('FE-11 console route for the layout editor', () => {
     expect(within(screen.getByRole('group', { name: 'Layout settings' })).getByLabelText('Theme on this wall')).toBeDisabled();
   });
 });
-

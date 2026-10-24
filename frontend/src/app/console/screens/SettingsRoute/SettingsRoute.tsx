@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, type ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AdvancedSettings } from '@/app/settings/AdvancedSettings';
 import { GeneralSettings } from '@/app/settings/GeneralSettings';
@@ -8,7 +8,7 @@ import { ConnectionsSettings } from '@/domains/connections/ConnectionsSettings';
 import type { LayoutsApi } from '@/domains/workspace/layout/layoutsApi';
 import type { PreferencesStore, WorkspacePreferenceDefaults } from '@/shared/preferences/preferences';
 import type { ThemesClient } from '@/shared/theme/customThemes';
-import { PageHeader, useToast } from '@/shared/ui';
+import { EmptyState, PageHeader, useToast } from '@/shared/ui';
 import { useConsole, useGroups, useMonitors } from '../../ConsoleContext';
 import { AppearancePage } from '../../AppearancePage';
 import { LayoutsPage } from '../../LayoutsPage';
@@ -30,6 +30,15 @@ export interface SettingsRouteProps {
   preferences: PreferencesStore;
   services: SettingsServices;
 }
+
+/**
+ * The notifications bucket builds `domains/notifications/NotificationsSettings`; it is picked up at build time,
+ * so this section shows a placeholder until that screen exists.
+ */
+const notificationModules = import.meta.glob<{ default: ComponentType<{ editable?: boolean }> }>('/src/domains/notifications/NotificationsSettings/index.ts', {
+  eager: true,
+});
+const NotificationsSettings = Object.values(notificationModules)[0]?.default ?? null;
 
 /** FE-72: the one Settings area — sub-nav plus General · Appearance · Wall layouts · Connections · Advanced. */
 export function SettingsRoute({ section, layoutId = null, preferences, services }: SettingsRouteProps) {
@@ -61,6 +70,9 @@ export function SettingsRoute({ section, layoutId = null, preferences, services 
           onSetWorkspaceDefault={(theme, display) => saveWorkspaceDefaults({ theme, ...display }, t('settingsHub.appearance.madeDefault', { name: theme }))}
         />
       );
+      break;
+    case 'notifications':
+      body = NotificationsSettings ? <NotificationsSettings editable={editable} /> : <EmptyState title={title}>{t('settingsHub.unavailable')}</EmptyState>;
       break;
     case 'wall-layouts':
       body = <LayoutsPage api={services.layoutsApi} editable={editable} selectedId={layoutId} monitors={monitors.data ?? []} groups={groups.data ?? []} />;
