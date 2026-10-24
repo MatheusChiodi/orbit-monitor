@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Badge, Button, Card, Dialog, EmptyState, IconBell, IconPlus, Menu, StatusBadge, Table, useToast, type TableColumn } from '@/shared/ui';
@@ -12,8 +12,13 @@ import { errorMessage, keys, useChannels, useGroupsList, useNotifications } from
 type TestState = { phase: 'sending' } | ({ phase: 'done' } & TestResult);
 type Editing = { channel?: Channel } | null;
 
+export interface ChannelsTabProps {
+  /** Increments when something outside (the command palette) asks to add a channel. */
+  addRequest?: number;
+}
+
 /** Channels: list, add/edit, send a test, delete. */
-export function ChannelsTab() {
+export function ChannelsTab({ addRequest = 0 }: ChannelsTabProps) {
   const { t } = useTranslation();
   const { api, editable } = useNotifications();
   const { toast } = useToast();
@@ -24,6 +29,9 @@ export function ChannelsTab() {
   const [editing, setEditing] = useState<Editing>(null);
   const [deleting, setDeleting] = useState<Channel | null>(null);
   const [tests, setTests] = useState<Record<string, TestState>>({});
+  useEffect(() => {
+    if (addRequest > 0 && editable) setEditing({});
+  }, [addRequest, editable]);
 
   const sendTest = async (channel: Channel) => {
     setTests((s) => ({ ...s, [channel.id]: { phase: 'sending' } }));

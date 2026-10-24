@@ -17,7 +17,7 @@ One Settings section (`#/settings/notifications`) that makes the alerting backen
 ## Status
 - [x] Tests written (pending or active)
 - [x] Implemented
-- [x] Mounted as Settings › Notifications (`#/settings/notifications`, FE-72); palette action "Add notification channel" requested from the shell (FE-63)
+- [x] Mounted as Settings › Notifications (`#/settings/notifications`, FE-72); palette action "Add notification channel" (`?action=add-channel`, `useRouteAction`) opens the Channels tab with the add dialog
 
 ## Code
 - `frontend/src/domains/notifications/NotificationsSettings/NotificationsSettings.tsx` (default export; optional `api`, `editable`, `initialTab`)
@@ -45,3 +45,4 @@ One Settings section (`#/settings/notifications`) that makes the alerting backen
 ## Changelog
 - 2026-10-24 — channels CRUD + test, delivery failures, message templates, escalation policies + next escalations, on-call schedules + on call now (status: in-progress).
 - 2026-10-24 — mounted in Settings; plain-language delivery errors; SMTP password inside the mail server group (status: done).
+- 2026-10-24 — command palette "Add notification channel" opens the add dialog (`useRouteAction`).

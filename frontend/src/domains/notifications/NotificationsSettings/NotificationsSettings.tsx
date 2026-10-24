@@ -1,6 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { useRouteAction } from '@/app/console/routes';
 import { createApiCore } from '@/shared/api/client';
 import { Tabs } from '@/shared/ui';
 import { createNotificationsApi, type NotificationsApi } from '../api/notificationsApi';
@@ -34,10 +35,16 @@ export function NotificationsSettings({ api: given, editable: forced, initialTab
   });
   const editable = forced ?? access.data?.mode !== 'view-only';
   const [tab, setTab] = useState<NotificationsTab>(initialTab);
+  // Command palette "Add notification channel" (`?action=add-channel`): Channels tab with the add dialog open.
+  const [addRequest, setAddRequest] = useState(0);
+  useRouteAction('add-channel', () => {
+    setTab('channels');
+    setAddRequest((n) => n + 1);
+  });
   const context = useMemo(() => ({ api, editable }), [api, editable]);
 
   const panels: Record<NotificationsTab, ReactNode> = {
-    channels: <ChannelsTab />,
+    channels: <ChannelsTab addRequest={addRequest} />,
     failures: <FailuresTab />,
     templates: <TemplatesTab />,
     escalation: <EscalationTab />,

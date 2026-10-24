@@ -78,6 +78,14 @@ describe('NotificationsSettings › Channels', () => {
     expect(api.deleteChannel).toHaveBeenCalledWith('ops');
   });
 
+  it('opens the add dialog when the command palette asks for it', async () => {
+    window.location.hash = '#/settings/notifications?action=add-channel';
+    renderSettings(fakeApi(), { tab: 'oncall' });
+    expect(await screen.findByRole('dialog', { name: 'Add channel' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Channels' })).toHaveAttribute('aria-selected', 'true');
+    expect(window.location.hash).toBe('#/settings/notifications');
+  });
+
   it('is read-only away from the Orbit machine', async () => {
     renderSettings(fakeApi({ listChannels: [slack] }), { editable: false });
     expect(await screen.findByText('Ops chat')).toBeInTheDocument();
