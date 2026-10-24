@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Incident } from '@/shared/api/types';
 import { mockSnapshot } from '../mock';
-import { alsoActive, groupRows, pickHero } from './selectors';
+import { alsoActive, groupRows, pickHero, nearLimitEmpty } from './selectors';
 
 const now = new Date(2026, 9, 18, 17, 10, 0);
 
@@ -70,5 +70,11 @@ describe('groupRows', () => {
     const snap = mockSnapshot('ok', now);
     snap.groups.push({ id: 'empty', name: 'Empty' });
     expect(groupRows(snap).some((r) => r.group.id === 'empty')).toBe(false);
+  });
+
+  it('near threshold is empty for lack of a numeric limit, or while limits wait for a reading', () => {
+    const monitors = mockSnapshot('ok', now).monitors;
+    expect(nearLimitEmpty(monitors.map((m) => ({ ...m, rule: undefined })))).toBe('no-rule');
+    expect(nearLimitEmpty(monitors.map((m) => ({ ...m, value: null })))).toBe('waiting');
   });
 });

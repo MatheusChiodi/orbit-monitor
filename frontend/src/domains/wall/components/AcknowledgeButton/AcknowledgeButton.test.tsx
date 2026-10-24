@@ -17,18 +17,18 @@ const base: Incident = {
 };
 
 describe('AcknowledgeButton', () => {
-  it('solid red when the incident is down', async () => {
+  it('the primary action, never the DOWN red (red means state, not a button)', async () => {
     const onAcknowledge = vi.fn();
     render(<AcknowledgeButton incident={base} onAcknowledge={onAcknowledge} />);
     const button = screen.getByRole('button', { name: 'Acknowledge' });
-    expect(button).toHaveAttribute('data-variant', 'danger');
+    expect(button).toHaveAttribute('data-variant', 'primary');
     await userEvent.click(button);
     expect(onAcknowledge).toHaveBeenCalledWith('i1');
   });
 
-  it('neutral when it is a warning', () => {
+  it('primary for a warning too', () => {
     render(<AcknowledgeButton incident={{ ...base, severity: 'WARN' }} onAcknowledge={vi.fn()} />);
-    expect(screen.getByRole('button', { name: 'Acknowledge' })).toHaveAttribute('data-variant', 'neutral');
+    expect(screen.getByRole('button', { name: 'Acknowledge' })).toHaveAttribute('data-variant', 'primary');
   });
 
   it('becomes text once acknowledged', () => {

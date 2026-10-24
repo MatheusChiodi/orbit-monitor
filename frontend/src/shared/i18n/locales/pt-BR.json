@@ -93,8 +93,10 @@
     },
     "nearLimit": {
       "title": "Perto do limite",
-      "empty": "Nenhum monitor com regra numérica",
-      "headroomOf": "Folga de {{name}}"
+      "empty": "Nenhum monitor tem limite numérico ainda",
+      "headroomOf": "Folga de {{name}}",
+      "emptyHint": "Adicione uma condição como tempo de resposta < 1000 ms para ver o quão perto cada monitor está do limite.",
+      "waiting": "Aguardando as primeiras leituras"
     },
     "matrix": {
       "title": "Todos os monitores"
@@ -141,7 +143,13 @@
       "position": "Layout {{index}} de {{total}}",
       "paused": "Rotação pausada: incidente não reconhecido"
     },
-    "waitingServer": "Aguardando o servidor do Orbit…"
+    "waitingServer": "Aguardando o servidor do Orbit…",
+    "empty": {
+      "status": "Nenhum monitor ainda",
+      "title": "Nenhum monitor ainda",
+      "body": "Adicione um no console e ele aparece aqui.",
+      "console": "Console"
+    }
   },
   "access": {
     "viewOnly": "Somente leitura: edições só na máquina onde o Orbit roda"
@@ -614,7 +622,7 @@
   },
   "sound": {
     "label": "Alertas sonoros",
-    "muted": "Sem som",
+    "muted": "Som desligado",
     "on": "Som ligado",
     "volume": "Volume"
   },

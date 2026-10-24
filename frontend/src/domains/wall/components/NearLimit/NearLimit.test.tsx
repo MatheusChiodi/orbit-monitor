@@ -35,8 +35,15 @@ describe('NearLimit', () => {
     expect(fills[fills.length - 1]).toHaveAttribute('data-fill', 'OK');
   });
 
-  it('empty', () => {
+  it('empty without numeric rules: says how to get one', () => {
     render(<NearLimit items={[]} />);
-    expect(screen.getByText('No monitor with a numeric rule')).toBeInTheDocument();
+    expect(screen.getByText('No monitor has a numeric limit yet')).toBeInTheDocument();
+    expect(screen.getByText(/response time < 1000 ms/)).toBeInTheDocument();
+  });
+
+  it('empty while rules wait for their first reading', () => {
+    render(<NearLimit items={[]} empty="waiting" />);
+    expect(screen.getByText('Waiting for the first readings')).toBeInTheDocument();
+    expect(screen.queryByText('No monitor has a numeric limit yet')).toBeNull();
   });
 });

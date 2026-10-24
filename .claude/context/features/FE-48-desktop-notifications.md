@@ -6,7 +6,7 @@ group: "Wall runtime and preferences"
 status: done
 screens: [preferences]
 spec: docs/05-extended-features.md
-updated: 2026-10-18
+updated: 2026-10-24
 ---
 
 # FE-48 · Desktop notifications
@@ -38,3 +38,4 @@ Opt-in browser notifications for new incidents
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
 - 2026-10-18 — desktop notifications (status: done).
+- 2026-10-24 — the wall offers the opt-in only to clients with edit access (`WallApp loadAccess`, one shared `/api/access` request in `wall-main`) and never in kiosk mode.

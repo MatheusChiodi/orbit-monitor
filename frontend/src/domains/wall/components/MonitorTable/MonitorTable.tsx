@@ -3,7 +3,10 @@ import { formatReading } from '@/domains/monitor/rules';
 import type { MonitorView } from '@/shared/api/types';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { SafeValue } from '@/shared/privacy/SafeValue';
-import { FlashValue, Panel, StatusDot, TEXT_CLASS } from '@/shared/ui';
+import { FlashValue } from '@/shared/ui/FlashValue';
+import { Panel } from '@/shared/ui/Panel';
+import { StatusDot } from '@/shared/ui/StatusPill';
+import { TEXT_CLASS } from '@/shared/ui/tones';
 
 export interface MonitorTableProps {
   monitors: readonly MonitorView[];
@@ -18,27 +21,27 @@ export function MonitorTable({ monitors }: MonitorTableProps) {
   const locale = currentLocale(i18n);
   return (
     <Panel title={t('wall.blocks.table')} className="h-full">
-      <table className="w-full border-collapse text-[0.82rem]">
+      <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="text-left text-[0.7rem] text-muted">
-            <th className="py-[0.2rem] font-semibold">{t('wall.blocks.tableColumns.name')}</th>
-            <th className="py-[0.2rem] font-semibold">{t('wall.blocks.tableColumns.status')}</th>
-            <th className="py-[0.2rem] text-right font-semibold">{t('wall.blocks.tableColumns.value')}</th>
+          <tr className="text-left text-xs text-muted">
+            <th className="py-0.5 font-semibold">{t('wall.blocks.tableColumns.name')}</th>
+            <th className="py-0.5 font-semibold">{t('wall.blocks.tableColumns.status')}</th>
+            <th className="py-0.5 text-right font-semibold">{t('wall.blocks.tableColumns.value')}</th>
           </tr>
         </thead>
         <tbody>
           {monitors.map((m) => (
             <tr key={m.id} data-status={m.status} className="border-t border-line">
-              <td className="py-[0.25rem]">
+              <td className="py-1">
                 <SafeValue value={m.name} surface="wall" />
               </td>
-              <td className={`py-[0.25rem] ${TEXT_CLASS[m.status]}`}>
-                <span className="inline-flex items-center gap-[0.3rem]">
+              <td className={`py-1 ${TEXT_CLASS[m.status]}`}>
+                <span className="inline-flex items-center gap-1">
                   <StatusDot status={m.status} />
                   {t(`status.label.${m.status}`)}
                 </span>
               </td>
-              <td className="py-[0.25rem] text-right font-mono">
+              <td className="py-1 text-right font-mono">
                 <FlashValue value={m.value}>{formatReading(m.value, m.unit, locale)}</FlashValue>
               </td>
             </tr>

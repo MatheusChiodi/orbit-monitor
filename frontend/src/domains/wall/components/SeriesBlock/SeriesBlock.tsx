@@ -6,7 +6,8 @@ import type { HistoryResponse } from '@/domains/telemetry/history/historyApi';
 import { presetRange, resolutionFor, type HistoryRange } from '@/domains/telemetry/history/range';
 import type { MonitorView } from '@/shared/api/types';
 import { safeText } from '@/shared/privacy/redact';
-import { Panel, Sparkline } from '@/shared/ui';
+import { Panel } from '@/shared/ui/Panel';
+import { Sparkline } from '@/shared/ui/Sparkline';
 
 export type LoadHistory = (monitorId: string, range: Pick<HistoryRange, 'from' | 'to'>, resolution: ReturnType<typeof resolutionFor>) => Promise<HistoryResponse>;
 
@@ -51,7 +52,7 @@ export function SeriesBlock({ monitor, range, loadHistory, now }: SeriesBlockPro
   if (!monitor) {
     return (
       <Panel title={t('wall.blocks.series')} className="h-full">
-        <p className="m-0 text-[0.85rem] text-muted">{t('wall.blocks.monitorMissing')}</p>
+        <p className="m-0 text-base text-muted">{t('wall.blocks.monitorMissing')}</p>
       </Panel>
     );
   }
@@ -60,7 +61,7 @@ export function SeriesBlock({ monitor, range, loadHistory, now }: SeriesBlockPro
   const values = range ? (history?.values ?? []) : (monitor.series ?? []);
   return (
     <Panel title={t('wall.blocks.seriesOf', { name, range: window })} className="h-full">
-      <Sparkline values={values} status={monitor.status} label={t('wall.blocks.seriesOf', { name, range: window })} className="h-[5rem] w-full" />
+      <Sparkline values={values} status={monitor.status} label={t('wall.blocks.seriesOf', { name, range: window })} className="h-20 w-full" />
       {range && history && <CoverageIndicator coverage={history.response.coverage} range={history.range} />}
     </Panel>
   );

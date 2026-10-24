@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 /** Provisional mark: blue→green gradient ring with a dark core (docs/03-design.md, section 8). */
-export function OrbitMark() {
+export function OrbitMark({ className = 'size-5' }: { className?: string }) {
   return (
     <span
       aria-hidden
-      className="inline-block size-[1.3rem] shrink-0 rounded-full p-[0.22rem]"
+      className={`inline-block shrink-0 rounded-full p-0.5 ${className}`}
       style={{ background: 'conic-gradient(from 200deg, var(--info), var(--ok), var(--info))' }}
     >
       <span className="block size-full rounded-full bg-bg" />
@@ -40,14 +40,14 @@ export function WorkspaceBrand({ name, logoSvg }: WorkspaceBrandProps) {
   const logoUrl = logoSvg && logo?.svg === logoSvg ? logo.url : null;
 
   return (
-    <div className="flex min-w-0 items-center gap-[0.55rem]">
+    <div className="flex min-w-0 items-center gap-2">
       <OrbitMark />
-      <span className="font-display text-[1.1rem] font-bold tracking-tight">{t('app.name')}</span>
-      <span aria-hidden className="h-[1.2rem] w-px bg-line-2" />
+      <span className="display-wide text-lg">{t('app.name')}</span>
+      <span aria-hidden className="h-5 w-px bg-line-2" />
       {logoUrl && (
-        <img src={logoUrl} alt={t('branding.logoAlt', { name })} className="h-[1.4rem] w-auto max-w-[6rem] shrink-0 object-contain" />
+        <img src={logoUrl} alt={t('branding.logoAlt', { name })} className="h-6 w-auto max-w-24 shrink-0 object-contain" />
       )}
-      <span title={name} className="max-w-[16rem] truncate text-[0.95rem] font-semibold">
+      <span title={name} className="max-w-64 truncate text-md font-semibold">
         {name}
       </span>
     </div>

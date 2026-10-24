@@ -47,7 +47,10 @@ const mock = params.has('demo') ? async () => (await import('@/domains/wall/mock
 const customizationApi = createCustomizationApi();
 const customization = createCustomizationStore({ api: customizationApi });
 const terminology = createTerminologyStore(customizationApi);
-const wallAccess = () => api.getAccess().then(parseAccess);
+// One /api/access request, shared by Customize mode and the edit-only wall controls.
+let access: ReturnType<typeof fetchAccess> | null = null;
+const fetchAccess = () => api.getAccess().then(parseAccess);
+const wallAccess = () => (access ??= fetchAccess());
 const locale = detectLocale();
 await loadLocale(locale, WALL_NAMESPACES);
 const i18n = createI18n(locale);
@@ -59,7 +62,7 @@ if (root) {
     <StrictMode>
       <I18nextProvider i18n={i18n}>
         <WallCustomization store={customization} terminology={terminology} layoutId={layout ?? null} getAccess={wallAccess}>
-          <WallApp api={api} mock={mock} layout={layout} kiosk={isKioskRequested(window.location.search)} nightMode={nightMode} {...loaders} />
+          <WallApp api={api} mock={mock} layout={layout} kiosk={isKioskRequested(window.location.search)} nightMode={nightMode} loadAccess={wallAccess} {...loaders} />
         </WallCustomization>
       </I18nextProvider>
     </StrictMode>,

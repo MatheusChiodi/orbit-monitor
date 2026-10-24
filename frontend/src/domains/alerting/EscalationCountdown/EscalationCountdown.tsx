@@ -29,19 +29,19 @@ export function EscalationCountdown({ escalatesAt, nextStep, now, acknowledged }
   const step = nextStep ?? '';
   const urgent = remaining <= URGENT_MS;
   return (
-    <span className="inline-flex items-center gap-[0.5rem]">
+    <span className="inline-flex items-center gap-2">
       <span
         role="timer"
         aria-label={t('incident.escalation')}
         aria-live="off"
         data-urgent={urgent ? 'true' : 'false'}
-        className={`font-mono text-[0.85rem] ${urgent ? 'text-warn-text' : 'text-muted'}`}
+        className={`font-mono text-base ${urgent ? 'text-warn-text' : 'text-muted'}`}
       >
         {remaining > 0
           ? t('incident.escalatesIn', { time: formatCountdown(remaining) })
           : t('incident.escalatedTo', { step })}
       </span>
-      {remaining > 0 && nextStep && <span className="text-[0.75rem] text-dim">{t('incident.nextStep', { step })}</span>}
+      {remaining > 0 && nextStep && <span className="text-xs text-dim">{t('incident.nextStep', { step })}</span>}
     </span>
   );
 }

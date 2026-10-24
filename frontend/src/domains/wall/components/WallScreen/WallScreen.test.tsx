@@ -63,6 +63,16 @@ describe('WallScreen', () => {
     expect(names).toEqual(['Situation', 'Also active', 'Near threshold', 'All monitors', 'Timeline']);
   });
 
+  it('fresh install: says there are no monitors yet instead of a false "all operational"', () => {
+    const empty = { ...mockSnapshot('ok', now), monitors: [], groups: [], incidents: [], timeline: [] };
+    render(<WallScreen snapshot={empty} now={now} connection="open" freshEventIds={new Set()} onAcknowledge={vi.fn()} />);
+    expect(screen.getByRole('heading', { name: 'No monitors yet' })).toBeInTheDocument();
+    expect(screen.getByText(/Add one in the console/)).toBeInTheDocument();
+    expect(screen.queryByText('All systems operational')).toBeNull();
+    expect(screen.queryByText(/100/)).toBeNull();
+    expect(screen.queryByRole('region', { name: 'All monitors' })).toBeNull();
+  });
+
   it('shows loading without a snapshot', () => {
     render(
       <WallScreen snapshot={null} now={now} connection="connecting" freshEventIds={new Set()} onAcknowledge={vi.fn()} />,

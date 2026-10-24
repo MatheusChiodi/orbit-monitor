@@ -6,7 +6,7 @@ group: "Wall runtime and preferences"
 status: done
 screens: [preferences, wall]
 spec: docs/05-extended-features.md
-updated: 2026-10-18
+updated: 2026-10-24
 ---
 
 # FE-47 · Sound alerts
@@ -42,3 +42,4 @@ Per-severity sounds and volume, muted by default
 - 2026-10-18 — context file created (status: planned).
 - 2026-10-18 — pending test suite written (status: tests-pending).
 - 2026-10-18 — sound alerts (status: done).
+- 2026-10-24 — toggle shows a speaker icon and its state ("Sound off" / "Sound on"); still `aria-pressed` with the name "Sound alerts".

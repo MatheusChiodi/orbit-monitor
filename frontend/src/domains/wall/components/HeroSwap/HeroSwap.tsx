@@ -25,7 +25,7 @@ export function HeroSwap({ snapshot, hero, now, onAcknowledge, nextStep = null }
         animate={heroMotion.animate}
         exit={heroMotion.exit}
         transition={heroMotion.transition}
-        className="h-full [grid-area:1/1]"
+        className="col-start-1 row-start-1 h-full"
       >
         {hero ? (
           <Hero selection={hero} now={now} onAcknowledge={onAcknowledge} nextStep={nextStep} />

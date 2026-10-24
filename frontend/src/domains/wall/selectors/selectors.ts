@@ -57,3 +57,8 @@ export function groupRows(snapshot: WallSnapshot): GroupRow[] {
     .sort((a, b) => RANK[a.row.status] - RANK[b.row.status] || a.index - b.index)
     .map(({ row }) => row);
 }
+
+/** Why "Near threshold" is empty: no numeric limit at all, or limits still waiting for a reading. */
+export function nearLimitEmpty(monitors: readonly MonitorView[]): 'no-rule' | 'waiting' {
+  return monitors.some((m) => m.rule) ? 'waiting' : 'no-rule';
+}

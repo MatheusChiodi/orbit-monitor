@@ -17,6 +17,13 @@ describe('WallHeader', () => {
     expect(status).toHaveTextContent('1 monitor down');
   });
 
+  it('with no monitors: a neutral "No monitors yet" and no counters', () => {
+    render(<WallHeader environment="Local" counts={{ down: 0, warn: 0, ok: 0, total: 0 }} now={now} updatedAt={null} connection="open" />);
+    expect(screen.getByRole('status')).toHaveTextContent('No monitors yet');
+    expect(screen.queryByText('All systems operational')).toBeNull();
+    expect(screen.queryByText('0 down')).toBeNull();
+  });
+
   it('shows the three counters', () => {
     render(<WallHeader environment="Production" counts={counts} now={now} updatedAt={null} connection="open" />);
     expect(screen.getByText('1 down')).toBeInTheDocument();

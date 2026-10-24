@@ -10,13 +10,14 @@ import { useMotionPreset } from '@/shared/motion/useMotionPreset';
 import type { WallConnectionState } from '../../store';
 import { createMonitorActionHandler } from '../../actions/monitorActions';
 import { isClassicArrangement } from '../../layout/wallLayout';
-import { alsoActive, groupRows, pickHero } from '../../selectors';
+import { alsoActive, groupRows, nearLimitEmpty, pickHero } from '../../selectors';
 import { AlsoActive } from '../AlsoActive';
 import { HeroSwap } from '../HeroSwap';
 import { MonitorMatrix } from '../MonitorMatrix';
 import { NearLimit } from '../NearLimit';
 import type { LoadHistory } from '../SeriesBlock';
 import { Timeline } from '../Timeline';
+import { WallEmpty } from '../WallEmpty';
 import { WallHeader } from '../WallHeader';
 import { isStale } from '../StaleBadge';
 
@@ -45,6 +46,8 @@ export interface WallScreenProps {
   loadHistory?: LoadHistory;
   /** Where card actions open the console (FE-55); defaults to `location.assign`. */
   onNavigate?: (url: string) => void;
+  /** Console address shown on an empty install; defaults to this server. */
+  consoleUrl?: string;
 }
 
 /**
@@ -66,6 +69,7 @@ export function WallScreen({
   loadOnCall,
   loadHistory,
   onNavigate = (url) => window.location.assign(url),
+  consoleUrl = `${window.location.origin}/`,
 }: WallScreenProps) {
   const { t } = useTranslation();
   const heroMotion = useMotionPreset('hero');
@@ -99,6 +103,7 @@ export function WallScreen({
   const near = nearLimit(snapshot.monitors);
   const unowned = new Set(snapshot.incidents.filter((i) => !i.acknowledgedBy).map((i) => i.monitorId));
   const onMonitorAction = createMonitorActionHandler(snapshot, { onAcknowledge, navigate: onNavigate });
+  const empty = snapshot.monitors.length === 0;
 
   return (
     <div className="wall-root" data-stale={stale ? 'true' : 'false'}>
@@ -115,56 +120,60 @@ export function WallScreen({
         orb={{ monitors: snapshot.monitors, groups: snapshot.groups, uptime24h: snapshot.uptime24h }}
       />
       {/* FE-19: when the playlist switches layouts, the old one fades out while the new one fades in. */}
-      <div className="wall-stage">
-        <AnimatePresence>
-          <m.div
-            key={layoutKey}
-            data-layout={layoutKey}
-            initial={heroMotion.initial}
-            animate={heroMotion.animate}
-            exit={heroMotion.exit}
-            transition={heroMotion.transition}
-            className="wall-stage__layout"
-          >
-            {classic ? (
-              <main className="wall-layout">
-                <div className="wall-col wall-col--action">
-                  <div className="wall-hero">
-                    <HeroSwap snapshot={snapshot} hero={hero} now={now} onAcknowledge={onAcknowledge} nextStep={nextStep} />
+      {empty ? (
+        <WallEmpty consoleUrl={consoleUrl} />
+      ) : (
+        <div className="wall-stage">
+          <AnimatePresence>
+            <m.div
+              key={layoutKey}
+              data-layout={layoutKey}
+              initial={heroMotion.initial}
+              animate={heroMotion.animate}
+              exit={heroMotion.exit}
+              transition={heroMotion.transition}
+              className="wall-stage__layout"
+            >
+              {classic ? (
+                <main className="wall-layout">
+                  <div className="wall-col wall-col--action">
+                    <div className="wall-hero">
+                      <HeroSwap snapshot={snapshot} hero={hero} now={now} onAcknowledge={onAcknowledge} nextStep={nextStep} />
+                    </div>
+                    <div className="wall-pair">
+                      <AlsoActive monitors={alsoActive(snapshot, hero?.monitor.id ?? null)} groups={snapshot.groups} now={now} />
+                      <NearLimit items={near} empty={nearLimitEmpty(snapshot.monitors)} />
+                    </div>
                   </div>
-                  <div className="wall-pair">
-                    <AlsoActive monitors={alsoActive(snapshot, hero?.monitor.id ?? null)} groups={snapshot.groups} now={now} />
-                    <NearLimit items={near} />
+                  <div className="wall-col wall-col--context">
+                    <div className="wall-matrix">
+                      <MonitorMatrix rows={groupRows(snapshot)} unownedMonitorIds={unowned} onMonitorAction={onMonitorAction} />
+                    </div>
+                    <div className="wall-timeline">
+                      <Timeline events={snapshot.timeline} freshIds={freshEventIds} />
+                    </div>
                   </div>
-                </div>
-                <div className="wall-col wall-col--context">
-                  <div className="wall-matrix">
-                    <MonitorMatrix rows={groupRows(snapshot)} unownedMonitorIds={unowned} onMonitorAction={onMonitorAction} />
-                  </div>
-                  <div className="wall-timeline">
-                    <Timeline events={snapshot.timeline} freshIds={freshEventIds} />
-                  </div>
-                </div>
-              </main>
-            ) : (
-              <Suspense fallback={null}>
-                <LayoutGrid
-                  blocks={blocks ?? []}
-                  snapshot={snapshot}
-                  hero={hero}
-                  now={now}
-                  freshEventIds={freshEventIds}
-                  onAcknowledge={onAcknowledge}
-                  nextStep={nextStep}
-                  onCall={onCall}
-                  loadHistory={loadHistory}
-                  onMonitorAction={onMonitorAction}
-                />
-              </Suspense>
-            )}
-          </m.div>
-        </AnimatePresence>
-      </div>
+                </main>
+              ) : (
+                <Suspense fallback={null}>
+                  <LayoutGrid
+                    blocks={blocks ?? []}
+                    snapshot={snapshot}
+                    hero={hero}
+                    now={now}
+                    freshEventIds={freshEventIds}
+                    onAcknowledge={onAcknowledge}
+                    nextStep={nextStep}
+                    onCall={onCall}
+                    loadHistory={loadHistory}
+                    onMonitorAction={onMonitorAction}
+                  />
+                </Suspense>
+              )}
+            </m.div>
+          </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 }

@@ -16,7 +16,7 @@ export function NightModeOverlay({ schedule, now, hasUnownedIncident = false }: 
   const { t } = useTranslation();
   const level = useAnimationLevel();
   if (hasUnownedIncident || !isNightTime(schedule, now)) return null;
-  const fade = level === 'off' ? 'transition-none' : 'transition-opacity duration-[600ms]';
+  const fade = level === 'off' ? 'transition-none' : 'transition-opacity duration-600';
   return (
     <>
       <div
@@ -27,7 +27,7 @@ export function NightModeOverlay({ schedule, now, hasUnownedIncident = false }: 
       />
       <p
         role="status"
-        className="fixed bottom-[0.8rem] left-[0.8rem] z-50 m-0 rounded-[0.45rem] border border-line bg-s1 px-[0.6rem] py-[0.2rem] text-[0.75rem] text-muted"
+        className="fixed bottom-3 left-3 z-50 m-0 rounded-sm border border-line bg-s1 px-2 py-0.5 text-xs text-muted"
       >
         {t('nightMode.label')}
       </p>

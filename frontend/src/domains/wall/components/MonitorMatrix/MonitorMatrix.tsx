@@ -11,7 +11,11 @@ import { currentLocale } from '@/shared/i18n/i18n';
 import { useAnimationLevel } from '@/shared/motion/animationLevel';
 import { safeText } from '@/shared/privacy/redact';
 import { SafeValue } from '@/shared/privacy/SafeValue';
-import { AnimatedItem, FlashValue, Panel, SOFT_CLASS, StatusDot, TEXT_CLASS } from '@/shared/ui';
+import { AnimatedItem } from '@/shared/ui/AnimatedItem';
+import { FlashValue } from '@/shared/ui/FlashValue';
+import { Panel } from '@/shared/ui/Panel';
+import { StatusDot } from '@/shared/ui/StatusPill';
+import { SOFT_CLASS, TEXT_CLASS } from '@/shared/ui/tones';
 import type { GroupRow } from '../../selectors';
 
 export interface MonitorMatrixProps {
@@ -22,7 +26,10 @@ export interface MonitorMatrixProps {
   onMonitorAction?: (action: CardAction, monitorId: string) => void;
 }
 
-const CELL_SIZE = { compact: 'px-[0.45rem] py-[0.2rem]', regular: 'px-[0.55rem] py-[0.35rem]', detailed: 'px-[0.7rem] py-[0.55rem]' } as const;
+const CELL_SIZE = { compact: 'px-2 py-0.5', regular: 'px-2 py-1', detailed: 'px-3 py-2' } as const;
+
+/** Tiles fill the row at a readable minimum width instead of a fixed 3 columns. */
+const TILE_GRID = { gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 10.5rem), 1fr))' } as const;
 
 interface MonitorCellProps {
   monitor: MonitorView;
@@ -58,29 +65,32 @@ function MonitorCell({ monitor: m, index, count, blink, colors, onMonitorAction 
       data-status={m.status}
       data-variant={card.variant}
       data-customizable="card.monitor"
-      className={`flex min-w-0 flex-wrap items-center gap-[0.45rem] rounded-[0.45rem] border ${CELL_SIZE[card.variant]} ${colors} ${surface} ${hover} ${blink ? 'anim-blink' : ''}`}
+      className={`flex min-w-0 flex-wrap items-start gap-x-2 gap-y-0.5 rounded-sm border ${CELL_SIZE[card.variant]} ${colors} ${surface} ${hover} ${blink ? 'anim-blink' : ''}`}
     >
-      <StatusDot status={m.status} />
+      <StatusDot status={m.status} className="mt-1" />
+      {/* Names wrap to two lines instead of being cut to "Rec…"; the full name stays in the title. */}
       <span
         {...interactions}
         aria-expanded={interactions.role && card.expand === 'inline' ? expanded : undefined}
-        className={`min-w-0 flex-1 truncate ${card.variant === 'detailed' ? 'text-[0.88rem]' : 'text-[0.78rem]'}`}
+        className={`line-clamp-2 min-w-0 flex-1 leading-snug break-words ${card.variant === 'detailed' ? 'text-base' : 'text-sm'}`}
         title={card.hover === 'none' ? undefined : safeText(name, undefined, { surface: 'wall' })}
       >
         <CardIcon icon={card.icon} />
         <SafeValue value={name} surface="wall" />
       </span>
       <CustomizeHandle type="card.monitor" targetId={m.id} label={safeText(name, undefined, { surface: 'wall' })} />
-      {m.status !== 'OK' && (
-        <span className={`font-mono text-[0.62rem] font-semibold ${TEXT_CLASS[m.status]} ${card.variant === 'compact' ? 'sr-only' : ''}`}>{t(`status.label.${m.status}`)}</span>
-      )}
-      {card.fields.includes('value') && (
-        <FlashValue value={m.value} className="shrink-0 font-mono text-[0.72rem] text-muted">
-          {formatCardValue(m.value, card.unit || m.unit, locale, card.valueFormat)}
-        </FlashValue>
-      )}
+      <span className="flex shrink-0 flex-col items-end leading-snug">
+        {card.fields.includes('value') && (
+          <FlashValue value={m.value} className="font-mono text-xs text-muted">
+            {formatCardValue(m.value, card.unit || m.unit, locale, card.valueFormat)}
+          </FlashValue>
+        )}
+        {m.status !== 'OK' && (
+          <span className={`font-mono text-xs font-semibold ${TEXT_CLASS[m.status]} ${card.variant === 'compact' ? 'sr-only' : ''}`}>{t(`status.label.${m.status}`)}</span>
+        )}
+      </span>
       {(card.subtitle || expanded) && (
-        <span className="w-full truncate text-[0.68rem] text-muted">
+        <span className="w-full truncate text-xs text-muted">
           {card.subtitle && <SafeValue value={card.subtitle} surface="wall" />}
           {expanded && ` ${m.type} · ${formatReading(m.value, m.unit, locale)}`}
         </span>
@@ -91,10 +101,10 @@ function MonitorCell({ monitor: m, index, count, blink, colors, onMonitorAction 
 
 export function MonitorMatrix({ rows, unownedMonitorIds, onMonitorAction }: MonitorMatrixProps) {
   const { t } = useTranslation();
-  const colors = useAnimationLevel() === 'off' ? 'transition-none' : 'transition-colors duration-[400ms]';
+  const colors = useAnimationLevel() === 'off' ? 'transition-none' : 'transition-colors duration-400';
   return (
     <Panel title={t('wall.matrix.title')} className="h-full">
-      <div className="flex min-h-0 flex-col gap-[0.55rem] overflow-hidden">
+      <div className="flex min-h-0 flex-col gap-2 overflow-hidden">
         {rows.map((row) => {
           const { ok, total, status } = row.summary;
           const summary = t('status.groupSummary', { ok, total });
@@ -103,15 +113,17 @@ export function MonitorMatrix({ rows, unownedMonitorIds, onMonitorAction }: Moni
               key={row.group.id}
               role="group"
               aria-label={safeText(row.group.name, undefined, { surface: 'wall' })}
-              className="grid grid-cols-1 gap-[0.45rem] md:grid-cols-[6.8rem_1fr]"
+              className="flex flex-col gap-2 md:flex-row"
             >
-              <div className="flex flex-col justify-center">
-                <SafeValue value={row.group.name} surface="wall" className="truncate text-[0.88rem] font-semibold" />
-                <span className={`font-mono text-[0.68rem] ${status === 'OK' ? 'text-muted' : TEXT_CLASS[status]}`}>
+              <div className="flex flex-col justify-center md:w-32 md:shrink-0">
+                <span title={safeText(row.group.name, undefined, { surface: 'wall' })} className="line-clamp-2 text-base leading-snug font-semibold break-words">
+                  <SafeValue value={row.group.name} surface="wall" />
+                </span>
+                <span className={`font-mono text-xs whitespace-nowrap ${status === 'OK' ? 'text-muted' : TEXT_CLASS[status]}`}>
                   {status === 'OK' ? summary : `${summary} · ${t(`status.label.${status}`)}`}
                 </span>
               </div>
-              <ul className="m-0 grid list-none grid-cols-1 gap-[0.4rem] p-0 sm:grid-cols-2 xl:grid-cols-3">
+              <ul className="m-0 grid min-w-0 flex-1 list-none gap-2 p-0" style={TILE_GRID}>
                 <AnimatePresence>
                 {row.monitors.map((m, index) => (
                   <MonitorCell

@@ -19,7 +19,7 @@ import { useWallPresentation, type LoadLayout } from '../layout/useWallLayouts';
 import { useWallSettings, type LoadCustomThemes, type LoadWorkspaceDefaults } from '../layout/useWallSettings';
 import { parseTile } from '../tiling';
 import type { LoadHistory } from '../components/SeriesBlock';
-import type { Incident, MonitorView } from '@/shared/api/types';
+import type { AccessInfo, Incident, MonitorView } from '@/shared/api/types';
 import type { Locale } from '@/shared/i18n/i18n';
 import { useWallAlerts } from '../alerts';
 import type { NightSchedule } from '../display/nightSchedule';
@@ -53,6 +53,8 @@ export interface WallAppProps {
   loadEscalation?: LoadEscalation;
   loadOnCall?: LoadOnCall;
   loadHistory?: LoadHistory;
+  /** CORE-12 access of this client; edit-only controls (desktop notifications) stay hidden until it says edit. */
+  loadAccess?: () => Promise<AccessInfo>;
 }
 
 const NO_LAYOUT: LoadLayout = async () => null;
@@ -107,6 +109,7 @@ export function WallApp({
   loadEscalation,
   loadOnCall,
   loadHistory,
+  loadAccess,
 }: WallAppProps) {
   const [device] = useState<DeviceChoices>(() => deviceProp ?? loadPreferences());
   const [store] = useState(() => createWallStore());
@@ -121,6 +124,20 @@ export function WallApp({
 
 
   useWallAlerts(snapshot, { sound, player, notify: notifyIncident, locale });
+
+  // A TV is view-only (LAN) or kiosk: it gets no per-person controls such as desktop notifications.
+  const [editable, setEditable] = useState(false);
+  useEffect(() => {
+    if (!loadAccess) return;
+    let alive = true;
+    loadAccess().then(
+      (access) => alive && setEditable(access.mode === 'edit'),
+      () => alive && setEditable(false),
+    );
+    return () => {
+      alive = false;
+    };
+  }, [loadAccess]);
 
   const onSoundChange = useCallback((next: SoundSettings) => {
     setSound(next);
@@ -193,7 +210,7 @@ export function WallApp({
       onFullscreen={requestFullscreen}
       controls={
         <Suspense fallback={null}>
-          <WallControls sound={sound} onSoundChange={onSoundChange} playlist={presentation.playlist} />
+          <WallControls sound={sound} onSoundChange={onSoundChange} playlist={presentation.playlist} notifications={editable && !kiosk} />
         </Suspense>
       }
       blocks={presentation.blocks}

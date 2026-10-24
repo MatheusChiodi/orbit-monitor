@@ -5,7 +5,7 @@ import { currentLocale } from '@/shared/i18n/i18n';
 import type { Group } from '@/shared/api/types';
 import type { OrbMonitor } from '@/shared/fx/LivingOrb/orbModel';
 import { useAnimationLevel } from '@/shared/motion/animationLevel';
-import { Panel } from '@/shared/ui';
+import { Panel } from '@/shared/ui/Panel';
 
 /** FE-59 orb code loads after first paint; the calm symbol shows until then (wall budget). */
 const HeroOrb = lazy(() => import('@/shared/fx/HeroOrb').then((mod) => ({ default: mod.HeroOrb })));
@@ -32,46 +32,46 @@ export function HeroCalm({ uptime24h, lastRecoveryAt, nearLimitCount, now, monit
     <span
       aria-hidden
       data-testid="hero-calm-symbol"
-      className="relative inline-flex size-[4.5rem] items-center justify-center"
+      className="relative inline-flex size-18 items-center justify-center"
     >
       {ring && <span className="anim-ring absolute inset-0 rounded-full border-2 border-ok/60" />}
-      {ring && <span className="anim-ring absolute inset-0 rounded-full border-2 border-ok/60 [animation-delay:1.3s]" />}
-      <span className="size-[2.6rem] rounded-full bg-ok/90" />
+      {ring && <span className="anim-ring absolute inset-0 rounded-full border-2 border-ok/60" style={{ animationDelay: '1.3s' }} />}
+      <span className="size-10 rounded-full bg-ok/90" />
     </span>
   );
   return (
-    <Panel title={t('wall.hero.title')} tone="OK" live className="h-full pl-[1.25rem]">
-      <div className="flex flex-1 flex-col items-center justify-center gap-[1.2rem] py-[1.5rem] text-center">
+    <Panel title={t('wall.hero.title')} tone="OK" live className="h-full pl-5">
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 py-4 text-center">
         {monitors && groups ? (
           <Suspense fallback={symbol}>
             <LivingOrb
               monitors={monitors}
               groups={groups}
               uptime24h={uptime24h}
-              className="h-[17rem] w-full max-w-[38rem]"
+              className="h-56 w-full max-w-152"
               fallback={symbol}
             />
           </Suspense>
         ) : (
           <Suspense fallback={symbol}>
-            <HeroOrb className="h-[14rem] w-[26rem] max-w-full" fallback={symbol} />
+            <HeroOrb className="h-56 w-104 max-w-full" fallback={symbol} />
           </Suspense>
         )}
-        <h3 className="m-0 font-display text-[2.4rem] font-bold tracking-tight">{t('status.phrase.ok')}</h3>
-        <dl className="m-0 grid grid-cols-1 gap-[0.8rem] sm:grid-cols-3">
+        <h3 className="display-wide m-0 text-2xl">{t('status.phrase.ok')}</h3>
+        <dl className="m-0 grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div>
             <dt className="section-label">{t('wall.calm.uptime')}</dt>
-            <dd className="m-0 font-mono text-[1.5rem] text-ok-text">{formatPercent(uptime24h, 2, locale)}</dd>
+            <dd className="display-wide tabular m-0 text-xl text-ok-text">{formatPercent(uptime24h, 2, locale)}</dd>
           </div>
           <div>
             <dt className="section-label">{t('wall.calm.lastRecovery')}</dt>
-            <dd className="m-0 font-mono text-[1.5rem]">
+            <dd className="display-wide tabular m-0 text-xl">
               {lastRecoveryAt ? formatRelative(lastRecoveryAt, now, locale) : t('wall.calm.none')}
             </dd>
           </div>
           <div>
             <dt className="section-label">{t('wall.calm.nearLimit')}</dt>
-            <dd className="m-0 font-mono text-[1.5rem]">{t('wall.calm.monitors', { count: nearLimitCount })}</dd>
+            <dd className="display-wide tabular m-0 text-xl">{t('wall.calm.monitors', { count: nearLimitCount })}</dd>
           </div>
         </dl>
       </div>

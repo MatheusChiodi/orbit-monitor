@@ -35,7 +35,7 @@ describe('FE-49 mobile on-call view', () => {
 
   it('touch targets are at least 2.75 rem tall', () => {
     render(<OnCallView snapshot={mockSnapshot('incident', now)} now={now} onAcknowledge={vi.fn()} />);
-    expect(screen.getByRole('button', { name: 'Acknowledge' }).className).toContain('min-h-[2.75rem]');
+    expect(screen.getByRole('button', { name: 'Acknowledge' }).className).toContain('min-h-11');
   });
 
   it('calm state when nothing is wrong', () => {
@@ -48,5 +48,12 @@ describe('FE-49 mobile on-call view', () => {
     renderWithLocale(<OnCallView snapshot={mockSnapshot('incident', now)} now={now} onAcknowledge={vi.fn()} />, 'pt-BR');
     expect(screen.getByRole('region', { name: 'Incidentes ativos' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Reconhecer' })).toBeInTheDocument();
+  });
+
+  it('fresh install: "No monitors yet", never "All systems operational"', () => {
+    const empty = { ...mockSnapshot('ok', now), monitors: [], groups: [], incidents: [], timeline: [] };
+    render(<OnCallView snapshot={empty} now={now} onAcknowledge={vi.fn()} />);
+    expect(screen.getByRole('heading', { name: 'No monitors yet' })).toBeInTheDocument();
+    expect(screen.queryByText('All systems operational')).toBeNull();
   });
 });

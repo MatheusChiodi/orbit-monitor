@@ -21,6 +21,14 @@ describe('MonitorMatrix', () => {
     expect(cells[0]).toHaveAttribute('data-status', 'DOWN');
   });
 
+  it('names wrap instead of being cut ("Rec…"), with the full name as the tile title', () => {
+    render(<MonitorMatrix rows={groupRows(mockSnapshot('incident', now))} unownedMonitorIds={new Set()} />);
+    const name = screen.getByTitle('Reconciliation queue');
+    expect(name).toHaveTextContent('Reconciliation queue');
+    expect(name.className).not.toContain('truncate');
+    expect(name.className).toContain('line-clamp-2');
+  });
+
   it('renders in pt-BR', () => {
     renderWithLocale(<MonitorMatrix rows={groupRows(mockSnapshot('incident', now))} unownedMonitorIds={new Set()} />, 'pt-BR');
     const region = screen.getByRole('region', { name: 'Todos os monitores' });

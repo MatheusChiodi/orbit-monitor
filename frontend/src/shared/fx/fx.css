@@ -57,21 +57,16 @@ html:is([data-fx='standard'], [data-fx='expressive']) .fx-glass::before {
   border-radius: inherit;
   padding: 1px;
   pointer-events: none;
+  /* Neutral light edge: on the wall color means state, never decoration (no blue→green border). */
   background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--fx-blue) 45%, transparent),
-    color-mix(in srgb, var(--fx-blue) 12%, transparent) 38%,
-    color-mix(in srgb, var(--fx-green) 10%, transparent) 62%,
-    color-mix(in srgb, var(--fx-green) 32%, transparent)
+    160deg,
+    color-mix(in srgb, var(--text) 16%, transparent),
+    color-mix(in srgb, var(--text) 4%, transparent) 45%,
+    color-mix(in srgb, var(--text) 8%, transparent)
   );
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-}
-/* Surfaces that already carry a state color keep a neutral glass edge. */
-html:is([data-fx='standard'], [data-fx='expressive']) .fx-glass[data-tone='DOWN']::before,
-html:is([data-fx='standard'], [data-fx='expressive']) .fx-glass[data-tone='WARN']::before {
-  background: linear-gradient(135deg, color-mix(in srgb, var(--text) 14%, transparent), transparent 60%);
 }
 
 /* Hover tilt with a light sheen (console only; transform is written by useTilt). */

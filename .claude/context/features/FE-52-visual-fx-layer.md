@@ -90,3 +90,4 @@ Distinctive "web3" look: live 3D orb in the calm hero (React Three Fiber), low-c
 - 2026-10-18 — Animated orbit-field background (lazy, luminance-capped, paused on incident).
 - 2026-10-18 — Live 3D hero orb (React Three Fiber) with 2D fallback.
 - 2026-10-24 — Silent downgrade remembered per device; one self-dismissing toast in the console instead of the fixed notice.
+- 2026-10-24 — glass edge is a neutral light gradient (no blue→green border; color on the wall means state); the console never shows glass (B1, customization.css).

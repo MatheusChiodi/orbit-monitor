@@ -79,16 +79,31 @@ describe('FE-45 / FE-47 / FE-48 wall runtime controls', () => {
     const api = { getWallSnapshot: vi.fn().mockRejectedValue(new Error('offline')), acknowledgeIncident: vi.fn() };
     render(<WallApp api={api} connect={vi.fn()} mock={() => mockSnapshot('incident', now)} />);
     const toggle = await screen.findByRole('button', { name: 'Sound alerts' });
-    expect(toggle).toHaveTextContent('Muted');
+    expect(toggle).toHaveTextContent('Sound off');
     await userEvent.click(toggle);
     expect(screen.getByRole('button', { name: 'Sound alerts' })).toHaveTextContent('Sound on');
     expect(JSON.parse(localStorage.getItem('orbit.sound') ?? '{}')).toMatchObject({ muted: false });
   });
 
-  it('offers to enable desktop notifications', async () => {
+  it('offers to enable desktop notifications on a client that can edit', async () => {
     const api = { getWallSnapshot: vi.fn().mockRejectedValue(new Error('offline')), acknowledgeIncident: vi.fn() };
-    render(<WallApp api={api} connect={vi.fn()} mock={() => mockSnapshot('incident', now)} />);
+    const loadAccess = vi.fn().mockResolvedValue({ mode: 'edit', client: 'loopback' });
+    render(<WallApp api={api} connect={vi.fn()} loadAccess={loadAccess} mock={() => mockSnapshot('incident', now)} />);
     expect(await screen.findByRole('button', { name: 'Enable desktop notifications' })).toBeInTheDocument();
+  });
+
+  it('a view-only TV and a kiosk get no desktop-notification button', async () => {
+    const api = { getWallSnapshot: vi.fn().mockRejectedValue(new Error('offline')), acknowledgeIncident: vi.fn() };
+    const viewOnly = vi.fn().mockResolvedValue({ mode: 'view-only', client: 'lan' });
+    const { unmount } = render(<WallApp api={api} connect={vi.fn()} loadAccess={viewOnly} mock={() => mockSnapshot('incident', now)} />);
+    await screen.findByRole('button', { name: 'Sound alerts' });
+    await waitFor(() => expect(viewOnly).toHaveBeenCalled());
+    expect(screen.queryByRole('button', { name: /desktop notifications/ })).toBeNull();
+    unmount();
+    const edit = vi.fn().mockResolvedValue({ mode: 'edit', client: 'loopback' });
+    render(<WallApp api={api} connect={vi.fn()} kiosk loadAccess={edit} mock={() => mockSnapshot('incident', now)} />);
+    await screen.findByRole('button', { name: 'Sound alerts' });
+    expect(screen.queryByRole('button', { name: /desktop notifications/ })).toBeNull();
   });
 
   it('kiosk mode holds a screen wake lock', async () => {

@@ -9,7 +9,18 @@ describe('FE-47 sound toggle', () => {
     render(<SoundToggle muted onChange={vi.fn()} />);
     const button = screen.getByRole('button', { name: 'Sound alerts' });
     expect(button).toHaveAttribute('aria-pressed', 'false');
-    expect(button).toHaveTextContent('Muted');
+    expect(button).toHaveTextContent('Sound off');
+    expect(button.querySelector('svg')).not.toBeNull();
+  });
+
+  it('shows the state it is in, with its own icon', () => {
+    const { rerender } = render(<SoundToggle muted onChange={vi.fn()} />);
+    const off = screen.getByRole('button', { name: 'Sound alerts' }).querySelector('svg')?.dataset.icon;
+    rerender(<SoundToggle muted={false} onChange={vi.fn()} />);
+    const button = screen.getByRole('button', { name: 'Sound alerts' });
+    expect(button).toHaveAttribute('aria-pressed', 'true');
+    expect(button).toHaveTextContent('Sound on');
+    expect(button.querySelector('svg')?.dataset.icon).not.toBe(off);
   });
 
   it('toggles with the keyboard', async () => {

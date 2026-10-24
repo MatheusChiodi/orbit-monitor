@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { Incident } from '@/shared/api/types';
 import { formatTime } from '@/shared/format';
 import { useMotionPreset } from '@/shared/motion/useMotionPreset';
-import { Button } from '@/shared/ui';
+import { Button } from '@/shared/ui/Button';
 
 export interface AcknowledgeButtonProps {
   incident: Incident;
@@ -13,7 +13,10 @@ export interface AcknowledgeButtonProps {
   buttonClassName?: string;
 }
 
-/** The only action button on the wall. Once clicked it cross-fades into text. */
+/**
+ * The only action button on the wall. Always the primary (signal) action: red on the wall means a state,
+ * never a button. Once clicked it cross-fades into text.
+ */
 export function AcknowledgeButton({ incident, onAcknowledge, className = '', buttonClassName = '' }: AcknowledgeButtonProps) {
   const { t } = useTranslation();
   const preset = useMotionPreset('enter');
@@ -29,13 +32,13 @@ export function AcknowledgeButton({ incident, onAcknowledge, className = '', but
   return (
     <AnimatePresence initial={false}>
       {incident.acknowledgedBy ? (
-        <m.p key="acknowledged" {...fade} className={`m-0 text-[0.85rem] text-info ${className}`}>
+        <m.p key="acknowledged" {...fade} className={`m-0 text-base text-info ${className}`}>
           {text}
         </m.p>
       ) : (
         <m.span key="button" {...fade} className={`inline-flex ${className}`}>
           <Button
-            variant={incident.severity === 'DOWN' ? 'danger' : 'neutral'}
+            variant="primary"
             onClick={() => onAcknowledge(incident.id)}
             className={`w-full ${buttonClassName}`}
           >

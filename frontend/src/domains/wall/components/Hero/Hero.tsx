@@ -6,7 +6,10 @@ import { formatElapsed } from '@/shared/format';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { translate } from '@/shared/i18n/message';
 import { SafeValue } from '@/shared/privacy/SafeValue';
-import { Badge, FlashValue, Panel, TEXT_CLASS } from '@/shared/ui';
+import { Badge } from '@/shared/ui/Badge';
+import { FlashValue } from '@/shared/ui/FlashValue';
+import { Panel } from '@/shared/ui/Panel';
+import { TEXT_CLASS } from '@/shared/ui/tones';
 import type { HeroSelection } from '../../selectors';
 import { AcknowledgeButton } from '../AcknowledgeButton';
 
@@ -36,29 +39,29 @@ export function Hero({ selection, now, onAcknowledge, nextStep = null }: HeroPro
       tone={status}
       pulse={status === 'DOWN' && unowned}
       live
-      className={`h-full pl-[1.25rem] ${status === 'DOWN' ? 'fx-down-glow' : ''}`}
+      className={`h-full pl-5 ${status === 'DOWN' ? 'fx-down-glow' : ''}`}
     >
-      <div className="flex items-center gap-[0.6rem] text-[0.85rem] text-muted">
+      <div className="flex items-center gap-2 text-base text-muted">
         <span className={`font-semibold ${TEXT_CLASS[status]}`}>{t(`status.label.${status}`)}</span>
         <span aria-hidden>·</span>
         {group && <SafeValue value={group.name} surface="wall" />}
         {group && <span aria-hidden>·</span>}
         <span>{monitor.type}</span>
-        <span className="ml-auto font-mono text-[1.15rem] text-text">
+        <span className="ml-auto font-mono text-lg text-text">
           {formatElapsed(incident?.openedAt ?? monitor.since, now, locale)}
         </span>
       </div>
 
-      <h3 className="mt-[0.35rem] mb-0 font-display text-[2.4rem] leading-tight font-bold tracking-tight">
+      <h3 className="display-wide mt-1 mb-0 text-2xl">
         <SafeValue value={monitor.name} surface="wall" />
       </h3>
 
-      <div className="mt-[0.35rem] flex flex-wrap items-baseline gap-x-[0.9rem] gap-y-[0.3rem]">
-        <FlashValue value={monitor.value} className={`font-mono text-[1.5rem] font-semibold ${TEXT_CLASS[status]}`}>
+      <div className="mt-1 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+        <FlashValue value={monitor.value} className={`display-wide tabular text-xl ${TEXT_CLASS[status]}`}>
           {formatReading(monitor.value, monitor.unit, locale)}
         </FlashValue>
         {monitor.rule && (
-          <span className="font-mono text-[0.85rem] text-muted">{t('rule.text', { rule: ruleText(monitor.rule, locale) })}</span>
+          <span className="font-mono text-base text-muted">{t('rule.text', { rule: ruleText(monitor.rule, locale) })}</span>
         )}
         {deviation && (
           <Badge tone={status} mono>
@@ -67,19 +70,19 @@ export function Hero({ selection, now, onAcknowledge, nextStep = null }: HeroPro
         )}
       </div>
 
-      <Suspense fallback={<div aria-hidden className="wall-chart mt-[0.7rem] flex-1" />}>
+      <Suspense fallback={<div aria-hidden className="wall-chart mt-3 flex-1" />}>
         <ThresholdChart
           series={monitor.series ?? []}
           rule={monitor.rule}
           status={status}
-          className="wall-chart mt-[0.7rem] flex-1"
+          className="wall-chart mt-3 flex-1"
         />
       </Suspense>
 
-      <footer className="mt-[0.7rem] flex flex-wrap items-center gap-[0.6rem]">
+      <footer className="mt-3 flex flex-wrap items-center gap-2">
         {incident && incident.impact.length > 0 && (
-          <div className="flex flex-wrap items-center gap-[0.4rem]">
-            <span className="text-[0.78rem] text-muted">{t('wall.hero.impact')}</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs text-muted">{t('wall.hero.impact')}</span>
             {incident.impact.map((item) => (
               <Badge key={item}>
                 <SafeValue value={item} surface="wall" />
@@ -87,7 +90,7 @@ export function Hero({ selection, now, onAcknowledge, nextStep = null }: HeroPro
             ))}
           </div>
         )}
-        <div className="ml-auto flex w-full flex-col items-stretch gap-[0.5rem] sm:w-auto sm:flex-row sm:items-center sm:gap-[0.8rem]">
+        <div className="ml-auto flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
           {incident && (
             <EscalationCountdown
               escalatesAt={incident.escalatesAt}

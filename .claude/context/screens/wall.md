@@ -4,7 +4,7 @@ title: "Wall (TV mode)"
 route: "wall.html"
 status: in-progress
 spec: docs/03-design.md §3
-updated: 2026-10-22
+updated: 2026-10-24
 ---
 
 # Wall (TV mode)
@@ -14,7 +14,7 @@ Header with global status and clock, hero (incident / all operational), also act
 
 ## Layout and components
 - `WallApp` (store + feed + clock) → `WallScreen`
-  - `WallHeader`: brand (`WorkspaceBrand` with sanitized logo when the snapshot has `branding`, FE-10), environment, global status pill (`aria-live`), counters, updated, clock, fullscreen
+  - `WallHeader`: brand (`WorkspaceBrand` with sanitized logo when the snapshot has `branding`, FE-10), environment, global status pill (`aria-live`), counters, updated, clock, sound toggle (speaker icon + "Sound off/on"), fullscreen icon; desktop notifications only for clients with edit access and never in kiosk
   - left column (action): `Hero` / `HeroCalm` (swapped with `AnimatePresence` + `layoutId`), then `AlsoActive` and `NearLimit`
   - right column (context): `MonitorMatrix`, `Timeline`
 - Layout CSS in `frontend/src/app/theme.css` (`.wall-layout`): full 16:9 grid at ≥ 1100 px and wider than 4:3, otherwise one scrollable column in phone order
@@ -23,11 +23,13 @@ Header with global status and clock, hero (incident / all operational), also act
 - Saved layouts (FE-11): `WallScreen` keeps the classic arrangement for the built-in NOC blocks and otherwise renders the lazy `LayoutGrid`; layouts of a playlist (FE-19) cross-fade inside `.wall-stage`
 - TV overrides: `?theme=` (FE-05, `LazyThemeProvider`), `?motion=` (FE-06), `?tile=n/2|n/4` (FE-20, `TiledWall`)
 - Hero countdown names the next escalation step (FE-40); clock blocks show who is on call (BE-33)
-- Budget: first load 149.8 KB gzip; `app/wall.css` (wall-only Tailwind sources) and lazy chunks for orb, chart, controls, kiosk, night overlay, notifications, layout grid and API clients; only the wall's locale namespaces load
+- Empty install (no monitors): `WallEmpty` replaces the five panels and the header says "No monitors yet" in grey (no counters, no false "All systems operational · 100.00%"), with the console address in full
+- Type and tokens (2026-10-24 redesign): Archivo (`display-wide`) for the hero name and big numbers, Geist Mono for values, scale tokens only (no arbitrary Tailwind values); Acknowledge is the primary (signal) button, never the DOWN red; matrix names wrap to two lines (full name in `title`), tiles fill `repeat(auto-fill, minmax(10.5rem, 1fr))`; glass panels keep a neutral edge (no blue→green border)
+- Budget: first load 149.8 KB gzip (2026-10-22); 152.1 KB on 2026-10-24 vs 153.3 KB at 33110a0 (redesign tokens and fonts); `shared/ui` icons reach the closure through the barrel (asked B1 for `@__PURE__`); wall code imports `shared/ui` by deep paths; `app/wall.css` (wall-only Tailwind sources) and lazy chunks for orb, chart, controls, kiosk, night overlay, notifications, layout grid and API clients; only the wall's locale namespaces load
 - `WallCustomization` (wall-main) reads workspace, layout and device customization, applies the look and renamed labels; Customize mode (FE-53) loads lazily for clients with edit access; `MonitorMatrix` tiles follow the FE-55 card settings and show a text state label for WARN/DOWN
 
 ## States
-- Loading, empty, error, stale data
+- Loading, empty install ("No monitors yet"), error, stale data; "Near threshold" empty says why: no numeric limit yet (with a hint) or waiting for the first readings
 - i18n: en / pt-BR
 - Animation level: off / minimal / standard / expressive
 - Privacy: every probe value rendered through `<SafeValue>`
@@ -71,7 +73,9 @@ Header with global status and clock, hero (incident / all operational), also act
 ## Code
 - `frontend/src/domains/wall/WallApp/WallApp.tsx`
 - `frontend/src/domains/wall/components/`
-- `frontend/src/domains/wall/selectors/selectors.ts`
+- `frontend/src/domains/wall/selectors/selectors.ts` — also `nearLimitEmpty()`
+- `frontend/src/domains/wall/components/WallEmpty/WallEmpty.tsx`
+- `frontend/src/domains/wall/components/WallIcons/WallIcons.tsx`
 - `frontend/src/domains/wall/store/wallStore.ts`
 - `frontend/src/domains/wall/feed/wallFeed.ts`
 - `frontend/src/domains/wall/mock/mockSnapshot.ts`
@@ -99,6 +103,7 @@ Header with global status and clock, hero (incident / all operational), also act
 - `frontend/src/domains/wall/WallApp/WallApp.layout.test.tsx`
 - `frontend/src/domains/wall/layout/*.test.ts`
 - frontend/src/domains/wall/components/MonitorMatrix/MonitorMatrix.customization.test.tsx
+- `frontend/src/domains/wall/components/WallControls/WallControls.test.tsx`
 
 ## Changelog
 - 2026-10-18 — context file created.
@@ -110,3 +115,4 @@ Header with global status and clock, hero (incident / all operational), also act
 - 2026-10-22 — first load under the 150 KB gzip budget; BE-41 persists layout theme, animation and playlist.
 - 2026-10-22 — no backend: "Waiting for the Orbit server…" with retry; demo data only with `?demo`.
 - 2026-10-22 — no `?operator=`: acknowledgements read "Acknowledged at HH:MM" / "Reconhecido às HH:MM".
+- 2026-10-24 — redesign: honest empty install, wrapped matrix names, Acknowledge as primary, sound toggle with icon, notifications hidden on view-only/kiosk, Archivo/Geist Mono on the token scale, neutral glass edge, near-threshold empty reasons.

@@ -22,7 +22,7 @@ export function StaleBadge({ updatedAt, now, staleAfterMs = STALE_AFTER_MS }: St
       <span
         role={stale ? 'status' : undefined}
         aria-live={stale ? 'polite' : undefined}
-        className={`text-[0.78rem] ${stale ? 'font-semibold text-warn-text' : 'text-muted'}`}
+        className={`text-xs ${stale ? 'font-semibold text-warn-text' : 'text-muted'}`}
       >
         {text}
       </span>
