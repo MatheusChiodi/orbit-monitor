@@ -8,6 +8,7 @@ import type screensEn from '@/app/console/locales/en.json';
 import type monitorFormEn from '@/domains/monitor/locales/en.json';
 import type uiEn from '@/shared/ui/locales/en.json';
 import type opsEn from '@/domains/alerting/locales/en.json';
+import type settingsHubEn from '@/app/settings/locales/en.json';
 import type notificationsEn from '@/domains/notifications/locales/en.json';
 
 export const SUPPORTED_LOCALES = ['en', 'pt-BR'] as const;
@@ -24,6 +25,7 @@ export type Messages = typeof en & {
   monitorForm: typeof monitorFormEn;
   ui: typeof uiEn;
   ops: typeof opsEn;
+  settingsHub: typeof settingsHubEn;
   notificationSettings: typeof notificationsEn;
 };
 
@@ -54,6 +56,7 @@ const NAMESPACES: Record<Namespace, Record<Locale, Loader>> = {
   monitorForm: { en: () => import('@/domains/monitor/locales/en.json'), 'pt-BR': () => import('@/domains/monitor/locales/pt-BR.json') },
   ui: { en: () => import('@/shared/ui/locales/en.json'), 'pt-BR': () => import('@/shared/ui/locales/pt-BR.json') },
   ops: { en: () => import('@/domains/alerting/locales/en.json'), 'pt-BR': () => import('@/domains/alerting/locales/pt-BR.json') },
+  settingsHub: { en: () => import('@/app/settings/locales/en.json'), 'pt-BR': () => import('@/app/settings/locales/pt-BR.json') },
   notificationSettings: {
     en: () => import('@/domains/notifications/locales/en.json'),
     'pt-BR': () => import('@/domains/notifications/locales/pt-BR.json'),
