@@ -11,25 +11,32 @@
 @source '../domains/telemetry/history';
 @source '../shared';
 /*
- * Console-only primitives (FE-61). wall.css.test.ts fails if the wall's import graph reaches one of
- * these; then delete that line here (and check the budget with `npm run build`).
+ * Console-only code inside the folders above (console primitives FE-61, console screens, the viz gallery).
+ * wall.css.test.ts fails if the wall's import graph reaches one of these; then delete that line here
+ * (and check the budget with `npm run build`).
  */
+@source not '../domains/alerting/IncidentPage';
+@source not '../domains/alerting/MaintenanceCalendar';
+@source not '../domains/alerting/NotificationCenter';
+@source not '../domains/customization/CustomizationScreen';
+@source not '../domains/customization/JsonSettingsView';
+@source not '../domains/customization/ProfilesPanel';
+@source not '../domains/customization/SettingsEditor';
+@source not '../domains/telemetry/history/HistoryRangePicker';
+@source not '../shared/viz';
 @source not '../shared/ui/Card';
 @source not '../shared/ui/Checkbox';
 @source not '../shared/ui/Dialog';
 @source not '../shared/ui/EmptyState';
 @source not '../shared/ui/Field';
 @source not '../shared/ui/FilePicker';
-@source not '../shared/ui/IconButton';
 @source not '../shared/ui/Menu';
 @source not '../shared/ui/PageHeader';
 @source not '../shared/ui/SegmentedControl';
 @source not '../shared/ui/Select';
 @source not '../shared/ui/StatusBadge';
 @source not '../shared/ui/StickyActionBar';
-@source not '../shared/ui/Switch';
 @source not '../shared/ui/Table';
-@source not '../shared/ui/Tabs';
 @source not '../shared/ui/TextArea';
 @source not '../shared/ui/TextInput';
 @source not '../shared/ui/Toast';

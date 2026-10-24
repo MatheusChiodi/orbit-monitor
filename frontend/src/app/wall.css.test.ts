@@ -1,10 +1,11 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { dirname, resolve, sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const SRC = resolve(__dirname, '..');
 const css = readFileSync(resolve(__dirname, 'wall.css'), 'utf8');
-const excluded = [...css.matchAll(/@source not '\.\.\/(shared\/ui\/[A-Za-z]+)'/g)].map((m) => resolve(SRC, m[1]!));
+/** Excluded folders (globs for tests and docs are not folders). */
+const excluded = [...css.matchAll(/@source not '\.\.\/([^'*]+)'/g)].map((m) => resolve(SRC, m[1]!));
 
 function resolveImport(from: string, spec: string): string | null {
   const base = spec.startsWith('@/') ? resolve(SRC, spec.slice(2)) : spec.startsWith('.') ? resolve(dirname(from), spec) : null;
@@ -60,10 +61,10 @@ function wallGraph(): Set<string> {
 }
 
 describe('wall.css (150 KB gzip budget)', () => {
-  it('excludes only console primitives the wall never renders', () => {
+  it('excludes only console code the wall never renders', () => {
     expect(excluded.length).toBeGreaterThan(0);
-    const reached = [...wallGraph()].filter((file) => excluded.some((dir) => file.startsWith(dir)));
-    // A primitive listed here is used by the wall: remove its `@source not` line from wall.css.
+    const reached = [...wallGraph()].filter((file) => excluded.some((dir) => file.startsWith(dir + sep)));
+    // A file listed here is used by the wall: remove its folder's `@source not` line from wall.css.
     expect(reached).toEqual([]);
   });
 });
