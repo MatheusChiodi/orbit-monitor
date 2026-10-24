@@ -73,7 +73,7 @@ test.describe('accessibility (axe)', () => {
 
   // Bug (frontend-agent): SoundToggle is named "Sound alerts" by aria-labelledby while it shows
   // "Muted" / "Sound on" — WCAG 2.5.3 Label in Name; voice users saying "click Muted" fail.
-  test.fixme('wall sound toggle includes its visible text in its accessible name', async ({ page }) => {
+  test('wall sound toggle includes its visible text in its accessible name', async ({ page }) => {
     await openWall(page);
     expect(await violations(page, { rules: ['label-content-name-mismatch'] })).toEqual([]);
   });
