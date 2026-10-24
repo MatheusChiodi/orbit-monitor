@@ -19,7 +19,8 @@ export { SETTINGS_SECTIONS, isSettingsSection, settingsHref, type SettingsSectio
 /** API clients the Settings sections need (structurally the console's `ConsoleServices`). */
 export interface SettingsServices {
   themesClient: ThemesClient;
-  layoutsApi: Pick<LayoutsApi, 'list' | 'save'>;
+  /** `remove` when the client can delete layouts (live API, or in memory in the demo). */
+  layoutsApi: Pick<LayoutsApi, 'list' | 'save'> & Partial<Pick<LayoutsApi, 'remove'>>;
   saveDefaults: (defaults: WorkspacePreferenceDefaults) => Promise<WorkspacePreferenceDefaults>;
 }
 

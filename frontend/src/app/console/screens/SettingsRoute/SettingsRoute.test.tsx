@@ -11,11 +11,11 @@ import { ConsoleProvider } from '../../ConsoleContext';
 import { DEMO_ACCESS, createConsoleSource, type ConsoleApi } from '../../consoleSource';
 import { SettingsRoute, type SettingsSection } from './SettingsRoute';
 
-function setup(section: SettingsSection, layoutId?: string) {
+function setup(section: SettingsSection, layoutId?: string, layouts: unknown[] = []) {
   const source = createConsoleSource({} as ConsoleApi, true);
   const services = {
     themesClient: { list: vi.fn().mockResolvedValue([]), save: vi.fn(), remove: vi.fn() },
-    layoutsApi: { list: vi.fn().mockResolvedValue([]), save: vi.fn() },
+    layoutsApi: { list: vi.fn().mockResolvedValue(layouts), save: vi.fn(), remove: vi.fn().mockResolvedValue(undefined) },
     saveDefaults: vi.fn(async (d) => d),
   };
   const customization = createCustomizationStore({ storage: false });
@@ -83,5 +83,14 @@ describe('FE-72 Settings area', () => {
   it('Connections renders even before its screen exists', () => {
     setup('connections');
     expect(screen.getAllByRole('heading', { name: 'Connections' }).length).toBeGreaterThan(0);
+  });
+
+  it('Wall layouts offers Delete when the layouts API can remove, and calls it after confirming', async () => {
+    const layout = { id: 'l-noc', slug: 'noc', name: 'NOC', blocks: [{ id: 'hero', kind: 'hero', x: 0, y: 0, w: 6, h: 4 }] };
+    const services = setup('wall-layouts', 'l-noc', [layout]);
+    await userEvent.click(await screen.findByRole('button', { name: 'More actions for NOC' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Delete layout' }));
+    await userEvent.click(within(screen.getByRole('dialog', { name: 'Delete NOC?' })).getByRole('button', { name: 'Delete layout' }));
+    expect(services.layoutsApi.remove).toHaveBeenCalledWith('l-noc');
   });
 });
