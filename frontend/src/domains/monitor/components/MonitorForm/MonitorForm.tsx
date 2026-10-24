@@ -270,7 +270,7 @@ export function MonitorForm(props: MonitorFormProps) {
           problems > 0 ? (
             <span className="text-down-text">{t('monitorForm.flow.problems', { count: problems })}</span>
           ) : (
-            t('monitorForm.flow.stepOf', { n: index + 1, total: steps.length })
+            <span className="hidden sm:inline">{t('monitorForm.flow.stepOf', { n: index + 1, total: steps.length })}</span>
           )
         }
       >
@@ -278,13 +278,17 @@ export function MonitorForm(props: MonitorFormProps) {
           {t('form.cancel')}
         </Button>
         {index > 0 && (
-          <Button variant="secondary" onClick={() => go(steps[index - 1]!)}>
-            {t('monitorForm.flow.back')}
-          </Button>
+          // On phones the stepper already goes back; the bar keeps Cancel, Next and Save on one line.
+          <span className="hidden sm:contents">
+            <Button variant="secondary" onClick={() => go(steps[index - 1]!)}>
+              {t('monitorForm.flow.back')}
+            </Button>
+          </span>
         )}
         {index < steps.length - 1 && (
-          <Button variant="secondary" onClick={() => go(steps[index + 1]!)}>
-            {t('monitorForm.flow.next', { step: stepLabel(steps[index + 1]!) })}
+          <Button variant="secondary" aria-label={t('monitorForm.flow.next', { step: stepLabel(steps[index + 1]!) })} onClick={() => go(steps[index + 1]!)}>
+            <span className="sm:hidden">{t('monitorForm.flow.nextShort')}</span>
+            <span className="hidden sm:inline">{t('monitorForm.flow.next', { step: stepLabel(steps[index + 1]!) })}</span>
           </Button>
         )}
         <Button variant="primary" onClick={save} loading={saving}>

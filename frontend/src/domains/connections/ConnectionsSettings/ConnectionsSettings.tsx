@@ -18,7 +18,7 @@ export interface ConnectionsSettingsProps {
 
 type Editing = { connection?: Connection; rotate?: boolean } | null;
 
-/** Settings › Connections: list, add, edit, test, change password and delete database connections. */
+/** Settings › Connections: list, add, edit, test, change password and delete database connections (the host renders the heading). */
 export function ConnectionsSettings({ source, demo, editable = true }: ConnectionsSettingsProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -88,7 +88,8 @@ export function ConnectionsSettings({ source, demo, editable = true }: Connectio
   }
 
   return (
-    <Card title={t('monitorForm.connections.title')} description={t('monitorForm.connections.description')} actions={connections.length > 0 ? add : null}>
+    // The Settings section renders the "Connections" heading; the card carries the description and the action.
+    <Card description={t('monitorForm.connections.description')} actions={connections.length > 0 ? add : null}>
       {!editable && <p className="m-0 text-sm text-muted">{t('monitorForm.connections.readOnly')}</p>}
       {list.isError ? (
         <p role="alert" className="m-0 text-sm text-down-text">

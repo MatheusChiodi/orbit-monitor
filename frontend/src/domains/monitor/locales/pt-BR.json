@@ -97,7 +97,8 @@
     "keptRules_other": "{{count}} regras escritas como texto ficam como estão: {{rules}}",
     "schedule": "Agenda",
     "intervalHint": "Com que frequência o Orbit verifica (15 s a 1 dia).",
-    "retriesHint": "Falhas seguidas antes de contar como Fora do ar."
+    "retriesHint": "Falhas seguidas antes de contar como Fora do ar.",
+    "nextShort": "Próximo"
   },
   "group": {
     "new": "Novo grupo",

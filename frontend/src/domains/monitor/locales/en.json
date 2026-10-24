@@ -97,7 +97,8 @@
     "keptRules_other": "{{count}} rules written as text stay as they are: {{rules}}",
     "schedule": "Schedule",
     "intervalHint": "How often Orbit checks (15 s to 1 day).",
-    "retriesHint": "Failed checks in a row before it counts as Down."
+    "retriesHint": "Failed checks in a row before it counts as Down.",
+    "nextShort": "Next"
   },
   "group": {
     "new": "New group",

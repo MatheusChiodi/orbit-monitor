@@ -172,52 +172,53 @@ export function ConditionEditor({ conditions, fields, context, onChange, addDisa
               key={index}
               role="group"
               aria-label={t('monitorForm.rules.rule', { n: index + 1 })}
-              className="flex flex-col gap-2 rounded-md border border-line bg-s2 p-3"
+              className="relative flex flex-col gap-2 rounded-md border border-line bg-s2 p-3"
             >
-              <div className="grid grid-cols-2 items-center gap-2 md:flex">
+              <div className="grid grid-cols-2 items-center gap-2 pr-10 md:flex md:pr-0">
                 <span className="md:w-32 md:shrink-0">
-                <Select aria-label={t('monitorForm.rules.level')} value={condition.level} onChange={(e) => update(index, { level: e.target.value as Severity })}>
-                  {LEVELS.map((level) => (
-                    <option key={level} value={level}>
-                      {t(`conditions.levels.${level}`)}
-                    </option>
-                  ))}
-                </Select>
+                  <Select aria-label={t('monitorForm.rules.level')} value={condition.level} onChange={(e) => update(index, { level: e.target.value as Severity })}>
+                    {LEVELS.map((level) => (
+                      <option key={level} value={level}>
+                        {t(`conditions.levels.${level}`)}
+                      </option>
+                    ))}
+                  </Select>
                 </span>
                 <span className="hidden text-sm text-muted md:inline">{t('monitorForm.rules.when')}</span>
                 <span className="min-w-0 md:w-56 md:shrink-0">
-                <Select aria-label={t('monitorForm.rules.field')} value={condition.field} onChange={(e) => changeField(index, e.target.value)}>
-                  {!field && <option value={condition.field}>{condition.field || '—'}</option>}
-                  {fields.map((f) => (
-                    <option key={f.key} value={f.key}>
-                      {f.label}
-                    </option>
-                  ))}
-                </Select>
+                  <Select aria-label={t('monitorForm.rules.field')} value={condition.field} onChange={(e) => changeField(index, e.target.value)}>
+                    {!field && <option value={condition.field}>{condition.field || '—'}</option>}
+                    {fields.map((f) => (
+                      <option key={f.key} value={f.key}>
+                        {f.label}
+                      </option>
+                    ))}
+                  </Select>
                 </span>
                 <span className="min-w-0 md:w-40 md:shrink-0">
-                <Select
-                  aria-label={t('monitorForm.rules.operator')}
-                  value={alert}
-                  onChange={(e) => update(index, { operator: toStoredOperator(e.target.value as AlertOperator) })}
-                >
-                  {shown.map((op) => (
-                    <option key={op} value={op}>
-                      {t(`monitorForm.rules.operators.${op}`)}
-                    </option>
-                  ))}
-                </Select>
+                  <Select
+                    aria-label={t('monitorForm.rules.operator')}
+                    value={alert}
+                    onChange={(e) => update(index, { operator: toStoredOperator(e.target.value as AlertOperator) })}
+                  >
+                    {shown.map((op) => (
+                      <option key={op} value={op}>
+                        {t(`monitorForm.rules.operators.${op}`)}
+                      </option>
+                    ))}
+                  </Select>
                 </span>
                 <span className="min-w-0 md:flex-1">
                   <ValueInput condition={condition} field={field} onValue={(value) => update(index, { value })} />
                 </span>
-                <IconButton
-                  className="col-span-2 justify-self-end"
-                  label={t('monitorForm.rules.remove', { n: index + 1 })}
-                  icon={IconClose}
-                  size="sm"
-                  onClick={() => onChange(conditions.filter((_, i) => i !== index))}
-                />
+                <span className="absolute top-3 right-2 md:static">
+                  <IconButton
+                    label={t('monitorForm.rules.remove', { n: index + 1 })}
+                    icon={IconClose}
+                    size="sm"
+                    onClick={() => onChange(conditions.filter((_, i) => i !== index))}
+                  />
+                </span>
               </div>
               <p className="m-0 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-sm">
                 <span className="text-muted">{sentence(condition, fields)}</span>
