@@ -11,17 +11,22 @@ import type { WallConnectionState } from '../../store';
 import { createMonitorActionHandler } from '../../actions/monitorActions';
 import { isClassicArrangement } from '../../layout/wallLayout';
 import { alsoActive, groupRows, nearLimitEmpty, pickHero } from '../../selectors';
-import { AlsoActive } from '../AlsoActive';
 import { HeroSwap } from '../HeroSwap';
-import { MonitorMatrix } from '../MonitorMatrix';
-import { NearLimit } from '../NearLimit';
 import type { LoadHistory } from '../SeriesBlock';
-import { Timeline } from '../Timeline';
-import { WallEmpty } from '../WallEmpty';
 import { WallHeader } from '../WallHeader';
 import { isStale } from '../StaleBadge';
 
 /** Saved layouts other than the built-in one load their grid and blocks on demand (wall budget). */
+/**
+ * Wall budget: the header and the hero (state, value, rule, Acknowledge) are in the first load; the
+ * supporting panels arrive right after first paint, each in its own reserved slot (no layout shift).
+ */
+const AlsoActive = lazy(() => import('../AlsoActive').then((mod) => ({ default: mod.AlsoActive })));
+const NearLimit = lazy(() => import('../NearLimit').then((mod) => ({ default: mod.NearLimit })));
+const MonitorMatrix = lazy(() => import('../MonitorMatrix').then((mod) => ({ default: mod.MonitorMatrix })));
+const Timeline = lazy(() => import('../Timeline').then((mod) => ({ default: mod.Timeline })));
+/** Only a fresh install shows it (wall budget). */
+const WallEmpty = lazy(() => import('../WallEmpty').then((mod) => ({ default: mod.WallEmpty })));
 const LayoutGrid = lazy(() => import('../LayoutGrid').then((mod) => ({ default: mod.LayoutGrid })));
 
 export interface WallScreenProps {
@@ -121,7 +126,9 @@ export function WallScreen({
       />
       {/* FE-19: when the playlist switches layouts, the old one fades out while the new one fades in. */}
       {empty ? (
-        <WallEmpty consoleUrl={consoleUrl} />
+        <Suspense fallback={null}>
+          <WallEmpty consoleUrl={consoleUrl} />
+        </Suspense>
       ) : (
         <div className="wall-stage">
           <AnimatePresence>
@@ -141,16 +148,24 @@ export function WallScreen({
                       <HeroSwap snapshot={snapshot} hero={hero} now={now} onAcknowledge={onAcknowledge} nextStep={nextStep} />
                     </div>
                     <div className="wall-pair">
-                      <AlsoActive monitors={alsoActive(snapshot, hero?.monitor.id ?? null)} groups={snapshot.groups} now={now} />
-                      <NearLimit items={near} empty={nearLimitEmpty(snapshot.monitors)} />
+                      <Suspense fallback={null}>
+                        <AlsoActive monitors={alsoActive(snapshot, hero?.monitor.id ?? null)} groups={snapshot.groups} now={now} />
+                      </Suspense>
+                      <Suspense fallback={null}>
+                        <NearLimit items={near} empty={nearLimitEmpty(snapshot.monitors)} />
+                      </Suspense>
                     </div>
                   </div>
                   <div className="wall-col wall-col--context">
                     <div className="wall-matrix">
-                      <MonitorMatrix rows={groupRows(snapshot)} unownedMonitorIds={unowned} onMonitorAction={onMonitorAction} />
+                      <Suspense fallback={null}>
+                        <MonitorMatrix rows={groupRows(snapshot)} unownedMonitorIds={unowned} onMonitorAction={onMonitorAction} />
+                      </Suspense>
                     </div>
                     <div className="wall-timeline">
-                      <Timeline events={snapshot.timeline} freshIds={freshEventIds} />
+                      <Suspense fallback={null}>
+                        <Timeline events={snapshot.timeline} freshIds={freshEventIds} />
+                      </Suspense>
                     </div>
                   </div>
                 </main>

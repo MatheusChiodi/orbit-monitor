@@ -23,11 +23,11 @@ function renderWall(scenario: 'incident' | 'ok', onAcknowledge = vi.fn()) {
 }
 
 describe('WallScreen', () => {
-  it('with an incident: hero of the worst problem and every block', () => {
+  it('with an incident: hero of the worst problem in the first paint, then every block', async () => {
     renderWall('incident');
     expect(screen.getByRole('heading', { name: 'Reconciliation queue' })).toBeInTheDocument();
     for (const name of ['Situation', 'Also active', 'Near threshold', 'All monitors', 'Timeline']) {
-      expect(screen.getByRole('region', { name })).toBeInTheDocument();
+      expect(await screen.findByRole('region', { name })).toBeInTheDocument();
     }
     expect(screen.getByRole('status')).toHaveTextContent('1 monitor down');
   });
@@ -50,23 +50,27 @@ describe('WallScreen', () => {
     render(
       <WallScreen snapshot={mockSnapshot('incident', now)} now={now} connection="open" freshEventIds={new Set()} onAcknowledge={vi.fn()} onNavigate={onNavigate} />,
     );
-    const matrix = screen.getByRole('region', { name: 'All monitors' });
+    const matrix = await screen.findByRole('region', { name: 'All monitors' });
     const tiles = within(matrix).getAllByRole('button');
     const tile = tiles.find((el) => el.textContent?.includes('Reconciliation queue'));
     await userEvent.click(tile!);
     expect(onNavigate).toHaveBeenCalledWith('/index.html#/incidents/inc-reconciliation');
   });
 
-  it('DOM block order follows the phone order', () => {
+  it('DOM block order follows the phone order', async () => {
     renderWall('incident');
+    await screen.findByRole('region', { name: 'Timeline' });
+    await screen.findByRole('region', { name: 'All monitors' });
+    await screen.findByRole('region', { name: 'Near threshold' });
+    await screen.findByRole('region', { name: 'Also active' });
     const names = screen.getAllByRole('region').map((r) => r.getAttribute('aria-labelledby') && r.querySelector('h2')?.textContent);
     expect(names).toEqual(['Situation', 'Also active', 'Near threshold', 'All monitors', 'Timeline']);
   });
 
-  it('fresh install: says there are no monitors yet instead of a false "all operational"', () => {
+  it('fresh install: says there are no monitors yet instead of a false "all operational"', async () => {
     const empty = { ...mockSnapshot('ok', now), monitors: [], groups: [], incidents: [], timeline: [] };
     render(<WallScreen snapshot={empty} now={now} connection="open" freshEventIds={new Set()} onAcknowledge={vi.fn()} />);
-    expect(screen.getByRole('heading', { name: 'No monitors yet' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'No monitors yet' })).toBeInTheDocument();
     expect(screen.getByText(/Add one in the console/)).toBeInTheDocument();
     expect(screen.queryByText('All systems operational')).toBeNull();
     expect(screen.queryByText(/100/)).toBeNull();

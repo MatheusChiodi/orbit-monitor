@@ -25,7 +25,7 @@ Header with global status and clock, hero (incident / all operational), also act
 - Hero countdown names the next escalation step (FE-40); clock blocks show who is on call (BE-33)
 - Empty install (no monitors): `WallEmpty` replaces the five panels and the header says "No monitors yet" in grey (no counters, no false "All systems operational · 100.00%"), with the console address in full
 - Type and tokens (2026-10-24 redesign): Archivo (`display-wide`) for the hero name and big numbers, Geist Mono for values, scale tokens only (no arbitrary Tailwind values); Acknowledge is the primary (signal) button, never the DOWN red; matrix names wrap to two lines (full name in `title`), tiles fill `repeat(auto-fill, minmax(10.5rem, 1fr))`; glass panels keep a neutral edge (no blue→green border)
-- Budget: first load 149.8 KB gzip (2026-10-22); 152.1 KB on 2026-10-24 vs 153.3 KB at 33110a0 (redesign tokens and fonts); `shared/ui` icons reach the closure through the barrel (asked B1 for `@__PURE__`); wall code imports `shared/ui` by deep paths; `app/wall.css` (wall-only Tailwind sources) and lazy chunks for orb, chart, controls, kiosk, night overlay, notifications, layout grid and API clients; only the wall's locale namespaces load
+- Budget: first load 148.5 KB gzip (2026-10-24, e2e method): header and hero are in the first load; Also active, Near threshold, matrix, timeline and the empty-install view arrive as lazy chunks right after first paint, each in its reserved grid slot; wall code imports `shared/ui` by deep paths; `app/wall.css` (wall-only Tailwind sources) and lazy chunks for orb, chart, controls, kiosk, night overlay, notifications, layout grid and API clients; only the wall's locale namespaces load
 - `WallCustomization` (wall-main) reads workspace, layout and device customization, applies the look and renamed labels; Customize mode (FE-53) loads lazily for clients with edit access; `MonitorMatrix` tiles follow the FE-55 card settings and show a text state label for WARN/DOWN
 
 ## States
@@ -116,3 +116,4 @@ Header with global status and clock, hero (incident / all operational), also act
 - 2026-10-22 — no backend: "Waiting for the Orbit server…" with retry; demo data only with `?demo`.
 - 2026-10-22 — no `?operator=`: acknowledgements read "Acknowledged at HH:MM" / "Reconhecido às HH:MM".
 - 2026-10-24 — redesign: honest empty install, wrapped matrix names, Acknowledge as primary, sound toggle with icon, notifications hidden on view-only/kiosk, Archivo/Geist Mono on the token scale, neutral glass edge, near-threshold empty reasons.
+- 2026-10-24 — wall budget back under 150 KB: secondary panels and `WallEmpty` load lazily.
