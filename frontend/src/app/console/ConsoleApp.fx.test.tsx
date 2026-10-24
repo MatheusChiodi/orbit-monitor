@@ -30,30 +30,24 @@ describe('FE-52 console FX', () => {
     expect(container.querySelector('.fx-backdrop')).toHaveAttribute('aria-hidden', 'true');
   });
 
-  it('empty monitor list: first-monitor and check-flow guides', async () => {
+  it('empty monitor list: the onboarding invites the first monitor', async () => {
     render(<ConsoleApp api={api([])} />);
-    expect(await screen.findAllByRole('figure', { name: 'Animated introduction' })).toHaveLength(2);
+    expect(await screen.findByRole('heading', { level: 2, name: 'Nothing in orbit yet' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Monitor a URL/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Monitor a SELECT/ })).toBeInTheDocument();
   });
 
-  it('Orbit\'s own health check alone still counts as an empty workspace: the guides show', async () => {
+  it("Orbit's own health check alone still counts as an empty workspace", async () => {
     const self = { id: 'orbit_self', name: 'Orbit', groupId: null, type: 'SELF', status: 'OK', value: null, unit: null, since: new Date().toISOString() };
     render(<ConsoleApp api={api([self])} />);
-    expect(await screen.findAllByRole('figure', { name: 'Animated introduction' })).toHaveLength(2);
+    expect(await screen.findByRole('heading', { level: 2, name: 'Nothing in orbit yet' })).toBeInTheDocument();
   });
 
-  it('with monitors there is no guide', async () => {
+  it('with monitors there is no onboarding and the orbit rail lists them', async () => {
     const monitor = { id: 'm', name: 'Web portal', groupId: 'g', type: 'HTTP', status: 'OK', value: 120, unit: 'ms', since: new Date().toISOString() };
     render(<ConsoleApp api={api([monitor])} />);
-    expect(await screen.findByText('Web portal')).toBeInTheDocument();
-    expect(screen.queryByRole('figure', { name: 'Animated introduction' })).toBeNull();
-  });
-
-  it('FE-59: with monitors the list opens with the interactive living orb', async () => {
-    const monitor = { id: 'm', name: 'Web portal', groupId: 'g', type: 'HTTP', status: 'OK', value: 120, unit: 'ms', since: new Date().toISOString() };
-    render(<ConsoleApp api={api([monitor])} />);
-    const orb = await screen.findByRole('group', { name: 'System orb' });
-    expect(orb).toHaveAccessibleDescription('1 monitor in 1 group, all OK');
-    expect(orb).toHaveAttribute('tabindex', '0');
-    expect(screen.getByRole('button', { name: 'Legend' })).toBeInTheDocument();
+    const rail = await screen.findByRole('region', { name: 'Monitors in orbit' });
+    expect(rail).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Nothing in orbit yet' })).toBeNull();
   });
 });

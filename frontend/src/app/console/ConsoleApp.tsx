@@ -48,7 +48,7 @@ export interface ConsoleAppProps {
   /** FE-04: custom themes (`/api/themes`); created when omitted. */
   configClient?: ThemesClient;
   /** FE-11: wall layouts (`/api/layouts`). */
-  layoutsApi?: Pick<LayoutsApi, 'list' | 'save'>;
+  layoutsApi?: Pick<LayoutsApi, 'list' | 'save'> & Partial<Pick<LayoutsApi, 'remove'>>;
   /** BE-40: saves the workspace defaults (`PUT /api/settings/defaults`, editors only). */
   saveDefaults?: (defaults: WorkspacePreferenceDefaults) => Promise<WorkspacePreferenceDefaults>;
   /** Demo data in memory, only when explicitly asked for (`index.html?demo`); never a silent fallback. */

@@ -34,6 +34,9 @@ export function createDemoServices(): ConsoleServices {
         layouts.set(layout.id, layout);
         return layout;
       },
+      remove: async (id) => {
+        layouts.delete(id);
+      },
     },
     saveDefaults: async (defaults) => defaults,
   };

@@ -23,7 +23,8 @@ import type { ThemesClient } from '@/shared/theme/customThemes';
 /** API clients of the theming and wall layout screens (FE-03/04, FE-11). */
 export interface ConsoleServices {
   themesClient: ThemesClient;
-  layoutsApi: Pick<LayoutsApi, 'list' | 'save'>;
+  /** `remove` is optional: the Delete action of a layout only shows when the client has it. */
+  layoutsApi: Pick<LayoutsApi, 'list' | 'save'> & Partial<Pick<LayoutsApi, 'remove'>>;
   saveDefaults: (defaults: WorkspacePreferenceDefaults) => Promise<WorkspacePreferenceDefaults>;
 }
 
