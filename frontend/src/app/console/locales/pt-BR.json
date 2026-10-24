@@ -164,5 +164,26 @@
     "down": "{{percent}}% das verificações ficaram DOWN",
     "empty": "Sem histórico neste período.",
     "chart": "{{name}} no período escolhido"
+  },
+  "shell": {
+    "more": "Mais",
+    "search": "Buscar ou ir para…",
+    "openMenu": "Abrir navegação",
+    "navigation": "Navegação",
+    "skip": "Pular para o conteúdo",
+    "openIncidents_one": "{{count}} incidente aberto",
+    "openIncidents_other": "{{count}} incidentes abertos",
+    "newTab": "(abre em uma nova aba)",
+    "notFoundBody": "Este endereço não corresponde a nenhuma tela. Pode ter vindo de um link antigo.",
+    "retry": "Tentar novamente",
+    "keyboardShortcuts": "Atalhos de teclado",
+    "customizeMode": "Ligar ou desligar o modo Personalizar",
+    "settingsSections": {
+      "general": "Geral",
+      "appearance": "Aparência",
+      "wall-layouts": "Layouts do wall",
+      "connections": "Conexões",
+      "advanced": "Avançado"
+    }
   }
 }

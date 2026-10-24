@@ -10,6 +10,8 @@ const items: PaletteItem[] = [
   { id: 'm-checkout', kind: 'monitor', label: 'Checkout API', hint: 'Payments' },
   { id: 'g-core', kind: 'group', label: 'Core Banking' },
   { id: 'l-noc', kind: 'layout', label: 'NOC' },
+  { id: 'i-1', kind: 'incident', label: 'Checkout API', hint: 'Down' },
+  { id: 'p-incidents', kind: 'page', label: 'Incidents' },
   { id: 'a-new-monitor', kind: 'action', label: 'New monitor', requiresEdit: true },
   { id: 'a-open-wall', kind: 'action', label: 'Open wall' },
 ];
@@ -45,17 +47,16 @@ describe('FE-28 command palette', () => {
 
   it('Ctrl+K opens a labelled dialog with focus in the search box', async () => {
     setup();
-    // The dialog leaves through AnimatePresence (FE-51), so wait for the exit to finish.
-    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(screen.queryByRole('dialog')).toBeNull();
     await userEvent.keyboard('{Control>}k{/Control}');
-    expect(screen.getByRole('dialog', { name: 'Command palette' })).toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: 'Search monitors, groups, layouts and actions' })).toHaveFocus();
+    expect(screen.getByRole('dialog', { name: 'Search or jump to' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Search monitors, incidents, pages and actions' })).toHaveFocus();
   });
 
   it('Meta+K (macOS) also opens it', async () => {
     setup();
     await userEvent.keyboard('{Meta>}k{/Meta}');
-    expect(screen.getByRole('dialog', { name: 'Command palette' })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Search or jump to' })).toBeInTheDocument();
   });
 
   it('typing filters the options and groups them by kind', async () => {
@@ -64,6 +65,17 @@ describe('FE-28 command palette', () => {
     await userEvent.keyboard('pay');
     const options = screen.getAllByRole('option');
     expect(options.map((o) => o.textContent)).toEqual(['Reconciliation queuePayments', 'Checkout APIPayments']);
+    expect(screen.getByRole('group', { name: 'Monitors' })).toBeInTheDocument();
+  });
+
+  it('finds open incidents and pages by name (FE-63)', async () => {
+    setup();
+    await userEvent.keyboard('{Control>}k{/Control}');
+    await userEvent.keyboard('incid');
+    expect(screen.getByRole('group', { name: 'Pages' })).toHaveTextContent('Incidents');
+    await userEvent.clear(screen.getByRole('combobox'));
+    await userEvent.keyboard('checkout');
+    expect(screen.getByRole('group', { name: 'Open incidents' })).toHaveTextContent('Checkout APIDown');
     expect(screen.getByRole('group', { name: 'Monitors' })).toBeInTheDocument();
   });
 
@@ -106,14 +118,17 @@ describe('FE-28 command palette', () => {
     expect(screen.getByRole('option', { name: /Open wall/ })).toBeInTheDocument();
   });
 
-  it('respects reduced motion (no transition attribute)', async () => {
-    render(<CommandPalette items={items} mode="edit" onSelect={vi.fn()} animationLevel="off" defaultOpen />);
-    expect(screen.getByRole('dialog')).toHaveAttribute('data-animation', 'off');
+  it('a controlled palette opens from outside (the top bar button) and reports closing', async () => {
+    const onOpenChange = vi.fn();
+    render(<CommandPalette items={items} mode="edit" onSelect={vi.fn()} open onOpenChange={onOpenChange} />);
+    expect(screen.getByRole('dialog', { name: 'Search or jump to' })).toBeInTheDocument();
+    await userEvent.keyboard('{Escape}');
+    expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
   it('renders in pt-BR', () => {
     renderWithLocale(<CommandPalette items={items} mode="edit" onSelect={vi.fn()} defaultOpen />, 'pt-BR');
-    expect(screen.getByRole('dialog', { name: 'Paleta de comandos' })).toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: 'Buscar monitores, grupos, layouts e ações' })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Buscar ou ir para' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Buscar monitores, incidentes, páginas e ações' })).toBeInTheDocument();
   });
 });

@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { parseRoute, routeHref, useHashRoute, type ConsoleRoute } from './routes';
+import { parseRoute, redirectFor, routeHref, useHashRoute, type ConsoleRoute } from './routes';
 
 afterEach(() => {
   window.location.hash = '';
@@ -16,6 +16,7 @@ describe('console hash routes', () => {
     ['#/monitors/new/smtp', { name: 'not-found' }],
     ['#/incidents', { name: 'incidents' }],
     ['#/monitors/recon%2Fq', { name: 'monitor', id: 'recon/q' }],
+    ['#/monitors/recon%2Fq/edit', { name: 'edit-monitor', id: 'recon/q' }],
     ['#/incidents/inc-1', { name: 'incident', id: 'inc-1' }],
     ['#/incidents/a%20b', { name: 'incident', id: 'a b' }],
     ['#/maintenance', { name: 'maintenance' }],
@@ -23,13 +24,33 @@ describe('console hash routes', () => {
     ['#/reports', { name: 'reports' }],
     ['#/status-pages', { name: 'status-pages' }],
     ['#/audit', { name: 'audit' }],
-    ['#/admin/audit', { name: 'audit' }],
-    ['#/settings', { name: 'settings' }],
-    ['#/settings/preferences', { name: 'preferences' }],
-    ['#/settings/customization', { name: 'customization' }],
+    ['#/settings', { name: 'settings', section: 'general' }],
+    ['#/settings/general', { name: 'settings', section: 'general' }],
+    ['#/settings/appearance', { name: 'settings', section: 'appearance' }],
+    ['#/settings/wall-layouts', { name: 'settings', section: 'wall-layouts' }],
+    ['#/settings/wall-layouts/l%20exec', { name: 'settings', section: 'wall-layouts', layoutId: 'l exec' }],
+    ['#/settings/connections', { name: 'settings', section: 'connections' }],
+    ['#/settings/advanced', { name: 'settings', section: 'advanced' }],
+    ['#/settings/nope', { name: 'not-found' }],
     ['#/nope', { name: 'not-found' }],
   ])('%s', (hash, route) => {
     expect(parseRoute(hash)).toEqual(route);
+  });
+
+  it.each([
+    ['#/settings/preferences', '#/settings/appearance'],
+    ['#/settings/themes', '#/settings/appearance'],
+    ['#/settings/customization', '#/settings/advanced'],
+    ['#/layouts', '#/settings/wall-layouts'],
+    ['#/layouts/l%20exec', '#/settings/wall-layouts/l%20exec'],
+    ['#/admin/audit', '#/audit'],
+  ])('legacy %s redirects to %s', (legacy, current) => {
+    expect(redirectFor(legacy)).toBe(current);
+    expect(parseRoute(legacy)).toEqual(parseRoute(current));
+  });
+
+  it('current addresses never redirect', () => {
+    for (const hash of ['#/', '#/settings', '#/settings/appearance', '#/audit', '#/monitors/a/edit']) expect(redirectFor(hash)).toBeNull();
   });
 
   it('builds hrefs that parse back to the same route', () => {
@@ -37,10 +58,21 @@ describe('console hash routes', () => {
       { name: 'monitors' },
       { name: 'incident', id: 'x/y' },
       { name: 'new-monitor', kind: 'KAFKA' },
+      { name: 'edit-monitor', id: 'a b' },
       { name: 'reports' },
-      { name: 'preferences' },
+      { name: 'settings', section: 'general' },
+      { name: 'settings', section: 'connections' },
+      { name: 'settings', section: 'wall-layouts', layoutId: 'l/1' },
     ];
     for (const route of routes) expect(parseRoute(routeHref(route))).toEqual(route);
+  });
+
+  it('legacy targets still navigate to their Settings section', () => {
+    expect(routeHref({ name: 'preferences' })).toBe('#/settings/appearance');
+    expect(routeHref({ name: 'appearance' })).toBe('#/settings/appearance');
+    expect(routeHref({ name: 'customization' })).toBe('#/settings/advanced');
+    expect(routeHref({ name: 'layouts' })).toBe('#/settings/wall-layouts');
+    expect(routeHref({ name: 'layout', id: 'l exec' })).toBe('#/settings/wall-layouts/l%20exec');
   });
 
   it('useHashRoute follows hash changes', () => {
@@ -56,12 +88,12 @@ describe('console hash routes', () => {
     expect(result.current[0]).toEqual({ name: 'reports' });
   });
 
-  it('FE-03 / FE-11: appearance and wall layout routes', () => {
-    expect(parseRoute('#/settings/themes')).toEqual({ name: 'appearance' });
-    expect(parseRoute('#/layouts')).toEqual({ name: 'layouts' });
-    expect(parseRoute('#/layouts/l%20exec')).toEqual({ name: 'layout', id: 'l exec' });
-    expect(routeHref({ name: 'appearance' })).toBe('#/settings/themes');
-    expect(routeHref({ name: 'layouts' })).toBe('#/layouts');
-    expect(routeHref({ name: 'layout', id: 'l exec' })).toBe('#/layouts/l%20exec');
+  it('useHashRoute replaces a legacy hash with its current address without a new history entry', () => {
+    const length = window.history.length;
+    window.location.hash = '#/settings/themes';
+    const { result } = renderHook(() => useHashRoute());
+    expect(window.location.hash).toBe('#/settings/appearance');
+    expect(result.current[0]).toEqual({ name: 'settings', section: 'appearance' });
+    expect(window.history.length).toBe(length + 1);
   });
 });

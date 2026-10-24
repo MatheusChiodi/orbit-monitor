@@ -4,6 +4,9 @@ import { createPreferencesStore } from '@/shared/preferences/preferences';
 import { ConsoleApp } from './ConsoleApp';
 import type { ConsoleApi } from './consoleSource';
 
+// The Settings area is tested with its own screens; the shell only hands it the section.
+vi.mock('./screens/SettingsRoute', () => ({ SettingsRoute: () => null }));
+
 function api(overrides: Partial<ConsoleApi> = {}): ConsoleApi {
   return {
     getAccess: vi.fn().mockResolvedValue({ mode: 'edit', client: 'loopback' }),
@@ -32,7 +35,7 @@ describe('FE-06 animation settings in the console', () => {
     const preferences = createPreferencesStore();
     preferences.getState().setMotion({ attention: false, speed: 0.5, fx: 'high' });
     render(<ConsoleApp api={api()} preferencesStore={preferences} />);
-    await screen.findByRole('button', { name: 'Device preferences' });
+    await screen.findByRole('navigation', { name: 'Console sections' });
     const root = document.documentElement;
     expect(root.dataset.motionAttention).toBe('off');
     expect(root.style.getPropertyValue('--motion-speed')).toBe('0.5');
@@ -44,7 +47,7 @@ describe('FE-06 animation settings in the console', () => {
     const preferences = createPreferencesStore();
     preferences.getState().setAnimationPreset('expressive');
     render(<ConsoleApp api={api()} preferencesStore={preferences} />);
-    await screen.findByRole('button', { name: 'Device preferences' });
+    await screen.findByRole('navigation', { name: 'Console sections' });
     expect(document.documentElement.dataset.animation).toBe('minimal');
   });
 
@@ -52,7 +55,7 @@ describe('FE-06 animation settings in the console', () => {
     const preferences = createPreferencesStore();
     const getWorkspaceDefaults = vi.fn().mockResolvedValue({ animation: 'minimal', density: 'compact' });
     render(<ConsoleApp api={api({ getWorkspaceDefaults })} preferencesStore={preferences} />);
-    await screen.findByRole('button', { name: 'Device preferences' });
+    await screen.findByRole('navigation', { name: 'Console sections' });
     await vi.waitFor(() => expect(document.documentElement.dataset.animation).toBe('minimal'));
     expect(preferences.getState().effective.density).toBe('compact');
   });

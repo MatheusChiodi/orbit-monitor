@@ -10,10 +10,14 @@
       "pt-BR": "Português (Brasil)"
     },
     "unreachable": {
-      "title": "Cannot reach the Orbit server",
-      "detail": "Start the backend (cd backend && mvn -pl orbit-api -am spring-boot:run) or check the address. Nothing is shown until Orbit answers.",
-      "retry": "Try again"
-    }
+      "title": "Can't reach the Orbit server",
+      "detail": "The console shows nothing until Orbit answers, so no data is ever invented.",
+      "retry": "Try again",
+      "nextStep": "Start the Orbit server on this machine, then try again. If it is already running, open the console from the address the server prints.",
+      "demo": "Explore with demo data"
+    },
+    "demoBanner": "Showing demo data",
+    "exitDemo": "Exit demo"
   },
   "status": {
     "label": {
@@ -430,14 +434,23 @@
     }
   },
   "palette": {
-    "title": "Command palette",
-    "search": "Search monitors, groups, layouts and actions",
+    "title": "Search or jump to",
+    "search": "Search monitors, incidents, pages and actions",
     "noResults": "No results for \"{{query}}\"",
     "kinds": {
       "monitor": "Monitors",
       "group": "Groups",
       "layout": "Layouts",
-      "action": "Actions"
+      "action": "Actions",
+      "incident": "Open incidents",
+      "page": "Pages"
+    },
+    "placeholder": "Type a monitor, incident or page…",
+    "results": "Results",
+    "keys": {
+      "move": "to move",
+      "open": "to open",
+      "close": "to close"
     }
   },
   "shortcuts": {

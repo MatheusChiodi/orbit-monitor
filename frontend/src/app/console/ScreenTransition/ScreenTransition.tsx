@@ -13,7 +13,7 @@ export function ScreenTransition({ routeKey, children }: { routeKey: string; chi
       initial={enter.initial}
       animate={enter.animate}
       transition={enter.transition}
-      className="flex flex-col gap-[1rem]"
+      className="flex flex-col gap-4"
     >
       {children}
     </m.div>

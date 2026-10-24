@@ -1,65 +1,57 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
-import { AnimatePresence, m } from 'motion/react';
+import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AccessMode } from '@/shared/api/types';
-import { useAnimationLevel, type AnimationLevel } from '@/shared/motion/animationLevel';
-import { motionPreset } from '@/shared/motion/presets';
-import { PALETTE_KINDS, searchPalette, type PaletteItem } from './palette';
+import { Dialog, IconSearch } from '@/shared/ui';
+import { PALETTE_KINDS, orderPalette, type PaletteItem } from './palette';
 
 export interface CommandPaletteProps {
   items: readonly PaletteItem[];
   mode: AccessMode;
   onSelect: (item: PaletteItem) => void;
-  /** Overrides the provider level (tests, previews). */
-  animationLevel?: AnimationLevel;
+  /** Controlled open state (the top bar's search button); uncontrolled when omitted. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   defaultOpen?: boolean;
 }
 
-/** FE-28: `Ctrl+K` / `⌘K` opens a searchable list of monitors, groups, layouts and actions. */
-export function CommandPalette({ items, mode, onSelect, animationLevel, defaultOpen = false }: CommandPaletteProps) {
+/** FE-28 / FE-63: `Ctrl+K` / `⌘K` opens a searchable list of monitors, incidents, pages and actions. */
+export function CommandPalette({ items, mode, onSelect, open: controlled, onOpenChange, defaultOpen = false }: CommandPaletteProps) {
   const { t } = useTranslation();
-  const contextLevel = useAnimationLevel();
-  const level = animationLevel ?? contextLevel;
-  const dialog = motionPreset(level, 'dialog');
   const listId = useId();
-  const [open, setOpen] = useState(defaultOpen);
+  const [uncontrolled, setUncontrolled] = useState(defaultOpen);
+  const open = controlled ?? uncontrolled;
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(-1);
-  const returnFocus = useRef<HTMLElement | null>(null);
   const input = useRef<HTMLInputElement>(null);
+  const onOpenChangeRef = useRef(onOpenChange);
+  onOpenChangeRef.current = onOpenChange;
+  const setOpen = useCallback((next: boolean) => {
+    setUncontrolled(next);
+    onOpenChangeRef.current?.(next);
+  }, []);
 
   useEffect(() => {
     const onKey = (event: globalThis.KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+      if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === 'k') {
         event.preventDefault();
-        returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
         setOpen(true);
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  }, [setOpen]);
 
-  useEffect(() => {
-    if (open) input.current?.focus();
-  }, [open]);
-
-  const visible = searchPalette(
-    items.filter((item) => mode === 'edit' || !item.requiresEdit),
-    query,
-  );
-  const ordered = PALETTE_KINDS.flatMap((kind) => visible.filter((item) => item.kind === kind));
+  const ordered = orderPalette(items, mode, query);
 
   function close() {
     setOpen(false);
     setQuery('');
     setActive(-1);
-    returnFocus.current?.focus();
   }
 
   function choose(item: PaletteItem) {
-    onSelect(item);
     close();
+    onSelect(item);
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLInputElement>) {
@@ -70,11 +62,9 @@ export function CommandPalette({ items, mode, onSelect, animationLevel, defaultO
       event.preventDefault();
       setActive((i) => Math.max(i - 1, 0));
     } else if (event.key === 'Enter') {
+      event.preventDefault();
       const item = ordered[active] ?? ordered[0];
       if (item) choose(item);
-    } else if (event.key === 'Escape') {
-      event.preventDefault();
-      close();
     }
   }
 
@@ -82,71 +72,77 @@ export function CommandPalette({ items, mode, onSelect, animationLevel, defaultO
   const activeItem = ordered[active];
 
   return (
-    <AnimatePresence>
-      {open && (
-        <m.div
-          key="palette"
-          role="dialog"
-          aria-modal="true"
-          aria-label={t('palette.title')}
-          data-animation={level}
-          initial={dialog.initial}
-          animate={dialog.animate}
-          exit={dialog.exit}
-          transition={dialog.transition}
-          className="fixed inset-x-0 top-[12vh] z-50 mx-auto w-[min(36rem,92vw)] rounded-[0.9rem] border border-line-2 bg-s1 p-[0.8rem] shadow-2xl"
-        >
+    <Dialog open={open} onClose={close} title={t('palette.title')} initialFocus={input} size="md">
+      <div className="flex flex-col gap-3">
+        <div className="relative">
+          <IconSearch size={16} className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted" />
           <input
             ref={input}
             role="combobox"
             aria-label={t('palette.search')}
             aria-expanded="true"
             aria-controls={listId}
+            aria-autocomplete="list"
             aria-activedescendant={activeItem ? optionId(activeItem) : undefined}
+            placeholder={t('palette.placeholder')}
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
               setActive(-1);
             }}
             onKeyDown={onKeyDown}
-            className="h-[2.4rem] w-full rounded-[0.45rem] border border-line-2 bg-s2 px-[0.7rem] text-text focus:border-info focus:outline-none"
+            className="h-11 w-full rounded-sm border border-line-2 bg-s2 pr-3 pl-9 text-md text-text placeholder:text-dim"
           />
-          {ordered.length === 0 ? (
-            <p className="m-0 mt-[0.6rem] text-[0.85rem] text-muted">{t('palette.noResults', { query: query.trim() })}</p>
-          ) : (
-            <div id={listId} role="listbox" className="mt-[0.6rem] flex max-h-[50vh] flex-col gap-[0.4rem] overflow-auto">
-              {PALETTE_KINDS.map((kind) => {
-                const group = ordered.filter((item) => item.kind === kind);
-                if (group.length === 0) return null;
-                return (
-                  <div key={kind} role="group" aria-label={t(`palette.kinds.${kind}`)}>
-                    <p className="section-label m-0 px-[0.4rem]">{t(`palette.kinds.${kind}`)}</p>
-                    {group.map((item) => {
-                      const selected = item === activeItem;
-                      return (
-                        <div
-                          key={item.id}
-                          id={optionId(item)}
-                          role="option"
-                          aria-selected={selected}
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            choose(item);
-                          }}
-                          className={`flex cursor-pointer items-center justify-between rounded-[0.4rem] px-[0.6rem] py-[0.4rem] text-[0.9rem] ${selected ? 'bg-info/15 text-text' : 'hover:bg-s2'}`}
-                        >
-                          <span>{item.label}</span>
-                          {item.hint && <span className="text-[0.75rem] text-muted">{item.hint}</span>}
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </m.div>
-      )}
-    </AnimatePresence>
+        </div>
+        {ordered.length === 0 ? (
+          <p className="m-0 px-1 py-4 text-base text-muted">{t('palette.noResults', { query: query.trim() })}</p>
+        ) : (
+          <div id={listId} role="listbox" aria-label={t('palette.results')} className="-mx-1 flex max-h-96 flex-col gap-3 overflow-y-auto">
+            {PALETTE_KINDS.map((kind) => {
+              const group = ordered.filter((item) => item.kind === kind);
+              if (group.length === 0) return null;
+              return (
+                <div key={kind} role="group" aria-label={t(`palette.kinds.${kind}`)}>
+                  <p aria-hidden className="section-label m-0 px-2 pb-1">
+                    {t(`palette.kinds.${kind}`)}
+                  </p>
+                  {group.map((item) => {
+                    const selected = item === activeItem;
+                    return (
+                      <div
+                        key={item.id}
+                        id={optionId(item)}
+                        role="option"
+                        aria-selected={selected}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          choose(item);
+                        }}
+                        onMouseMove={() => setActive(ordered.indexOf(item))}
+                        className={`flex min-h-9 cursor-pointer items-center justify-between gap-3 rounded-sm px-2 text-base ${selected ? 'bg-s3 text-text' : 'text-text'}`}
+                      >
+                        <span className="min-w-0 truncate">{item.label}</span>
+                        {item.hint && <span className="shrink-0 text-sm text-muted">{item.hint}</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+        )}
+        <p className="m-0 flex flex-wrap gap-x-4 gap-y-1 border-t border-line px-1 pt-3 text-xs text-dim">
+          <span>
+            <kbd className="font-mono">↑ ↓</kbd> {t('palette.keys.move')}
+          </span>
+          <span>
+            <kbd className="font-mono">Enter</kbd> {t('palette.keys.open')}
+          </span>
+          <span>
+            <kbd className="font-mono">Esc</kbd> {t('palette.keys.close')}
+          </span>
+        </p>
+      </div>
+    </Dialog>
   );
 }

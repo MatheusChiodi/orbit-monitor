@@ -1,9 +1,8 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderWithLocale } from '@/test/renderWithLocale';
 import { NotificationCenter, type AppNotification } from './NotificationCenter';
-import { Toaster } from './Toaster';
 
 const now = new Date(2026, 9, 18, 17, 10, 0);
 const notifications: AppNotification[] = [
@@ -25,7 +24,7 @@ describe('FE-38 notification center', () => {
     await userEvent.click(screen.getByRole('button', { name: /Notifications/ }));
     const feed = screen.getByRole('list', { name: 'Incident feed' });
     const items = within(feed).getAllByRole('listitem');
-    expect(items[0]).toHaveTextContent('DOWN');
+    expect(items[0]).toHaveTextContent('Down');
     expect(items[0]).toHaveTextContent('Reconciliation queue down');
     expect(items[0]).toHaveTextContent('4 min ago');
   });
@@ -56,17 +55,17 @@ describe('FE-38 notification center', () => {
     expect(screen.getByText('No notifications in the last 24 h')).toBeInTheDocument();
   });
 
-  it('toasts are polite live regions that auto-dismiss, and stay without animation when reduced', () => {
-    vi.useFakeTimers();
-    const onDismiss = vi.fn();
-    render(<Toaster toasts={[notifications[0]!]} onDismiss={onDismiss} animationLevel="off" durationMs={6000} />);
-    const region = screen.getByRole('region', { name: 'Notifications' });
-    expect(region).toHaveAttribute('aria-live', 'polite');
-    expect(within(region).getByRole('status')).toHaveAttribute('data-animation', 'off');
-    act(() => {
-      vi.advanceTimersByTime(6000);
-    });
-    expect(onDismiss).toHaveBeenCalledWith('n1');
+  it('a click outside closes the feed', async () => {
+    render(
+      <>
+        <p>outside</p>
+        <NotificationCenter notifications={notifications} now={now} onRead={vi.fn()} onReadAll={vi.fn()} />
+      </>,
+    );
+    await userEvent.click(screen.getByRole('button', { name: /Notifications/ }));
+    expect(screen.getByRole('list', { name: 'Incident feed' })).toBeInTheDocument();
+    await userEvent.click(screen.getByText('outside'));
+    expect(screen.queryByRole('list', { name: 'Incident feed' })).toBeNull();
   });
 
   it('a card number in a notification detail is masked', async () => {

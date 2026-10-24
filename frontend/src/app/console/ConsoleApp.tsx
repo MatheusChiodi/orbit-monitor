@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { canEdit } from '@/domains/security/access';
-import { ViewOnlyBanner } from '@/domains/security/ViewOnlyBanner';
 import { CustomizationRuntime } from '@/domains/customization/CustomizationRuntime';
 import { CustomizeLayer } from '@/domains/customization/CustomizeLayer';
 import { CustomizeModeProvider } from '@/domains/customization/CustomizeModeProvider';
@@ -17,14 +16,14 @@ import { createCustomizationStore, type CustomizationStore } from '@/shared/cust
 import { createTerminologyStore } from '@/shared/customization/terminology';
 import { useAppearance } from '@/shared/customization/useAppearance';
 import { createPreferencesStore, type PreferencesStore } from '@/shared/preferences/preferences';
-import { ConsoleHeader } from './ConsoleHeader';
-import { ConsolePalette } from './ConsolePalette';
+import { useToast } from '@/shared/ui';
 import { ConsoleProvider } from './ConsoleContext';
 import { ConsoleRoutes } from './ConsoleRoutes';
+import { ConsoleShell } from './ConsoleShell';
+import { createDemoServices } from './demoServices';
 import { ScreenTransition } from './ScreenTransition';
 import type { IncidentFeedConnector } from './NotificationsBell';
-import { routeHref, useHashRoute, type ConsoleRoute } from './routes';
-import { DEFAULT_SHORTCUTS, ShortcutsHelp, useShortcuts } from './ShortcutsHelp';
+import { routeHref, useHashRoute } from './routes';
 import { usePreferenceEffects } from './usePreferenceEffects';
 import { ConsoleTheme } from './ConsoleTheme';
 import type { ConsoleServices } from './ConsoleRoutes';
@@ -56,10 +55,10 @@ export interface ConsoleAppProps {
   demo?: boolean;
 }
 
-/** `index.html#/settings/preferences` opens the device preferences screen. */
-export const PREFERENCES_HASH = routeHref({ name: 'preferences' });
-/** `index.html#/settings/customization` opens the customization screen (CORE-21). */
-export const CUSTOMIZATION_HASH = routeHref({ name: 'customization' });
+/** `index.html#/settings/appearance`: theme, density, text size and animation of this device. */
+export const PREFERENCES_HASH = routeHref({ name: 'settings', section: 'appearance' });
+/** `index.html#/settings/advanced`: the customization registry (CORE-21). */
+export const CUSTOMIZATION_HASH = routeHref({ name: 'settings', section: 'advanced' });
 
 /** Probe data stays in memory only: no persisted query cache, short garbage collection. */
 function createQueryClient(): QueryClient {
@@ -77,6 +76,7 @@ interface WorkspaceProps {
 
 function Workspace({ api, access, demo, preferences, connectFeed, services }: WorkspaceProps) {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const source = useMemo(() => createConsoleSource(api, demo), [api, demo]);
   // FE-50: workspace defaults (`/api/settings/defaults`, BE-40) sit under this device's own choices.
   const defaults = useQuery({ queryKey: ['settings-defaults', demo], queryFn: source.getWorkspaceDefaults, enabled: !demo });
@@ -84,49 +84,34 @@ function Workspace({ api, access, demo, preferences, connectFeed, services }: Wo
     if (defaults.data) preferences.getState().setWorkspaceDefaults(defaults.data);
   }, [defaults.data, preferences]);
   const [route, navigate] = useHashRoute();
-  const [notice, setNotice] = useState<string | null>(null);
   const editable = canEdit(access.mode);
   const context = useMemo(
     () => ({ source, access, editable, demo, navigate }),
     [source, access, editable, demo, navigate],
   );
 
-  const go = (next: ConsoleRoute) => {
-    setNotice(null);
-    navigate(next);
-  };
   const openNew = () => {
-    if (editable) go({ name: 'new-monitor' });
+    if (editable) navigate({ name: 'new-monitor' });
   };
-  useShortcuts({ 'monitor.new': openNew });
 
   return (
     <CustomizeModeProvider editable={editable}>
-    <ConsoleProvider value={context}>
-      <div className="min-h-screen">
-        <ConsoleHeader route={route} connectFeed={connectFeed} />
-        <ConsolePalette onNewMonitor={openNew} onNavigate={go} />
-        <ShortcutsHelp shortcuts={DEFAULT_SHORTCUTS} />
-        <main className="mx-auto flex max-w-[80rem] flex-col gap-[1rem] p-[1.4rem]">
-          <ViewOnlyBanner mode={access.mode} />
-          {notice && (
-            <p className="m-0 rounded-[0.45rem] border border-ok/50 bg-ok/12 px-[0.8rem] py-[0.5rem] text-ok-text">{notice}</p>
-          )}
+      <ConsoleProvider value={context}>
+        <ConsoleShell route={route} connectFeed={demo ? undefined : connectFeed} onNewMonitor={openNew}>
           <ScreenTransition routeKey={routeHref(route)}>
-          <ConsoleRoutes
-            route={route}
-            preferences={preferences}
-            services={services}
-            onMonitorSaved={(name) => {
-              navigate({ name: 'monitors' });
-              setNotice(t('console.monitors.saved', { name }));
-            }}
-          />
+            <ConsoleRoutes
+              route={route}
+              preferences={preferences}
+              services={services}
+              onMonitorSaved={(name) => {
+                navigate({ name: 'monitors' });
+                toast({ title: t('console.monitors.saved', { name }), tone: 'OK' });
+              }}
+            />
           </ScreenTransition>
-        </main>
+        </ConsoleShell>
         <CustomizeLayer />
-      </div>
-    </ConsoleProvider>
+      </ConsoleProvider>
     </CustomizeModeProvider>
   );
 }
@@ -147,7 +132,13 @@ function Shell({ api, demo, preferences, connectFeed, services }: ShellProps) {
   if (demo) {
     return <Workspace api={api} demo access={DEMO_ACCESS} preferences={preferences} connectFeed={connectFeed} services={services} />;
   }
-  if (access.isPending) return <p className="p-[1.4rem] text-muted">{t('app.loading')}</p>;
+  if (access.isPending) {
+    return (
+      <p role="status" className="m-0 grid min-h-screen place-items-center bg-bg text-base text-muted">
+        {t('app.loading')}
+      </p>
+    );
+  }
   if (access.isError) return <ServerUnreachable onRetry={() => void access.refetch()} retrying={access.isFetching} />;
 
   return <Workspace api={api} demo={false} access={access.data} preferences={preferences} connectFeed={connectFeed} services={services} />;
@@ -168,13 +159,18 @@ export function ConsoleApp({
 }: ConsoleAppProps) {
   const [client] = useState(() => queryClient ?? createQueryClient());
   const [preferences] = useState(() => preferencesStore ?? createPreferencesStore());
-  const [customization] = useState(() => customizationStore ?? createCustomizationStore({ api: customizationApi, preferences }));
-  const [terminology] = useState(() => createTerminologyStore(customizationApi));
-  const [services] = useState<ConsoleServices>(() => ({
-    themesClient: configClient ?? createConfigClient(),
-    layoutsApi: layoutsApi ?? createLayoutsApi(),
-    saveDefaults: saveDefaults ?? ((d) => saveWorkspaceDefaults(d)),
-  }));
+  // `?demo` never reaches the server: customization stays on this device, the rest in memory.
+  const remote = demo ? undefined : customizationApi;
+  const [customization] = useState(() => customizationStore ?? createCustomizationStore({ api: remote, preferences }));
+  const [terminology] = useState(() => createTerminologyStore(remote));
+  const [services] = useState<ConsoleServices>(() => {
+    const fallback = demo ? createDemoServices() : null;
+    return {
+      themesClient: configClient ?? fallback?.themesClient ?? createConfigClient(),
+      layoutsApi: layoutsApi ?? fallback?.layoutsApi ?? createLayoutsApi(),
+      saveDefaults: saveDefaults ?? fallback?.saveDefaults ?? ((d) => saveWorkspaceDefaults(d)),
+    };
+  });
   const effective = usePreferenceEffects(preferences);
   useAppearance(customization);
   // FE-06 precedence: reduced motion → ?motion= → this device (preset + overrides; workspace defaults are merged in).

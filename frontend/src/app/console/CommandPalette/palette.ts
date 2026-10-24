@@ -1,4 +1,4 @@
-export type PaletteKind = 'monitor' | 'group' | 'layout' | 'action';
+export type PaletteKind = 'monitor' | 'incident' | 'group' | 'page' | 'layout' | 'action';
 
 export interface PaletteItem {
   id: string;
@@ -9,7 +9,8 @@ export interface PaletteItem {
   requiresEdit?: boolean;
 }
 
-export const PALETTE_KINDS: PaletteKind[] = ['monitor', 'group', 'layout', 'action'];
+/** Display order of the result groups. */
+export const PALETTE_KINDS: PaletteKind[] = ['monitor', 'incident', 'group', 'page', 'layout', 'action'];
 
 function normalize(text: string): string {
   return text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
@@ -31,4 +32,13 @@ export function searchPalette(items: readonly PaletteItem[], query: string): Pal
     if (score >= 0) scored.push({ item, score, index });
   });
   return scored.sort((a, b) => a.score - b.score || a.index - b.index).map((s) => s.item);
+}
+
+/** Results grouped in display order, flattened (the order arrow keys follow). */
+export function orderPalette(items: readonly PaletteItem[], mode: 'edit' | 'view-only', query: string): PaletteItem[] {
+  const visible = searchPalette(
+    items.filter((item) => mode === 'edit' || !item.requiresEdit),
+    query,
+  );
+  return PALETTE_KINDS.flatMap((kind) => visible.filter((item) => item.kind === kind));
 }

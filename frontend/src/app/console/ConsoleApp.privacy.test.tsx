@@ -5,6 +5,9 @@ import { makePan } from '@/test/sensitive';
 import { ConsoleApp } from './ConsoleApp';
 import type { ConsoleApi } from './consoleSource';
 
+// The Settings area is tested with its own screens; the shell only hands it the section.
+vi.mock('./screens/SettingsRoute', () => ({ SettingsRoute: () => null }));
+
 const pan = makePan();
 
 function api(): ConsoleApi {

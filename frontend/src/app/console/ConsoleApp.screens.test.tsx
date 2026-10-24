@@ -2,8 +2,12 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { dismissAllToasts } from '@/shared/ui';
 import { ConsoleApp } from './ConsoleApp';
 import type { ConsoleApi } from './consoleSource';
+
+// The Settings area is tested with its own screens; the shell only hands it the section.
+vi.mock('./screens/SettingsRoute', () => ({ SettingsRoute: () => null }));
 
 /** No backend: the console runs on demo data kept in memory. */
 function offline(): ConsoleApi {
@@ -13,7 +17,7 @@ function offline(): ConsoleApi {
 
 async function open(hash: string) {
   render(<ConsoleApp api={offline()} demo />);
-  await screen.findByText('demo data');
+  await screen.findByText('Showing demo data');
   await act(async () => {
     window.location.hash = hash;
     window.dispatchEvent(new HashChangeEvent('hashchange'));
@@ -21,6 +25,7 @@ async function open(hash: string) {
 }
 
 beforeEach(() => {
+  dismissAllToasts();
   localStorage.clear();
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
   vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:x');
@@ -109,9 +114,4 @@ describe('console screens wired to the data source (demo mode)', () => {
     expect(await screen.findAllByText(/line removed/)).not.toHaveLength(0);
   });
 
-  it('CORE-19: #/settings shows the workspace defaults and export', async () => {
-    await open('#/settings');
-    expect(await screen.findByRole('heading', { name: 'Settings' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Default language')).toHaveValue('en');
-  });
 });

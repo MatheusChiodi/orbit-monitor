@@ -11,9 +11,13 @@
     },
     "unreachable": {
       "title": "Não foi possível acessar o servidor do Orbit",
-      "detail": "Inicie o backend (cd backend && mvn -pl orbit-api -am spring-boot:run) ou confira o endereço. Nada é exibido até o Orbit responder.",
-      "retry": "Tentar novamente"
-    }
+      "detail": "O console não mostra nada até o Orbit responder, para nunca inventar dados.",
+      "retry": "Tentar novamente",
+      "nextStep": "Inicie o servidor do Orbit nesta máquina e tente de novo. Se ele já estiver rodando, abra o console pelo endereço que o servidor exibe.",
+      "demo": "Explorar com dados de demonstração"
+    },
+    "demoBanner": "Mostrando dados de demonstração",
+    "exitDemo": "Sair da demonstração"
   },
   "status": {
     "label": {
@@ -430,14 +434,23 @@
     }
   },
   "palette": {
-    "title": "Paleta de comandos",
-    "search": "Buscar monitores, grupos, layouts e ações",
+    "title": "Buscar ou ir para",
+    "search": "Buscar monitores, incidentes, páginas e ações",
     "noResults": "Nenhum resultado para \"{{query}}\"",
     "kinds": {
       "monitor": "Monitores",
       "group": "Grupos",
       "layout": "Layouts",
-      "action": "Ações"
+      "action": "Ações",
+      "incident": "Incidentes abertos",
+      "page": "Páginas"
+    },
+    "placeholder": "Digite um monitor, incidente ou página…",
+    "results": "Resultados",
+    "keys": {
+      "move": "para mover",
+      "open": "para abrir",
+      "close": "para fechar"
     }
   },
   "shortcuts": {

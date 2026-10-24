@@ -164,5 +164,26 @@
     "down": "{{percent}}% of the checks were DOWN",
     "empty": "No history in this period.",
     "chart": "{{name}} over the selected period"
+  },
+  "shell": {
+    "more": "More",
+    "search": "Search or jump…",
+    "openMenu": "Open navigation",
+    "navigation": "Navigation",
+    "skip": "Skip to content",
+    "openIncidents_one": "{{count}} open incident",
+    "openIncidents_other": "{{count}} open incidents",
+    "newTab": "(opens in a new tab)",
+    "notFoundBody": "This address doesn't match any screen. It may come from an old link.",
+    "retry": "Try again",
+    "keyboardShortcuts": "Keyboard shortcuts",
+    "customizeMode": "Toggle Customize mode",
+    "settingsSections": {
+      "general": "General",
+      "appearance": "Appearance",
+      "wall-layouts": "Wall layouts",
+      "connections": "Connections",
+      "advanced": "Advanced"
+    }
   }
 }

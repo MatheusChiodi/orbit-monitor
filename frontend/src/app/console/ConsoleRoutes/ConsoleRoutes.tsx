@@ -1,9 +1,9 @@
+import { lazy, Suspense, type ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CustomizationScreen } from '@/domains/customization/CustomizationScreen';
-import { DevicePreferences } from '@/domains/workspace/DevicePreferences';
 import type { PreferencesStore } from '@/shared/preferences/preferences';
+import { Button, EmptyState, IconSearch } from '@/shared/ui';
 import { useConsole } from '../ConsoleContext';
-import { routeHref, type ConsoleRoute } from '../routes';
+import type { ConsoleRoute, SettingsSection } from '../routes';
 import { AuditScreen } from '../screens/AuditScreen';
 import { DependenciesScreen } from '../screens/DependenciesScreen';
 import { IncidentScreen } from '../screens/IncidentScreen';
@@ -13,12 +13,9 @@ import { MonitorDetailScreen } from '../screens/MonitorDetailScreen';
 import { MonitorsScreen } from '../screens/MonitorsScreen';
 import { NewMonitorScreen } from '../screens/NewMonitorScreen';
 import { ReportsScreen } from '../screens/ReportsScreen';
-import { ScreenTitle } from '../screens/ScreenStatus';
+import { ScreenSkeleton } from '../screens/ScreenStatus';
 import { SettingsRoute } from '../screens/SettingsRoute';
 import { StatusPagesScreen } from '../screens/StatusPagesScreen';
-import { AppearancePage } from '../AppearancePage';
-import { LayoutsPage } from '../LayoutsPage';
-import { useGroups, useMonitors } from '../ConsoleContext';
 import type { LayoutsApi } from '@/domains/workspace/layout/layoutsApi';
 import type { WorkspacePreferenceDefaults } from '@/shared/preferences/preferences';
 import type { ThemesClient } from '@/shared/theme/customThemes';
@@ -30,6 +27,14 @@ export interface ConsoleServices {
   saveDefaults: (defaults: WorkspacePreferenceDefaults) => Promise<WorkspacePreferenceDefaults>;
 }
 
+/** What `#/settings[/:section[/:layoutId]]` hands the Settings area (FE-63 contract with its owner). */
+export interface SettingsRouteProps {
+  section: SettingsSection;
+  layoutId?: string;
+  preferences: PreferencesStore;
+  services: ConsoleServices;
+}
+
 export interface ConsoleRoutesProps {
   route: ConsoleRoute;
   preferences: PreferencesStore;
@@ -37,28 +42,47 @@ export interface ConsoleRoutesProps {
   onMonitorSaved: (name: string) => void;
 }
 
-function LayoutsRoute({ services, layoutId }: { services: ConsoleServices; layoutId: string | null }) {
+const Settings = SettingsRoute as ComponentType<SettingsRouteProps>;
+
+/** `#/monitors/:id/edit` (owned by the monitor-form screens); resolved at build time so a missing file never breaks the shell. */
+const editScreens = import.meta.glob<{ default: ComponentType<{ id: string }> }>('../screens/EditMonitorScreen/EditMonitorScreen.tsx');
+const loadEditScreen = Object.values(editScreens)[0];
+const EditMonitorScreen = loadEditScreen ? lazy(loadEditScreen) : null;
+
+function NotFound() {
   const { t } = useTranslation();
-  const { editable } = useConsole();
-  const monitors = useMonitors();
-  const groups = useGroups();
+  const { navigate } = useConsole();
   return (
-    <>
-      <ScreenTitle>{t('console.layouts')}</ScreenTitle>
-      <LayoutsPage api={services.layoutsApi} editable={editable} selectedId={layoutId} monitors={monitors.data ?? []} groups={groups.data ?? []} />
-    </>
+    <EmptyState
+      icon={IconSearch}
+      title={t('screens.notFound')}
+      headingLevel={2}
+      action={
+        <Button variant="primary" onClick={() => navigate({ name: 'monitors' })}>
+          {t('screens.backToMonitors')}
+        </Button>
+      }
+    >
+      {t('screens.shell.notFoundBody')}
+    </EmptyState>
   );
 }
 
-/** One screen per hash route; view-only clients asking for the form get the list. */
+/** One screen per hash route; view-only clients asking for a form get the matching read-only screen. */
 export function ConsoleRoutes({ route, preferences, services, onMonitorSaved }: ConsoleRoutesProps) {
-  const { t } = useTranslation();
   const { editable } = useConsole();
   switch (route.name) {
     case 'new-monitor':
       return editable ? <NewMonitorScreen kind={route.kind} onSaved={onMonitorSaved} /> : <MonitorsScreen />;
     case 'monitor':
       return <MonitorDetailScreen id={route.id} />;
+    case 'edit-monitor':
+      if (!editable || !EditMonitorScreen) return <MonitorDetailScreen id={route.id} />;
+      return (
+        <Suspense fallback={<ScreenSkeleton />}>
+          <EditMonitorScreen id={route.id} />
+        </Suspense>
+      );
     case 'incidents':
       return <IncidentsScreen />;
     case 'incident':
@@ -74,50 +98,9 @@ export function ConsoleRoutes({ route, preferences, services, onMonitorSaved }: 
     case 'audit':
       return <AuditScreen />;
     case 'settings':
-      return <SettingsRoute />;
-    case 'preferences':
-      return (
-        <>
-          <ScreenTitle>{t('preferences.title')}</ScreenTitle>
-          <DevicePreferences store={preferences} />
-        </>
-      );
-    case 'customization':
-      return (
-        <>
-          <ScreenTitle>{t('customization.title')}</ScreenTitle>
-          <CustomizationScreen editable={editable} />
-        </>
-      );
-    case 'appearance':
-      return (
-        <>
-          <ScreenTitle>{t('console.appearance')}</ScreenTitle>
-          <AppearancePage
-            themesClient={services.themesClient}
-            editable={editable}
-            onSetWorkspaceDefault={(theme) =>
-              void services
-                .saveDefaults({ ...preferences.getState().defaults, theme })
-                .then((saved) => preferences.getState().setWorkspaceDefaults(saved))
-                .catch(() => {})
-            }
-          />
-        </>
-      );
-    case 'layouts':
-      return <LayoutsRoute services={services} layoutId={null} />;
-    case 'layout':
-      return <LayoutsRoute services={services} layoutId={route.id} />;
+      return <Settings section={route.section} layoutId={route.layoutId} preferences={preferences} services={services} />;
     case 'not-found':
-      return (
-        <>
-          <ScreenTitle>{t('screens.notFound')}</ScreenTitle>
-          <a href={routeHref({ name: 'monitors' })} className="text-info hover:underline">
-            {t('screens.backToMonitors')}
-          </a>
-        </>
-      );
+      return <NotFound />;
     default:
       return <MonitorsScreen />;
   }

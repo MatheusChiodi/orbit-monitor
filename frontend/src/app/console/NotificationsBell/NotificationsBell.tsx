@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { NotificationCenter, Toaster } from '@/domains/alerting/NotificationCenter';
+import { NotificationCenter } from '@/domains/alerting/NotificationCenter';
+import { SafeValue } from '@/shared/privacy/SafeValue';
+import { useToast } from '@/shared/ui';
 import { useConsole, useIncidents, useMonitors } from '../ConsoleContext';
-import { incidentFeed, type FeedNotification } from './incidentFeed';
+import { incidentFeed } from './incidentFeed';
 
 /** Subscribes to live incident changes (the wall WebSocket); returns the unsubscribe function. */
 export type IncidentFeedConnector = (onChange: () => void) => () => void;
@@ -13,17 +15,18 @@ export interface NotificationsBellProps {
 }
 
 /**
- * FE-38 in the console header: the incident feed from `/api/incidents` (polled, and refreshed at once
- * when the WebSocket reports an incident), read marks in memory only, toasts for what arrives later.
+ * FE-38 in the console top bar: the incident feed from `/api/incidents` (polled, and refreshed at once
+ * when the WebSocket reports an incident), read marks in memory only, a toast for what arrives later.
+ * Demo mode never opens the socket.
  */
 export function NotificationsBell({ connect }: NotificationsBellProps) {
   const { t } = useTranslation();
   const { demo } = useConsole();
+  const { toast } = useToast();
   const queryClient = useQueryClient();
   const incidents = useIncidents();
   const monitors = useMonitors();
   const [read, setRead] = useState<ReadonlySet<string>>(new Set());
-  const [toasts, setToasts] = useState<FeedNotification[]>([]);
   const seen = useRef<Set<string> | null>(null);
   const [now, setNow] = useState(() => new Date());
 
@@ -41,27 +44,28 @@ export function NotificationsBell({ connect }: NotificationsBellProps) {
       seen.current = new Set(feed.map((n) => n.id));
       return;
     }
-    const fresh = feed.filter((n) => !seen.current!.has(n.id));
-    fresh.forEach((n) => seen.current!.add(n.id));
-    if (fresh.length > 0) setToasts((current) => [...current, ...fresh]);
-  }, [incidents.data, feed]);
+    for (const n of feed) {
+      if (seen.current.has(n.id)) continue;
+      seen.current.add(n.id);
+      toast({
+        title: <SafeValue value={n.title} />,
+        description: n.detail ? <SafeValue value={n.detail} className="font-mono" /> : undefined,
+        tone: n.severity,
+      });
+    }
+  }, [incidents.data, feed, toast]);
 
   useEffect(() => {
-    if (!connect) return;
+    if (!connect || demo) return;
     return connect(() => void queryClient.invalidateQueries({ queryKey: ['incidents', demo] }));
   }, [connect, queryClient, demo]);
 
-  const dismiss = useCallback((id: string) => setToasts((current) => current.filter((n) => n.id !== id)), []);
-
   return (
-    <>
-      <NotificationCenter
-        notifications={feed}
-        now={now}
-        onRead={(id) => setRead((current) => new Set(current).add(id))}
-        onReadAll={() => setRead(new Set(feed.map((n) => n.id)))}
-      />
-      <Toaster toasts={toasts} onDismiss={dismiss} />
-    </>
+    <NotificationCenter
+      notifications={feed}
+      now={now}
+      onRead={(id) => setRead((current) => new Set(current).add(id))}
+      onReadAll={() => setRead(new Set(feed.map((n) => n.id)))}
+    />
   );
 }

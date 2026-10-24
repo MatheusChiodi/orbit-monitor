@@ -1,89 +1,48 @@
 import { useTranslation } from 'react-i18next';
-import { CustomizeToggle } from '@/domains/customization/CustomizeToggle';
-import { LanguageSelector } from '@/shared/i18n/LanguageSelector';
-import { Button } from '@/shared/ui';
-import { useConsole } from '../ConsoleContext';
+import { IconButton, IconMenu, IconSearch } from '@/shared/ui';
+import { currentSection } from '../ConsoleNav';
 import { NotificationsBell, type IncidentFeedConnector } from '../NotificationsBell';
-import { routeHref, type ConsoleRoute, type ConsoleRouteName } from '../routes';
-
-const SECTIONS = [
-  { route: { name: 'monitors' }, label: 'monitors', active: ['monitors', 'new-monitor'] },
-  { route: { name: 'incidents' }, label: 'incidents', active: ['incidents', 'incident'] },
-  { route: { name: 'maintenance' }, label: 'maintenance', active: ['maintenance'] },
-  { route: { name: 'dependencies' }, label: 'dependencies', active: ['dependencies'] },
-  { route: { name: 'reports' }, label: 'reports', active: ['reports'] },
-  { route: { name: 'status-pages' }, label: 'statusPages', active: ['status-pages'] },
-  { route: { name: 'audit' }, label: 'audit', active: ['audit'] },
-  { route: { name: 'settings' }, label: 'settings', active: ['settings'] },
-] as const satisfies readonly { route: ConsoleRoute; label: string; active: readonly ConsoleRouteName[] }[];
+import { currentPlatform } from '../ShortcutsHelp';
+import type { ConsoleRoute } from '../routes';
 
 export interface ConsoleHeaderProps {
   route: ConsoleRoute;
   connectFeed?: IncidentFeedConnector;
+  onOpenMenu: () => void;
+  onOpenPalette: () => void;
 }
 
-/** Console header: sections, notification bell (FE-38), language, device preferences and wall link. */
-export function ConsoleHeader({ route, connectFeed }: ConsoleHeaderProps) {
+/**
+ * FE-63 top bar: menu button and section name (mobile), "Search or jump…" (opens the command palette)
+ * and the notification bell. Settings, language and appearance live in Settings, not here.
+ */
+export function ConsoleHeader({ route, connectFeed, onOpenMenu, onOpenPalette }: ConsoleHeaderProps) {
   const { t } = useTranslation();
-  const { demo, navigate } = useConsole();
+  const section = currentSection(route);
+  const hotkey = currentPlatform() === 'mac' ? '⌘K' : 'Ctrl K';
   return (
-    <header className="flex flex-col gap-[0.5rem] border-b border-line px-[1.4rem] py-[0.7rem]">
-      <div className="flex flex-wrap items-center gap-[1rem]">
-        <span className="font-display text-[1.25rem] font-bold tracking-tight">{t('app.name')}</span>
-        <span className="text-[0.85rem] text-muted">{t('app.console')}</span>
-        {demo && <span className="text-[0.8rem] text-warn-text">{t('app.demoData')}</span>}
-        <div className="ml-auto flex flex-wrap items-center gap-[0.8rem] text-[0.9rem]">
-          <NotificationsBell connect={connectFeed} />
-          <LanguageSelector />
-          <CustomizeToggle />
-          <Button
-            variant="ghost"
-            aria-current={route.name === 'preferences' ? 'page' : undefined}
-            onClick={() => navigate({ name: 'preferences' })}
-          >
-            {t('preferences.title')}
-          </Button>
-          <Button
-            variant="ghost"
-            aria-current={route.name === 'customization' ? 'page' : undefined}
-            onClick={() => navigate({ name: 'customization' })}
-          >
-            {t('customization.title')}
-          </Button>
-          <Button
-            variant="ghost"
-            aria-current={route.name === 'appearance' ? 'page' : undefined}
-            onClick={() => navigate({ name: 'appearance' })}
-          >
-            {t('console.appearance')}
-          </Button>
-          <Button
-            variant="ghost"
-            aria-current={route.name === 'layouts' || route.name === 'layout' ? 'page' : undefined}
-            onClick={() => navigate({ name: 'layouts' })}
-          >
-            {t('console.layouts')}
-          </Button>
-          <a href="/wall.html" className="text-info hover:underline">
-            {t('console.openWall')}
-          </a>
-        </div>
+    <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b border-line bg-bg px-2 sm:px-4 lg:px-6">
+      <IconButton label={t('screens.shell.openMenu')} icon={IconMenu} onClick={onOpenMenu} className="lg:hidden" />
+      <p className="m-0 min-w-0 flex-1 truncate text-base font-medium text-text lg:hidden">
+        {section ? t(`screens.nav.${section.key}`) : t('app.name')}
+      </p>
+      <button
+        type="button"
+        onClick={onOpenPalette}
+        aria-keyshortcuts="Control+K Meta+K"
+        aria-label={t('screens.shell.search')}
+        className="ui-control hidden h-9 w-full max-w-sm items-center gap-2 rounded-sm border border-line bg-s1 px-3 text-base text-dim transition-colors duration-120 hover:border-line-2 hover:text-muted sm:flex"
+      >
+        <IconSearch size={16} />
+        <span className="flex-1 text-left">{t('screens.shell.search')}</span>
+        <kbd aria-hidden className="rounded-sm border border-line-2 bg-s2 px-1.5 font-mono text-xs text-muted">
+          {hotkey}
+        </kbd>
+      </button>
+      <div className="ml-auto flex items-center gap-1">
+        <IconButton label={t('screens.shell.search')} icon={IconSearch} onClick={onOpenPalette} className="sm:hidden" />
+        <NotificationsBell connect={connectFeed} />
       </div>
-      <nav aria-label={t('screens.nav.label')} className="-mx-[0.3rem] flex flex-wrap gap-[0.2rem] text-[0.88rem]">
-        {SECTIONS.map((section) => {
-          const current = (section.active as readonly ConsoleRouteName[]).includes(route.name);
-          return (
-            <a
-              key={section.label}
-              href={routeHref(section.route)}
-              aria-current={current ? 'page' : undefined}
-              className={`rounded-[0.45rem] px-[0.6rem] py-[0.3rem] transition-colors duration-[120ms] ${current ? 'bg-info/12 font-semibold text-info' : 'text-muted hover:bg-s2 hover:text-text'}`}
-            >
-              {t(`screens.nav.${section.label}`)}
-            </a>
-          );
-        })}
-      </nav>
     </header>
   );
 }

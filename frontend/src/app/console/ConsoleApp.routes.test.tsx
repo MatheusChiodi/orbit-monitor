@@ -4,8 +4,12 @@ import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { IncidentRecord } from '@/shared/api/consoleTypes';
 import { renderWithLocale } from '@/test/renderWithLocale';
+import { dismissAllToasts } from '@/shared/ui';
 import { ConsoleApp } from './ConsoleApp';
 import type { ConsoleApi } from './consoleSource';
+
+// The Settings area is tested with its own screens; the shell only hands it the section.
+vi.mock('./screens/SettingsRoute', () => ({ SettingsRoute: () => null }));
 
 const now = Date.now();
 const iso = (minutesAgo: number) => new Date(now - minutesAgo * 60_000).toISOString();
@@ -57,20 +61,21 @@ async function go(hash: string) {
 }
 
 beforeEach(() => {
+  dismissAllToasts();
   localStorage.clear();
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
 });
 
 describe('console routes', () => {
-  it('the header lists every section and marks the current one', async () => {
+  it('the sidebar lists every section and marks the current one', async () => {
     render(<ConsoleApp api={api()} />);
     const nav = await screen.findByRole('navigation', { name: 'Console sections' });
     expect(within(nav).getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual([
-      '#/', '#/incidents', '#/maintenance', '#/dependencies', '#/reports', '#/status-pages', '#/audit', '#/settings',
+      '#/', '#/incidents', '#/maintenance', '#/reports', '#/status-pages', '#/dependencies', '#/audit', '#/settings', '/wall.html',
     ]);
     expect(within(nav).getByRole('link', { name: 'Monitors' })).toHaveAttribute('aria-current', 'page');
     await go('#/incidents');
-    expect(within(nav).getByRole('link', { name: 'Incidents' })).toHaveAttribute('aria-current', 'page');
+    expect(within(nav).getByRole('link', { name: /^Incidents/ })).toHaveAttribute('aria-current', 'page');
   });
 
   it('FE-39: the incident list links to #/incidents/:id where operators acknowledge, comment and link a ticket', async () => {
@@ -136,12 +141,12 @@ describe('console routes', () => {
     });
     render(<ConsoleApp api={api({ listIncidents })} connectFeed={connectFeed} />);
     await screen.findByRole('button', { name: 'Notifications (1 unread)' });
-    expect(screen.queryByRole('status')).toBeNull();
+    expect(screen.queryByRole('alert')).toBeNull();
     listIncidents.mockResolvedValue([incident, { ...incident, id: 'inc-2', events: [{ ...incident.events[0]!, at: iso(0) }] }]);
     await act(async () => push());
     expect(await screen.findByRole('button', { name: 'Notifications (2 unread)' })).toBeInTheDocument();
     const region = screen.getByRole('region', { name: 'Notifications' });
-    expect(within(region).getByRole('status')).toHaveTextContent('Web portal opened an incident');
+    expect(within(region).getByRole('alert')).toHaveTextContent('Web portal opened an incident');
   });
 
   it('#/monitors/new/push preselects the kind and shows the one-time push URL after saving', async () => {

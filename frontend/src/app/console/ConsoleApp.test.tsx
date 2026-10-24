@@ -2,8 +2,12 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderWithLocale } from '@/test/renderWithLocale';
+import { dismissAllToasts } from '@/shared/ui';
 import { ConsoleApp } from './ConsoleApp';
 import type { ConsoleApi } from './consoleSource';
+
+// The Settings area is tested with its own screens; the shell only hands it the section.
+vi.mock('./screens/SettingsRoute', () => ({ SettingsRoute: () => null }));
 
 function offlineApi(): ConsoleApi {
   return {
@@ -29,6 +33,7 @@ function onlineApi(mode: 'edit' | 'view-only'): ConsoleApi {
 }
 
 beforeEach(() => {
+  dismissAllToasts();
   localStorage.clear();
 });
 
@@ -66,9 +71,10 @@ describe('ConsoleApp (no login)', () => {
   it('without a backend shows that the server is unreachable and never invents data', async () => {
     const api = offlineApi();
     render(<ConsoleApp api={api} />);
-    expect(await screen.findByRole('alert')).toHaveTextContent('Cannot reach the Orbit server');
+    expect(await screen.findByRole('alert')).toHaveTextContent("Can't reach the Orbit server");
     expect(screen.queryByText('Reconciliation queue')).toBeNull();
-    expect(screen.queryByText('demo data')).toBeNull();
+    expect(screen.queryByText('Showing demo data')).toBeNull();
+    expect(screen.getByRole('link', { name: 'Explore with demo data' })).toHaveAttribute('href', expect.stringContaining('?demo'));
     expect(screen.queryByRole('button', { name: 'New monitor' })).toBeNull();
     await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(api.getAccess).toHaveBeenCalledTimes(2);
@@ -77,7 +83,8 @@ describe('ConsoleApp (no login)', () => {
   it('demo data only when explicitly requested (?demo), creates a monitor with preview and returns saved', { timeout: 15_000 }, async () => {
     render(<ConsoleApp api={offlineApi()} demo />);
     expect(await screen.findByText('Reconciliation queue')).toBeInTheDocument();
-    expect(screen.getByText('demo data')).toBeInTheDocument();
+    expect(screen.getByRole('note')).toHaveTextContent('Showing demo data');
+    expect(screen.getByRole('link', { name: 'Exit demo' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'New monitor' }));
     await userEvent.type(screen.getByLabelText('Name'), 'Late batches');
     await userEvent.selectOptions(screen.getByLabelText('Group'), 'core');
@@ -96,17 +103,21 @@ describe('ConsoleApp (no login)', () => {
     expect(screen.queryByRole('button', { name: 'Change name' })).toBeNull();
   });
 
-  it('has a language selector and a link to the wall', async () => {
+  it('links to the wall in a new tab; language and appearance live in Settings, not in the header', async () => {
     render(<ConsoleApp api={onlineApi('edit')} />);
-    expect(await screen.findByRole('combobox', { name: 'Language' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Open wall' })).toHaveAttribute('href', '/wall.html');
+    const wall = await screen.findByRole('link', { name: /^Open wall/ });
+    expect(wall).toHaveAttribute('href', '/wall.html');
+    expect(wall).toHaveAttribute('target', '_blank');
+    expect(screen.queryByRole('combobox', { name: 'Language' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Device preferences' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Customize' })).toBeNull();
   });
 
   it('renders in pt-BR', async () => {
     renderWithLocale(<ConsoleApp api={onlineApi('view-only')} />, 'pt-BR');
     expect(await screen.findByRole('heading', { name: 'Monitores' })).toBeInTheDocument();
     expect(screen.getByText('Somente leitura: edições só na máquina onde o Orbit roda')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Abrir parede' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^Abrir parede/ })).toBeInTheDocument();
   });
 });
 

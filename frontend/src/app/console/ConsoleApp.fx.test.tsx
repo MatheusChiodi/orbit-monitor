@@ -3,6 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ConsoleApp } from './ConsoleApp';
 import type { ConsoleApi } from './consoleSource';
 
+// The Settings area is tested with its own screens; the shell only hands it the section.
+vi.mock('./screens/SettingsRoute', () => ({ SettingsRoute: () => null }));
+
 vi.mock('@remotion/player', () => ({ Player: () => <div data-testid="remotion-player" /> }));
 
 function api(monitors: unknown[]): ConsoleApi {
