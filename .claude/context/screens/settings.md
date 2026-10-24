@@ -10,15 +10,16 @@ updated: 2026-10-24
 # Settings
 
 ## Purpose
-The one Settings area (FE-72): sub-nav with General · Appearance · Wall layouts · Connections · Advanced.
+The one Settings area (FE-72): sub-nav with General · Appearance · Notifications · Wall layouts · Connections · Advanced.
 
 ## Layout and components
 - `SettingsRoute` (`frontend/src/app/console/screens/SettingsRoute/`): PageHeader "Settings", sub-nav (`SettingsNav`: link list from 1024 px, section select below), section h2 and body.
 - General (`GeneralSettings`): device language, access as read-only status (or the view-only notice), workspace language default (Save defaults → toast), config files table, Export configuration, Import configuration with the styled `FilePicker` → dry-run diff → Apply import.
 - Appearance (`AppearancePage` → `AppearanceSettings`): see theme-editor.md.
-- Wall layouts (`LayoutsPage`): see layout-editor.md.
+- Notifications: `domains/notifications/NotificationsSettings` (FE-77) with tabs Channels, Delivery failures, Messages, Escalation and On-call.
+- Wall layouts (`LayoutsPage`): see layout-editor.md; layout menu with Copy TV address, Duplicate and Delete.
 - Connections: `domains/connections/ConnectionsSettings` (owned by the monitor-creation bucket).
-- Advanced (`AdvancedSettings`): Customize mode switch (`Ctrl+.`), This device (viewing distance explained, export/import/reset device preferences), Wall sound, Motion details, then tabs All settings (registry with scope "Applies to", search, modified filter, resets, JSON view) · Names and terms · Profiles.
+- Advanced (`AdvancedSettings`): Customize mode switch (`Ctrl+.`), This device (viewing distance explained, export/import/reset device preferences), Wall sound, Motion details, Variables (`/api/variables`), then tabs All settings (registry with scope "Applies to", search, modified filter, resets, JSON view) · Names and terms (with Restore original names) · Profiles; Restore workspace defaults (`POST /api/workspace/reset`; monitors, groups, connections, layouts, themes and profiles are kept).
 - Legacy hashes (`#/settings/preferences`, `#/settings/themes`, `#/settings/customization`, `#/layouts[/:id]`) redirect in the shell.
 
 ## States
@@ -40,6 +41,7 @@ The one Settings area (FE-72): sub-nav with General · Appearance · Wall layout
 - [FE-56 · Typography, shape and density settings](../features/FE-56-typography-shape-density.md) — done
 - [FE-57 · Customization profiles](../features/FE-57-customization-profiles.md) — done
 - [FE-72 · Settings hub](../features/FE-72-settings-hub.md) — done
+- [FE-77 · Notification settings](../features/FE-77-notifications-settings.md) — done
 
 ## Code
 - `frontend/src/domains/security/ViewOnlyBanner/ViewOnlyBanner.tsx`
@@ -74,3 +76,4 @@ The one Settings area (FE-72): sub-nav with General · Appearance · Wall layout
 - 2026-10-22 — workspace defaults (language, animation level, density) through /api/settings/defaults.
 - 2026-10-22 — operator name field and `OperatorPrompt` removed (BE-45 retired in the UI).
 - 2026-10-24 — FE-72: one Settings area with sub-nav (General, Appearance, Wall layouts, Connections, Advanced); `SettingsScreen` became `GeneralSettings` with the styled file picker; Customize mode, registry, profiles and terminology moved to Advanced.
+- 2026-10-24 — Notifications section (FE-77), layout actions, variables, terminology restore and workspace reset.
