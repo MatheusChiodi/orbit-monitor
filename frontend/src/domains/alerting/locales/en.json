@@ -22,7 +22,8 @@
       "kind": "Kind",
       "rule": "Rule",
       "value": "Value",
-      "open": "Open"
+      "open": "Open",
+      "actions": "Actions"
     },
     "noRule": "No rule",
     "rule": "{{field}} {{operator}} {{limit}}",
@@ -72,7 +73,6 @@
       "delete": "Delete {{name}}",
       "count_one": "{{count}} monitor",
       "count_other": "{{count}} monitors",
-      "notEmpty": "Move its monitors first",
       "new": "New group",
       "newPlaceholder": "e.g. Payments",
       "create": "Add group",
@@ -82,7 +82,20 @@
       "saved": "Group saved",
       "deleted": "Group deleted",
       "nameRequired": "Type a name for the group",
-      "none": "No groups yet. Add one below."
+      "none": "No groups yet. Add one below.",
+      "newHint": "Groups organize the list and the wall, e.g. Payments or Databases.",
+      "renameTitle": "Rename {{name}}",
+      "renameAction": "Rename group",
+      "deleteAction": "Delete group…",
+      "deleteTitle": "Delete group {{name}}?",
+      "deleteEmpty": "The group is empty; nothing else changes.",
+      "deleteMove_one": "Its {{count}} monitor moves to another group first; it keeps its checks and history.",
+      "deleteMove_other": "Its {{count}} monitors move to another group first; they keep their checks and history.",
+      "moveTo_one": "Move {{count}} monitor to",
+      "moveTo_other": "Move {{count}} monitors to",
+      "chooseGroup": "Choose a group",
+      "needAnother": "Create another group first, so its monitors have somewhere to go.",
+      "deleteConfirm": "Delete group"
     },
     "bulk": {
       "toolbar": "Selected monitors",
@@ -103,11 +116,23 @@
       "confirmAction_other": "Delete {{count}} monitors",
       "deleted_one": "Monitor deleted",
       "deleted_other": "{{count}} monitors deleted",
-      "moved": "Monitors moved",
-      "paused": "Monitors paused",
-      "resumed": "Monitors resumed",
-      "failed": "Some monitors could not be changed: {{error}}"
-    }
+      "failed": "Some monitors could not be changed: {{error}}",
+      "paused_one": "{{count}} monitor paused",
+      "paused_other": "{{count}} monitors paused",
+      "resumed_one": "{{count}} monitor resumed",
+      "resumed_other": "{{count}} monitors resumed",
+      "moved_one": "{{count}} monitor moved",
+      "moved_other": "{{count}} monitors moved",
+      "partial": "{{failed}} of {{count}} monitors could not be changed"
+    },
+    "state": {
+      "waiting": "Waiting for first check",
+      "paused": "Paused"
+    },
+    "rowActions": "Actions for {{name}}",
+    "groupActions": "Actions for group {{name}}",
+    "moveTo": "Move to group…",
+    "moveTitle": "Move {{name}}"
   },
   "rail": {
     "label": "Monitors in orbit",
@@ -120,7 +145,11 @@
     "warn_one": "{{count}} warning",
     "warn_other": "{{count}} warnings",
     "ok_one": "{{count}} OK",
-    "ok_other": "{{count}} OK"
+    "ok_other": "{{count}} OK",
+    "waiting_one": "{{count}} waiting for first check",
+    "waiting_other": "{{count}} waiting for first check",
+    "paused_one": "{{count}} paused",
+    "paused_other": "{{count}} paused"
   },
   "detail": {
     "back": "Monitors",
@@ -163,12 +192,30 @@
       "point": "{{time}}: {{value}}",
       "noData": "no data"
     },
-    "copyName": "Copy of {{name}}",
-    "duplicatedToast": "Copy created",
-    "duplicatedHint": "Type any secret headers again before saving.",
+    "duplicatedToast": "Copy created; edit it now",
     "pauseHint": "Pause checks and alerts",
     "editHint": "Change target, conditions and display",
-    "since": "In this state since"
+    "since": "In this state since",
+    "run": "Run now",
+    "runStarted": "Check started",
+    "runDone": "Check finished: {{state}}",
+    "silence": "Silence alerts…",
+    "exportCsv": "Export CSV",
+    "events": {
+      "title": "Events",
+      "empty": "No events yet.",
+      "unavailable": "Events are not available.",
+      "types": {
+        "state_change": "State changed",
+        "incident_open": "Incident opened",
+        "incident_opened": "Incident opened",
+        "incident_ack": "Incident acknowledged",
+        "incident_comment": "Comment added",
+        "incident_reopen": "Incident reopened",
+        "incident_resolve": "Incident resolved",
+        "incident_ticket": "Ticket linked"
+      }
+    }
   },
   "incidents": {
     "description": "What broke, who is on it and what came back.",

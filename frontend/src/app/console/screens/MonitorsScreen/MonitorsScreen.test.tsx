@@ -63,13 +63,51 @@ describe('Monitors screen', () => {
 
   it('selected monitors can be deleted after confirming', async () => {
     const { source } = setup();
-    const remove = vi.spyOn(source, 'deleteMonitor');
+    const remove = vi.spyOn(source, 'bulkMonitors');
     await userEvent.click(await screen.findByRole('checkbox', { name: 'Select Reconciliation queue' }));
     const toolbar = screen.getByRole('toolbar', { name: 'Selected monitors' });
     await userEvent.click(within(toolbar).getByRole('button', { name: 'Delete' }));
     await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete monitor' }));
-    expect(remove).toHaveBeenCalledWith('reconciliation');
+    expect(remove).toHaveBeenCalledWith(['reconciliation'], 'delete', undefined);
     expect(await screen.findByText('Monitor deleted')).toBeInTheDocument();
+  });
+
+  it('New group is a visible button and creates the group', async () => {
+    const { source } = setup();
+    const save = vi.spyOn(source, 'saveGroup');
+    await userEvent.click(await screen.findByRole('button', { name: 'New group' }));
+    const dialog = screen.getByRole('dialog', { name: 'New group' });
+    await userEvent.type(within(dialog).getByRole('textbox', { name: 'Group name' }), 'Data Warehouse');
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Add group' }));
+    expect(save).toHaveBeenCalledWith(expect.objectContaining({ id: 'data-warehouse', name: 'Data Warehouse' }));
+    expect(await screen.findByText('Group saved')).toBeInTheDocument();
+  });
+
+  it('each row has a "…" menu with every monitor action', async () => {
+    const { source, navigate } = setup();
+    const pause = vi.spyOn(source, 'pauseMonitor');
+    await userEvent.click(await screen.findByRole('button', { name: 'Actions for Reconciliation queue' }));
+    expect(screen.getAllByRole('menuitem').map((i) => i.textContent)).toEqual(['Edit', 'Duplicate', 'Pause', 'Run now', 'Move to group…', 'Delete']);
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Pause' }));
+    expect(pause).toHaveBeenCalledWith('reconciliation');
+    await userEvent.click(screen.getByRole('button', { name: 'Actions for Reconciliation queue' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Edit' }));
+    expect(navigate).toHaveBeenCalledWith({ name: 'edit-monitor', id: 'reconciliation' });
+  });
+
+  it('deleting a group with monitors moves them to the chosen group first', async () => {
+    const { source } = setup();
+    const remove = vi.spyOn(source, 'deleteGroup');
+    await userEvent.click(await screen.findByRole('button', { name: 'Actions for group Payments' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Delete group…' }));
+    const dialog = screen.getByRole('dialog', { name: 'Delete group Payments?' });
+    expect(dialog).toHaveTextContent('Its 4 monitors move to another group first');
+    const confirm = within(dialog).getByRole('button', { name: 'Delete group' });
+    expect(confirm).toBeDisabled();
+    await userEvent.selectOptions(within(dialog).getByRole('combobox', { name: 'Move 4 monitors to' }), 'core');
+    await userEvent.click(confirm);
+    expect(remove).toHaveBeenCalledWith('pay', 'core');
+    expect(await screen.findByText('Group deleted')).toBeInTheDocument();
   });
 
   it('view-only clients see no edit controls', async () => {

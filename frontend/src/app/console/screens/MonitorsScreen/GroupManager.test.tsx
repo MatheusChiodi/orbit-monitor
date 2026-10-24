@@ -9,7 +9,7 @@ const snap = mockSnapshot('incident', new Date(2026, 9, 18, 17, 10, 0));
 function setup() {
   const handlers = {
     onSave: vi.fn().mockResolvedValue(undefined),
-    onDelete: vi.fn().mockResolvedValue(undefined),
+    onRequestDelete: vi.fn(),
     onClose: vi.fn(),
   };
   const groups = [...snap.groups, { id: 'empty', name: 'Spare' }];
@@ -34,11 +34,10 @@ describe('Monitors › Manage groups', () => {
     expect(onSave).toHaveBeenCalledWith({ id: snap.groups[index]!.id, name: 'Money', order: index });
   });
 
-  it('deletes only empty groups', async () => {
-    const { dialog, onDelete } = setup();
-    expect(within(dialog).getByRole('button', { name: 'Delete Payments' })).toBeDisabled();
-    await userEvent.click(within(dialog).getByRole('button', { name: 'Delete Spare' }));
-    expect(onDelete).toHaveBeenCalledWith('empty');
+  it('Delete asks where the monitors go (the delete dialog), for any group', async () => {
+    const { dialog, onRequestDelete } = setup();
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Delete Payments' }));
+    expect(onRequestDelete).toHaveBeenCalledWith(expect.objectContaining({ name: 'Payments' }));
   });
 
   it('adds a group with an id from its name; an empty name is refused', async () => {

@@ -12,7 +12,8 @@ export interface GroupManagerProps {
   monitors: readonly MonitorView[];
   /** Creates or renames (`PUT /api/groups/{id}`); `order` keeps the group where it is. */
   onSave: (group: GroupInput) => Promise<unknown>;
-  onDelete: (id: string) => Promise<unknown>;
+  /** Opens the delete dialog, which says where the group's monitors go. */
+  onRequestDelete: (group: Group) => void;
   onClose: () => void;
 }
 
@@ -36,7 +37,7 @@ export function groupIdFor(name: string, groups: readonly { id: string }[]): str
 const message = (error: unknown) => (error instanceof Error ? error.message : String(error));
 
 /** Rename, delete (empty groups only) and add groups, from the Monitors screen. */
-export function GroupManager({ open, groups, monitors, onSave, onDelete, onClose }: GroupManagerProps) {
+export function GroupManager({ open, groups, monitors, onSave, onRequestDelete, onClose }: GroupManagerProps) {
   const { t } = useTranslation();
   const [editing, setEditing] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
@@ -135,9 +136,8 @@ export function GroupManager({ open, groups, monitors, onSave, onDelete, onClose
                         label={t('ops.monitors.groups.delete', { name: label })}
                         icon={IconTrash}
                         size="sm"
-                        disabled={n > 0 || busy}
-                        title={n > 0 ? t('ops.monitors.groups.notEmpty') : undefined}
-                        onClick={() => void run(() => onDelete(group.id))}
+                        disabled={busy}
+                        onClick={() => onRequestDelete(group)}
                       />
                     </>
                   )}

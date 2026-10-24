@@ -17,6 +17,7 @@ Groups and monitors with state, filters, saved views, bulk actions.
 - Empty install (no monitor besides the hidden `SELF` check): empty rail + `Onboarding` ("Nothing in orbit yet", Monitor a URL / Monitor a SELECT); no filter, no "no match" text
 - `GroupList`: text filter; one section per group (plus "Ungrouped" for monitors whose group is gone) with "N of M OK"; every group uses the same column widths: checkbox (edit) | Status (`StatusBadge`) | Name | Kind | Rule in plain words (expression in the tooltip) | Value (right, mono) | chevron link; whole row opens the monitor; below 640 px a two-line card (name, then status + kind)
 - Detail `#/monitors/:id` (FE-69): header with state, kind, Open target link; Acknowledge / Edit / Pause-Resume / "…" (Duplicate, Delete); stats, last check, history chart with axes and limit, incidents
+- Row "…": Edit, Duplicate, Pause/Resume, Run now, Move to group…, Delete; group "…": Rename, Delete group… (`GroupDialogs.tsx`); header: "…" (Reorder, Manage groups), New group, Add monitor
 - `GroupManager` dialog: rename (keeps the order), delete empty groups, add groups (`PUT`/`DELETE /api/groups/{id}`)
 - `GroupList` rows and group headers follow the FE-55 card settings (fields, variant, title, order, summary, empty text, click / double-click / long-press actions, inline expand); header has the Customize toggle (FE-53, editors only)
 
@@ -77,3 +78,4 @@ Groups and monitors with state, filters, saved views, bulk actions.
 - 2026-10-22 — operator name prompt and "Change name" removed: the console opens straight to the workspace.
 - 2026-10-24 — redesign: PageHeader with "…" menu, orbit rail instead of the 3D orb and intro boxes, one column grid for every group, clickable rows with chevron, two-line rows on mobile, StatusBadge, rule in plain words, bulk selection (pause/resume, move, delete), group management dialog, onboarding as the empty state; strings in the `ops` namespace.
 - 2026-10-24 — monitor detail: Edit, Pause/Resume, Duplicate, Delete; history chart with axes, limit and readout; empty stats explained.
+- 2026-10-24 — simple actions in plain sight: "New group" button in the header; "…" per group (Rename, Delete group… with "move N monitors to" via DELETE /api/groups/{id}?moveTo); "…" per row (Edit, Duplicate, Pause/Resume, Run now, Move to group…, Delete with confirmation); bulk bar through POST /api/monitors/bulk; monitors without a reading show "Waiting for first check", paused ones "Paused"; palette action new-group.

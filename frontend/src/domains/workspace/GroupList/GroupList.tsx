@@ -16,7 +16,8 @@ import {
 import { currentLocale } from '@/shared/i18n/i18n';
 import { safeText } from '@/shared/privacy/redact';
 import { SafeValue } from '@/shared/privacy/SafeValue';
-import { AnimatedItem, Button, Checkbox, IconChevronRight, StatusBadge, TextInput } from '@/shared/ui';
+import { AnimatedItem, Button, Checkbox, IconChevronRight, Menu, TextInput, type MenuItem } from '@/shared/ui';
+import { MonitorStateBadge } from '../MonitorState';
 import { ruleWords } from './ruleWords';
 
 export interface GroupListProps {
@@ -32,11 +33,15 @@ export interface GroupListProps {
   /** Bulk selection (FE-31); the checkboxes show only when this is given and the client can edit. */
   selected?: ReadonlySet<string>;
   onSelectionChange?: (ids: Set<string>) => void;
+  /** "…" menu of each row (edit, pause, delete…); editors only. */
+  rowActions?: (monitor: MonitorView) => readonly MenuItem[];
+  /** "…" menu of each group header (rename, delete); not shown for "Ungrouped". */
+  groupActions?: (group: Group) => readonly MenuItem[];
   /** @deprecated The screen header carries "Add monitor"; kept so older callers still type-check. */
   onNewMonitor?: () => void;
 }
 
-type CardHandlers = Pick<GroupListProps, 'onOpenMonitor' | 'onAcknowledgeMonitor' | 'onOpenTarget'>;
+type CardHandlers = Pick<GroupListProps, 'onOpenMonitor' | 'onAcknowledgeMonitor' | 'onOpenTarget' | 'rowActions'>;
 
 interface Selection {
   selected: ReadonlySet<string>;
@@ -60,6 +65,7 @@ const COL = {
   kind: 'hidden w-28 pr-3 lg:table-cell',
   rule: 'hidden w-56 pr-3 md:table-cell',
   value: 'w-24 pr-2 text-right sm:w-32',
+  menu: 'w-10 text-right',
   open: 'w-10 pr-3 text-right',
 } as const;
 
@@ -77,7 +83,7 @@ function fromControl(event: MouseEvent<HTMLElement>): boolean {
 }
 
 /** One monitor row; content and behavior come from the FE-55 card settings. */
-function MonitorRow({ monitor: m, selection, onOpenMonitor, onAcknowledgeMonitor, onOpenTarget }: { monitor: MonitorView; selection: Selection | null } & CardHandlers) {
+function MonitorRow({ monitor: m, selection, onOpenMonitor, onAcknowledgeMonitor, onOpenTarget, rowActions }: { monitor: MonitorView; selection: Selection | null } & CardHandlers) {
   const { t, i18n } = useTranslation();
   const locale = currentLocale(i18n);
   const card = useMonitorCardSettings(m.id);
@@ -116,7 +122,7 @@ function MonitorRow({ monitor: m, selection, onOpenMonitor, onAcknowledgeMonitor
           </td>
         )}
         <td className={`${COL.status} ${pad}`}>
-          <StatusBadge status={m.status} />
+          <MonitorStateBadge monitor={m} />
         </td>
         <td className={`${COL.name} ${pad} min-w-0`} data-customizable="card.monitor">
           <span
@@ -136,7 +142,7 @@ function MonitorRow({ monitor: m, selection, onOpenMonitor, onAcknowledgeMonitor
           )}
           {/* Small screens: the status and kind move to a second line of the card. */}
           <span className="mt-0.5 flex items-center gap-2 text-xs text-muted sm:hidden">
-            <StatusBadge status={m.status} size="sm" />
+            <MonitorStateBadge monitor={m} size="sm" />
             {show('type') && <span>{kind}</span>}
           </span>
         </td>
@@ -151,6 +157,11 @@ function MonitorRow({ monitor: m, selection, onOpenMonitor, onAcknowledgeMonitor
         <td className={`${COL.value} ${pad} font-mono text-sm`}>
           {show('value') ? formatCardValue(m.value, card.unit || m.unit, locale, card.valueFormat) : null}
         </td>
+        {rowActions && (
+          <td className={`${COL.menu} ${pad}`}>
+            <Menu label={t('ops.monitors.rowActions', { name: safeText(name) })} size="sm" items={rowActions(m)} />
+          </td>
+        )}
         <td className={`${COL.open} ${pad}`}>
           <a
             href={`#/monitors/${encodeURIComponent(m.id)}`}
@@ -163,7 +174,7 @@ function MonitorRow({ monitor: m, selection, onOpenMonitor, onAcknowledgeMonitor
       </AnimatedItem>
       {expanded && (
         <tr>
-          <td colSpan={selection ? 7 : 6} className="px-3 pb-2.5">
+          <td colSpan={6 + (selection ? 1 : 0) + (rowActions ? 1 : 0)} className="px-3 pb-2.5">
             <div role="region" aria-label={t('customization.card.details', { name })} className="flex flex-wrap gap-4 text-sm text-muted">
               <span>{kind}</span>
               <span className="font-mono">{m.rule ? ruleText(m.rule, locale) : '—'}</span>
@@ -176,7 +187,7 @@ function MonitorRow({ monitor: m, selection, onOpenMonitor, onAcknowledgeMonitor
   );
 }
 
-function GroupSection({ group, monitors, selection, ...handlers }: { group: Group; monitors: MonitorView[]; selection: Selection | null } & CardHandlers) {
+function GroupSection({ group, monitors, selection, groupActions, ...handlers }: { group: Group; monitors: MonitorView[]; selection: Selection | null; groupActions?: GroupListProps['groupActions'] } & CardHandlers) {
   const { t } = useTranslation();
   const titleId = useId();
   const enter = useMotionPreset('enter');
@@ -209,6 +220,7 @@ function GroupSection({ group, monitors, selection, ...handlers }: { group: Grou
         </h2>
         <CustomizeHandle type="card.group" targetId={group.id} label={safeText(title)} />
         {settings.summary && <span className="shrink-0 font-mono text-xs text-muted">{t('ops.monitors.groupSummary', { ok, total: monitors.length })}</span>}
+        {groupActions && group.id !== '' && <Menu label={t('ops.monitors.groupActions', { name: safeText(title) })} size="sm" items={groupActions(group)} />}
       </header>
       <table className="w-full table-fixed border-collapse text-base">
         {/* Zero-height header: names the columns for screen readers and fixes the widths (table-fixed reads the first row). */}
@@ -220,6 +232,7 @@ function GroupSection({ group, monitors, selection, ...handlers }: { group: Grou
             <HeaderCell className={COL.kind}>{t('ops.monitors.columns.kind')}</HeaderCell>
             <HeaderCell className={COL.rule}>{t('ops.monitors.columns.rule')}</HeaderCell>
             <HeaderCell className={COL.value}>{t('ops.monitors.columns.value')}</HeaderCell>
+            {handlers.rowActions && <HeaderCell className={COL.menu}>{t('ops.monitors.columns.actions')}</HeaderCell>}
             <HeaderCell className={COL.open}>{t('ops.monitors.columns.open')}</HeaderCell>
           </tr>
         </thead>
@@ -236,7 +249,7 @@ function GroupSection({ group, monitors, selection, ...handlers }: { group: Grou
 }
 
 /** Console list of groups and monitors: one grid for every group, a text filter and optional selection. */
-export function GroupList({ groups, monitors, canEdit = true, selected, onSelectionChange, onNewMonitor: _legacy, ...handlers }: GroupListProps) {
+export function GroupList({ groups, monitors, canEdit = true, selected, onSelectionChange, onNewMonitor: _legacy, rowActions, groupActions, ...handlers }: GroupListProps) {
   const { t } = useTranslation();
   const { emptyText } = useGroupCardSettings(null);
   const [query, setQuery] = useState('');
@@ -290,7 +303,7 @@ export function GroupList({ groups, monitors, canEdit = true, selected, onSelect
       ) : (
         <AnimatePresence>
           {sections.map((s) => (
-            <GroupSection key={s.group.id || 'ungrouped'} group={s.group} monitors={s.monitors} selection={selection} {...handlers} />
+            <GroupSection key={s.group.id || 'ungrouped'} group={s.group} monitors={s.monitors} selection={selection} rowActions={canEdit ? rowActions : undefined} groupActions={canEdit ? groupActions : undefined} {...handlers} />
           ))}
         </AnimatePresence>
       )}

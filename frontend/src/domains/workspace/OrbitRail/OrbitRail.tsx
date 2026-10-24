@@ -2,10 +2,11 @@ import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { m } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { formatReading } from '@/domains/monitor/rules';
-import type { Group, MonitorView, Status } from '@/shared/api/types';
+import type { Group, MonitorView } from '@/shared/api/types';
 import { currentLocale } from '@/shared/i18n/i18n';
 import { useAnimationLevel } from '@/shared/motion/animationLevel';
 import { safeText } from '@/shared/privacy/redact';
+import { monitorState, type MonitorState } from '../MonitorState';
 import { railCounts, railLayout, railMonitors, trackPoint, type TrackBox } from './railLayout';
 
 export interface OrbitRailProps {
@@ -18,7 +19,7 @@ export interface OrbitRailProps {
 const HEIGHT = 72;
 const FALLBACK_WIDTH = 960;
 
-const FILL: Record<Status, string> = { OK: 'fill-ok', WARN: 'fill-warn', DOWN: 'fill-down' };
+const FILL: Record<MonitorState, string> = { OK: 'fill-ok', WARN: 'fill-warn', DOWN: 'fill-down', WAITING: 'fill-dim', PAUSED: 'fill-s3' };
 
 /**
  * FE-68 signature of the monitor list: an elliptical track where every monitor is a satellite colored
@@ -52,10 +53,14 @@ export function OrbitRail({ monitors, groups, onOpen, className = '' }: OrbitRai
   const box: TrackBox = { width, height: HEIGHT };
   const focusIndex = Math.min(active, Math.max(satellites.length - 1, 0));
 
+  const stateWord = (s: MonitorView) => {
+    const state = monitorState(s);
+    return state === 'PAUSED' ? t('ops.monitors.state.paused') : state === 'WAITING' ? t('ops.monitors.state.waiting') : t(`ui.status.${state}`);
+  };
   const describe = (s: MonitorView) =>
     t('ops.rail.satellite', {
       name: safeText(s.name),
-      status: t(`ui.status.${s.status}`),
+      status: stateWord(s),
       value: formatReading(s.value, s.unit, locale),
     });
 
@@ -80,12 +85,14 @@ export function OrbitRail({ monitors, groups, onOpen, className = '' }: OrbitRai
   const summary =
     visible.length === 0
       ? t('ops.rail.empty')
-      : counts.down + counts.warn === 0
+      : counts.ok === visible.length
         ? t('ops.rail.allOk', { count: counts.ok })
         : [
             counts.down > 0 && t('ops.rail.down', { count: counts.down }),
             counts.warn > 0 && t('ops.rail.warn', { count: counts.warn }),
             counts.ok > 0 && t('ops.rail.ok', { count: counts.ok }),
+            counts.waiting > 0 && t('ops.rail.waiting', { count: counts.waiting }),
+            counts.paused > 0 && t('ops.rail.paused', { count: counts.paused }),
           ]
             .filter(Boolean)
             .join(' · ');
@@ -107,7 +114,8 @@ export function OrbitRail({ monitors, groups, onOpen, className = '' }: OrbitRai
           />
           {satellites.map((s, index) => {
             const { x, y } = trackPoint(s.angle, box);
-            const down = s.monitor.status === 'DOWN';
+            const state = monitorState(s.monitor);
+            const down = state === 'DOWN';
             return (
               <a
                 key={s.monitor.id}
@@ -145,7 +153,7 @@ export function OrbitRail({ monitors, groups, onOpen, className = '' }: OrbitRai
                   />
                 )}
                 <circle data-ring cx={x} cy={y} r={down ? 10 : 9} className="fill-transparent stroke-transparent group-hover:stroke-line-2 group-focus-visible:stroke-accent" strokeWidth={2} />
-                <circle cx={x} cy={y} r={down ? 6 : 4.5} className={`${FILL[s.monitor.status]} stroke-bg`} strokeWidth={2} />
+                <circle cx={x} cy={y} r={down ? 6 : 4.5} className={`${FILL[state]} ${state === 'PAUSED' ? 'stroke-muted' : 'stroke-bg'}`} strokeWidth={2} />
               </a>
             );
           })}

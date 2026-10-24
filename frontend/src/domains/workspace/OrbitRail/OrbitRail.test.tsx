@@ -66,4 +66,12 @@ describe('FE-68 OrbitRail', () => {
     expect(screen.queryAllByRole('link')).toHaveLength(0);
     expect(screen.getByText('Nenhum monitor ainda')).toBeInTheDocument();
   });
+
+  it('one monitor that has not run yet is "waiting", never "All 0 monitors OK"', () => {
+    const fresh = { ...snap.monitors[0]!, status: 'UNKNOWN' } as unknown as MonitorView;
+    render(<OrbitRail monitors={[self, fresh]} groups={snap.groups} onOpen={vi.fn()} />);
+    expect(screen.getByText('1 waiting for first check')).toBeInTheDocument();
+    expect(screen.queryByText(/All 0/)).toBeNull();
+    expect(screen.getByRole('link')).toHaveAccessibleName(/Waiting for first check/);
+  });
 });

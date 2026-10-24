@@ -1,4 +1,5 @@
 import { useRef, useState, type ReactNode } from 'react';
+import { ActiveSilence, SilenceDialog } from '@/domains/alerting/SilenceDialog';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { formatReading } from '@/domains/monitor/rules';
@@ -10,20 +11,26 @@ import {
   Button,
   Dialog,
   IconArrowLeft,
+  IconBell,
+  IconCopy,
   IconEdit,
   IconExternal,
   IconPause,
   IconPlay,
+  IconTrash,
   Menu,
   PageHeader,
   StatusBadge,
   useToast,
 } from '@/shared/ui';
 import { useConsole, useMonitors } from '../../ConsoleContext';
-import { routeHref } from '../../routes';
+import { routeHref, useRouteAction } from '../../routes';
 import { MonitorHistoryPanel } from '../MonitorHistoryPanel';
 import { ScreenStatus } from '../ScreenStatus';
-import { duplicateBody, isPaused, pausedBody, savedMonitorId } from './monitorActions';
+import { historyExportHref, isPaused } from './monitorActions';
+import { MonitorEvents } from './MonitorEvents';
+import { useMonitorActions } from './useMonitorActions';
+import { MonitorStateBadge } from '@/domains/workspace/MonitorState';
 import { targetUrlOf } from './monitorTarget';
 
 const reason = (error: unknown) => (error instanceof Error ? error.message : String(error));
@@ -64,45 +71,31 @@ export function MonitorDetailScreen({ id }: { id: string }) {
   const url = targetUrlOf(definition);
   const now = new Date();
 
-  const refresh = async () => {
-    await queryClient.invalidateQueries({ queryKey: ['monitor', demo, id] });
-    await queryClient.invalidateQueries({ queryKey: ['monitors', demo] });
-  };
   const fail = (error: unknown) => toast({ title: reason(error), tone: 'DOWN' });
+  const actionsApi = useMonitorActions();
+  const [busy, setBusy] = useState<'pause' | 'duplicate' | 'run' | 'delete' | null>(null);
+  const [silencing, setSilencing] = useState(false);
+  const runAction = async (kind: NonNullable<typeof busy>, action: () => Promise<boolean>) => {
+    setBusy(kind);
+    try {
+      return await action();
+    } finally {
+      setBusy(null);
+    }
+  };
+  const togglePause = () => void runAction('pause', () => actionsApi.setPaused(id, !paused));
+  const runNow = () => void runAction('run', () => actionsApi.run(id));
+
+  // `?action=` from the command palette (FE-63): pause or resume, run now, or ask to delete.
+  useRouteAction('toggle-pause', () => editable && togglePause());
+  useRouteAction('run', () => editable && runNow());
+  useRouteAction('delete', () => editable && setConfirming(true));
 
   const ack = useMutation({
     mutationFn: (incidentId: string) => source.acknowledgeIncidentRecord(incidentId),
     onSuccess: async () => {
       toast({ title: t('ops.detail.acknowledgedToast'), tone: 'OK' });
       await queryClient.invalidateQueries({ queryKey: ['incidents', demo] });
-    },
-    onError: fail,
-  });
-  const pause = useMutation({
-    mutationFn: (next: boolean) => source.createMonitor(pausedBody(definition ?? {}, next)),
-    onSuccess: async (_, next) => {
-      toast({ title: t(next ? 'ops.detail.pausedToast' : 'ops.detail.resumedToast'), tone: 'OK' });
-      await refresh();
-    },
-    onError: fail,
-  });
-  const duplicate = useMutation({
-    mutationFn: () => source.createMonitor(duplicateBody(definition ?? {}, t('ops.detail.copyName', { name: view?.name ?? '' }))),
-    onSuccess: async (saved) => {
-      toast({ title: t('ops.detail.duplicatedToast'), description: t('ops.detail.duplicatedHint'), tone: 'OK' });
-      await queryClient.invalidateQueries({ queryKey: ['monitors', demo] });
-      const copy = savedMonitorId(saved);
-      navigate(copy ? { name: 'edit-monitor', id: copy } : { name: 'monitors' });
-    },
-    onError: fail,
-  });
-  const remove = useMutation({
-    mutationFn: () => source.deleteMonitor(id),
-    onSuccess: async () => {
-      setConfirming(false);
-      toast({ title: t('ops.detail.deletedToast'), tone: 'OK' });
-      await queryClient.invalidateQueries({ queryKey: ['monitors', demo] });
-      navigate({ name: 'monitors' });
     },
     onError: fail,
   });
@@ -137,15 +130,17 @@ export function MonitorDetailScreen({ id }: { id: string }) {
             <IconEdit />
             {t('ops.detail.edit')}
           </Button>
-          <Button variant="secondary" title={paused ? undefined : t('ops.detail.pauseHint')} loading={pause.isPending} onClick={() => pause.mutate(!paused)}>
+          <Button variant="secondary" title={paused ? undefined : t('ops.detail.pauseHint')} loading={busy === 'pause'} onClick={togglePause}>
             {paused ? <IconPlay /> : <IconPause />}
             {t(paused ? 'ops.detail.resume' : 'ops.detail.pause')}
           </Button>
           <Menu
             label={t('ops.detail.actions')}
             items={[
-              { id: 'duplicate', label: t('ops.detail.duplicate'), onSelect: () => duplicate.mutate(), disabled: duplicate.isPending },
-              { id: 'delete', label: t('ops.detail.delete'), danger: true, onSelect: () => setConfirming(true) },
+              { id: 'run', label: t('ops.detail.run'), icon: IconPlay, onSelect: runNow, disabled: busy === 'run' || paused },
+              { id: 'duplicate', label: t('ops.detail.duplicate'), icon: IconCopy, onSelect: () => void runAction('duplicate', () => actionsApi.duplicate(id)), disabled: busy === 'duplicate' },
+              { id: 'silence', label: t('ops.detail.silence'), icon: IconBell, onSelect: () => setSilencing(true) },
+              { id: 'delete', label: t('ops.detail.delete'), icon: IconTrash, danger: true, onSelect: () => setConfirming(true) },
             ]}
           />
         </>
@@ -153,6 +148,7 @@ export function MonitorDetailScreen({ id }: { id: string }) {
     </>
   );
 
+  const chartStatus = view.status === 'WARN' || view.status === 'DOWN' ? view.status : 'OK';
   const latency = detail.data?.latency?.p95;
   const uptime = detail.data?.uptime;
 
@@ -163,7 +159,7 @@ export function MonitorDetailScreen({ id }: { id: string }) {
         title={<SafeValue value={view.name} />}
         description={
           <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            {paused ? <StatusBadge status="neutral">{t('ops.detail.paused')}</StatusBadge> : <StatusBadge status={view.status} />}
+            <MonitorStateBadge monitor={{ status: view.status, paused: paused || view.paused }} />
             <span>{t(`ops.monitors.kinds.${view.type}`, { defaultValue: view.type })}</span>
             {url && (
               <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-accent hover:underline">
@@ -180,6 +176,7 @@ export function MonitorDetailScreen({ id }: { id: string }) {
           {t('ops.detail.pausedHint')}
         </p>
       )}
+      <ActiveSilence target={id} source={source} editable={editable} />
       <section data-surface="panel" aria-label={t('ops.detail.reading')} className="rounded-md border border-line bg-s1 p-4">
         <dl className="m-0 grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Stat label={t('ops.detail.since')}>
@@ -220,7 +217,14 @@ export function MonitorDetailScreen({ id }: { id: string }) {
           )}
         </section>
       )}
-      <MonitorHistoryPanel monitorId={id} name={view.name} status={view.status} rule={view.rule} unit={view.unit} />
+      <MonitorHistoryPanel
+        monitorId={id}
+        name={view.name}
+        status={chartStatus}
+        rule={view.rule}
+        unit={view.unit}
+        exportHref={demo ? undefined : (range) => historyExportHref(id, range)}
+      />
       <section data-surface="panel" aria-labelledby="monitor-incidents" className="flex flex-col gap-2 rounded-md border border-line bg-s1 p-4">
         <h2 id="monitor-incidents" className="section-label m-0">
           {t('ops.detail.incidents')}
@@ -242,6 +246,10 @@ export function MonitorDetailScreen({ id }: { id: string }) {
           </ul>
         )}
       </section>
+      <MonitorEvents monitorId={id} />
+      {editable && (
+        <SilenceDialog open={silencing} onClose={() => setSilencing(false)} target={id} targetName={view.name} source={source} />
+      )}
       <Dialog
         open={confirming}
         onClose={() => setConfirming(false)}
@@ -254,7 +262,16 @@ export function MonitorDetailScreen({ id }: { id: string }) {
             <Button ref={cancelRef} variant="secondary" onClick={() => setConfirming(false)}>
               {t('ops.detail.cancel')}
             </Button>
-            <Button variant="danger" loading={remove.isPending} onClick={() => remove.mutate()}>
+            <Button
+              variant="danger"
+              loading={busy === 'delete'}
+              onClick={async () => {
+                if (await runAction('delete', () => actionsApi.remove(id))) {
+                  setConfirming(false);
+                  navigate({ name: 'monitors' });
+                }
+              }}
+            >
               {t('ops.detail.confirm')}
             </Button>
           </>

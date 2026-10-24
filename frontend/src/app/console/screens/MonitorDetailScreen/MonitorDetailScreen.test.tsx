@@ -29,8 +29,16 @@ function setup(record = detail(), editable = true) {
     getMonitor: vi.fn().mockResolvedValue(record),
     listIncidents: vi.fn().mockResolvedValue([]),
     getHistory: vi.fn().mockRejectedValue(new Error('unavailable')),
-    createMonitor: vi.fn().mockResolvedValue({ definition: { id: 'http_copy_1' } }),
+    createMonitor: vi.fn(),
+    pauseMonitor: vi.fn().mockResolvedValue(record),
+    resumeMonitor: vi.fn().mockResolvedValue(record),
+    duplicateMonitor: vi.fn().mockResolvedValue({ definition: { id: 'http_copy_1' } }),
+    runMonitor: vi.fn().mockResolvedValue({ state: 'DOWN', latencyMs: 812, error: null, checkedAt: iso(0) }),
     deleteMonitor: vi.fn().mockResolvedValue(undefined),
+    listSilences: vi.fn().mockResolvedValue([]),
+    createSilence: vi.fn(),
+    liftSilence: vi.fn(),
+    listEvents: vi.fn().mockResolvedValue([{ at: iso(3), type: 'state.change', monitorId: 'm', actor: null, detail: 'OK → DOWN' }]),
   };
   const source = createConsoleSource(api as unknown as ConsoleApi, false);
   const navigate = vi.fn();
@@ -56,11 +64,33 @@ describe('Monitor detail', () => {
     expect(navigate).toHaveBeenCalledWith({ name: 'edit-monitor', id: 'm' });
   });
 
-  it('Pause re-saves the monitor paused; a paused monitor offers Resume', async () => {
+  it('Pause calls the pause endpoint and never re-sends the definition', async () => {
     const { api } = setup();
     await userEvent.click(await screen.findByRole('button', { name: 'Pause' }));
-    expect(api.createMonitor).toHaveBeenCalledWith(expect.objectContaining({ id: 'm', paused: true }));
+    expect(api.pauseMonitor).toHaveBeenCalledWith('m');
+    expect(api.createMonitor).not.toHaveBeenCalled();
     expect(await screen.findByText('Monitor paused')).toBeInTheDocument();
+  });
+
+  it('Run now runs the check and says the result', async () => {
+    const { api } = setup();
+    await userEvent.click(await screen.findByRole('button', { name: 'Monitor actions' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Run now' }));
+    expect(api.runMonitor).toHaveBeenCalledWith('m');
+    expect(await screen.findByText('Check finished: Down')).toBeInTheDocument();
+  });
+
+  it('lists the latest events of the monitor in words', async () => {
+    setup();
+    const events = await screen.findByRole('list', { name: 'Events' });
+    expect(events).toHaveTextContent('State changed');
+  });
+
+  it('Silence alerts… opens the silence dialog for this monitor', async () => {
+    setup();
+    await userEvent.click(await screen.findByRole('button', { name: 'Monitor actions' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Silence alerts…' }));
+    expect(screen.getByRole('dialog')).toHaveTextContent('Web portal');
   });
 
   it('a paused monitor says so and offers Resume', async () => {
@@ -69,11 +99,11 @@ describe('Monitor detail', () => {
     expect(screen.getByText('Checks are paused; no alerts are sent.')).toBeInTheDocument();
   });
 
-  it('Duplicate creates a copy and opens it in Edit', async () => {
+  it('Duplicate asks the server for a copy and opens it in Edit', async () => {
     const { api, navigate } = setup();
     await userEvent.click(await screen.findByRole('button', { name: 'Monitor actions' }));
     await userEvent.click(screen.getByRole('menuitem', { name: 'Duplicate' }));
-    expect(api.createMonitor).toHaveBeenCalledWith(expect.objectContaining({ name: 'Copy of Web portal' }));
+    expect(api.duplicateMonitor).toHaveBeenCalledWith('m');
     await vi.waitFor(() => expect(navigate).toHaveBeenCalledWith({ name: 'edit-monitor', id: 'http_copy_1' }));
   });
 

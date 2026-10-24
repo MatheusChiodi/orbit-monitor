@@ -5,6 +5,7 @@ import { CoverageIndicator } from '@/domains/telemetry/history/CoverageIndicator
 import { HistoryRangePicker } from '@/domains/telemetry/history/HistoryRangePicker';
 import { presetRange, resolutionFor, type HistoryRange } from '@/domains/telemetry/history/range';
 import { HistoryChart } from '@/domains/telemetry/history/HistoryChart';
+import { IconDownload } from '@/shared/ui';
 import type { Rule, Status } from '@/shared/api/types';
 import { safeText } from '@/shared/privacy/redact';
 import { useConsole } from '../../ConsoleContext';
@@ -20,10 +21,12 @@ export interface MonitorHistoryPanelProps {
   /** Main rule: its limit is drawn on the chart. */
   rule?: Rule;
   unit?: string;
+  /** CSV download of the shown period (live mode only). */
+  exportHref?: (range: HistoryRange) => string;
 }
 
 /** FE-58: history window of one monitor from the 30-day store — range picker, coverage and chart. */
-export function MonitorHistoryPanel({ monitorId, name, status, initial, rule, unit }: MonitorHistoryPanelProps) {
+export function MonitorHistoryPanel({ monitorId, name, status, initial, rule, unit, exportHref }: MonitorHistoryPanelProps) {
   const { t } = useTranslation();
   const { source, demo } = useConsole();
   const titleId = useId();
@@ -43,7 +46,19 @@ export function MonitorHistoryPanel({ monitorId, name, status, initial, rule, un
         <h2 id={titleId} className="section-label m-0">
           {t('screens.history.title')}
         </h2>
-        <HistoryRangePicker value={range} onChange={setRange} />
+        <div className="flex flex-wrap items-start gap-3">
+          <HistoryRangePicker value={range} onChange={setRange} />
+          {exportHref && (
+            <a
+              href={exportHref(range)}
+              download
+              className="inline-flex h-8 items-center gap-1.5 rounded-sm border border-line-2 px-3 text-sm text-text hover:bg-s2 focus-visible:outline-2 focus-visible:outline-accent"
+            >
+              <IconDownload />
+              {t('ops.detail.exportCsv')}
+            </a>
+          )}
+        </div>
       </div>
       {history.data?.coverage && <CoverageIndicator coverage={history.data.coverage} range={range} />}
       <ScreenStatus pending={history.isPending} error={history.error} />

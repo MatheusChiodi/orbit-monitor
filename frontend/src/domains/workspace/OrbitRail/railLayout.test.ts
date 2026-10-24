@@ -37,6 +37,8 @@ describe('FE-68 orbit rail layout', () => {
       down: 1,
       warn: 1,
       ok: 2,
+      waiting: 0,
+      paused: 0,
     });
   });
 
@@ -44,5 +46,15 @@ describe('FE-68 orbit rail layout', () => {
     const top = trackPoint(-90, { width: 400, height: 72 });
     expect(top.x).toBeCloseTo(200);
     expect(top.y).toBeLessThan(36);
+  });
+
+  it('a monitor without a reading is waiting, not OK; a paused one is paused', () => {
+    expect(railCounts([monitor('a', 'web', 'UNKNOWN' as MonitorView['status']), { ...monitor('b', 'web'), paused: true }])).toEqual({
+      down: 0,
+      warn: 0,
+      ok: 0,
+      waiting: 1,
+      paused: 1,
+    });
   });
 });

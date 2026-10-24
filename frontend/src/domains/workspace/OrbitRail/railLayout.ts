@@ -1,4 +1,5 @@
-import type { Group, MonitorView, Status } from '@/shared/api/types';
+import type { Group, MonitorView } from '@/shared/api/types';
+import { monitorState } from '../MonitorState';
 
 export interface RailSatellite {
   monitor: MonitorView;
@@ -10,6 +11,9 @@ export interface RailCounts {
   down: number;
   warn: number;
   ok: number;
+  /** Not checked yet (or a state the console does not know). */
+  waiting: number;
+  paused: number;
 }
 
 /** Largest gap between two neighbours, so a few monitors cluster at the top instead of scattering. */
@@ -27,10 +31,10 @@ export function railMonitors(monitors: readonly MonitorView[]): MonitorView[] {
 export function railLayout(monitors: readonly MonitorView[], groups: readonly Group[]): RailSatellite[] {
   const order = new Map(groups.map((g, i) => [g.id, i]));
   const rank = (m: MonitorView) => order.get(m.groupId) ?? groups.length;
-  const down = monitors.filter((m) => m.status === 'DOWN');
+  const down = monitors.filter((m) => monitorState(m) === 'DOWN');
   const rest = monitors
     .map((m, i) => ({ m, i }))
-    .filter(({ m }) => m.status !== 'DOWN')
+    .filter(({ m }) => monitorState(m) !== 'DOWN')
     .sort((a, b) => rank(a.m) - rank(b.m) || a.i - b.i)
     .map(({ m }) => m);
 
@@ -48,12 +52,9 @@ export function railLayout(monitors: readonly MonitorView[], groups: readonly Gr
   return slots.flatMap((m, i) => (m ? [{ monitor: m, angle: start + i * step }] : []));
 }
 
-export function railCounts(monitors: readonly { status: Status }[]): RailCounts {
-  return {
-    down: monitors.filter((m) => m.status === 'DOWN').length,
-    warn: monitors.filter((m) => m.status === 'WARN').length,
-    ok: monitors.filter((m) => m.status === 'OK').length,
-  };
+export function railCounts(monitors: readonly Pick<MonitorView, 'status' | 'paused'>[]): RailCounts {
+  const count = (state: ReturnType<typeof monitorState>) => monitors.filter((m) => monitorState(m) === state).length;
+  return { down: count('DOWN'), warn: count('WARN'), ok: count('OK'), waiting: count('WAITING'), paused: count('PAUSED') };
 }
 
 export interface TrackBox {

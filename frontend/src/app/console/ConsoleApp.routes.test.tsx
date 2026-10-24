@@ -199,20 +199,21 @@ describe('FE-13 reorder in the console', () => {
       { id: 'n', name: 'Login', groupId: 'g', type: 'HTTP', status: 'OK', value: null, since: iso(5) },
     ]);
     render(<ConsoleApp api={api({ saveGroupOrder, listGroups, listMonitors })} />);
-    await userEvent.click(await screen.findByRole('button', { name: 'Reorder' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'More monitor actions' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Reorder' }));
     await userEvent.click(screen.getByRole('button', { name: 'Move Billing up' }));
     expect(saveGroupOrder).toHaveBeenCalledWith({ groupIds: ['h', 'g'], monitors: { h: [], g: ['m', 'n'] } });
     const first = within(screen.getByRole('listbox', { name: 'Portal' })).getAllByRole('option')[0]!;
     first.focus();
     await userEvent.keyboard(' {ArrowDown} ');
     expect(saveGroupOrder).toHaveBeenLastCalledWith({ groupIds: ['h', 'g'], monitors: expect.objectContaining({ g: ['n', 'm'] }) });
-    expect(await screen.findByText('Order saved')).toBeInTheDocument();
+    expect((await screen.findAllByText('Order saved')).length).toBeGreaterThan(0);
   });
 
   it('view-only clients cannot reorder', async () => {
     render(<ConsoleApp api={api({ getAccess: vi.fn().mockResolvedValue({ mode: 'view-only', client: 'lan' }) })} />);
     await screen.findByText('Web portal');
-    expect(screen.queryByRole('button', { name: 'Reorder' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'More monitor actions' })).toBeNull();
   });
 });
 

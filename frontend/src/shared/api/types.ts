@@ -43,6 +43,8 @@ export interface MonitorView {
   since: string;
   /** Last 60 points (1/min); null = no response. */
   series?: (number | null)[];
+  /** Checks are paused (no alerts); absent on older servers. */
+  paused?: boolean;
 }
 
 export interface Incident {

@@ -32,7 +32,7 @@ Multi-select to pause/resume, move or delete with confirmation
 
 ## Decisions and notes
 - The bulk bar appears only in edit mode with a selection; move and delete go through the `Dialog` primitive (delete: focus on Cancel, danger button names the count).
-- Tag was dropped: the API has no monitor tags. Pause/resume re-saves each definition with `paused` (`POST /api/monitors`, body from `monitorActions.pausedBody`, which reuses the edit form's `stateFromDefinition` + `buildDefinition` and keeps extras and unreadable conditions); move uses `PUT /api/groups/order`; delete `DELETE /api/monitors/{id}`. One request per monitor, one toast for the result.
+- Tag was dropped: the API has no monitor tags. All actions use `POST /api/monitors/bulk {ids, action, groupId?}` (b7 contract); the toast counts failures from the per-id results.
 - Mounted on the Monitors screen with row and per-group checkboxes in `GroupList`.
 
 ## Changelog
@@ -40,3 +40,4 @@ Multi-select to pause/resume, move or delete with confirmation
 - 2026-10-18 — pending test suite written (status: tests-pending).
 - 2026-10-18 — bulk actions (status: done).
 - 2026-10-24 — mounted on the Monitors screen; Dialog/Select primitives; pause and resume through the save endpoint; tag removed.
+- 2026-10-24 — pause, resume, move and delete go through `POST /api/monitors/bulk` (one request, one audit entry); the definition is never re-sent.

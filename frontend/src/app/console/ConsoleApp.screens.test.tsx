@@ -83,7 +83,7 @@ describe('console screens wired to the data source (demo mode)', () => {
     await userEvent.type(await screen.findByRole('textbox', { name: 'Title' }), 'Payments status');
     await userEvent.click(screen.getByRole('checkbox', { name: 'Payments' }));
     await userEvent.click(screen.getByRole('button', { name: 'Save status page' }));
-    expect(await screen.findByText('Status page "Payments status" saved')).toBeInTheDocument();
+    expect(await screen.findByText('Status page saved')).toBeInTheDocument();
   });
 
   it('FE-39: #/incidents says when an incident was acknowledged, never by whom', async () => {

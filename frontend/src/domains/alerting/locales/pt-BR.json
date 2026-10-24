@@ -22,7 +22,8 @@
       "kind": "Tipo",
       "rule": "Regra",
       "value": "Valor",
-      "open": "Abrir"
+      "open": "Abrir",
+      "actions": "Ações"
     },
     "noRule": "Sem regra",
     "rule": "{{field}} {{operator}} {{limit}}",
@@ -72,7 +73,6 @@
       "delete": "Excluir {{name}}",
       "count_one": "{{count}} monitor",
       "count_other": "{{count}} monitores",
-      "notEmpty": "Mova os monitores primeiro",
       "new": "Novo grupo",
       "newPlaceholder": "ex.: Pagamentos",
       "create": "Adicionar grupo",
@@ -82,7 +82,20 @@
       "saved": "Grupo salvo",
       "deleted": "Grupo excluído",
       "nameRequired": "Digite um nome para o grupo",
-      "none": "Nenhum grupo ainda. Adicione um abaixo."
+      "none": "Nenhum grupo ainda. Adicione um abaixo.",
+      "newHint": "Grupos organizam a lista e o painel, ex.: Pagamentos ou Bancos de dados.",
+      "renameTitle": "Renomear {{name}}",
+      "renameAction": "Renomear grupo",
+      "deleteAction": "Excluir grupo…",
+      "deleteTitle": "Excluir o grupo {{name}}?",
+      "deleteEmpty": "O grupo está vazio; nada mais muda.",
+      "deleteMove_one": "O {{count}} monitor dele vai antes para outro grupo; continua com as verificações e o histórico.",
+      "deleteMove_other": "Os {{count}} monitores dele vão antes para outro grupo; continuam com as verificações e o histórico.",
+      "moveTo_one": "Mover {{count}} monitor para",
+      "moveTo_other": "Mover {{count}} monitores para",
+      "chooseGroup": "Escolha um grupo",
+      "needAnother": "Crie outro grupo antes, para os monitores terem para onde ir.",
+      "deleteConfirm": "Excluir grupo"
     },
     "bulk": {
       "toolbar": "Monitores selecionados",
@@ -103,11 +116,23 @@
       "confirmAction_other": "Excluir {{count}} monitores",
       "deleted_one": "Monitor excluído",
       "deleted_other": "{{count}} monitores excluídos",
-      "moved": "Monitores movidos",
-      "paused": "Monitores pausados",
-      "resumed": "Monitores retomados",
-      "failed": "Alguns monitores não puderam ser alterados: {{error}}"
-    }
+      "failed": "Alguns monitores não puderam ser alterados: {{error}}",
+      "paused_one": "{{count}} monitor pausado",
+      "paused_other": "{{count}} monitores pausados",
+      "resumed_one": "{{count}} monitor retomado",
+      "resumed_other": "{{count}} monitores retomados",
+      "moved_one": "{{count}} monitor movido",
+      "moved_other": "{{count}} monitores movidos",
+      "partial": "{{failed}} de {{count}} monitores não puderam ser alterados"
+    },
+    "state": {
+      "waiting": "Aguardando a primeira verificação",
+      "paused": "Pausado"
+    },
+    "rowActions": "Ações de {{name}}",
+    "groupActions": "Ações do grupo {{name}}",
+    "moveTo": "Mover para grupo…",
+    "moveTitle": "Mover {{name}}"
   },
   "rail": {
     "label": "Monitores em órbita",
@@ -120,7 +145,11 @@
     "warn_one": "{{count}} em alerta",
     "warn_other": "{{count}} em alerta",
     "ok_one": "{{count}} OK",
-    "ok_other": "{{count}} OK"
+    "ok_other": "{{count}} OK",
+    "waiting_one": "{{count}} aguardando a primeira verificação",
+    "waiting_other": "{{count}} aguardando a primeira verificação",
+    "paused_one": "{{count}} pausado",
+    "paused_other": "{{count}} pausados"
   },
   "detail": {
     "back": "Monitores",
@@ -163,12 +192,30 @@
       "point": "{{time}}: {{value}}",
       "noData": "sem dados"
     },
-    "copyName": "Cópia de {{name}}",
-    "duplicatedToast": "Cópia criada",
-    "duplicatedHint": "Digite de novo os cabeçalhos secretos antes de salvar.",
+    "duplicatedToast": "Cópia criada; edite agora",
     "pauseHint": "Pausar verificações e alertas",
     "editHint": "Alterar alvo, condições e exibição",
-    "since": "Neste estado desde"
+    "since": "Neste estado desde",
+    "run": "Verificar agora",
+    "runStarted": "Verificação iniciada",
+    "runDone": "Verificação concluída: {{state}}",
+    "silence": "Silenciar alertas…",
+    "exportCsv": "Exportar CSV",
+    "events": {
+      "title": "Eventos",
+      "empty": "Nenhum evento ainda.",
+      "unavailable": "Eventos indisponíveis.",
+      "types": {
+        "state_change": "Mudou de estado",
+        "incident_open": "Incidente aberto",
+        "incident_opened": "Incidente aberto",
+        "incident_ack": "Incidente reconhecido",
+        "incident_comment": "Comentário adicionado",
+        "incident_reopen": "Incidente reaberto",
+        "incident_resolve": "Incidente resolvido",
+        "incident_ticket": "Chamado vinculado"
+      }
+    }
   },
   "incidents": {
     "description": "O que quebrou, quem está cuidando e o que voltou.",
