@@ -112,7 +112,7 @@
   "rail": {
     "label": "Monitors in orbit",
     "satellite": "{{name}}, {{status}}, {{value}}",
-    "empty": "Nothing in orbit yet",
+    "empty": "No monitors yet",
     "allOk_one": "{{count}} monitor, all OK",
     "allOk_other": "All {{count}} monitors OK",
     "down_one": "{{count}} down",
@@ -167,7 +167,8 @@
     "duplicatedToast": "Copy created",
     "duplicatedHint": "Type any secret headers again before saving.",
     "pauseHint": "Pause checks and alerts",
-    "editHint": "Change target, conditions and display"
+    "editHint": "Change target, conditions and display",
+    "since": "In this state since"
   },
   "incidents": {
     "description": "What broke, who is on it and what came back.",

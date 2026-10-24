@@ -119,7 +119,7 @@ export function HistoryChart({ points, limit, unit, label, status, className = '
         {g.limitY !== null && limitText && (
           <g>
             <line x1={box.left} x2={width - box.right} y1={g.limitY} y2={g.limitY} className="stroke-muted" strokeWidth={1} strokeDasharray="6 5" />
-            <text x={width - box.right} y={g.limitY - 6} textAnchor="end" className="fill-muted text-xs">
+            <text x={width - box.right} y={g.limitY < box.top + 16 ? g.limitY + 14 : g.limitY - 6} textAnchor="end" className="fill-muted text-xs">
               {limitText}
             </text>
           </g>

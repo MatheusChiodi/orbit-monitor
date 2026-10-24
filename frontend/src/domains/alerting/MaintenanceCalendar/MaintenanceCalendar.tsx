@@ -149,8 +149,9 @@ export function MaintenanceCalendar({ windows, groups, weekStart, mode, onCreate
       <div ref={scroller} className="max-h-128 overflow-auto rounded-md border border-line bg-s1">
         <div role="grid" aria-label={t('maintenance.calendar')} className="min-w-max select-none sm:min-w-0">
           <div role="row" data-header className="sticky top-0 z-10 grid border-b border-line bg-s1" style={COLUMNS}>
-            <span role="columnheader" className="sr-only">
-              {t('ops.maintenance.hour')}
+            {/* Keeps its grid column (the hour axis); only the text is visually hidden. */}
+            <span role="columnheader">
+              <span className="sr-only">{t('ops.maintenance.hour')}</span>
             </span>
             {days.map((date) => {
               const today = sameDay(date, now);

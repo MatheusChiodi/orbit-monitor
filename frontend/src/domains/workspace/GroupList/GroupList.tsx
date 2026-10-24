@@ -63,6 +63,14 @@ const COL = {
   open: 'w-10 pr-3 text-right',
 } as const;
 
+function HeaderCell({ className, children }: { className: string; children: string }) {
+  return (
+    <th scope="col" className={`${className} p-0`}>
+      <span className="sr-only">{children}</span>
+    </th>
+  );
+}
+
 /** Clicks on the row's own controls (checkbox, link, card button) do not also open the monitor. */
 function fromControl(event: MouseEvent<HTMLElement>): boolean {
   return event.target instanceof Element && event.target.closest('a, button, input, label, [role="button"]') !== null;
@@ -203,15 +211,16 @@ function GroupSection({ group, monitors, selection, ...handlers }: { group: Grou
         {settings.summary && <span className="shrink-0 font-mono text-xs text-muted">{t('ops.monitors.groupSummary', { ok, total: monitors.length })}</span>}
       </header>
       <table className="w-full table-fixed border-collapse text-base">
-        <thead className="sr-only">
+        {/* Zero-height header: names the columns for screen readers and fixes the widths (table-fixed reads the first row). */}
+        <thead>
           <tr>
-            {selection && <th>{t('ops.monitors.columns.select')}</th>}
-            <th>{t('ops.monitors.columns.status')}</th>
-            <th>{t('ops.monitors.columns.name')}</th>
-            <th>{t('ops.monitors.columns.kind')}</th>
-            <th>{t('ops.monitors.columns.rule')}</th>
-            <th>{t('ops.monitors.columns.value')}</th>
-            <th>{t('ops.monitors.columns.open')}</th>
+            {selection && <HeaderCell className={COL.select}>{t('ops.monitors.columns.select')}</HeaderCell>}
+            <HeaderCell className={COL.status}>{t('ops.monitors.columns.status')}</HeaderCell>
+            <HeaderCell className={COL.name}>{t('ops.monitors.columns.name')}</HeaderCell>
+            <HeaderCell className={COL.kind}>{t('ops.monitors.columns.kind')}</HeaderCell>
+            <HeaderCell className={COL.rule}>{t('ops.monitors.columns.rule')}</HeaderCell>
+            <HeaderCell className={COL.value}>{t('ops.monitors.columns.value')}</HeaderCell>
+            <HeaderCell className={COL.open}>{t('ops.monitors.columns.open')}</HeaderCell>
           </tr>
         </thead>
         <tbody>

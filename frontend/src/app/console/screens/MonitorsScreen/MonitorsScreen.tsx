@@ -119,10 +119,13 @@ export function MonitorsScreen() {
           ]}
         />
       )}
-      <Button variant="primary" onClick={() => navigate({ name: 'new-monitor' })}>
-        <IconPlus />
-        {t('ops.monitors.add')}
-      </Button>
+      {/* On an empty install the onboarding tiles are the one invitation to act. */}
+      {!empty && (
+        <Button variant="primary" onClick={() => navigate({ name: 'new-monitor' })}>
+          <IconPlus />
+          {t('ops.monitors.add')}
+        </Button>
+      )}
     </>
   );
 

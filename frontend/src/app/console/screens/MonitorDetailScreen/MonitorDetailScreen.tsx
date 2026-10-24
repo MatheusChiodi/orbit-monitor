@@ -182,8 +182,8 @@ export function MonitorDetailScreen({ id }: { id: string }) {
       )}
       <section data-surface="panel" aria-label={t('ops.detail.reading')} className="rounded-md border border-line bg-s1 p-4">
         <dl className="m-0 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Stat label={t('ops.detail.kind')}>
-            <span className="font-sans text-base">{t(`ops.monitors.kinds.${view.type}`, { defaultValue: view.type })}</span>
+          <Stat label={t('ops.detail.since')}>
+            <span className="font-sans text-base">{formatRelative(view.since, now, locale)}</span>
           </Stat>
           <Stat label={t('ops.detail.reading')}>{formatReading(view.value, view.unit, locale)}</Stat>
           <Stat label={t('ops.detail.latency')} empty={latency == null}>

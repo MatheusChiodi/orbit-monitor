@@ -112,7 +112,7 @@
   "rail": {
     "label": "Monitores em órbita",
     "satellite": "{{name}}, {{status}}, {{value}}",
-    "empty": "Nada em órbita ainda",
+    "empty": "Nenhum monitor ainda",
     "allOk_one": "{{count}} monitor, tudo OK",
     "allOk_other": "Todos os {{count}} monitores OK",
     "down_one": "{{count}} fora",
@@ -167,7 +167,8 @@
     "duplicatedToast": "Cópia criada",
     "duplicatedHint": "Digite de novo os cabeçalhos secretos antes de salvar.",
     "pauseHint": "Pausar verificações e alertas",
-    "editHint": "Alterar alvo, condições e exibição"
+    "editHint": "Alterar alvo, condições e exibição",
+    "since": "Neste estado desde"
   },
   "incidents": {
     "description": "O que quebrou, quem está cuidando e o que voltou.",

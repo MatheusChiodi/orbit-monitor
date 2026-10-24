@@ -47,6 +47,7 @@ describe('Monitors screen', () => {
     expect(screen.queryByText(/No monitors match/)).toBeNull();
     expect(screen.queryByText(/Play intro/)).toBeNull();
     expect(screen.queryByRole('searchbox')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Add monitor' })).toBeNull();
     await userEvent.click(screen.getByRole('button', { name: /Monitor a URL/ }));
     expect(navigate).toHaveBeenCalledWith({ name: 'new-monitor', kind: 'HTTP' });
   });

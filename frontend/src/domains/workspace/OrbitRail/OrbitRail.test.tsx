@@ -64,6 +64,6 @@ describe('FE-68 OrbitRail', () => {
   it('an empty install shows the empty track and says so, in pt-BR too', () => {
     renderWithLocale(<OrbitRail monitors={[self]} groups={[]} onOpen={vi.fn()} />, 'pt-BR');
     expect(screen.queryAllByRole('link')).toHaveLength(0);
-    expect(screen.getByText('Nada em órbita ainda')).toBeInTheDocument();
+    expect(screen.getByText('Nenhum monitor ainda')).toBeInTheDocument();
   });
 });

@@ -61,3 +61,4 @@ updated: 2026-10-24
 - 2026-10-22 — wall series range persisted by BE-41; SLA/incident placement still open.
 - 2026-10-22 — picker and coverage indicator placed on the SLA screen (one control), the incident page and the monitor detail (status: done).
 - 2026-10-24 — the history panel draws an SVG chart with value and time axes, the rule limit and a readout (FE-69) instead of the sparkline; range picker moved next to the title.
+- 2026-10-24 — presets use the SegmentedControl primitive; custom range with Field/TextInput.

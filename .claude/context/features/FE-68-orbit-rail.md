@@ -39,3 +39,4 @@ updated: 2026-10-24
 
 ## Changelog
 - 2026-10-24 — context file created; orbit rail on the Monitors screen (status: done).
+- 2026-10-24 — empty install: the rail says "No monitors yet" (the onboarding card carries "Nothing in orbit yet"); the header hides Add monitor while the onboarding tiles are shown.

@@ -48,3 +48,4 @@ Drag on a calendar to create one-off/recurring maintenance windows.
 - 2026-10-22 — screen routed and wired to the assumed `/api/maintenance` contract (status: in-progress).
 - 2026-10-22 — verified against the BE-31 API; cron occurrences shown (status: done).
 - 2026-10-24 — redesign: real week calendar (day headers, hour axis, today and now markers), "New window" button with Dialog form, drag kept as a shortcut.
+- 2026-10-24 — the hidden hour-axis column header keeps its grid column, so day headers line up with their columns.
